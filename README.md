@@ -1,4 +1,4 @@
-.................................................................. ![Alambic](https://www.toutatice.fr/toutatice-portail-cms-nuxeo/binary/alambiclogo.png?type=FILE&path=webId:5p3QU6&fieldName=file:content "Alambic")..................................................................
+.................................................................. ![Alambic](images/alambiclogo.png "Alambic")..................................................................
 
 # ALAMBIC
 This project is an implementation of ETL product (Extract, Transform & Load) initiated by the Rennes Education Authority.
@@ -85,7 +85,7 @@ The folloowing two transformation technologies are supported :
 ## Overall principle
 
 ### No templating or XSLT templating
-![No templating or XSLT](https://www.toutatice.fr/toutatice-portail-cms-nuxeo/binary/Capture-ETL-XSLT.png?type=FILE&path=webId:gZLvzM&fieldName=file:content "No templating or XSLT")
+![No templating or XSLT](images/Capture-ETL-XSLT.png "No templating or XSLT")
 
 ### Description
 The ETL product iterates over the input entries, apply the transformation directives and load the data into a target.
@@ -104,7 +104,7 @@ As an example :
 - normalise data (deals with accentuation, upper or lower case, non-word characters...).
 
 ### With Freemarker templating
-![With Freemarker templating](https://www.toutatice.fr/toutatice-portail-cms-nuxeo/binary/Capture-ETL-Freemarker.png?type=FILE&path=webId:a1Y7BQ&fieldName=file:content "With Freemarker templating")
+![With Freemarker templating](images/Capture-ETL-Freemarker.png "With Freemarker templating")
 
 ### Description
 As depicted above, two jobs collaborates to extract the input data, apply the transformation directives then load into the target.
@@ -128,7 +128,7 @@ Two artefacts are built :
 
 # Installation
 ## Deployment overview
-![Deployment overview](https://www.toutatice.fr/toutatice-portail-cms-nuxeo/binary/ALAMBIC-TYPOLOGY.png?type=FILE&path=webId:O1HmUP&fieldName=file:content "Deployment overview")
+![Deployment overview](images/ALAMBIC-TYPOLOGY.png "Deployment overview")
 
 The product deployment is based-on a control machine hosting Ansible scripts dealing with the remote deployment of the Alambic ETL engine and addons on different environments.
 
