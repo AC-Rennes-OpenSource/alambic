@@ -1,0 +1,5 @@
+  - name: Remove the log directory
+    file:
+      path: "{{ ALAMBIC_LOG_DIR }}"
+      state: absent
+    become: yes

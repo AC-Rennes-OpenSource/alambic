@@ -1,0 +1,9 @@
+---
+
+- hosts: etl
+  become: yes
+  become_user: "{{ controller_user_name }}"
+
+  roles:
+    - ask_confirmation
+    - install_addon

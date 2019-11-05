@@ -1,0 +1,89 @@
+# - name: debug
+#    debug: msg="{{ ansible_env.HOME }}"
+
+  - name: Create the etl directory
+    file:
+      dest: "{{ ansible_env.HOME }}/opt/etl"
+      state: directory
+
+  - name: Create a local temp directory
+    local_action:
+      module: command mktemp -d "/tmp/ansible.XXXX"
+    register: tempdir
+    become: true
+    become_user: "{{ controller_user_name }}"
+
+  - name: Download the version archive
+    local_action: maven_artifact group_id="alambic.product" artifact_id="alambic-product" version="{{ version }}" repository_url="{{ repositoryUrl }}" dest="{{ tempdir.stdout }}/alambic-product-{{ version }}.zip" extension="zip"
+    when: file is not defined
+    become: true
+    become_user: "{{ controller_user_name }}"
+    environment: "{{ PROXY_ENV }}"
+
+  - name: Move the local package archive
+    local_action: copy src="{{ file }}" dest="{{ tempdir.stdout }}/alambic-product-{{ version }}.zip" mode="u=rx,g=rx,o=r"
+    when: file is defined
+    become_user: "{{ controller_user_name }}"
+
+  - name: Create the tag directory
+    file:
+      dest: "{{ ansible_env.HOME }}/opt/etl/tags/{{ version }}"
+      state: directory
+
+  - name: Deflate the artifact archive into the tag directory
+    unarchive:
+      src: "{{ tempdir.stdout }}/alambic-product-{{ version }}.zip"
+      dest: "{{ ansible_env.HOME }}/opt/etl/tags/{{ version }}"
+      remote_src: False
+
+  - name: List directories
+    find: paths="{{ ansible_env.HOME }}/opt/etl/tags/{{ version }}/scripting" recurse=no file_type="directory"
+    register: directories_list
+
+  - name: List files
+    find: paths="{{ ansible_env.HOME }}/opt/etl/tags/{{ version }}/scripting" recurse=no file_type="file"
+    register: files_list
+
+  - name: Re-organize directories
+    command: mv "{{ item.path }}" "{{ ansible_env.HOME }}/opt/etl/tags/{{ version }}"
+    with_items: "{{ directories_list.files }}"
+
+  - name: Re-organize files
+    command: mv "{{ item.path }}" "{{ ansible_env.HOME }}/opt/etl/tags/{{ version }}"
+    with_items: "{{ files_list.files }}"
+
+  - name: Remove the scripting directory
+    file: path="{{ ansible_env.HOME }}/opt/etl/tags/{{ version }}/scripting" state=absent
+
+  - name: List shell script files
+    find:
+      paths: "{{ ansible_env.HOME }}/opt/etl/tags/{{ version }}"
+      recurse: no
+      file_type: "file"
+      patterns: "*.sh"
+    register: shell_files_list
+
+  - name: Set shell files permissions
+    file:
+      path: "{{ item.path }}"
+      mode: "u=rwx,g=rwx,o=rx"
+    with_items: "{{ shell_files_list.files }}"
+
+  - name: Remove the temporary directory
+    local_action: file path="{{ tempdir.stdout }}" state=absent
+    become: true
+    become_user: "{{ controller_user_name }}"
+
+  - name: Set the active symbolic link on the newly installed version
+    file: 
+      src: "{{ ansible_env.HOME }}/opt/etl/tags/{{ version }}" 
+      dest: "{{ ansible_env.HOME }}/opt/etl/active" 
+      state: link 
+      mode: "u=rwx,g=rwx,o=rx"
+
+  - name: Install the Alambic properties file (with verison info inside)
+    lineinfile:
+      path: "{{ ansible_env.HOME }}/opt/etl/tags/{{ version }}/alambic.properties"
+      line: 'alambic.version={{ version }}'
+      create: yes
+

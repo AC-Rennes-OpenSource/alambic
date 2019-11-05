@@ -1,0 +1,14 @@
+  - name: Create the ETL group
+    group:
+      name: "{{ etl_user_group }}"
+      state: present
+
+  - name: Create the ETL user
+    user:
+      name: "{{ etl_user_name }}"
+      group: "{{ etl_user_group }}"
+      comment: "Alambic ETL user"
+      shell: /bin/bash
+      state: present
+      createhome: yes
+      password: "{{ etl_user_password }}"

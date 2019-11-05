@@ -1,0 +1,14 @@
+  - name: Remove the ETL user
+    user:
+      name: "{{ etl_user_name }}"
+      group: "{{ etl_user_group }}"
+      state: absent
+      remove: yes
+    become: true
+    
+  - name: Remove the ETL group
+    group:
+      name: "{{ etl_user_group }}"
+      state: absent
+    become: true
+    

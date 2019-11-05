@@ -1,0 +1,58 @@
+  - name: Verify Ansible meets Alambic ETL's version requirements.
+    assert:
+        that: "ansible_version.full is version_compare('2.6', '>=')"
+        msg: "You must update Ansible to at least 2.6 to install the Alambic ETL"
+
+  - name: debug purpose
+    debug: msg="{{ ansible_env.HOME }}"
+
+  - name: gather facts of alambic user
+    setup:
+
+  - name: Check force installing the version if snapshot or required
+    file:
+      path: "{{ ansible_env.HOME }}/opt/etl/tags/{{ version }}"
+      state: absent
+    when: "'SNAPSHOT' in version or 'True' == (force_install | default('False'))"
+
+  - name: Check the version is already present
+    stat: path="{{ ansible_env.HOME }}/opt/etl/tags/{{ version }}"
+    register: tag_check
+
+  - name: Install a snapshot version
+    import_tasks: install_version.yml
+    vars:
+      repositoryUrl: "{{ maven_snapshot_repository }}"
+    static: no
+    when: "'SNAPSHOT' in version"
+
+  - name: Install a release version
+    import_tasks: install_version.yml
+    vars:
+      repositoryUrl: "{{ maven_release_repository }}"
+    static: no
+    when: "'SNAPSHOT' not in version and tag_check.stat.exists is defined and tag_check.stat.exists == False"
+
+  - name: Configure the version
+    import_tasks: configure_version.yml
+    static: no
+
+  - name: List former versions
+    find:
+      paths: "{{ ansible_env.HOME }}/opt/etl/tags"
+      recurse: no
+      file_type: "directory"
+      excludes: "{{ version }}"
+    register: former_versions_list
+
+  - name: Remove former versions
+    file:
+      path: "{{ item.path }}"
+      state: absent
+    with_items: "{{ former_versions_list.files }}"
+
+  - name: Remove the "former" symbolic link (since deprecated)
+    file: 
+      path: "{{ ansible_env.HOME }}/opt/etl/former" 
+      state: absent 
+    

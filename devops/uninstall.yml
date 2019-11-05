@@ -1,0 +1,4 @@
+---
+
+- import_playbook: uninstall_etl.yml
+#- import_playbook: uninstall_database.yml

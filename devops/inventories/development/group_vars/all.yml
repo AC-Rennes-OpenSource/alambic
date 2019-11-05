@@ -1,0 +1,11 @@
+---
+
+# file to gather all default variables together
+
+ALAMBIC_LOG_AGE: 7
+ALAMBIC_LOG_DIR: /var/log/alambic/
+ALAMBIC_DEBUG_JVM_VARS: -Xdebug -Xrunjdwp:transport=dt_socket,address=8787,server=y,suspend=y
+
+PROXY_ENV:
+        http_proxy: <http proxy definition (ex: http://hostname:port)>
+        https_proxy: <https proxy definition (ex: http://hostname:port)>

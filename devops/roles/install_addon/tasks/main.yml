@@ -1,0 +1,39 @@
+#  - name: debug
+#    debug: msg="{{ ansible_env.HOME }}"
+
+  - name: Create a local temp directory
+    local_action:
+      module: command mktemp -d "/tmp/ansible.XXXX"
+    register: tempdir
+
+  - name: debug
+    debug: msg="{{ tempdir.stdout }}"
+
+  - name: Download the addon artifact
+    import_tasks: download_addon.yml
+    vars:
+      dest: "{{ tempdir.stdout }}"
+      groupId: "{{ groupId }}"
+      artifactId: "{{ artifactId }}"
+      version: "{{ version }}"
+    when: file is not defined
+
+  - name: Move the local addon package archive
+    local_action: copy src="{{ file }}" dest="{{ tempdir.stdout }}/{{ artifactId }}-{{ version }}.zip" mode="u=rx,g=rx,o=r"
+    when: file is defined
+
+  - name: Deflate the artifact archive
+    local_action: unarchive src="{{ tempdir.stdout }}/{{ artifactId }}-{{ version }}.zip" dest="{{ tempdir.stdout }}" remote_src="no"
+
+  - name: Install the addon
+    import_tasks: install_addon.yml
+    vars:
+      archive: "{{ tempdir.stdout }}/{{ artifactId }}-{{ version }}.zip"
+      addon_name: "{{ lookup('ini', 'addon.name type=properties file={{ tempdir.stdout }}/addon.properties') }}"
+    become: yes
+    become_user: "{{ etl_user_name }}"
+
+  - name: Remove the temporary directory
+    local_action: file path="{{ tempdir.stdout }}" state=absent
+    become: yes
+    become_user: "{{ controller_user_name }}"

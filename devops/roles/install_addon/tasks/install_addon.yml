@@ -1,0 +1,64 @@
+  - name: gather facts of alambic user
+    setup:
+
+#  - name: debug
+#    debug: msg="{{ ansible_env.HOME }} and {{ addon_name }}"
+
+  - name: Check force installing the version if snapshot or required
+    file:
+      path: "{{ ansible_env.HOME }}/opt/etl/addons/{{ addon_name }}-{{ version }}"
+      state: absent
+    when: "'SNAPSHOT' in version or 'True' == (force_install | default('False'))"
+
+  - name: Create the new addon version directory
+    file:
+      path: "{{ ansible_env.HOME }}/opt/etl/addons/{{ addon_name }}-{{ version }}"
+      state: directory
+
+  - name: Install the artifact archive on the remote host
+    unarchive:
+      src: "{{ archive }}"
+      dest: "{{ ansible_env.HOME }}/opt/etl/addons/{{ addon_name }}-{{ version }}"
+      remote_src: no
+
+  - name: Set the addon active link on the newly installed version
+    file:
+      src: "{{ ansible_env.HOME }}/opt/etl/addons/{{ addon_name }}-{{ version }}"
+      dest: "{{ ansible_env.HOME }}/opt/etl/addons/{{ addon_name }}"
+      state: link
+      mode: "u=rwx,g=rwx,o=rx"
+
+  - name: List shell script files
+    find:
+      paths: "{{ ansible_env.HOME }}/opt/etl/addons/{{ addon_name }}-{{ version }}/scripts"
+      recurse: no
+      file_type: "file"
+      patterns: "*.sh"
+    register: shell_files_list
+
+  - name: Set shell files permissions
+    file:
+      path: "{{ item.path }}"
+      mode: "u=rwx,g=rwx,o=rx"
+    with_items: "{{ shell_files_list.files }}"
+
+  - name: Update the addon properties file (with verison info inside)
+    lineinfile:
+      path: "{{ ansible_env.HOME }}/opt/etl/addons/{{ addon_name }}-{{ version }}/addon.properties"
+      line: 'addon.version={{ version }}'
+      
+  - name: List former addon versions
+    find:
+      paths: "{{ ansible_env.HOME }}/opt/etl/addons"
+      recurse: no
+      file_type: "directory"
+      patterns: "{{ addon_name }}-*"
+      excludes: "{{ addon_name }}-{{ version }}"
+    register: former_versions_list
+
+  - name: Remove former addon versions
+    file:
+      path: "{{ item.path }}"
+      state: absent
+    with_items: "{{ former_versions_list.files }}"
+    

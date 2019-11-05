@@ -1,0 +1,13 @@
+---
+
+- hosts: etl
+  remote_user: "{{ remote_sudoer_user_name }}"
+  become: yes
+
+  roles:
+    - ask_confirmation
+    - install_user_etl
+    - role: install_etl
+      become: yes
+      become_user: "{{ etl_user_name }}"
+    - install_log_etl

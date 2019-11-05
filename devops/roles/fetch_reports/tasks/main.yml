@@ -1,0 +1,23 @@
+  - name: List the report & log files whose age is equal or less than {{ age }} days
+    find:
+        paths: "{{ ALAMBIC_LOG_DIR }}"
+        recurse: no
+        file_type: "file"
+        age: "-{{ age }}d"
+    register: files_list
+    when: age is defined
+
+  - name: List all the report & log files
+    find:
+        paths: "{{ ALAMBIC_LOG_DIR }}"
+        recurse: no
+        file_type: "file"
+    register: files_list
+    when: age is not defined
+
+  - name: Fetch the report & log files
+    fetch:
+      src: "{{ item.path }}"
+      dest: "reports/{{ inventory_hostname }}/"
+      flat: yes
+    with_items: "{{ files_list.files }}"

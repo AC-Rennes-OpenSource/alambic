@@ -1,0 +1,9 @@
+---
+
+- hosts: etl
+  remote_user: "{{ remote_sudoer_user_name }}"
+
+  roles:
+    - ask_confirmation
+    - uninstall_user_etl
+    - uninstall_log_etl

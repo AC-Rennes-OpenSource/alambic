@@ -1,0 +1,57 @@
+#  - name: Debug
+#    debug: msg="{{ ansible_env.HOME }}"
+
+  - name: Remove the output directory if requested
+    file:
+      path: "{{ ansible_env.HOME }}/opt/etl/addons/{{ addon_name }}/output"
+      state: absent
+    when: "(clean_output | default('False')) == 'True'"
+
+  - name: Create back the output directory if requested
+    file:
+      path: "{{ ansible_env.HOME }}/opt/etl/addons/{{ addon_name }}/output"
+      state: directory
+      owner: "{{ etl_user_name }}"
+      group: "{{ etl_user_group }}"
+      mode: "u=rwx,g=rx,o=rx"
+    when: "(clean_output | default('False')) == 'True'"
+
+  - name: Prepare the runner instance
+    copy:
+      src: "{{ ansible_env.HOME }}/opt/etl/active/runner.sh"
+      dest: "{{ ansible_env.HOME }}/opt/etl/addons/{{ addon_name }}/jobs/runner.sh"
+      mode: "u=rx,g=rx,o=r"
+      remote_src: True
+
+  - name: Update the execution path for run
+    replace:
+      dest: "{{ ansible_env.HOME }}/opt/etl/addons/{{ addon_name }}/jobs/runner.sh"
+      regexp: '(EXECUTION_PATH=")[^"]+(";)'
+      replace: '\1../../../active/\2'
+
+  - name: Update the addon name
+    replace:
+      path: "{{ ansible_env.HOME }}/opt/etl/addons/{{ addon_name }}/jobs/runner.sh"
+      regexp: '(ADDON_NAME=")[^"]*(")'
+      replace: '\1{{ addon_name }}\2'
+
+  - name: Clean the runner log file
+    file:
+      path: "{{ ansible_env.HOME }}/opt/etl/addons/{{ addon_name}}/jobs/runner.log"
+      state: absent
+
+  - name: Run the job {{ job_name | default('all') }} (file is {{ job_file_name | default('jobs.xml') }}, wait for up {{ job_timeout | default(3600) }} sec, poll every {{ job_poll_period | default(0) }} sec)
+    shell: ./runner.sh -v -f "{{ job_file_name | default('jobs.xml') }}" -j "{{ job_name | default('all') }}" -p "{{ job_parameters | default('') }}" > runner.log
+    args:
+      chdir: "{{ ansible_env.HOME }}/opt/etl/addons/{{ addon_name}}/jobs/"
+    async: "{{ job_timeout | default(3600) }}"
+    poll: "{{ job_poll_period | default(0) }}"
+    when: "'False' == (debug_mode | default('False'))"
+
+  - name: Run the job {{ job_name | default('all') }} in debug mode (file is {{ job_file_name | default('jobs.xml') }}, wait for up {{ job_timeout | default(3600) }} sec, poll every {{ job_poll_period | default(0) }} sec)
+    shell: ./runner.sh -f "{{ job_file_name | default('jobs.xml') }}" -j "{{ job_name | default('all') }}" -p "{{ job_parameters | default('') }}" -D "{{ ALAMBIC_DEBUG_JVM_VARS }}" > runner.log
+    args:
+      chdir: "{{ ansible_env.HOME }}/opt/etl/addons/{{ addon_name}}/jobs/"
+    async: "{{ job_timeout | default(3600) }}"
+    poll: "{{ job_poll_period | default(0) }}"
+    when: "'True' == (debug_mode | default('False'))"

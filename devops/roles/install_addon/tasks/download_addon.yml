@@ -1,0 +1,9 @@
+  - name: Download the addon artifact (release version)
+    local_action: maven_artifact group_id="{{ groupId }}" artifact_id="{{ artifactId }}" version="{{ version }}" repository_url="{{ maven_release_repository }}" dest="{{ dest }}" extension="zip"
+    when: "'SNAPSHOT' not in version"
+    environment: "{{ PROXY_ENV }}"
+
+  - name: Download the addon artifact (snapshot version)
+    local_action: maven_artifact group_id="{{ groupId }}" artifact_id="{{ artifactId }}" version="{{ version }}" repository_url="{{ maven_snapshot_repository }}" dest="{{ dest }}" extension="zip"
+    when: "'SNAPSHOT' in version"
+    environment: "{{ PROXY_ENV }}"

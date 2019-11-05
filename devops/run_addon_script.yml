@@ -1,0 +1,19 @@
+---
+
+- hosts: etl
+  become: yes
+  become_user: "{{ etl_user_name }}"
+
+  roles:
+    - ask_confirmation
+    - run_addon_script
+
+  environment:
+    ALAMBIC_LOG_AGE: "{{ ALAMBIC_LOG_AGE }}"
+    ALAMBIC_LOG_DIR: "{{ ALAMBIC_LOG_DIR }}"
+    ALAMBIC_TARGET_ENVIRONMENT: "{{ ALAMBIC_TARGET_ENVIRONMENT }}"
+    ALAMBIC_NOTIFICATION_EMAIL_LIST: "{{ ALAMBIC_NOTIFICATION_EMAIL_LIST }}"
+    ALAMBIC_KEYSTORE_PATH: "{{ repository_keystore }}"
+    ALAMBIC_COMMON_VARIABLES_PATH: "{{ repository_variables: }}"
+    BASEX_API_URL: "{{ BASEX_API_URL }}"
+    BASEX_API_BASIC_AUTH_TOKEN: "{{ BASEX_API_BASIC_AUTH_TOKEN }}"

@@ -1,0 +1,7 @@
+---
+
+#- hosts: database
+#  remote_user: "{{ remote_sudoer_user_name }}"
+
+#  roles:
+#    ...

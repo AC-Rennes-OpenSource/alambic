@@ -1,0 +1,8 @@
+  - name: Create the log directory
+    file:
+      path: "{{ ALAMBIC_LOG_DIR }}"
+      state: directory
+      mode: "u=rwx,g=rwx,o=r"
+      owner: "{{ etl_user_name }}"
+      group: "{{ etl_user_group }}"
+    become: yes

@@ -1,0 +1,29 @@
+# Le prompt de confirmation doit être présenté avant exécution d'un playbook dans l'environnement de production. 
+# Celui-ci doit être présenté uniquement lors que le playbook est exécuté en mode interactif, pas en cron.
+# Une détection d'un contexte d'appel, interactif versus cron, est réalisée en interrogeant la variable d'environnement 'TERM'.
+# si 'dumb' ou 'unknown' => exécution en cron.
+###############################################################################################################################
+
+#  - name: debug
+#    debug: msg="{{ ALAMBIC_TARGET_ENVIRONMENT }}"
+
+  - name: Check whether the playbook is run within a cron process or interactively
+    local_action: shell echo "$TERM"
+    register: terminal
+    become: true
+    become_user: "{{ controller_user_name }}"
+    
+#  - name: debug
+#    debug: msg="Recognized terminal is {{ terminal.stdout }}"
+
+# Abandonner l'exécution du playbook si ce dernier est lancé en production, via un cron (mode non-intercative) et que l'option "force_execute" n'est pas positionnée à 'True'
+  - name: Abort on conditions
+    fail:
+      msg: "!ABANDON! L'exécution du playbook en production en mode non interactif requière l'option force_execute='True'"
+    when: "'PRODUCTION' == ALAMBIC_TARGET_ENVIRONMENT and 'False' == (force_execute | default('False')) and (terminal.stdout is not defined or (terminal.stdout is defined and (terminal.stdout == 'dumb' or terminal.stdout == 'unknown')))"
+
+# Sinon (en mode interactif), demander un confirmation avant d'exécuter un playbook en production 
+  - name: Ask confirmation before execution if production environment is targeted
+    pause:
+      prompt: "Please confirm you want to execute an operation on production environement! Press return to continue. Press Ctrl+c and then 'a' to abort"
+    when: "'PRODUCTION' == ALAMBIC_TARGET_ENVIRONMENT and 'False' == (force_execute | default('False'))"

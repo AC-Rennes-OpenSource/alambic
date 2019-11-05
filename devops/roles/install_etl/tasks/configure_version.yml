@@ -1,0 +1,14 @@
+  - name: insert/update ETL database configuration
+    blockinfile:
+      dest: "{{ ansible_env.HOME }}/opt/etl/active/conf/config.properties"
+      block: |
+        {{ item.name }}={{ item.value }}
+      marker: "# {mark} ANSIBLE MANAGED BLOCK {{ item.name }}"
+    with_items:
+      - { name: repository.variables, value: "{{ repository_variables }}" }
+      - { name: repository.keystore, value: "{{ repository_keystore }}" }
+      - { name: multithreading.pool.size, value: "{{ multithreading_pool_size }}" }
+      - { name: etl.jdbc.driver, value: "{{ etl_jdbc_driver }}" }
+      - { name: etl.jdbc.url, value: "{{ etl_jdbc_url }}" }
+      - { name: etl.jdbc.user, value: "{{ etl_jdbc_user }}" }
+      - { name: etl.jdbc.password, value: "{{ etl_jdbc_password }}" }
