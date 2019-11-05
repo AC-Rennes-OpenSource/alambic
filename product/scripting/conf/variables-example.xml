@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<alambic>
+	<variables>
+		<variable name="John">Doe</variable>
+	</variables>
+</alambic>

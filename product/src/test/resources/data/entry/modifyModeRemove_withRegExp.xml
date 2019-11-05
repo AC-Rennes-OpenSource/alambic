@@ -1,0 +1,8 @@
+<entry operation="U" verifyIfExist="(uid=apoe)">
+    <dn>uid=epoe,ou=personnes,dc=ent-bretagne,dc=fr</dn>
+    <attributes>
+        <attr name="Rne" modifyMode="remove">
+            <value>(REGEXP)035[0-9]{4}[a-zA-Z](/REGEXP)</value>
+        </attr>
+    </attributes>
+</entry>

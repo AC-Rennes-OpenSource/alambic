@@ -1,0 +1,11 @@
+<entry operation="U" verifyIfExist="(uid=apoe)">
+    <dn>uid=epoe,ou=personnes,dc=ent-bretagne,dc=fr</dn>
+    <attributes>
+        <attr name="Rne" modifyMode="append">
+            <value>0350170L</value>
+        </attr>
+        <attr name="Rne" modifyMode="remove">
+            <value>0350170L</value>
+        </attr>
+    </attributes>
+</entry>

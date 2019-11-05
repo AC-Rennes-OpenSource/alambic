@@ -1,0 +1,7 @@
+Manifest-Version: 1.0
+Built-By: Rennes - Brittany Education Authority
+Build-Jdk: 1.8.0_144
+Class-Path: lib/db2jcc.jar lib/ifxjdbc-2.2.1.jar lib/mysql-connector-java-5.1.6.jar
+Created-By: Rennes - Brittany Education Authority
+Main-Class: fr.gouv.education.acrennes.alambic.Alambic
+Archiver-Version: Plexus Archiver

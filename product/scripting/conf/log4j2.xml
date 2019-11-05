@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+APPENDERS CONFIGURATION (automatic reconfiguration every 30 seconds) :
+
+[RUNTIME]
+- Purpose: to gather all common applicative logs
+- Max log volume a day: 100 MB
+- Max aged logs: 7 days  
+
+[AUDIT]
+- Purpose: to gather all applicative logs dealing with the notification connector
+- Max log volume a day: 50 MB
+- Max aged logs: 7 days  
+-->
+<Configuration status="WARN" name="Alambic" packages="" monitorInterval="30">
+	<Appenders>
+		<Console name="CONSOLE" target="SYSTEM_OUT">
+			<PatternLayout>
+				<Pattern>%d{ISO8601} [%t] %-5p %c - %m%n</Pattern>
+			</PatternLayout>
+		</Console>
+		<RollingFile name="RUNTIME" fileName="../logs/alambic.log" filePattern="../logs/$${date:yyyy-MM}/alambic-%d{dd-MM-yyyy}-%i.log.zip">
+			<PatternLayout>
+				<Pattern>%d{ISO8601} [%t] %-5p %c - %m%n</Pattern>
+			</PatternLayout>
+			<Policies>
+				<TimeBasedTriggeringPolicy/>
+				<SizeBasedTriggeringPolicy size="10 MB" />
+			</Policies>
+			<DefaultRolloverStrategy min="1" max="10" fileIndex="max">
+				<Delete basePath="../logs/" maxDepth="2">
+					<IfFileName glob="*/alambic-*.log.zip" />
+					<IfLastModified age="P7D" />
+				</Delete>
+			</DefaultRolloverStrategy>
+		</RollingFile>
+	</Appenders>
+	<Loggers>
+		<Logger name="fr.gouv.education.acrennes.alambic" level="info">
+			<AppenderRef ref="RUNTIME"/>
+		</Logger>
+		<Root level="info">
+			<AppenderRef ref="CONSOLE"/>
+		</Root>
+	</Loggers>
+</Configuration>

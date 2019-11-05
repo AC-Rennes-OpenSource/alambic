@@ -1,0 +1,573 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<disciplines>
+	<discipline clé="arts-plastiques" titre="Arts plastiques">
+		<inspecteur>
+			<codes>
+				<code value="I1800" />
+			</codes>
+		</inspecteur>
+		<enseignant>
+			<codes>
+				<code value="L1800" />
+			</codes>
+		</enseignant>
+	</discipline>
+	<discipline clé="biotechnologie" titre="Biotechnologie">
+		<inspecteur>
+			<codes>
+				<code value="I7170" />
+				<code value="I2072" />
+				<code value="I2073" />
+			</codes>
+		</inspecteur>
+		<enseignant>
+			<codes>
+				<code value="P7200" />
+				<code value="P7201" />
+				<code value="P7202" />
+				<code value="P7210" />
+				<code value="P7300" />
+				<code value="P7410" />
+				<code value="P7420" />
+				<code value="P7140" />
+			</codes>
+		</enseignant>
+	</discipline>
+	<discipline clé="daama" titre="DAAMA">
+		<inspecteur>
+			<codes>
+			</codes>
+		</inspecteur>
+		<enseignant>
+			<codes>
+				<code value="P6500" />
+				<code value="P2235" />
+				<code value="P4210" />
+				<code value="P6630" />
+				<code value="P2120" />
+				<code value="P6610" />
+				<code value="P6621" />
+				<code value="P6640" />
+				<code value="P2340" />
+				<code value="P6661" />
+				<code value="P6501" />
+				<code value="P6620" />
+				<code value="P6624" />
+				<code value="P6641" />
+				<code value="P6660" />
+			</codes>
+		</enseignant>
+	</discipline>
+	<discipline clé="documentation" titre="Documentation">
+		<inspecteur>
+			<codes>
+
+			</codes>
+		</inspecteur>
+		<enseignant>
+			<codes>
+				<code value="P0080" />
+				<code value="L0080" />
+				<code value="C0080" />
+			</codes>
+		</enseignant>
+	</discipline>
+	<discipline clé="economie-et-gestion" titre="Économie et gestion">
+		<inspecteur>
+			<codes>
+				<code value="N8010" />
+				<code value="I8010" />
+			</codes>
+		</inspecteur>
+		<enseignant>
+			<codes>
+				<code value="L8010" />
+				<code value="L8011" />
+				<code value="L8012" />
+				<code value="L8013" />
+				<code value="L8014" />
+				<code value="L8015" />
+				<code value="L8016" />
+				<code value="L8017" />
+				<code value="L8018" />
+				<code value="L8019" />
+				<code value="L8021" />
+				<code value="L8023" />
+				<code value="L8024" />
+				<code value="L8026" />
+				<code value="L8027" />
+				<code value="L8030" />
+				<code value="L8031" />
+				<code value="L8040" />
+				<code value="L2080" />
+			</codes>
+		</enseignant>
+	</discipline>
+	<discipline clé="economie-gestion-lp" titre="Économie et gestion LP">
+		<inspecteur>
+			<codes>
+			</codes>
+		</inspecteur>
+		<enseignant>
+			<codes>
+				<code value="P8510" />
+				<code value="P8520" />
+				<code value="P8512" />
+				<code value="P8513" />
+				<code value="P8038" />
+				<code value="P8011" />
+				<code value="P8012" />
+				<code value="P8013" />
+				<code value="P8035" />
+				<code value="P8036" />
+				<code value="P8037" />
+			</codes>
+		</enseignant>
+	</discipline>
+	<discipline clé="education-musicale" titre="Éducation musicale">
+		<inspecteur>
+			<codes>
+				<code value="I1700" />
+			</codes>
+		</inspecteur>
+		<enseignant>
+			<codes>
+				<code value="L1700" />
+				<code value="C0217" />
+			</codes>
+		</enseignant>
+	</discipline>
+	<discipline clé="eps" titre="EPS">
+		<inspecteur>
+			<codes>
+				<code value="I1900" />
+			</codes>
+		</inspecteur>
+		<enseignant>
+			<codes>
+				<code value="C0219" />
+				<code value="C1319" />
+				<code value="C1619" />
+				<code value="C1900" />
+				<code value="L1900" />
+			</codes>
+		</enseignant>
+	</discipline>
+	<discipline clé="histoire-geographie" titre="Histoire - géographie">
+		<inspecteur>
+			<codes>
+				<code value="I1000" />
+				<code value="N1000" />
+			</codes>
+		</inspecteur>
+		<enseignant>
+			<codes>
+				<code value="L1000" />
+			</codes>
+		</enseignant>
+	</discipline>
+	<discipline clé="hotellerie-restauration-alimentation"
+		titre="Hôtellerie restauration alimentation">
+		<inspecteur>
+			<codes>
+			</codes>
+		</inspecteur>
+		<enseignant>
+			<codes>
+				<code value="P8512" />
+				<code value="P8513" />
+			</codes>
+		</enseignant>
+	</discipline>
+	<discipline clé="langues" titre="Langues">
+		<inspecteur>
+			<codes>
+				<code value="I0421" />
+				<code value="I0422" />
+				<code value="I0423" />
+				<code value="I0424" />
+				<code value="I0426" />
+				<code value="I0428" />
+				<code value="I0429" />
+				<code value="I0600" />
+				<code value="I0433" />
+				<code value="I0434" />
+			</codes>
+		</inspecteur>
+		<enseignant>
+			<codes>
+				<code value="L0421" />
+				<code value="L0451" />
+				<code value="L0422" />
+				<code value="L0423" />
+				<code value="L0453" />
+				<code value="L0441" />
+				<code value="L0442" />
+				<code value="L0484" />
+				<code value="L0486" />
+				<code value="L0424" />
+				<code value="L0472" />
+				<code value="L0449" />
+				<code value="L0460" />
+				<code value="L0461" />
+				<code value="L0452" />
+				<code value="L0425" />
+				<code value="L0426" />
+				<code value="L0457" />
+				<code value="L0456" />
+				<code value="L0458" />
+				<code value="L0427" />
+				<code value="L0428" />
+				<code value="L0429" />
+				<code value="L0459" />
+				<code value="L0430" />
+				<code value="L0443" />
+				<code value="L0600" />
+				<code value="L0448" />
+				<code value="L0437" />
+				<code value="L0431" />
+				<code value="L0446" />
+				<code value="L0447" />
+				<code value="L0444" />
+				<code value="L0487" />
+				<code value="L0439" />
+				<code value="L0432" />
+				<code value="L0433" />
+				<code value="L0463" />
+				<code value="L0434" />
+				<code value="L0464" />
+				<code value="L0438" />
+				<code value="L0450" />
+				<code value="L0455" />
+				<code value="L0465" />
+				<code value="L0250" />
+				<code value="L0454" />
+				<code value="L0435" />
+			</codes>
+		</enseignant>
+	</discipline>
+	<discipline clé="lettres" titre="Lettres">
+		<inspecteur>
+			<codes>
+				<code value="I0200" />
+			</codes>
+		</inspecteur>
+		<enseignant>
+			<codes>
+
+				<code value="L0202" />
+				<code value="L0201" />
+			</codes>
+		</enseignant>
+	</discipline>
+	<discipline clé="lettres-langues" titre="Lettres langues">
+		<inspecteur>
+			<codes>
+				<code value="N0221" />
+				<code value="N0222" />
+				<code value="N0226" />
+				<code value="N0220" />
+			</codes>
+		</inspecteur>
+		<enseignant>
+			<codes>
+				<code value="P0223" />
+				<code value="P0226" />
+				<code value="P0229" />
+				<code value="C0222" />
+				<code value="C0226" />
+				<code value="C0233" />
+				<code value="C0221" />
+				<code value="C0234" />
+				<code value="P0222" />
+				<code value="C0250" />
+				<code value="L0252" />
+				<code value="C0229" />
+				<code value="P0221" />
+				<code value="L0251" />
+				<code value="Q0221" />
+				<code value="Q0222" />
+				<code value="Q0226" />
+				<code value="Q0229" />
+				<code value="Q0233" />
+				<code value="Q0234" />
+				<code value="W0221" />
+				<code value="W0222" />
+				<code value="W0226" />
+				<code value="W0229" />
+				<code value="W0233" />
+				<code value="W0234" />
+			</codes>
+		</enseignant>
+	</discipline>
+	<discipline clé="lettres-histoire" titre="Lettres histoires">
+		<inspecteur>
+			<codes>
+				<code value="N0210" />
+				<code value="N0274" />
+				<code value="N0275" />
+			</codes>
+		</inspecteur>
+		<enseignant>
+			<codes>
+				<code value="C0210" />
+				<code value="W0210" />
+				<code value="Q0210" />
+				<code value="L0210" />
+				<code value="P0210" />
+			</codes>
+		</enseignant>
+	</discipline>
+	<discipline clé="mathematiques" titre="Mathématiques">
+		<inspecteur>
+			<codes>
+				<code value="I1300" />
+			</codes>
+		</inspecteur>
+		<enseignant>
+			<codes>
+				<code value="L1300" />
+				<code value="C1315" />
+				<code value="C1317" />
+				<code value="C1318" />
+				<code value="C1319" />
+				<code value="L1315" />
+				<code value="L1613" />
+			</codes>
+		</enseignant>
+	</discipline>
+	<discipline clé="maths-sciences" titre="Maths - sciences">
+		<inspecteur>
+			<codes>
+				<code value="N1315" />
+			</codes>
+		</inspecteur>
+		<enseignant>
+			<codes>
+				<code value="P1315" />
+				<code value="L1500" />
+				<code value="C1500" />
+			</codes>
+		</enseignant>
+	</discipline>
+	<discipline clé="philosophie" titre="Philosophie">
+		<inspecteur>
+			<codes>
+				<code value="I0100" />
+			</codes>
+		</inspecteur>
+		<enseignant>
+			<codes>
+				<code value="L0100" />
+			</codes>
+		</enseignant>
+	</discipline>
+	<discipline clé="physique-chimie" titre="Physique - chimie">
+		<inspecteur>
+			<codes>
+				<code value="I1500" />
+				<code value="I1550" />
+			</codes>
+		</inspecteur>
+		<enseignant>
+			<codes>
+				<code value="P1315" />
+				<code value="P5150" />
+				<code value="C1315" />
+				<code value="C1615" />
+				<code value="L1315" />
+				<code value="P1315" />
+				<code value="L1500" />
+				<code value="L1510" />
+			</codes>
+		</enseignant>
+	</discipline>
+	<discipline clé="sciences-vie-terre" titre="Sciences de la vie et de la terre">
+		<inspecteur>
+			<codes>
+				<code value="I1600" />
+			</codes>
+		</inspecteur>
+		<enseignant>
+			<codes>
+				<code value="C1615" />
+				<code value="C1619" />
+				<code value="L1600" />
+				<code value="L1613" />
+			</codes>
+		</enseignant>
+	</discipline>
+	<discipline clé="sciences-economiques-sociales" titre="Sciences économiques et sociales">
+		<inspecteur>
+			<codes>
+				<code value="I1100" />
+			</codes>
+		</inspecteur>
+		<enseignant>
+			<codes>
+				<code value="L1100" />
+			</codes>
+		</enseignant>
+	</discipline>
+	<discipline clé="sti" titre="STI">
+		<inspecteur>
+			<codes>
+				<code value="I2001" />
+			</codes>
+		</inspecteur>
+		<enseignant>
+			<codes>
+				<code value="L1411" />
+				<code value="L1412" />
+				<code value="L1413" />
+				<code value="L1414" />
+				<code value="L2001" />
+				<code value="L2020" />
+				<code value="L2022" />
+				<code value="L2100" />
+				<code value="L2200" />
+				<code value="L2210" />
+				<code value="L2230" />
+				<code value="L2400" />
+				<code value="L2401" />
+				<code value="L2402" />
+				<code value="L2500" />
+				<code value="L3000" />
+				<code value="L3011" />
+				<code value="L3100" />
+				<code value="L3110" />
+				<code value="L3120" />
+				<code value="L4010" />
+				<code value="L4100" />
+				<code value="L4200" />
+				<code value="L4210" />
+				<code value="L4221" />
+				<code value="L4222" />
+				<code value="L4230" />
+				<code value="L4500" />
+				<code value="L4511" />
+				<code value="L4512" />
+				<code value="L4540" />
+				<code value="L5100" />
+				<code value="L5111" />
+				<code value="L5112" />
+				<code value="L5200" />
+				<code value="L5500" />
+				<code value="L6100" />
+				<code value="L6102" />
+			</codes>
+		</enseignant>
+	</discipline>
+	<discipline clé="sti-lp" titre="STI-LP">
+		<inspecteur>
+			<codes>
+			</codes>
+		</inspecteur>
+		<enseignant>
+			<codes>
+				<code value="P3010" />
+				<code value="P3011" />
+				<code value="P3013" />
+				<code value="P3020" />
+				<code value="P3021" />
+				<code value="P3023" />
+				<code value="P3024" />
+				<code value="P3025" />
+				<code value="P3026" />
+				<code value="P3027" />
+				<code value="P3028" />
+				<code value="P3100" />
+				<code value="P3110" />
+				<code value="P3120" />
+				<code value="P5100" />
+				<code value="P5101" />
+				<code value="P5110" />
+				<code value="P5120" />
+				<code value="P5200" />
+				<code value="P2450" />
+				<code value="P2451" />
+				<code value="P2452" />
+				<code value="P4100" />
+				<code value="P4500" />
+				<code value="P4511" />
+				<code value="P4512" />
+				<code value="P4513" />
+				<code value="P4540" />
+				<code value="P4530" />
+				<code value="P4500" />
+				<code value="P4550" />
+				<code value="P2235" />
+				<code value="P4210" />
+				<code value="P6630" />
+				<code value="P2120" />
+				<code value="P6610" />
+				<code value="P6621" />
+				<code value="P6640" />
+				<code value="P2340" />
+				<code value="P6661" />
+				<code value="P6501" />
+				<code value="P6620" />
+				<code value="P6624" />
+				<code value="P6641" />
+				<code value="P6660" />
+				<code value="P2501" />
+				<code value="P2500" />
+				<code value="P4200" />
+				<code value="P4100" />
+				<code value="P4100" />
+				<code value="P4110" />
+				<code value="P4100" />
+				<code value="P4200" />
+				<code value="P4210" />
+				<code value="P6630" />
+				<code value="P4200" />
+				<code value="P4210" />
+				<code value="P4100" />
+				<code value="P6630" />
+				<code value="P6100" />
+				<code value="P6111" />
+				<code value="P6115" />
+				<code value="P6150" />
+				<code value="P2200" />
+				<code value="P2210" />
+				<code value="P2220" />
+				<code value="P2230" />
+				<code value="P2235" />
+				<code value="P2241" />
+				<code value="P2242" />
+				<code value="P6641" />
+				<code value="P2100" />
+				<code value="P2110" />
+				<code value="P2111" />
+				<code value="P2120" />
+				<code value="P6621" />
+				<code value="P2400" />
+				<code value="P2401" />
+				<code value="P2402" />
+				<code value="P5112" />
+				<code value="P6980" />
+				<code value="P2100" />
+				<code value="P2110" />
+				<code value="P2322" />
+				<code value="P2400" />
+				<code value="P2401" />
+				<code value="P2340" />
+			</codes>
+		</enseignant>
+	</discipline>
+	<discipline clé="technologie" titre="Technologie">
+		<inspecteur>
+			<codes>
+
+			</codes>
+		</inspecteur>
+		<enseignant>
+			<codes>
+				<code value="C1400" />
+				<code value="C1410" />
+				<code value="L1400" />
+				<code value="L1410" />
+			</codes>
+		</enseignant>
+	</discipline>
+</disciplines>

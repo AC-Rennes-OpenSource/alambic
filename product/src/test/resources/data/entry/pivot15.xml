@@ -1,0 +1,12 @@
+<entry verifyIfExist="(&amp;(objectClass=ENTProfil)(cn=%RDN%))">
+	<variables>
+		<variable name="RDN">profil-lambda</variable>
+	</variables>
+	<dn>cn=%RDN%,ou=profils,ou=groupes,dc=ent-bretagne,dc=fr</dn>
+	<attributes>
+		<attr modifyMode="append" name="member">
+			<value>uid=esati,ou=personnes,dc=ent-bretagne,dc=fr</value>
+			<value>uid=cdebussy,ou=personnes,dc=ent-bretagne,dc=fr</value>
+		</attr>
+	</attributes>
+</entry>

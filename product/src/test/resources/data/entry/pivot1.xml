@@ -1,0 +1,45 @@
+<entry verifyIfExist="(uid=apoe)">
+	<dn>uid=epoe,ou=personnes,dc=ent-bretagne,dc=fr</dn>
+	<attributes>
+		<attr name="objectClass" modifyMode="replace">
+			<value>top</value>
+			<value>person</value>
+			<value>organizationalPerson</value>
+			<value>educationnationale</value>
+			<value>inetOrgPerson</value>
+		</attr>
+		<attr name="uid" modifyMode="ignore">
+			<value>epoe</value>
+		</attr>
+		<attr name="ENTPersonUid" modifyMode="ignore">
+			<value>0123456789</value>
+		</attr>
+		<attr name="cn" modifyMode="replace">
+			<value>POE Edgar</value>
+		</attr>
+		<attr name="sn" modifyMode="replace">
+			<value>Poe</value>
+		</attr>
+		<attr name="givenName" modifyMode="replace">
+			<value>Edgar</value>
+		</attr>
+		<attr name="codecivilite" modifyMode="replace">
+			<value>M</value>
+		</attr>
+		<attr name="mail" modifyMode="replace">
+			<value>edgar.poe@litterature.com</value>
+		</attr>
+		<attr name="title" modifyMode="replace">
+			<value>ECR</value>
+		</attr>
+		<attr name="typensi" modifyMode="replace">
+			<value>AAF</value>
+		</attr>
+		<attr name="datenaissance" modifyMode="replace">
+			<value>19/01/1809</value>
+		</attr>
+		<attr name="Rne" modifyMode="replace">
+			<value>0350063D</value>
+		</attr>
+	</attributes>
+</entry>

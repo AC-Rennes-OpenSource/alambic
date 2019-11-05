@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>@REPORT_FILE_TITLE</title>
+<style>
+.div-email {
+	width: 100%;
+}
+
+.email-header {
+	height: 100px;
+}
+
+.email-picto {
+	float: left;
+}
+
+.email-title {
+	font-size: 30px;
+	padding-top: middle;
+}
+
+.email-selector {
+	float: right;
+	margin: 10px;
+}
+
+li label {
+	font-style: italic;
+	font-weight: bold;
+}
+
+.success {
+	width: 100%;
+	background-color: #ddffcc;
+}
+
+.warning {
+	background-color: #ffd1b3;
+}
+
+.error {
+	background-color: #ff9999;
+}
+</style>
+</head>
+<body>
+	<div id="activity-email" class="div-email">
+		<div class="email-header @SCRIPT_STATUS_CLASS">
+			<div class="email-picto">
+				<img class="icon icons8-Whisky-Still"
+					src="data:image/png;base64,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"
+					width="100"
+					height="100">
+			</div>
+			<div class="email-title">
+				<label>Le script '@SCRIPT_FILE' du addon '@ADDON_NAME' a &eacute;t&eacute; ex&eacute;cut&eacute; @SCRIPT_STATUS</label>
+			</div>
+		</div>
+		<div class="email-report">
+			<ul>
+				<li><label class="liste">Liste des jobs ex&eacute;cut&eacute;s : </label>@JOBS_LIST</li>
+				<li><label>Date d'ex&eacute;cution : </label>@DATE_EXECUTION</li>
+				<li><label>Nombre d'op&eacute;rations (CRUD) : </label>@CHANGELOGS_COUNT</li>
+					<ul>
+						<li><label>Cr&eacute;ations : </label>@CHANGELOGS_CREATE</li>
+						<li><label>Modifications : </label>@CHANGELOGS_UPDATE</li>
+						<li><label>Suppressions : </label>@CHANGELOGS_DELETE</li>
+						<li><label>Notifications : </label>@CHANGELOGS_NOTIFY</li>
+					</ul>
+				<li><label>Nombre de warnings : </label>@WARNINGS_COUNT</li>
+				<li><label>Nombre d'erreurs : </label>@ERRORS_COUNT</li>
+				<li><label>Temps d'ex&eacute;cution des jobs : </label>@SCRIPT_DURATION</li>
+			</ul>
+			Les logs de l'ex&eacute;cution sont disponibles &agrave; l'emplacement suivant : @LOGS_LOCATION
+		</div>
+	</div>
+	<hr />
+	<span id="information">(Version de l'outil ETL Alambic <a href="http://projet.toutatice.fr/repos/toutatice-tools/tags/@ALAMBIC_VERSION" target="_blank">@ALAMBIC_VERSION</a>, version du addon <a href="http://projet.toutatice.fr/repos/toutatice-etl-addons/@ADDON_NAME/tags/@ADDON_VERSION" target="_blank">@ADDON_VERSION</a>)</span>
+</body>
+</html>
