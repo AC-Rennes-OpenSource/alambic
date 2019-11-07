@@ -132,6 +132,8 @@ Two artefacts are built :
 
 The product deployment is based-on a control machine hosting Ansible scripts dealing with the remote deployment of the Alambic ETL engine and addons on different environments.
 
+The project [alambic-addon-mvn-archetype](https://github.com/AC-Rennes-OpenSource/alambic-addon-mvn-archetype) aims to help producing an Alambic addon and focusing on the business development.
+
 The SSH channel is used to control the remote machines.
 A key pair of RSA keys is generated on the control machine, whose public key is distributed on the remote hosts to simplify the SSH authentication at connection time.
 
@@ -562,7 +564,7 @@ $ ansible-playbook fetch_reports.yml -i inventories/development/hosts.yml --vaul
 
 # Usage
 
-A job defines a full process to extract, transform and load data (whenever Freemarker is used, the target is the intermediate file).
+Within an addon packaged project, a job defines a full process to extract, transform and load data (whenever Freemarker is used, the target is the intermediate file).
 
 It is implemented by an XML file with respect of a specific grammar.
 Multiple jobs can contribute to achieve an operation on information system.
