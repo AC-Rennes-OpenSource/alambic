@@ -19,13 +19,13 @@ package fr.gouv.education.acrennes.alambic.jobs.extract.clients;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Hashtable;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+
 import javax.naming.Context;
 import javax.naming.NamingEnumeration;
 import javax.naming.NamingException;
@@ -38,11 +38,14 @@ import javax.naming.directory.SearchResult;
 import javax.naming.ldap.Control;
 import javax.naming.ldap.InitialLdapContext;
 import javax.naming.ldap.LdapContext;
+
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+
 import com.sun.jndi.ldap.ctl.SortControl;
 import com.sun.jndi.ldap.ctl.VirtualListViewControl;
 import com.sun.jndi.ldap.ctl.VirtualListViewResponseControl;
+
 import fr.gouv.education.acrennes.alambic.exception.AlambicException;
 import fr.gouv.education.acrennes.alambic.utils.Functions;
 
@@ -81,15 +84,12 @@ public class LdapToStateBase implements IToStateBase {
 
 	public List<Map<String, List<String>>> getStateBase(final NamingEnumeration<SearchResult> searchResult) {
 		// FIXME close searchResult outside ?
-		// NdKLH : pas fan de reconstruire une liste à chaque appel de cette méthode, même quand executeQuery n'est pas
-		//         appelé entre les appels... mais pour une correction rapide, cela devrait suffire.
 		results = new ArrayList<>();
 		if (null != searchResult) {
 			try {
 				while (searchResult.hasMore()) {
 					Map<String, List<String>> entry = new HashMap<>();
 					SearchResult sR = searchResult.next();
-					entry.put("dn", Arrays.asList(sR.getNameInNamespace()));
 
 					Attributes attrs = sR.getAttributes();
 					NamingEnumeration<? extends Attribute> listAttrs = attrs.getAll();
