@@ -17,6 +17,7 @@
 package fr.gouv.education.acrennes.alambic.jobs.load.gar.persistence;
 
 import java.io.Serializable;
+
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.EnumType;
@@ -24,6 +25,7 @@ import javax.persistence.Enumerated;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+
 import org.eclipse.persistence.annotations.Index;
 import org.eclipse.persistence.annotations.Indexes;
 
@@ -41,11 +43,14 @@ public class EnseignementEntity implements Serializable {
 		CLASSE_MATIERE,
 		MEF
 	}
-
+	
 	@Id
 	@GeneratedValue(strategy = GenerationType.SEQUENCE)
 	@Column(name = "id")
 	private Long id;
+
+	@Column(name = "sourceSI")
+	private String sourceSI;
 
 	@Enumerated(EnumType.STRING)
 	@Column(name = "type")
@@ -60,7 +65,8 @@ public class EnseignementEntity implements Serializable {
 	public EnseignementEntity() {
 	}
 
-	public EnseignementEntity(final String code, final String divOrGrpCode, final ENSEIGNEMENT_TYPE type) {
+	public EnseignementEntity(final String sourceSI, final String code, final String divOrGrpCode, final ENSEIGNEMENT_TYPE type) {
+		setSourceSI(sourceSI);
 		setCode(code);
 		setDivOrGrpCode(divOrGrpCode);
 		setType(type);
@@ -72,6 +78,14 @@ public class EnseignementEntity implements Serializable {
 
 	public void setId(final Long id) {
 		this.id = id;
+	}
+
+	public String getSourceSI() {
+		return sourceSI;
+	}
+
+	public void setSourceSI(String sourceSI) {
+		this.sourceSI = sourceSI;
 	}
 
 	public String getCode() {

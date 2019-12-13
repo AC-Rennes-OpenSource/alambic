@@ -17,8 +17,11 @@
 package fr.gouv.education.acrennes.alambic.jobs.load.gar.builder;
 
 import java.text.DateFormat;
+import java.text.Normalizer;
+import java.text.Normalizer.Form;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -29,13 +32,28 @@ import org.apache.commons.logging.LogFactory;
 public class GARHelper {
 
 	private static final Log log = LogFactory.getLog(GARHelper.class);
-	private static final DateFormat dateFormatter = new SimpleDateFormat("yyyyMMdd_HHmmss");
-
+	private static GARHelper instance;
+	private DateFormat dateFormatter;
+	private Map<String, String> cacheSourceSI;
+	
+	// Singleton
+	private GARHelper() {
+		this.dateFormatter = new SimpleDateFormat("yyyyMMdd_HHmmss");
+		this.cacheSourceSI = new HashMap<String, String>();
+	}
+	
+	public static GARHelper getInstance() {
+		if (null == instance) {
+			instance = new GARHelper();
+		}
+		return instance;
+	}
+	
 	/**
 	 * Convertir le code "personalTitle" en valeur compatible avec le SDET.
 	 * 
 	 */
-	public static String getSDETCompliantTitleValue(final String personalTitle) {
+	public String getSDETCompliantTitleValue(final String personalTitle) {
 		String compliantPersonalTitle = personalTitle;
 
 		if (!"M.".equalsIgnoreCase(personalTitle)) {
@@ -51,7 +69,7 @@ public class GARHelper {
 	 * "PRIVE" devient "PR"
 	 * 
 	 */
-	public static String getSDETCompliantContractValue(final String contrat) {
+	public String getSDETCompliantContractValue(final String contrat) {
 		return contrat.substring(0, 2);
 	}
 
@@ -67,7 +85,7 @@ public class GARHelper {
 	 * @param function the job function
 	 * @param title the title
 	 */
-	public static String getSDETCompliantProfileValue(final String title, final String function) {
+	public String getSDETCompliantProfileValue(final String title, final String function) {
 		String SDETvalue = null;
 
 		String criteria = (StringUtils.isNotBlank(function)) ? function : title;
@@ -87,7 +105,7 @@ public class GARHelper {
 		return SDETvalue;
 	}
 
-	public static String extractCodeGroup(final String code, final int index) {
+	public String extractCodeGroup(final String code, final int index) {
 		String group = null;
 
 		final String[] groups = code.split("\\$");
@@ -98,12 +116,12 @@ public class GARHelper {
 		return group;
 	}
 
-	public static String getOutputFileName(final String fileTemplate, final int page, final int increment) {
-		final String now = dateFormatter.format(new Date());
+	public String getOutputFileName(final String fileTemplate, final int page, final int increment) {
+		final String now = this.dateFormatter.format(new Date());
 		return String.format(fileTemplate, now, page, increment);
 	}
 
-	public static String getPersonEntityBlurId(Map<String, List<String>> entity) {
+	public String getPersonEntityBlurId(Map<String, List<String>> entity) {
 		String blurId = entity.toString();
 		
 		List<String> attribute = entity.get("ENTPersonUid");
@@ -119,7 +137,7 @@ public class GARHelper {
 		return blurId;
 	}
 
-	public static String getStructEntityBlurId(Map<String, List<String>> entity) {
+	public String getStructEntityBlurId(Map<String, List<String>> entity) {
 		String blurId = entity.toString();
 		
 		List<String> attribute = entity.get("ENTStructureUAI");
@@ -128,6 +146,26 @@ public class GARHelper {
 		}
 		
 		return blurId;
+	}
+
+	public String getIndexationAlias(String sourceSI, INDEXATION_OBJECT_TYPE objectType) {
+		// Build the cache entry key
+		String key = Normalizer.normalize(sourceSI.concat(objectType.toString()), Form.NFD).replaceAll("[^\\p{ASCII}]", "")
+				.trim()
+				.toLowerCase();
+		
+		if (!this.cacheSourceSI.containsKey(key)) {
+			if (sourceSI.matches("(?i:.*AGRI.*)")) {
+				if (objectType.equals(INDEXATION_OBJECT_TYPE.MEF)) {
+					this.cacheSourceSI.put(key, "agri_alias_mefeducnat");
+				} else if (objectType.equals(INDEXATION_OBJECT_TYPE.Matiere)) {
+					this.cacheSourceSI.put(key, "agri_alias_matiereeducnat");
+				}
+			} else {
+				this.cacheSourceSI.put(key, objectType.getDefaultAlias());
+			}
+		}
+		return this.cacheSourceSI.get(key);
 	}
 
 	public enum TITLE_FUNCTION_MATCHING {
@@ -172,11 +210,11 @@ public class GARHelper {
 		private final NATIONAL_PROFILE_IDENTIFIER profileId;
 
 		private TITLE_FUNCTION_MATCHING(final NATIONAL_PROFILE_IDENTIFIER value) {
-			profileId = value;
+			this.profileId = value;
 		}
 
 		public NATIONAL_PROFILE_IDENTIFIER getSDETValue() {
-			return profileId;
+			return this.profileId;
 		}
 	}
 
@@ -191,6 +229,22 @@ public class GARHelper {
 		National_ACA,
 		National_DOC,
 		National_COL;
+	}
+
+	public enum INDEXATION_OBJECT_TYPE {
+
+		MEF("aaf_alias_mefeducnat"),
+		Matiere("aaf_alias_mateducnat");
+		
+		private final String default_alias;
+
+		private INDEXATION_OBJECT_TYPE(final String value) {
+			this.default_alias = value;
+		}
+
+		public String getDefaultAlias() {
+			return this.default_alias;
+		}
 	}
 
 }

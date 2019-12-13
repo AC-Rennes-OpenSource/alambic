@@ -117,12 +117,12 @@ public class GARRespAffBuilder implements GARTypeBuilder {
 						Element root = exportFiles.get("restrictionList").getDocumentElement();
 						String matchingEntry = (String) xpath.evaluate("//id[.='" + attribute.get(0) + "']", root, XPathConstants.STRING);
 						if (StringUtils.isBlank(matchingEntry)) {
-							log.debug("Skipping entity '" + GARHelper.getPersonEntityBlurId(entity) + "' since it doesn't belong to the restriction list");
+							log.debug("Skipping entity '" + GARHelper.getInstance().getPersonEntityBlurId(entity) + "' since it doesn't belong to the restriction list");
 							continue;
 						}
 					} else {
 						jobActivity.setTrafficLight(ActivityTrafficLight.RED);
-						log.error("Skipping entity '" + GARHelper.getPersonEntityBlurId(entity) + "' as it has no attribute 'ENTPersonJointure' (mandatory)");
+						log.error("Skipping entity '" + GARHelper.getInstance().getPersonEntityBlurId(entity) + "' as it has no attribute 'ENTPersonJointure' (mandatory)");
 						continue; // skip this entity as a missing mandatory field won't allow XML production
 					}
 				}
@@ -139,7 +139,7 @@ public class GARRespAffBuilder implements GARTypeBuilder {
 					garRespAff.setGARPersonIdentifiant(ENTPersonIdentifiant);
 				} else {
 					jobActivity.setTrafficLight(ActivityTrafficLight.ORANGE);
-					log.warn("Skipping entity '" + GARHelper.getPersonEntityBlurId(entity) + "' as it has no attribute 'ENTPersonUid' (mandatory)");
+					log.warn("Skipping entity '" + GARHelper.getInstance().getPersonEntityBlurId(entity) + "' as it has no attribute 'ENTPersonUid' (mandatory)");
 					continue; // skip this entry as a missing mandatory field won't allow XML production
 				}
 
@@ -151,7 +151,7 @@ public class GARRespAffBuilder implements GARTypeBuilder {
 					garRespAff.setGARPersonNom(attribute.get(0));
 				} else {
 					jobActivity.setTrafficLight(ActivityTrafficLight.ORANGE);
-					log.warn("Skipping entity '" + GARHelper.getPersonEntityBlurId(entity) + "' as it has no attribute 'sn' (mandatory)");
+					log.warn("Skipping entity '" + GARHelper.getInstance().getPersonEntityBlurId(entity) + "' as it has no attribute 'sn' (mandatory)");
 					continue; // skip this entry as a missing mandatory field won't allow XML production
 				}
 
@@ -163,7 +163,7 @@ public class GARRespAffBuilder implements GARTypeBuilder {
 					garRespAff.setGARPersonPrenom(attribute.get(0));
 				} else {
 					jobActivity.setTrafficLight(ActivityTrafficLight.ORANGE);
-					log.warn("Skipping entity '" + GARHelper.getPersonEntityBlurId(entity) + "' as it has no attribute 'givenName' (mandatory)");
+					log.warn("Skipping entity '" + GARHelper.getInstance().getPersonEntityBlurId(entity) + "' as it has no attribute 'givenName' (mandatory)");
 					continue; // skip this entry as a missing mandatory field won't allow XML production
 				}
 
@@ -172,9 +172,9 @@ public class GARRespAffBuilder implements GARTypeBuilder {
 				 */
 				attribute = entity.get("personalTitle");
 				if (null != attribute && 0 < attribute.size() && StringUtils.isNotBlank(attribute.get(0))) {
-					garRespAff.setGARPersonCivilite(GARHelper.getSDETCompliantTitleValue(attribute.get(0)));
+					garRespAff.setGARPersonCivilite(GARHelper.getInstance().getSDETCompliantTitleValue(attribute.get(0)));
 				} else {
-					log.info("Entity '" + GARHelper.getPersonEntityBlurId(entity) + "' has no attribute 'personalTitle'");
+					log.debug("Entity '" + GARHelper.getInstance().getPersonEntityBlurId(entity) + "' has no attribute 'personalTitle'");
 				}
 
 				/*
@@ -190,7 +190,7 @@ public class GARRespAffBuilder implements GARTypeBuilder {
 				}
 				if (garRespAff.getGARPersonMail().isEmpty()) {
 					jobActivity.setTrafficLight(ActivityTrafficLight.RED);
-					log.error("Skipping entity '" + GARHelper.getPersonEntityBlurId(entity) + "' as it has no attribute 'mail' (mandatory)");
+					log.error("Skipping entity '" + GARHelper.getInstance().getPersonEntityBlurId(entity) + "' as it has no attribute 'mail' (mandatory)");
 					continue; // skip this entry as a missing mandatory field won't allow XML production
 				}
 
@@ -213,14 +213,14 @@ public class GARRespAffBuilder implements GARTypeBuilder {
 					}
 				} else {
 					jobActivity.setTrafficLight(ActivityTrafficLight.RED);
-					log.error("Skipping entity '" + GARHelper.getPersonEntityBlurId(entity) + "' as it has no attribute 'ENTPersonProfils' (mandatory)");
+					log.error("Skipping entity '" + GARHelper.getInstance().getPersonEntityBlurId(entity) + "' as it has no attribute 'ENTPersonProfils' (mandatory)");
 					continue; // skip this entry as a missing mandatory field won't allow XML production
 				}
 				
 				// Verify the mandatory field is present despite the involved structure filtering
 				if (null == garRespAff.getGARRespAffEtab() || 0 == garRespAff.getGARRespAffEtab().size()) {
 					jobActivity.setTrafficLight(ActivityTrafficLight.RED);
-					log.error("Skipping entity '" + GARHelper.getPersonEntityBlurId(entity) + "' as it might not have profile 'GARRespAff' (mandatory)");
+					log.error("Skipping entity '" + GARHelper.getInstance().getPersonEntityBlurId(entity) + "' as it might not have profile 'GARRespAff' (mandatory)");
 					continue; // skip this entry as a missing mandatory field won't allow XML production					
 				}
 
@@ -285,7 +285,7 @@ public class GARRespAffBuilder implements GARTypeBuilder {
 
 		// Marshal the XML binding
 		private void marshal(final int increment) throws FileNotFoundException, JAXBException {
-			String outputFileName = GARHelper.getOutputFileName(output, page, increment);
+			String outputFileName = GARHelper.getInstance().getOutputFileName(output, page, increment);
 			JAXBElement<GARENTRespAff> jaxbElt = factory.createGARENTRespAff(container);
 			marshaller.marshal(jaxbElt, new FileOutputStream(outputFileName));
 			container = factory.createGARENTRespAff();

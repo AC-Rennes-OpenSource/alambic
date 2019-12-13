@@ -23,25 +23,25 @@ public class GARHelperTest {
 
 	@Test
 	public void test1() {
-		String uai = GARHelper.extractCodeGroup("0352533N$", 0);
-		String code = GARHelper.extractCodeGroup("0352533N$", 1);
+		String uai = GARHelper.getInstance().extractCodeGroup("0352533N$", 0);
+		String code = GARHelper.getInstance().extractCodeGroup("0352533N$", 1);
 		Assert.assertEquals("0352533N", uai);
 		Assert.assertNull(code);
 	}
 
 	@Test
 	public void test2() {
-		String uai = GARHelper.extractCodeGroup("0352533N$ENS", 0);
-		String code = GARHelper.extractCodeGroup("0352533N$ENS", 1);
+		String uai = GARHelper.getInstance().extractCodeGroup("0352533N$ENS", 0);
+		String code = GARHelper.getInstance().extractCodeGroup("0352533N$ENS", 1);
 		Assert.assertEquals("0352533N", uai);
 		Assert.assertEquals("ENS", code);
 	}
 
 	@Test
 	public void test3() {
-		String uai = GARHelper.extractCodeGroup("0352533N$ENS$LP", 0);
-		String code = GARHelper.extractCodeGroup("0352533N$ENS$LP", 1);
-		String type = GARHelper.extractCodeGroup("0352533N$ENS$LP", 2);
+		String uai = GARHelper.getInstance().extractCodeGroup("0352533N$ENS$LP", 0);
+		String code = GARHelper.getInstance().extractCodeGroup("0352533N$ENS$LP", 1);
+		String type = GARHelper.getInstance().extractCodeGroup("0352533N$ENS$LP", 2);
 		Assert.assertEquals("0352533N", uai);
 		Assert.assertEquals("ENS", code);
 		Assert.assertEquals("LP", type);
@@ -49,9 +49,9 @@ public class GARHelperTest {
 
 	@Test
 	public void test4() {
-		String uai = GARHelper.extractCodeGroup("0352533N$$LP", 0);
-		String code = GARHelper.extractCodeGroup("0352533N$$LP", 1);
-		String type = GARHelper.extractCodeGroup("0352533N$$LP", 2);
+		String uai = GARHelper.getInstance().extractCodeGroup("0352533N$$LP", 0);
+		String code = GARHelper.getInstance().extractCodeGroup("0352533N$$LP", 1);
+		String type = GARHelper.getInstance().extractCodeGroup("0352533N$$LP", 2);
 		Assert.assertEquals("0352533N", uai);
 		Assert.assertEquals("", code);
 		Assert.assertEquals("LP", type);

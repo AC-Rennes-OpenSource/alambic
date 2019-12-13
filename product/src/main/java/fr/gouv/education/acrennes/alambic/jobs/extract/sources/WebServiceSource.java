@@ -45,7 +45,7 @@ public class WebServiceSource extends AbstractSource{
 	}
 
 	@Override
-	public void initialize(Element sourceNode) {
+	public void initialize(Element sourceNode) throws AlambicException {
 		
 		String uri = sourceNode.getChildText("uri");
 		if (StringUtils.isBlank(uri)) {

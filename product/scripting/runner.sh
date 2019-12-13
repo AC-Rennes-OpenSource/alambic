@@ -40,7 +40,7 @@ PROCESS_IDENTIFIER="${ADDON_NAME}-$(date +'%Y%m%dT%H%M%S-%N')"
 ADDON_LOG_AGE=${ALAMBIC_LOG_AGE}
 # START/ENDING SCRIPT TIME (epoch reference)
 START_TIME=$(date +'%s')
-# SCRIPT OVERALL STATUS 
+# SCRIPT OVERALL STATUS
 SCRIPT_STATUS="avec succès"
 SCRIPT_STATUS_CLASS="success"
 
@@ -87,60 +87,60 @@ setNotificationThreshold() {
 #----------------------------------------------
 report() {
 	# Create the addon log directory if missing
-	if [ ! -e ${ALAMBIC_LOG_DIR}${ADDON_NAME} ] 
+	if [ ! -e ${ALAMBIC_LOG_DIR}${ADDON_NAME} ]
 	then
 		mkdir "${ALAMBIC_LOG_DIR}${ADDON_NAME}"
 	fi
-	
+
 	# Get ending script time and compute the script's duration
 	END_TIME=$(date +'%s')
 	EPOCH_DIFF=$(($END_TIME - $START_TIME))
 	SCRIPT_DURATION=$(date +'%Hh:%Mm:%Ss' -ud @${EPOCH_DIFF})
-	
+
 	# Compute the report/log files unique process identifier
 	NORMALIZED_JOBS_LIST=$(echo ${JOBS_LIST} | sed -r 's#\W+#-#g')
 	NORMALIZED_INPUT_FILE=$(echo ${INPUT_FILE} | sed -r 's/.+\/([^\/]+)\.xml/\1/')
 	FILE_PROCESS_IDENTIFIER=$(echo "${PROCESS_IDENTIFIER}-${NORMALIZED_INPUT_FILE}-${NORMALIZED_JOBS_LIST}")
-	
+
 	# Keep copy of the addon logs (and discards any null characters that could be inserted when the log file is modified via an inner process)
 	cp runner.log "${ALAMBIC_LOG_DIR}${ADDON_NAME}/alambic-${FILE_PROCESS_IDENTIFIER}.log"
 	sed -i 's/[^[:print:]\t]//g' "${ALAMBIC_LOG_DIR}${ADDON_NAME}/alambic-${FILE_PROCESS_IDENTIFIER}.log"
-        
+
 	# Build output report (HTML format)
 	REPORT_FILE="${ALAMBIC_LOG_DIR}${ADDON_NAME}/alambic-${FILE_PROCESS_IDENTIFIER}-report.html"
 	logger "INFO" "Build the report file '${REPORT_FILE}'"
-	
+
 	# Get the Alambic version
 	ALAMBIC_VERSION=$(grep "alambic.version=" ${EXECUTION_PATH}/alambic.properties | sed -r 's#.+=(.+)#\1#')
-	
+
 	# Get the addon version
 	ADDON_VERSION=$(grep "addon.version=" ../addon.properties | sed -r 's#.+=(.+)#\1#')
-	
+
 	# extract the change logs from output ETL tool's log
 	CHANGELOGS_CREATE=$(grep -c -E ".+ INFO .+(Creation)" runner.log)
 	CHANGELOGS_UPDATE=$(grep -c -E ".+ INFO .+(Modification|Execute the Nuxeo chain)" runner.log)
 	CHANGELOGS_DELETE=$(grep -c -E ".+ INFO .+(Suppression|Effacement)" runner.log)
 	CHANGELOGS_NOTIFY=$(grep -c -E ".+ INFO .+(Notification)" runner.log)
 	CHANGELOGS_COUNT=$(( ${CHANGELOGS_CREATE} + ${CHANGELOGS_UPDATE} + ${CHANGELOGS_DELETE} + ${CHANGELOGS_NOTIFY} ))
-	
+
 	# extract the warning logs from output ETL tool's log
 	WARNINGS_COUNT=$(grep -c -E "( WARN )" runner.log)
-	
+
 	# extract the error logs from output ETL tool's log
 	ERRORS_COUNT=$(grep -c -E "(ERROR)" runner.log)
-	
+
 	if [ $WARNINGS_COUNT -gt 0 ]
 	then
 		SCRIPT_STATUS="avec des warnings"
 		SCRIPT_STATUS_CLASS="warning"
 	fi
-	
+
 	if [ $ERRORS_COUNT -gt 0 ]
 	then
 		SCRIPT_STATUS="avec des erreurs"
 		SCRIPT_STATUS_CLASS="error"
 	fi
-	
+
 	# SED the content of the report based-on the template report
 	REPORT_DATE=$(date +"%d/%m/%Y %T")
 	cp "${EXECUTION_PATH}/data/template/report-template.html" "${REPORT_FILE}"
@@ -162,7 +162,7 @@ report() {
 	sed -i "s#@LOGS_LOCATION#$(hostname):${ALAMBIC_LOG_DIR}${ADDON_NAME}/alambic-${FILE_PROCESS_IDENTIFIER}.log#g" "${REPORT_FILE}"
 	sed -i "s#@ALAMBIC_VERSION#${ALAMBIC_VERSION}#g" "${REPORT_FILE}"
 	sed -i "s#@ADDON_VERSION#${ADDON_VERSION}#g" "${REPORT_FILE}"
-		
+
 	# Update the audit (CSV format)
 	AUDIT_FILE="${ALAMBIC_LOG_DIR}${ADDON_NAME}/alambic-${ADDON_NAME}-audit.csv"
 	logger "INFO" "Update the audit file '${AUDIT_FILE}'"
@@ -171,19 +171,38 @@ report() {
 	then
 		echo "JOBS_DEFINITON_FILE;EXECUTION_DATE;EXECUTED_JOBS;DURATION;STATUS;CHANGELOGS_CREATE;CHANGELOGS_UPDATE;CHANGELOGS_DELETE;CHANGELOGS_NOTIFY;WARNINGS_COUNT;ERRORS_COUNT;ALAMBIC_VERSION;ADDON_VERSION" > ${AUDIT_FILE}
 	fi
-	echo "${NORMALIZED_INPUT_FILE}.xml;${REPORT_DATE};${JOBS_LIST};${EPOCH_DIFF};${SCRIPT_STATUS};${CHANGELOGS_CREATE};${CHANGELOGS_UPDATE};${CHANGELOGS_DELETE};${CHANGELOGS_NOTIFY};${WARNINGS_COUNT};${ERRORS_COUNT};${ALAMBIC_VERSION};${ADDON_VERSION}" >> ${AUDIT_FILE} 
-		
+	echo "${NORMALIZED_INPUT_FILE}.xml;${REPORT_DATE};${JOBS_LIST};${EPOCH_DIFF};${SCRIPT_STATUS};${CHANGELOGS_CREATE};${CHANGELOGS_UPDATE};${CHANGELOGS_DELETE};${CHANGELOGS_NOTIFY};${WARNINGS_COUNT};${ERRORS_COUNT};${ALAMBIC_VERSION};${ADDON_VERSION}" >> ${AUDIT_FILE}
+
 	if [ "TRUE" = "$SUPERVISION_MODE" ]
 	then
 		if [ -n "${NOTIFICATION_MAILING_LIST}" ]
 		then
 			if [ $ERRORS_COUNT -gt 0 -a $NOTIFICATION_THRESHOLD -ge 1 ] || [ $WARNINGS_COUNT -gt 0 -a $NOTIFICATION_THRESHOLD -ge 2 ] || [ ${CHANGELOGS_COUNT} -gt 0 -a $NOTIFICATION_THRESHOLD -ge 3 ]
 			then
-				mail -aContent-Type:text/html -r "noreply@ac-rennes.fr" -s "ALAMBIC : Addon ${ADDON_NAME} exécuté ${SCRIPT_STATUS}" "${NOTIFICATION_MAILING_LIST}" < ${REPORT_FILE}
+				cp ${EXECUTION_PATH}/runner-email-template.txt runner-email.txt
+				if [ $ERRORS_COUNT -gt 0 ]
+				then
+					echo "Here is a sample of the error logs :" > runner-email.txt
+					grep -m 10 -E "(ERROR)" runner.log >> runner-email.txt
+				fi
+
+				if [ $WARNINGS_COUNT -gt 0 ]
+				then
+					if [ $ERRORS_COUNT -eq 0 ]
+					then
+						echo "Here is a sample of the warning logs :" > runner-email.txt
+					else
+						echo " " >> runner-email.txt
+						echo "Here is a sample of the warning logs :" >> runner-email.txt
+					fi
+					grep -m 10 -E "( WARN )" runner.log >> runner-email.txt
+				fi
+
+				mail -r "noreply@ac-rennes.fr" -s "[NOTIFICATION ALAMBIC - ${ALAMBIC_TARGET_ENVIRONMENT}] Addon ${ADDON_NAME} exécuté ${SCRIPT_STATUS}" "${NOTIFICATION_MAILING_LIST}" < runner-email.txt
 			fi
 		else
 			# The environment variable that sets the mailing list is missing
-			logger "ERROR" "Absence d'adresse de courriel pour la notification"
+			logger "ERROR" "The notification mailing list is missing"
 		fi
 	fi
 }
@@ -202,7 +221,7 @@ flush() {
 		logger "INFO" "Suppression des logs depuis le dossier '${ALAMBIC_LOG_DIR}${ADDON_NAME}' ayant une ancienneté >= ${ADDON_LOG_AGE} jours"
 	else
 		logger "WARNING" "La suppression des logs est désactivée (age des logs configuré est '${ADDON_LOG_AGE}' jours, actif seulement si > 0)"
-	fi	
+	fi
 }
 
 finally() {
@@ -281,7 +300,7 @@ then
 				;;
 		esac
 	done
-	
+
 	#---------------------------------------------
 	# Execution
 	#---------------------------------------------
@@ -289,16 +308,16 @@ then
 	then
 		# Flush the runner log (important when one script calls runner.sh several times)
 		> runner.log
-		
+
 		if [ $VERBOSE -eq 2 ]
 		then
 			CMD_PARAMS="${CMD_PARAMS},debug_mode"
 		fi
-	
+
 		if [ "TRUE" = "${EXECUTE_ALL}" ]
 		then
 			logger "INFO" "Lancement de tous les jobs (fichier d'entrée: '${INPUT_FILE}')"
-			
+
 			if [ "" != "$CMD_PARAMS" ]
 			then
 				PARAMETERS="$(echo ${CMD_PARAMS} | sed -r 's/,/ /g')"
@@ -308,7 +327,7 @@ then
 			fi
 		else
 			logger "INFO" "Lancement des jobs '$JOBS_LIST' (fichier d'entrée: '${INPUT_FILE}')"
-			
+
 			if [ "" != "$CMD_PARAMS" ]
 			then
 				PARAMETERS="$(echo ${CMD_PARAMS} | sed -r 's/,/ /g')"
@@ -317,10 +336,10 @@ then
 				java ${JVM_ADDITIONAL_PARAMS} -jar ${EXECUTION_PATH}/bin/alambic.jar --execution-path=${EXECUTION_PATH} -j="$INPUT_FILE" -el="$JOBS_LIST"
 			fi
 		fi
-	
+
 		logger "INFO" "Production du rapport d'exécution"
 		report
-		
+
 		logger "INFO" "Gestion de l'ancienneté des logs et rapports"
 		flush
 	else

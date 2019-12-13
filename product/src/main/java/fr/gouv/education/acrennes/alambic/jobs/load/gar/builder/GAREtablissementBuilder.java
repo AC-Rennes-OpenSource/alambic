@@ -38,6 +38,7 @@ import javax.xml.validation.SchemaFactory;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.json.JSONObject;
 import org.w3c.dom.Document;
 import org.xml.sax.SAXException;
 
@@ -76,8 +77,7 @@ public class GAREtablissementBuilder implements GARTypeBuilder {
 		this.output = output;
 		this.em = em;
 		this.xsdFile = xsdFile;
-		// Get the list of involved structures
-		this.structures = resources.get("Entries").getEntries();
+		this.structures = resources.get("Entries").getEntries(); // Get the list of involved structures
 		this.aafSource = resources.get("AAF");
 	}
 
@@ -107,7 +107,7 @@ public class GAREtablissementBuilder implements GARTypeBuilder {
 					garEtab.setGARStructureUAI(ENTStructureUAI);
 				} else {
 					jobActivity.setTrafficLight(ActivityTrafficLight.ORANGE);
-					log.warn("Skipping entity '" + GARHelper.getStructEntityBlurId(entity) + "' as it has no attribute 'ENTStructureUAI' (mandatory)");
+					log.warn("Skipping entity '" + GARHelper.getInstance().getStructEntityBlurId(entity) + "' as it has no attribute 'ENTStructureUAI' (mandatory)");
 					continue; // skip this entry as a missing mandatory field won't allow XML production
 				}
 
@@ -119,7 +119,7 @@ public class GAREtablissementBuilder implements GARTypeBuilder {
 					garEtab.setGARStructureNomCourant(attribute.get(0));
 				} else {
 					jobActivity.setTrafficLight(ActivityTrafficLight.ORANGE);
-					log.warn("Skipping entity '" + GARHelper.getStructEntityBlurId(entity) + "' as it has no attribute 'ENTDisplayName' (mandatory)");
+					log.warn("Skipping entity '" + GARHelper.getInstance().getStructEntityBlurId(entity) + "' as it has no attribute 'ENTDisplayName' (mandatory)");
 					continue; // skip this entry as a missing mandatory field won't allow XML production
 				}
 
@@ -130,7 +130,7 @@ public class GAREtablissementBuilder implements GARTypeBuilder {
 				if (null != attribute && 0 < attribute.size() && StringUtils.isNotBlank(attribute.get(0))) {
 					garEtab.setGAREtablissementStructRattachFctl(attribute.get(0));
 				} else {
-					log.info("Entity '" + GARHelper.getStructEntityBlurId(entity) + "' has no attribute 'ENTEtablissementStructRattachFctl'");
+					log.debug("Entity '" + GARHelper.getInstance().getStructEntityBlurId(entity) + "' has no attribute 'ENTEtablissementStructRattachFctl'");
 				}
 
 				/*
@@ -138,9 +138,9 @@ public class GAREtablissementBuilder implements GARTypeBuilder {
 				 */
 				attribute = entity.get("ENTEtablissementContrat");
 				if (null != attribute && 0 < attribute.size() && StringUtils.isNotBlank(attribute.get(0))) {
-					garEtab.setGARStructureContrat(GARHelper.getSDETCompliantContractValue(attribute.get(0)));
+					garEtab.setGARStructureContrat(GARHelper.getInstance().getSDETCompliantContractValue(attribute.get(0)));
 				} else {
-					log.info("Entity '" + GARHelper.getStructEntityBlurId(entity) + "' has no attribute 'ENTEtablissementContrat'");
+					log.debug("Entity '" + GARHelper.getInstance().getStructEntityBlurId(entity) + "' has no attribute 'ENTEtablissementContrat'");
 				}
 
 				/*
@@ -150,7 +150,7 @@ public class GAREtablissementBuilder implements GARTypeBuilder {
 				if (null != attribute && 0 < attribute.size() && StringUtils.isNotBlank(attribute.get(0))) {
 					garEtab.setGARStructureTelephone(attribute.get(0));
 				} else {
-					log.info("Entity '" + GARHelper.getStructEntityBlurId(entity) + "' has no attribute 'telephoneNumber");
+					log.debug("Entity '" + GARHelper.getInstance().getStructEntityBlurId(entity) + "' has no attribute 'telephoneNumber");
 				}
 
 				/*
@@ -159,7 +159,7 @@ public class GAREtablissementBuilder implements GARTypeBuilder {
 				if (StringUtils.isNotBlank(ENTStructureUAI)) {
 					garEtab.setGARStructureEmail(String.format("ce.%s@ac-rennes.fr", ENTStructureUAI));
 				} else {
-					log.info("Entity '" + GARHelper.getStructEntityBlurId(entity) + "' has no email as no UAI could be found");
+					log.debug("Entity '" + GARHelper.getInstance().getStructEntityBlurId(entity) + "' has no email as no UAI could be found");
 				}
 
 				writer.add(garEtab);
@@ -185,7 +185,7 @@ public class GAREtablissementBuilder implements GARTypeBuilder {
 					for (EnseignementEntity enseignement : person.getEnseignements()) {
 						if (EnseignementEntity.ENSEIGNEMENT_TYPE.MEF.equals(enseignement.getType()) && !distinctMEFs.contains(enseignement.getCode())) {
 							distinctMEFs.add(enseignement.getCode());
-							Map<String, String> mefinfo = getMEFInfo(enseignement.getCode());
+							Map<String, String> mefinfo = getMEFInfo(enseignement.getSourceSI(), enseignement.getCode());
 							if (!mefinfo.isEmpty() && StringUtils.isNotBlank(mefinfo.get("MEFLIBELLE"))) {
 								GARMEF garMEF = factory.createGARMEF();
 								garMEF.setGARMEFCode(enseignement.getCode());
@@ -196,7 +196,7 @@ public class GAREtablissementBuilder implements GARTypeBuilder {
 								writer.add(garMEF);
 							} else {
 								jobActivity.setTrafficLight(ActivityTrafficLight.RED);
-								log.error("Failed to get the 'MEF' information (at least the mandatory label is unknown) associated to the code " + enseignement.getCode() + "' (ENTPersonUid=" + person.getPrimaryKey().getUuid() + ", UAI=" + ENTStructureUAI + ")");								
+								log.error("Failed to get the 'MEF' information (at least the mandatory label is unknown) associated to the code '" + enseignement.getCode() + "' (Type=" + person.getType() + ", ENTPersonUid=" + person.getPrimaryKey().getUuid() + ", UAI=" + ENTStructureUAI + ")");								
 								continue;  // skip this 'MEF' code since its label cannot be resolved from AAF
 							}
 						} else if ((EnseignementEntity.ENSEIGNEMENT_TYPE.CLASSE_MATIERE.equals(enseignement.getType())
@@ -205,7 +205,7 @@ public class GAREtablissementBuilder implements GARTypeBuilder {
 								&& (StringUtils.isNotBlank(enseignement.getCode())) // This criterion is used to discard recordings of students' divisions and groups (go & see GAREleveBuilder)
 								&& !distinctMatieres.contains(enseignement.getCode())) {
 							distinctMatieres.add(enseignement.getCode());
-							String libelle = getLibelleMatiere(enseignement.getCode());
+							String libelle = getLibelleMatiere(enseignement.getSourceSI(), enseignement.getCode());
 							if (StringUtils.isNotBlank(libelle)) {
 								GARMatiere garMatiere = factory.createGARMatiere();
 								garMatiere.setGARMatiereCode(enseignement.getCode());
@@ -214,7 +214,7 @@ public class GAREtablissementBuilder implements GARTypeBuilder {
 								writer.add(garMatiere);
 							} else {
 								jobActivity.setTrafficLight(ActivityTrafficLight.RED);
-								log.error("Failed to get the 'Matiere' label associated to the code " + enseignement.getCode() + "' (ENTPersonUid=" + person.getPrimaryKey().getUuid() + ", UAI=" + ENTStructureUAI + ")");								
+								log.error("Failed to get the 'Matiere' label associated to the code '" + enseignement.getCode() + "' (Type=" + person.getType() + ", ENTPersonUid=" + person.getPrimaryKey().getUuid() + ", UAI=" + ENTStructureUAI + ")");								
 								continue;  // skip this 'matière' code since its label cannot be resolved from AAF
 							}
 						}
@@ -231,17 +231,22 @@ public class GAREtablissementBuilder implements GARTypeBuilder {
 
 	}
 
-	private String getLibelleMatiere(final String code) throws AlambicException {
+	private String getLibelleMatiere(final String sourceSI, final String code) throws AlambicException {
 		String libelle = null;
 
 		try {
-			// query AAF
-			String query = String.format("SELECT SCHAAF.FREDUMATIERES.FREDULIBELLEMATIERE libelle FROM SCHAAF.FREDUMATIERES WHERE SCHAAF.FREDUMATIERES.FREDUCODEMATIERE='%s'", code);
+			// query AAF's index
+			String query = String.format("{\"api\":\"/%s/_search\",\"parameters\":\"q=identifiant:%s\"}", GARHelper.getInstance().getIndexationAlias(sourceSI, GARHelper.INDEXATION_OBJECT_TYPE.Matiere), code);
 			List<Map<String, List<String>>> resultSet = this.aafSource.query(query);
 			
 			// perform controls
 			if (null != resultSet && 0 < resultSet.size()) {
-				libelle = resultSet.get(0).get("LIBELLE").get(0);
+				Map<String, List<String>> item = resultSet.get(0); // a single item is expected
+				JSONObject jsonResultSet = new JSONObject(item.get("item").get(0));
+				if (0 < jsonResultSet.getJSONObject("hits").getInt("total")) {
+					JSONObject mat = jsonResultSet.getJSONObject("hits").getJSONArray("hits").getJSONObject(0);
+					libelle = mat.getJSONObject("_source").getString("libelle");
+				}
 			}
 		} catch (Exception e) {
 			throw new AlambicException(e.getMessage());
@@ -250,20 +255,25 @@ public class GAREtablissementBuilder implements GARTypeBuilder {
 		return libelle;
 	}
 
-	private Map<String, String> getMEFInfo(final String code) throws AlambicException {
+	private Map<String, String> getMEFInfo(final String sourceSI, final String code) throws AlambicException {
 		Map<String, String> info = new HashMap<>();
 
 		try {
-			// query AAF
-			String query = String.format("SELECT SCHAAF.FREDUMEF.FREDULIBELLEMEF meflibelle, SCHAAF.FREDUMEF.FREDUMEFRATTACH mefrattach, SCHAAF.FREDUMEF.FREDUMEFSTAT11 mefstat11 FROM SCHAAF.FREDUMEF WHERE SCHAAF.FREDUMEF.FREDUCODEMEF='%s'", code);				
+			// query AAF's index
+			String query = String.format("{\"api\":\"/%s/_search\",\"parameters\":\"q=identifiant:%s\"}", GARHelper.getInstance().getIndexationAlias(sourceSI, GARHelper.INDEXATION_OBJECT_TYPE.MEF), code);
 			List<Map<String, List<String>>> resultSet = this.aafSource.query(query);
 			
 			// perform controls
 			if (null != resultSet && 0 < resultSet.size()) {
 				Map<String, List<String>> item = resultSet.get(0); // a single item is expected
-				info.put("MEFLIBELLE", item.get("MEFLIBELLE").get(0));
-				info.put("MEFRATTACH", item.get("MEFRATTACH").get(0));
-				info.put("MEFSTAT11", item.get("MEFSTAT11").get(0));
+				JSONObject jsonResultSet = new JSONObject(item.get("item").get(0));
+				if (0 < jsonResultSet.getJSONObject("hits").getInt("total")) {
+					JSONObject mef = jsonResultSet.getJSONObject("hits").getJSONArray("hits").getJSONObject(0);
+					JSONObject mefSource = mef.getJSONObject("_source");
+					info.put("MEFLIBELLE", mefSource.getString("libelle"));
+					info.put("MEFRATTACH", mefSource.getString("rattachement"));
+					info.put("MEFSTAT11", mefSource.getString("stat11"));
+				}
 			}
 		} catch (Exception e) {
 			throw new AlambicException(e.getMessage());
@@ -325,7 +335,7 @@ public class GAREtablissementBuilder implements GARTypeBuilder {
 
 		// Marshal the XML binding
 		private void marshal(final int increment) throws FileNotFoundException, JAXBException {
-			String outputFileName = GARHelper.getOutputFileName(output, page, increment);
+			String outputFileName = GARHelper.getInstance().getOutputFileName(output, page, increment);
 			JAXBElement<GARENTEtab> jaxbElt = factory.createGARENTEtab(container);
 			marshaller.marshal(jaxbElt, new FileOutputStream(outputFileName));
 			container = factory.createGARENTEtab();

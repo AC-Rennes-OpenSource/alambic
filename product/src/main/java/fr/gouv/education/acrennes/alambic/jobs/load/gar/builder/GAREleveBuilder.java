@@ -48,10 +48,12 @@ import javax.xml.xpath.XPathFactory;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.json.JSONObject;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.xml.sax.SAXException;
 
+import fr.gouv.education.acrennes.alambic.exception.AlambicException;
 import fr.gouv.education.acrennes.alambic.jobs.CallableContext;
 import fr.gouv.education.acrennes.alambic.jobs.extract.sources.Source;
 import fr.gouv.education.acrennes.alambic.jobs.load.gar.binding.GARENTEleve;
@@ -60,6 +62,7 @@ import fr.gouv.education.acrennes.alambic.jobs.load.gar.binding.GAREleveEnseigne
 import fr.gouv.education.acrennes.alambic.jobs.load.gar.binding.GARPersonMEF;
 import fr.gouv.education.acrennes.alambic.jobs.load.gar.binding.GARPersonProfils;
 import fr.gouv.education.acrennes.alambic.jobs.load.gar.binding.ObjectFactory;
+import fr.gouv.education.acrennes.alambic.jobs.load.gar.builder.GARHelper.INDEXATION_OBJECT_TYPE;
 import fr.gouv.education.acrennes.alambic.jobs.load.gar.persistence.EnseignementEntity;
 import fr.gouv.education.acrennes.alambic.jobs.load.gar.persistence.StaffEntity;
 import fr.gouv.education.acrennes.alambic.jobs.load.gar.persistence.StaffEntityPK;
@@ -80,6 +83,7 @@ public class GAREleveBuilder implements GARTypeBuilder {
 	private final XPath xpath;
 	private final List<Map<String, List<String>>> students;
 	private final List<String> memberStructuresList;
+	private final Source aafSource;	
 
 	public GAREleveBuilder(final CallableContext context, final Map<String, Source> resources, final int page, final ActivityMBean jobActivity, final int maxNodesCount, final String version,
 			final String output, final String xsdFile, final EntityManager em, final Map<String, Document> exportFiles) {
@@ -93,10 +97,9 @@ public class GAREleveBuilder implements GARTypeBuilder {
 		XPathFactory xpf = XPathFactory.newInstance();
 		this.xpath = xpf.newXPath();		
 		this.xsdFile = xsdFile;
-		// Get the list of involved students
-		this.students = resources.get("Entries").getEntries();
-		// Get the list of involved structures
-		Source structuresSource = resources.get("Structures");
+		this.students = resources.get("Entries").getEntries(); // Get the list of involved students
+		Source structuresSource = resources.get("Structures"); // Get the list of involved structures
+		this.aafSource = resources.get("AAF");
 		this.memberStructuresList = new ArrayList<String>();
 		List<Map<String, List<String>>> structures = structuresSource.getEntries();
 		structures.forEach(structure -> { 
@@ -107,7 +110,7 @@ public class GAREleveBuilder implements GARTypeBuilder {
 	}
 
 	@Override
-	public void execute() {
+	public void execute() throws AlambicException {
 		try {
 			List<String> attribute;
 			ObjectFactory factory = new ObjectFactory();
@@ -134,12 +137,12 @@ public class GAREleveBuilder implements GARTypeBuilder {
 						Element root = exportFiles.get("restrictionList").getDocumentElement();
 						String matchingEntry = (String) xpath.evaluate("//id[.='" + attribute.get(0) + "']", root, XPathConstants.STRING);
 						if (StringUtils.isBlank(matchingEntry)) {
-							log.debug("Skipping entity '" + GARHelper.getPersonEntityBlurId(entity) + "' since it doesn't belong to the restriction list");
+							log.debug("Skipping entity '" + GARHelper.getInstance().getPersonEntityBlurId(entity) + "' since it doesn't belong to the restriction list");
 							continue;
 						}
 					} else {
 						jobActivity.setTrafficLight(ActivityTrafficLight.ORANGE);
-						log.warn("Skipping entity '" + GARHelper.getPersonEntityBlurId(entity) + "' as it has no attribute 'ENTPersonJointure' (mandatory)");
+						log.warn("Skipping entity '" + GARHelper.getInstance().getPersonEntityBlurId(entity) + "' as it has no attribute 'ENTPersonJointure' (mandatory)");
 						continue; // skip this entity as a missing mandatory field won't allow XML production
 					}
 				}
@@ -147,8 +150,21 @@ public class GAREleveBuilder implements GARTypeBuilder {
 				GAREleve garEleve = factory.createGAREleve();
 				String ENTPersonStructRattach = null;
 				String ENTPersonIdentifiant = null;
+				String ENTPersonSourceSI = null;
 				Map<String, List<EnseignementEntity>> mapEnseignements = new HashMap<String, List<EnseignementEntity>>();
 
+				/*
+				 * Determine the source SI
+				 */
+				attribute = entity.get("ENTPersonSourceSI");
+				if (null != attribute && 0 < attribute.size() && StringUtils.isNotBlank(attribute.get(0))) {
+					ENTPersonSourceSI = attribute.get(0);
+				} else {
+					jobActivity.setTrafficLight(ActivityTrafficLight.ORANGE);
+					log.warn("Skipping entity '" + GARHelper.getInstance().getPersonEntityBlurId(entity) + "' as it has no attribute 'ENTPersonSourceSI' (mandatory)");
+					continue; // skip this entity as a missing mandatory field won't allow XML production
+				}
+				
 				/*
 				 * GARPersonIdentifiant
 				 */
@@ -158,7 +174,7 @@ public class GAREleveBuilder implements GARTypeBuilder {
 					garEleve.setGARPersonIdentifiant(ENTPersonIdentifiant);
 				} else {
 					jobActivity.setTrafficLight(ActivityTrafficLight.ORANGE);
-					log.warn("Skipping entity '" + GARHelper.getPersonEntityBlurId(entity) + "' as it has no attribute 'ENTPersonUid' (mandatory)");
+					log.warn("Skipping entity '" + GARHelper.getInstance().getPersonEntityBlurId(entity) + "' as it has no attribute 'ENTPersonUid' (mandatory)");
 					continue; // skip this entity as a missing mandatory field won't allow XML production
 				}
 
@@ -169,13 +185,13 @@ public class GAREleveBuilder implements GARTypeBuilder {
 
 				/*
 				 * GARPersonCivilite
-				 * (Until Redmine #11110 is fixed: use attribute 'ENTPersonSexe' instead of 'personalTitle')
+				 * (TODO Waiting Redmine #11110: use attribute 'ENTPersonSexe' instead of 'personalTitle')
 				 */
 				attribute = entity.get("ENTPersonSexe");
 				if (null != attribute && 0 < attribute.size() && StringUtils.isNotBlank(attribute.get(0))) {
 					garEleve.setGARPersonCivilite(("1".equals(attribute.get(0))) ? "M." : "Mme");
 				} else {
-					log.info("Entity '" + GARHelper.getPersonEntityBlurId(entity) + "' has no attribute 'ENTPersonSexe'");
+					log.debug("Entity '" + GARHelper.getInstance().getPersonEntityBlurId(entity) + "' has no attribute 'ENTPersonSexe'");
 				}
 
 				/*
@@ -189,7 +205,8 @@ public class GAREleveBuilder implements GARTypeBuilder {
 					ENTPersonStructRattach = ((this.memberStructuresList.contains(uai)) ? uai : "");
 					garEleve.setGARPersonStructRattach(ENTPersonStructRattach);
 				} else {
-					log.info("Skipping entity '" + GARHelper.getPersonEntityBlurId(entity) + "' as it has no attribute 'ENTPersonStructRattach'");
+					jobActivity.setTrafficLight(ActivityTrafficLight.ORANGE);
+					log.warn("Skipping entity '" + GARHelper.getInstance().getPersonEntityBlurId(entity) + "' as it has no attribute 'ENTPersonStructRattach'");
 					continue; // skip this entry as a missing mandatory field won't allow XML production
 				}
 
@@ -210,7 +227,7 @@ public class GAREleveBuilder implements GARTypeBuilder {
 						log.warn("Failed to parse the attribute 'ENTPersonDateNaissance', might not match the following expected date format 'dd/MM/yyyy', error: " + e.getMessage());
 					}
 				} else {
-					log.info("Entity '" + GARHelper.getPersonEntityBlurId(entity) + "' has no attribute 'ENTPersonDateNaissance'");
+					log.debug("Entity '" + GARHelper.getInstance().getPersonEntityBlurId(entity) + "' has no attribute 'ENTPersonDateNaissance'");
 				}
 
 				/*
@@ -221,7 +238,7 @@ public class GAREleveBuilder implements GARTypeBuilder {
 					garEleve.setGARPersonNom(attribute.get(0));
 				} else {
 					jobActivity.setTrafficLight(ActivityTrafficLight.ORANGE);
-					log.warn("Skipping entity '" + GARHelper.getPersonEntityBlurId(entity) + "' as it has no attribute 'sn' (mandatory)");
+					log.warn("Skipping entity '" + GARHelper.getInstance().getPersonEntityBlurId(entity) + "' as it has no attribute 'sn' (mandatory)");
 					continue; // skip this entity as a missing mandatory field won't allow XML production
 				}
 
@@ -234,7 +251,7 @@ public class GAREleveBuilder implements GARTypeBuilder {
 					garEleve.getGARPersonAutresPrenoms().add(attribute.get(0)); // le prénom usuel doit figurer parmi les "autres" prénoms
 				} else {
 					jobActivity.setTrafficLight(ActivityTrafficLight.ORANGE);
-					log.warn("Skipping entity '" + GARHelper.getPersonEntityBlurId(entity) + "' as it has no attribute 'givenName' (mandatory)");
+					log.warn("Skipping entity '" + GARHelper.getInstance().getPersonEntityBlurId(entity) + "' as it has no attribute 'givenName' (mandatory)");
 					continue; // skip this entity as a missing mandatory field won't allow XML production
 				}
 
@@ -247,11 +264,11 @@ public class GAREleveBuilder implements GARTypeBuilder {
 						if (StringUtils.isNotBlank(value) && !garEleve.getGARPersonAutresPrenoms().contains(value)) {
 							garEleve.getGARPersonAutresPrenoms().add(value);
 						} else {
-							log.info("Entity '" + GARHelper.getPersonEntityBlurId(entity) + "' has attribute 'ENTPersonAutresPrenoms' with blank value");
+							log.debug("Entity '" + GARHelper.getInstance().getPersonEntityBlurId(entity) + "' has attribute 'ENTPersonAutresPrenoms' with blank value");
 						}
 					}
 				} else {
-					log.info("Entity '" + GARHelper.getPersonEntityBlurId(entity) + "' has no attribute 'ENTPersonAutresPrenoms'");
+					log.debug("Entity '" + GARHelper.getInstance().getPersonEntityBlurId(entity) + "' has no attribute 'ENTPersonAutresPrenoms'");
 				}
 
 				/*
@@ -261,13 +278,13 @@ public class GAREleveBuilder implements GARTypeBuilder {
 				if (null != attribute && 0 < attribute.size() && StringUtils.isNotBlank(attribute.get(0))) {
 					garEleve.setGARPersonNomPatro(attribute.get(0));
 				} else {
-					log.info("Entity '" + GARHelper.getPersonEntityBlurId(entity) + "' has no attribute 'ENTPersonNomPatro'");
+					log.debug("Entity '" + GARHelper.getInstance().getPersonEntityBlurId(entity) + "' has no attribute 'ENTPersonNomPatro'");
 				}
 
 				/*
 				 * GARPersonEtab & GARPersonProfil
 				 * 
-				 * Le script se base sur les attributs "ENTEleveClasses" et "ENTEleveGroupes" afin de lister les établissements où l'élèves
+				 * Le script se base sur les attributs "ENTEleveClasses" et "ENTEleveGroupes" afin de lister les établissements où l'élève
 				 * suit des enseignements. À la différence des enseignants, l'attribut "ENTPersonFonctions" présent dans l'annuaire applicatif
 				 * Toutatice ne contient pas la liste des établissements "d'exercice" mais rappelle l'UAI de l'établissement d'affectation
 				 * administrative (ce qui est le même dans la grande majorité). 
@@ -284,7 +301,7 @@ public class GAREleveBuilder implements GARTypeBuilder {
 					functionsCodes.clear();
 					for (String value : divsNGrps) {
 						if (StringUtils.isNotBlank(value)) {
-							String uai = GARHelper.extractCodeGroup(value, 0).toUpperCase();
+							String uai = GARHelper.getInstance().extractCodeGroup(value, 0).toUpperCase();
 							// Control the UAI belongs to the involved structures list							
 							if (this.memberStructuresList.contains(uai)) {
 								// Control it was not already processed							
@@ -299,7 +316,7 @@ public class GAREleveBuilder implements GARTypeBuilder {
 									// Add GARPersonProfil structure
 
 									// get SDET compliant national profile value (le titre est utilisé (mono valué) car il est considéré qu'un élève ne peut pas avoir d'autre fonction (DOC...))
-									String sdetcnpv = GARHelper.getSDETCompliantProfileValue(entity.get("title").get(0), null);
+									String sdetcnpv = GARHelper.getInstance().getSDETCompliantProfileValue(entity.get("title").get(0), null);
 									if (StringUtils.isNotBlank(sdetcnpv)) {
 										GARPersonProfils pf = factory.createGARPersonProfils();
 										pf.setGARStructureUAI(uai);
@@ -307,19 +324,19 @@ public class GAREleveBuilder implements GARTypeBuilder {
 										garEleve.getGARPersonProfils().add(pf);
 									} else {
 										jobActivity.setTrafficLight(ActivityTrafficLight.ORANGE);
-										log.warn("Entity '" + GARHelper.getPersonEntityBlurId(entity) + "' has no national profil that could be associated with the title '" + entity.get("title").get(0) + "'");
+										log.warn("Entity '" + GARHelper.getInstance().getPersonEntityBlurId(entity) + "' has no national profil that could be associated with the title '" + entity.get("title").get(0) + "'");
 									}
 								}
 							} else {
 								log.info("Student with blur identifier '"+ ENTPersonIdentifiant + "' is member of a structure ('UAI:" + uai + "') out of the involved list");
 							}
 						} else {
-							log.info("Entity '" + GARHelper.getPersonEntityBlurId(entity) + "' has either attribute 'ENTEleveClasses' or 'ENTEleveGroupes' with blank value");
+							log.debug("Entity '" + GARHelper.getInstance().getPersonEntityBlurId(entity) + "' has either attribute 'ENTEleveClasses' or 'ENTEleveGroupes' with blank value");
 						}
 					}
 				} else {
 					jobActivity.setTrafficLight(ActivityTrafficLight.ORANGE);
-					log.warn("Skipping entity '" + GARHelper.getPersonEntityBlurId(entity) + "' as it has neither attribute 'ENTEleveClasses' nor 'ENTEleveGroupes' (mandatory)");
+					log.warn("Skipping entity '" + GARHelper.getInstance().getPersonEntityBlurId(entity) + "' as it has neither attribute 'ENTEleveClasses' nor 'ENTEleveGroupes' (mandatory)");
 					continue; // skip this entity as a missing mandatory field won't allow XML production
 				}
 
@@ -328,7 +345,7 @@ public class GAREleveBuilder implements GARTypeBuilder {
 					attribute = entity.get("ENTPersonNationalProfil");
 					if (null != attribute && StringUtils.isNotBlank(attribute.get(0))) {
 						// get SDET compliant national profile value
-						String sdetcnpv = GARHelper.getSDETCompliantProfileValue(entity.get("title").get(0), attribute.get(0));
+						String sdetcnpv = GARHelper.getInstance().getSDETCompliantProfileValue(entity.get("title").get(0), attribute.get(0));
 						if (StringUtils.isNotBlank(sdetcnpv)) {
 							GARPersonProfils pf = factory.createGARPersonProfils();
 							pf.setGARStructureUAI(ENTPersonStructRattach);
@@ -338,11 +355,11 @@ public class GAREleveBuilder implements GARTypeBuilder {
 							}
 						} else {
 							jobActivity.setTrafficLight(ActivityTrafficLight.ORANGE);
-							log.warn("Entity '" + GARHelper.getPersonEntityBlurId(entity) + "' has no national profil that could be associated with the title '" + entity.get("title").get(0) + "' and ENTPersonNationalProfil '" + attribute.get(0) + "'");
+							log.warn("Entity '" + GARHelper.getInstance().getPersonEntityBlurId(entity) + "' has no national profil that could be associated with the title '" + entity.get("title").get(0) + "' and ENTPersonNationalProfil '" + attribute.get(0) + "'");
 						}
 					} else {
 						jobActivity.setTrafficLight(ActivityTrafficLight.ORANGE);
-						log.warn("Entity '" + GARHelper.getPersonEntityBlurId(entity) + "' as it has no attribute 'ENTPersonNationalProfil' (or empty)");						
+						log.warn("Entity '" + GARHelper.getInstance().getPersonEntityBlurId(entity) + "' as it has no attribute 'ENTPersonNationalProfil' (or empty)");						
 					}
 				}
 
@@ -353,7 +370,7 @@ public class GAREleveBuilder implements GARTypeBuilder {
 				if (0 == garEleve.getGARPersonEtab().size() || 0 == garEleve.getGARPersonProfils().size()) {
 					// skip this entity as a missing mandatory field won't allow XML production 
 					jobActivity.setTrafficLight(ActivityTrafficLight.ORANGE);
-					log.warn("Skipping entity '" + GARHelper.getPersonEntityBlurId(entity) + "' as it has either no attribute 'GARPersonEtab' or 'GARPersonProfils' (mandatory)");
+					log.warn("Skipping entity '" + GARHelper.getInstance().getPersonEntityBlurId(entity) + "' as it has either no attribute 'GARPersonEtab' or 'GARPersonProfils' (mandatory)");
 					continue; // skip this entity as a missing mandatory field won't allow XML production					
 				}
 
@@ -367,29 +384,37 @@ public class GAREleveBuilder implements GARTypeBuilder {
 				if (null != attribute && 0 < attribute.size()) {
 					for (String value : attribute) {
 						if (StringUtils.isNotBlank(value) && !codes.contains(value)) {
-							GARPersonMEF pmef = factory.createGARPersonMEF();
-							pmef.setGARStructureUAI(ENTPersonStructRattach);
-							pmef.setGARMEFCode(value);
-							pmef.setGARPersonIdentifiant(ENTPersonIdentifiant);
-							writer.add(pmef);
+							/* Control the code is valid indeed
+							 * (Since it has been observed teachers' Toutatice accounts referencing invalid codes (AAF meaning) ) 
+							 */
+							if (isMEFCodeValid(ENTPersonSourceSI, value)) {
+								GARPersonMEF pmef = factory.createGARPersonMEF();
+								pmef.setGARStructureUAI(ENTPersonStructRattach);
+								pmef.setGARMEFCode(value);
+								pmef.setGARPersonIdentifiant(ENTPersonIdentifiant);
+								writer.add(pmef);
+								
+								// register for persistence
+								if (!mapEnseignements.containsKey(ENTPersonStructRattach)) {
+									mapEnseignements.put(ENTPersonStructRattach, new ArrayList<EnseignementEntity>());
+								}
+								
+								List<EnseignementEntity> enseignements = mapEnseignements.get(ENTPersonStructRattach);
+								EnseignementEntity enseignement = new EnseignementEntity(ENTPersonSourceSI, value, "unset" /* will be obtained from request on AAF */, EnseignementEntity.ENSEIGNEMENT_TYPE.MEF);
+								if (!enseignements.contains(enseignement)) {
+									enseignements.add(enseignement);
+								}
+							} else {
+								// skip this code since it is not valid
+								log.info("Failed to get the 'MEF' information associated to the code '" + value + "' (ENTPersonUid=" + ENTPersonIdentifiant + ")");								
+							}
 							codes.add(value); // make sure the functional key (code / UAI / id) is respected
-
-							// register for persistence
-							if (!mapEnseignements.containsKey(ENTPersonStructRattach)) {
-								mapEnseignements.put(ENTPersonStructRattach, new ArrayList<EnseignementEntity>());
-							}
-
-							List<EnseignementEntity> enseignements = mapEnseignements.get(ENTPersonStructRattach);
-							EnseignementEntity enseignement = new EnseignementEntity(value, "unset" /* will be obtained from request on AAF */, EnseignementEntity.ENSEIGNEMENT_TYPE.MEF);
-							if (!enseignements.contains(enseignement)) {
-								enseignements.add(enseignement);
-							}
 						} else {
-							log.info("Entity '" + GARHelper.getPersonEntityBlurId(entity) + "' has attribute 'ENTEleveMEF' with blank value");
+							log.debug("Entity '" + GARHelper.getInstance().getPersonEntityBlurId(entity) + "' has attribute 'ENTEleveMEF' with blank value");
 						}
 					}
 				} else {
-					log.info("Entity '" + GARHelper.getPersonEntityBlurId(entity) + "' has no attribute 'ENTEleveMEF'");
+					log.debug("Entity '" + GARHelper.getInstance().getPersonEntityBlurId(entity) + "' has no attribute 'ENTEleveMEF'");
 				}
 
 				/*
@@ -400,29 +425,37 @@ public class GAREleveBuilder implements GARTypeBuilder {
 				if (null != attribute && 0 < attribute.size()) {
 					for (String value : attribute) {
 						if (StringUtils.isNotBlank(value) && !codes.contains(value)) {
-							GAREleveEnseignement eens = factory.createGAREleveEnseignement();
-							eens.setGARMatiereCode(value);
-							eens.setGARPersonIdentifiant(ENTPersonIdentifiant);
-							eens.setGARStructureUAI(ENTPersonStructRattach);
-							writer.add(eens);
+							/* Control the code is valid indeed
+							 * (Since it has been observed teachers' Toutatice accounts referencing invalid codes (AAF meaning) ) 
+							 */
+							if (isMatiereCodeValid(ENTPersonSourceSI, value)) {
+								GAREleveEnseignement eens = factory.createGAREleveEnseignement();
+								eens.setGARMatiereCode(value);
+								eens.setGARPersonIdentifiant(ENTPersonIdentifiant);
+								eens.setGARStructureUAI(ENTPersonStructRattach);
+								writer.add(eens);
+								
+								// register for persistence
+								if (!mapEnseignements.containsKey(ENTPersonStructRattach)) {
+									mapEnseignements.put(ENTPersonStructRattach, new ArrayList<EnseignementEntity>());
+								}
+								
+								List<EnseignementEntity> enseignements = mapEnseignements.get(ENTPersonStructRattach);
+								EnseignementEntity enseignement = new EnseignementEntity(ENTPersonSourceSI, value, "unset" /* not used indeed */, EnseignementEntity.ENSEIGNEMENT_TYPE.DISCIPLINE);
+								if (!enseignements.contains(enseignement)) {
+									enseignements.add(enseignement);
+								}
+							} else {
+								// skip this code since it is not valid
+								log.info("Failed to get the 'Discipline' information associated to the code '" + value + "' (ENTPersonUid=" + ENTPersonIdentifiant + ")");								
+							}
 							codes.add(value); // make sure the functional key (code / UAI / id) is respected
-
-							// register for persistence
-							if (!mapEnseignements.containsKey(ENTPersonStructRattach)) {
-								mapEnseignements.put(ENTPersonStructRattach, new ArrayList<EnseignementEntity>());
-							}
-
-							List<EnseignementEntity> enseignements = mapEnseignements.get(ENTPersonStructRattach);
-							EnseignementEntity enseignement = new EnseignementEntity(value, "unset" /* not used indeed */, EnseignementEntity.ENSEIGNEMENT_TYPE.DISCIPLINE);
-							if (!enseignements.contains(enseignement)) {
-								enseignements.add(enseignement);
-							}
 						} else {
-							log.info("Entity '" + GARHelper.getPersonEntityBlurId(entity) + "' has attribute 'ENTEleveCodeEnseignements' with blank value");
+							log.debug("Entity '" + GARHelper.getInstance().getPersonEntityBlurId(entity) + "' has attribute 'ENTEleveCodeEnseignements' with blank value");
 						}
 					}
 				} else {
-					log.info("Entity '" + GARHelper.getPersonEntityBlurId(entity) + "' has no attribute 'ENTEleveCodeEnseignements'");
+					log.debug("Entity '" + GARHelper.getInstance().getPersonEntityBlurId(entity) + "' has no attribute 'ENTEleveCodeEnseignements'");
 				}
 
 				/*
@@ -434,36 +467,36 @@ public class GAREleveBuilder implements GARTypeBuilder {
 				if (null != attribute && 0 < attribute.size()) {
 					for (String value : attribute) {
 						if (StringUtils.isNotBlank(value)) {
-							String uai = GARHelper.extractCodeGroup(value, 0).toUpperCase();
+							String uai = GARHelper.getInstance().extractCodeGroup(value, 0).toUpperCase();
 							// Control the UAI belongs to the involved structures list
 							if (this.memberStructuresList.contains(uai)) {
 								// Control the UAI belongs to the exercising structures (student has learnings into)
 								if (functionsCodes.contains(uai)) {
-									String divCode = GARHelper.extractCodeGroup(value, 1);
+									String divCode = GARHelper.getInstance().extractCodeGroup(value, 1);
 									String code = null; // the attribute doesn't specify any "matiere" code (only the division identifier).
-
+									
 									// register for persistence
 									if (!mapEnseignements.containsKey(uai)) {
 										mapEnseignements.put(uai, new ArrayList<EnseignementEntity>());
 									}
 
 									List<EnseignementEntity> enseignements = mapEnseignements.get(uai);
-									EnseignementEntity enseignement = new EnseignementEntity(code, divCode, EnseignementEntity.ENSEIGNEMENT_TYPE.CLASSE_MATIERE);
+									EnseignementEntity enseignement = new EnseignementEntity(ENTPersonSourceSI, code, divCode, EnseignementEntity.ENSEIGNEMENT_TYPE.CLASSE_MATIERE);
 									if (!enseignements.contains(enseignement)) {
 										enseignements.add(enseignement);
 									}
 								} else {
-									log.info("Entity '" + GARHelper.getPersonEntityBlurId(entity) + "' has attribute 'ENTEleveClasses' pointing onto structure ('UAI:" + uai + "') that is not referenced by exercising structures");
+									log.info("Entity '" + GARHelper.getInstance().getPersonEntityBlurId(entity) + "' has attribute 'ENTEleveClasses' pointing onto structure ('UAI:" + uai + "') that is not referenced by exercising structures");
 								}
 							} else {
 								log.info("Student with blur identifier '"+ ENTPersonIdentifiant +"' belongs to a class within a structure ('UAI:" + uai + "') out of the involved list");
 							}
 						} else {
-							log.info("Entity '" + GARHelper.getPersonEntityBlurId(entity) + "' has attribute 'ENTEleveClasses' with blank value");
+							log.debug("Entity '" + GARHelper.getInstance().getPersonEntityBlurId(entity) + "' has attribute 'ENTEleveClasses' with blank value");
 						}
 					}
 				} else {
-					log.info("Entity '" + GARHelper.getPersonEntityBlurId(entity) + "' has no attribute 'ENTEleveClasses'");
+					log.debug("Entity '" + GARHelper.getInstance().getPersonEntityBlurId(entity) + "' has no attribute 'ENTEleveClasses'");
 				}
 
 				/*
@@ -475,12 +508,12 @@ public class GAREleveBuilder implements GARTypeBuilder {
 				if (null != attribute && 0 < attribute.size()) {
 					for (String value : attribute) {
 						if (StringUtils.isNotBlank(value)) {
-							String uai = GARHelper.extractCodeGroup(value, 0).toUpperCase();
+							String uai = GARHelper.getInstance().extractCodeGroup(value, 0).toUpperCase();
 							// Control the UAI belongs to the involved structures list
 							if (this.memberStructuresList.contains(uai)) {
 								// Control the UAI belongs to the exercising structures (student has learnings into)
 								if (functionsCodes.contains(uai)) {
-									String grpCode = GARHelper.extractCodeGroup(value, 1);
+									String grpCode = GARHelper.getInstance().extractCodeGroup(value, 1);
 									String code = null; // the attribute doesn't specify any "matiere" code (only the group identifier).
 
 									// register for persistence
@@ -489,22 +522,22 @@ public class GAREleveBuilder implements GARTypeBuilder {
 									}
 
 									List<EnseignementEntity> enseignements = mapEnseignements.get(uai);
-									EnseignementEntity enseignement = new EnseignementEntity(code, grpCode, EnseignementEntity.ENSEIGNEMENT_TYPE.GROUPE_MATIERE);
+									EnseignementEntity enseignement = new EnseignementEntity(ENTPersonSourceSI, code, grpCode, EnseignementEntity.ENSEIGNEMENT_TYPE.GROUPE_MATIERE);
 									if (!enseignements.contains(enseignement)) {
 										enseignements.add(enseignement);
 									}
 								} else {
-									log.info("Entity '" + GARHelper.getPersonEntityBlurId(entity) + "' has attribute 'ENTEleveGroupes' pointing onto structure ('UAI:" + uai + "') that is not referenced by exercising structures");
+									log.info("Entity '" + GARHelper.getInstance().getPersonEntityBlurId(entity) + "' has attribute 'ENTEleveGroupes' pointing onto structure ('UAI:" + uai + "') that is not referenced by exercising structures");
 								}
 							} else {
 								log.info("Student with blur identifier '"+ ENTPersonIdentifiant +"' belongs to a group within a structure ('UAI:" + uai + "') out of the involved list");
 							}
 						} else {
-							log.info("Entity '" + GARHelper.getPersonEntityBlurId(entity) + "' has attribute 'ENTEleveGroupes' with blank value");
+							log.debug("Entity '" + GARHelper.getInstance().getPersonEntityBlurId(entity) + "' has attribute 'ENTEleveGroupes' with blank value");
 						}
 					}
 				} else {
-					log.info("Entity '" + GARHelper.getPersonEntityBlurId(entity) + "' has no attribute 'ENTEleveGroupes'");
+					log.debug("Entity '" + GARHelper.getInstance().getPersonEntityBlurId(entity) + "' has no attribute 'ENTEleveGroupes'");
 				}
 
 				// Persist the tuples (student, structure) in DB
@@ -527,6 +560,52 @@ public class GAREleveBuilder implements GARTypeBuilder {
 
 	}
 
+	private boolean isMatiereCodeValid(final String sourceSI, final String code) throws AlambicException {
+		boolean isValid = false;
+
+		try {
+			// query AAF's index
+			String query = String.format("{\"api\":\"/%s/_search\",\"parameters\":\"q=identifiant:%s\"}", GARHelper.getInstance().getIndexationAlias(sourceSI, INDEXATION_OBJECT_TYPE.Matiere), code);
+			List<Map<String, List<String>>> resultSet = this.aafSource.query(query);
+			
+			// perform controls
+			if (null != resultSet && 0 < resultSet.size()) {
+				Map<String, List<String>> item = resultSet.get(0); // a single item is expected
+				JSONObject jsonResultSet = new JSONObject(item.get("item").get(0));
+				if (1 == jsonResultSet.getJSONObject("hits").getInt("total")) {
+					isValid = true;
+				}
+			}
+		} catch (Exception e) {
+			throw new AlambicException(e.getMessage());
+		}
+
+		return isValid;
+	}
+
+	private boolean isMEFCodeValid(final String sourceSI, final String code) throws AlambicException {
+		boolean isValid = false;
+				
+		try {
+			// query AAF's index
+			String query = String.format("{\"api\":\"/%s/_search\",\"parameters\":\"q=identifiant:%s\"}", GARHelper.getInstance().getIndexationAlias(sourceSI, INDEXATION_OBJECT_TYPE.MEF), code);
+			List<Map<String, List<String>>> resultSet = this.aafSource.query(query);
+			
+			// perform controls
+			if (null != resultSet && 0 < resultSet.size()) {
+				Map<String, List<String>> item = resultSet.get(0); // a single item is expected
+				JSONObject jsonResultSet = new JSONObject(item.get("item").get(0));
+				if (1 == jsonResultSet.getJSONObject("hits").getInt("total")) {
+					isValid = true;
+				}
+			}
+		} catch (Exception e) {
+			throw new AlambicException(e.getMessage());
+		}
+
+		return isValid;
+	}
+	
 	private class GAREleveWriter {
 
 		private int nodeCount;
@@ -580,7 +659,7 @@ public class GAREleveBuilder implements GARTypeBuilder {
 
 		// Marshal the XML binding
 		private void marshal(final int increment) throws FileNotFoundException, JAXBException, SAXException {
-			String outputFileName = GARHelper.getOutputFileName(output, page, increment);
+			String outputFileName = GARHelper.getInstance().getOutputFileName(output, page, increment);
 			JAXBElement<GARENTEleve> jaxbElt = factory.createGARENTEleve(container);
 			marshaller.marshal(jaxbElt, new FileOutputStream(outputFileName));
 			container = factory.createGARENTEleve();

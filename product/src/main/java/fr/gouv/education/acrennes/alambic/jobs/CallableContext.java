@@ -16,6 +16,7 @@
  ******************************************************************************/
 package fr.gouv.education.acrennes.alambic.jobs;
 
+import fr.gouv.education.acrennes.alambic.exception.AlambicException;
 import fr.gouv.education.acrennes.alambic.utils.Variables;
 
 public interface CallableContext {
@@ -39,8 +40,8 @@ public interface CallableContext {
 
 	public Variables getVariables();
 
-	public String resolvePath(final String path);
+	public String resolvePath(final String path) throws AlambicException;
 
-	public String resolveString(final String name);
+	public String resolveString(final String name) throws AlambicException;
 
 }

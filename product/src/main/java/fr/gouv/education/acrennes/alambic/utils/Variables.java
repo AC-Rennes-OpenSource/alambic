@@ -16,10 +16,12 @@
  ******************************************************************************/
 package fr.gouv.education.acrennes.alambic.utils;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang.StringUtils;
 import org.jdom2.Element;
@@ -28,8 +30,9 @@ import fr.gouv.education.acrennes.alambic.exception.AlambicException;
 
 public class Variables {
 
+	private static final String VARIABLE_DELIMITER = "%";
+	private static final String VARIABLE_PATTERN = "(?s).*(" + VARIABLE_DELIMITER + ".+" + VARIABLE_DELIMITER + "){1,}.*";
 	private Map<String, String> tableVars = new HashMap<>();
-	private String delimiter = "%";
 
 	public void loadFromXmlNode(final List<Element> listeVars) {
 		// Récupération des variables
@@ -66,20 +69,32 @@ public class Variables {
 		tableVars.clear();
 	}
 
-	public String resolvString(String sR) {
+	public String resolvString(String sR) throws AlambicException {
+		List<String> history = new ArrayList<String>();
+		history.add(sR);
+		return resolvString(sR, history);
+	}
+	
+	public String resolvString(String sR, List<String> history) throws AlambicException {
 		if (StringUtils.isNotBlank(sR)) {
-			for (final Entry<String, String> entry : tableVars.entrySet()) {
-				// Dans le cas ou la valeur contient des valeurs séparées par ":"
-				if (sR.contains(delimiter + entry.getKey() + delimiter)) {
-					sR = sR.replace(delimiter + entry.getKey() + delimiter, entry.getValue());
-					if (sR.matches("(?s).*" + delimiter + ".+" + delimiter + ".*")) {
-						// use case: variables that references variables
-						sR = resolvString(sR);
+			if (sR.matches(VARIABLE_PATTERN)) {
+				for (final Entry<String, String> entry : tableVars.entrySet()) {
+					// Dans le cas ou la valeur contient des valeurs séparées par le délimiteur de variable
+					if (sR.contains(VARIABLE_DELIMITER + entry.getKey() + VARIABLE_DELIMITER)) {
+						sR = sR.replace(VARIABLE_DELIMITER + entry.getKey() + VARIABLE_DELIMITER, entry.getValue());
+						if (sR.matches(VARIABLE_PATTERN)) {
+							// use case: variables that references variables
+							if (!history.contains(sR)) {
+								history.add(sR);
+								sR = resolvString(sR, history);
+							} else {
+								throw new AlambicException("Infinite recursive loop detected while resolving the variable '" + history.get(0) + "' (resolution history is '" + String.join(",", history)+ "')");
+							}
+						}
+						break;
 					}
-					break;
 				}
 			}
-
 
 			// Effacement des paramètres non valorisés
 			if (sR.matches("(.*(%[p|i|c]([0-9])*%).*)+")) {
@@ -90,10 +105,6 @@ public class Variables {
 		}
 
 		return sR.trim();
-	}
-
-	public void setDelimiter(final String delimiter) {
-		this.delimiter = delimiter;
 	}
 
 	public void put(final String key, final String value) {

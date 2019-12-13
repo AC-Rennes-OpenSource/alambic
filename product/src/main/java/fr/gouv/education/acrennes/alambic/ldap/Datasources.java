@@ -23,6 +23,7 @@ import java.util.Map;
 
 import org.jdom2.Element;
 
+import fr.gouv.education.acrennes.alambic.exception.AlambicException;
 import fr.gouv.education.acrennes.alambic.jobs.extract.clients.SqlToStateBase;
 import fr.gouv.education.acrennes.alambic.utils.Variables;
 
@@ -34,7 +35,7 @@ public class Datasources {
 	/*
 	 * Methode pour nettoyer les datasources ouverts
 	 */
-	public Datasources(final Element xmlNode, final Variables variables) throws SQLException, ClassNotFoundException {
+	public Datasources(final Element xmlNode, final Variables variables) throws SQLException, ClassNotFoundException, AlambicException {
 		this.variables = variables;
 		this.xmlNode = xmlNode;
 		loadDataSourceList();
@@ -52,7 +53,7 @@ public class Datasources {
 
 	}
 
-	private void loadDataSourceList() throws SQLException, ClassNotFoundException {
+	private void loadDataSourceList() throws SQLException, ClassNotFoundException, AlambicException {
 		if (xmlNode.getChild("datasources") != null) {
 			List<Element> children = xmlNode.getChild("datasources").getChildren();
 			for (Element dataSource : children) {

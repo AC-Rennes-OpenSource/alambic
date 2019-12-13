@@ -40,7 +40,7 @@ public class CSVSource extends AbstractSource {
 	}
 
 	@Override
-	public void initialize(final Element sourceNode) {
+	public void initialize(final Element sourceNode) throws AlambicException {
 		String inputFile = sourceNode.getChildText("input");
 		if (StringUtils.isNotBlank(inputFile)) {
 			inputFile = context.resolvePath(inputFile);

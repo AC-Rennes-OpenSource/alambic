@@ -106,7 +106,7 @@ public class GARGroupeBuilder implements GARTypeBuilder {
 					ENTStructureUAI = attribute.get(0).toUpperCase();
 				} else {
 					jobActivity.setTrafficLight(ActivityTrafficLight.RED);
-					log.error("Skipping entity '" + GARHelper.getStructEntityBlurId(entity) + "' as it has no attribute 'ENTStructureUAI' (mandatory)");
+					log.error("Skipping entity '" + GARHelper.getInstance().getStructEntityBlurId(entity) + "' as it has no attribute 'ENTStructureUAI' (mandatory)");
 					continue; // skip this entry as a missing mandatory field won't allow XML production
 				}
 				
@@ -119,9 +119,9 @@ public class GARGroupeBuilder implements GARTypeBuilder {
 				if (null != attribute && 0 < attribute.size()) {
 					for (String groupe : attribute) {
 						if (StringUtils.isNotBlank(groupe)) {
-							String code = GARHelper.extractCodeGroup(groupe, 0);
+							String code = GARHelper.getInstance().extractCodeGroup(groupe, 0);
 							if (!listStructDivCodes.contains(code)) {
-								String libelle = GARHelper.extractCodeGroup(groupe, 1);
+								String libelle = GARHelper.getInstance().extractCodeGroup(groupe, 1);
 								GARGroupe garGroup = factory.createGARGroupe();
 								garGroup.setGARStructureUAI(ENTStructureUAI);
 								garGroup.setGARGroupeStatut("DIVISION");
@@ -133,7 +133,7 @@ public class GARGroupeBuilder implements GARTypeBuilder {
 						}
 					}
 				} else {
-					log.info("Entity '" + GARHelper.getStructEntityBlurId(entity) + "' has no attribute 'ENTStructureClasses'");
+					log.debug("Entity '" + GARHelper.getInstance().getStructEntityBlurId(entity) + "' has no attribute 'ENTStructureClasses'");
 				}
 
 				/*
@@ -145,14 +145,14 @@ public class GARGroupeBuilder implements GARTypeBuilder {
 				if (null != attribute && 0 < attribute.size()) {
 					for (String groupe : attribute) {
 						if (StringUtils.isNotBlank(groupe)) {
-							String code = GARHelper.extractCodeGroup(groupe, 0);
+							String code = GARHelper.getInstance().extractCodeGroup(groupe, 0);
 							/*
 							 * Functional key over GARGroupe element deals with the couple {UAI, code}. The status (GROUPE/DIVISION) is
 							 * not taken into consideration. Hence, both the statement 'listGrpCodes' and 'listDivCodes' are checked.
 							 */
 							if (!listStructGrpCodes.contains(code)) {
 								if (!listStructDivCodes.contains(code)) {
-									String libelle = GARHelper.extractCodeGroup(groupe, 1);
+									String libelle = GARHelper.getInstance().extractCodeGroup(groupe, 1);
 									GARGroupe garGroup = factory.createGARGroupe();
 									garGroup.setGARStructureUAI(ENTStructureUAI);
 									garGroup.setGARGroupeStatut("GROUPE");
@@ -161,21 +161,21 @@ public class GARGroupeBuilder implements GARTypeBuilder {
 									int tokenCount = groupe.split("\\$").length;
 									if (tokenCount > 2) {
 										for (int i = 2; i < tokenCount; i++) {
-											garGroup.getGARGroupeDivAppartenance().add(GARHelper.extractCodeGroup(groupe, i));
+											garGroup.getGARGroupeDivAppartenance().add(GARHelper.getInstance().extractCodeGroup(groupe, i));
 										}
 									}
 									listGarGroupes.add(garGroup);
 									listStructGrpCodes.add(code);
 								} else {
 									jobActivity.setTrafficLight(ActivityTrafficLight.ORANGE);
-									log.warn("Entity '" + GARHelper.getStructEntityBlurId(entity) + "' defines a division and group with same code '" + code + "'. Both will be ignored.");
+									log.warn("Entity '" + GARHelper.getInstance().getStructEntityBlurId(entity) + "' defines a division and group with same code '" + code + "'. Both will be ignored.");
 									listStructConflictingCodes.add(code);
 								}
 							}
 						}
 					}
 				} else {
-					log.info("Entity '" + GARHelper.getStructEntityBlurId(entity) + "' has no attribute 'ENTStructureGroupes'");
+					log.debug("Entity '" + GARHelper.getInstance().getStructEntityBlurId(entity) + "' has no attribute 'ENTStructureGroupes'");
 				}
 
 				/**
@@ -298,7 +298,7 @@ public class GARGroupeBuilder implements GARTypeBuilder {
 									}
 								}
 							} else {
-								log.warn("Filtered GAREnsGroupe/ClasseMatiere element from teacher entity (ENTPersonUid=" + enseignant.getPrimaryKey().getUuid() + ") since it references a code '" + groupCode + "' absent from the UAI '" + GARHelper.getStructEntityBlurId(entity) + "' (might be filtered earlier)");
+								log.warn("Filtered GAREnsGroupe/ClasseMatiere element from teacher entity (ENTPersonUid=" + enseignant.getPrimaryKey().getUuid() + ") since it references a code '" + groupCode + "' absent from the UAI '" + GARHelper.getInstance().getStructEntityBlurId(entity) + "' (might be filtered earlier)");
 							}
 						}
 					}
@@ -361,7 +361,7 @@ public class GARGroupeBuilder implements GARTypeBuilder {
 								// Update the list of "not empty" groups and divisions
 								if (!notEmptyGrpDivCodes.contains(groupCode)) notEmptyGrpDivCodes.add(groupCode);
 							} else {
-								log.warn("Filtered GAREnsGroupe/ClasseMatiere element from student entity (ENTPersonUid=" + student.getPrimaryKey().getUuid() + ") since it references a code '" + groupCode + "' absent from the UAI '" + GARHelper.getStructEntityBlurId(entity) + "' (might be filtered earlier)");
+								log.warn("Filtered GAREnsGroupe/ClasseMatiere element from student entity (ENTPersonUid=" + student.getPrimaryKey().getUuid() + ") since it references a code '" + groupCode + "' absent from the UAI '" + GARHelper.getInstance().getStructEntityBlurId(entity) + "' (might be filtered earlier)");
 							}
 						}
 					}
@@ -463,7 +463,7 @@ public class GARGroupeBuilder implements GARTypeBuilder {
 
 		// Marshal the XML binding
 		private void marshal(final int increment) throws FileNotFoundException, JAXBException {
-			String outputFileName = GARHelper.getOutputFileName(output, page, increment);
+			String outputFileName = GARHelper.getInstance().getOutputFileName(output, page, increment);
 			JAXBElement<GARENTGroupe> jaxbElt = factory.createGARENTGroupe(container);
 			marshaller.marshal(jaxbElt, new FileOutputStream(outputFileName));
 			container = factory.createGARENTGroupe();

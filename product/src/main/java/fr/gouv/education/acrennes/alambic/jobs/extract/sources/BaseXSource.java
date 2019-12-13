@@ -43,7 +43,7 @@ public class BaseXSource extends AbstractSource {
 	}
 
 	@Override
-	public void initialize(Element sourceNode) {
+	public void initialize(Element sourceNode) throws AlambicException {
 		
 		String host = sourceNode.getChildText("host");
 		if (StringUtils.isBlank(host)) {

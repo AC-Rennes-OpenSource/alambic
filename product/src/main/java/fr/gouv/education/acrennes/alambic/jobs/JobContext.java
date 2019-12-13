@@ -108,12 +108,12 @@ public class JobContext implements CallableContext {
 	}
 
 	@Override
-	public String resolvePath(final String path) {
+	public String resolvePath(final String path) throws AlambicException {
 		return resolveString(path);
 	}
 
 	@Override
-	public String resolveString(final String str) {
+	public String resolveString(final String str) throws AlambicException {
 		return variables.resolvString(str);
 	}
 

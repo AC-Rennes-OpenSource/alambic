@@ -16,13 +16,17 @@
  ******************************************************************************/
 package fr.gouv.education.acrennes.alambic.utils;
 
+import static org.junit.Assert.fail;
+
 import org.junit.Assert;
 import org.junit.Test;
+
+import fr.gouv.education.acrennes.alambic.exception.AlambicException;
 
 public class VariablesTest {
 
 	@Test
-	public void testResolvStringCasNominal() {
+	public void testResolvStringCasNominal() throws AlambicException {
 		final Variables variables = new Variables();
 		variables.put("KEY1", "val1");
 		variables.put("KEY2", "3");
@@ -43,6 +47,75 @@ public class VariablesTest {
 
 		resolvString = variables.resolvString("%KEY%KEY2%_bis%");// équivalent à la clé KEY3_bis
 		Assert.assertEquals("val3", resolvString);
+	}
 
+	@Test
+	public void testResolvStringCasNominal2() throws AlambicException {
+		final Variables variables = new Variables();
+		variables.put("DEV", "DEV_VAR");
+		variables.put("VAR_DEV_VAR", "BINGO!");
+
+		String resolvString = variables.resolvString("%VAR_%DEV%%");
+		Assert.assertEquals("BINGO!", resolvString);
+	}
+
+	@Test
+	public void testResolvStringLoopCase1() throws AlambicException {
+		final Variables variables = new Variables();
+		variables.put("KEY1", "%KEY2%");
+		variables.put("KEY2", "%KEY1%");
+
+		try {
+			variables.resolvString("toto %KEY1%");
+			fail("An exception should be raised !");
+		} catch (AlambicException e) {
+			System.out.println(String.format("Correctly catched expected exception : %s", e.getMessage()));
+			Assert.assertTrue(true);
+		}
+	}
+
+	@Test
+	public void testResolvStringLoopCase2() throws AlambicException {
+		final Variables variables = new Variables();
+		variables.put("KEY1", "%KEY1%");
+
+		try {
+			variables.resolvString("toto %KEY1%");
+			fail("An exception should be raised !");
+		} catch (AlambicException e) {
+			System.out.println(String.format("Correctly catched expected exception : %s", e.getMessage()));
+			Assert.assertTrue(true);
+		}
+	}
+
+	@Test
+	public void testResolvStringLoopCase3() throws AlambicException {
+		final Variables variables = new Variables();
+		variables.put("KEY1", "%KEY1%");
+
+		try {
+			variables.resolvString("%KEY1%");
+			fail("An exception should be raised !");
+		} catch (AlambicException e) {
+			System.out.println(String.format("Correctly catched expected exception : %s", e.getMessage()));
+			Assert.assertTrue(true);
+		}
+	}
+
+	@Test
+	public void testResolvStringLoopCase4() throws AlambicException {
+		final Variables variables = new Variables();
+		variables.put("KEY1", "%KEY2%");
+		variables.put("KEY2", "%KEY4%");
+		variables.put("KEY3", "%KEY2%");
+		variables.put("KEY4", "%KEY3%");
+		
+		try {
+			variables.resolvString("%KEY1%");
+			fail("An exception should be raised !");
+		} catch (AlambicException e) {
+			System.out.println(String.format("Correctly catched expected exception : %s", e.getMessage()));
+			Assert.assertTrue(true);
+		}
 	}
 }
