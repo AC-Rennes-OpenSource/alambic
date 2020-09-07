@@ -1,16 +1,16 @@
 /*******************************************************************************
- * Copyright (C) 2019 Rennes - Brittany Education Authority (<http://www.ac-rennes.fr>) and others.
- * 
+ * Copyright (C) 2019-2020 Rennes - Brittany Education Authority (<http://www.ac-rennes.fr>) and others.
+ *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU Lesser General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU Lesser General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  ******************************************************************************/
@@ -25,6 +25,8 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
+
+import fr.gouv.education.acrennes.alambic.generator.service.RandomGeneratorService;
 import org.eclipse.persistence.annotations.Index;
 import org.eclipse.persistence.annotations.Indexes;
 
@@ -35,7 +37,6 @@ import org.eclipse.persistence.annotations.Indexes;
 		@Index(name = "randomauditentity_type_idx", columnNames = { "type" }),
 		@Index(name = "randomauditentity_hash_idx", columnNames = { "hash" }),
 		@Index(name = "randomauditentity_processid_idx", columnNames = { "processid" }),
-		@Index(name = "randomauditentity_blurid_idx", columnNames = { "blurId" }),
 		@Index(name = "randomauditentity_exist_idx", columnNames = { "type", "blurid", "processid", "capacityfilter" }), // useful for finding former produced entities
 		@Index(name = "randomauditentity_capacity_idx", columnNames = { "type", "processid", "capacityfilter" }) // useful for querying the actual capacity of a generator
 })
@@ -73,10 +74,10 @@ public class RandomAuditEntity implements Serializable {
 		date = new Date();
 	}
 
-	public RandomAuditEntity(final String processId, final String type, final String hash, final String capacityFilter, final String blurId) {
+	public RandomAuditEntity(final String processId, final RandomGeneratorService.GENERATOR_TYPE type, final String hash, final String capacityFilter, final String blurId) {
 		this();
 		this.processId = processId;
-		this.type = type;
+		this.type = type.toString();
 		this.hash = hash;
 		this.capacityFilter = capacityFilter;
 		this.blurId = blurId;

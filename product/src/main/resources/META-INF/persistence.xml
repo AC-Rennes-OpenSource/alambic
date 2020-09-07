@@ -3,10 +3,11 @@
   version="2.0" xmlns="http://java.sun.com/xml/ns/persistence">
 	<persistence-unit name="PRODUCTION_PERSISTENCE_UNIT" transaction-type="RESOURCE_LOCAL">
 		<provider>org.eclipse.persistence.jpa.PersistenceProvider</provider>
-		<class>fr.gouv.education.acrennes.alambic.random.persistence.RandomUserEntity</class>
-		<class>fr.gouv.education.acrennes.alambic.random.persistence.RandomUserEntityPK</class>
+		<class>fr.gouv.education.acrennes.alambic.random.persistence.RandomUserMaleEntity</class>
+		<class>fr.gouv.education.acrennes.alambic.random.persistence.RandomUserFemaleEntity</class>
 		<class>fr.gouv.education.acrennes.alambic.random.persistence.RandomAuditEntity</class>
 		<class>fr.gouv.education.acrennes.alambic.random.persistence.RandomLambdaEntity</class>
+		<class>fr.gouv.education.acrennes.alambic.random.persistence.RandomBlurIDEntity</class>
 		<class>fr.gouv.education.acrennes.alambic.jobs.load.gar.persistence.StaffEntity</class>
 		<class>fr.gouv.education.acrennes.alambic.jobs.load.gar.persistence.StaffEntityPK</class>
 		<class>fr.gouv.education.acrennes.alambic.jobs.load.gar.persistence.EnseignementEntity</class>
@@ -14,36 +15,27 @@
 		<properties>
 			<property name="eclipselink.ddl-generation" value="create-or-extend-tables" />
 			<property name="eclipselink.ddl-generation.output-mode" value="database" />			
-			<property name="eclipselink.logging.level" value="off" />
-			
+			<property name="eclipselink.logging.level" value="off" />			
 			<property name="eclipselink.jdbc.cache-statements" value="true" />
 			<property name="eclipselink.jdbc.batch-writing" value="JDBC" />
-
-<!-- 
-			DEBUG PURPOSE ONLY
-
-			<property name="eclipselink.ddl-generation" value="drop-and-create-tables" />
-			<property name="eclipselink.ddl-generation.output-mode" value="both" />
-			<property name="eclipselink.create-ddl-jdbc-file-name" value="createDDL_ddlGeneration.jdbc"/>
-			<property name="eclipselink.drop-ddl-jdbc-file-name" value="dropDDL_ddlGeneration.jdbc"/>
-			<property name="eclipselink.logging.level" value="FINE" />
-			<property name="eclipselink.logging.parameters" value="true"/>
--->
 		</properties>
 	</persistence-unit>
-	<persistence-unit name="DERBY_PERSISTENCE_UNIT" transaction-type="RESOURCE_LOCAL">
+	<persistence-unit name="TEST_PERSISTENCE_UNIT" transaction-type="RESOURCE_LOCAL">
 		<provider>org.eclipse.persistence.jpa.PersistenceProvider</provider>
-		<class>fr.gouv.education.acrennes.alambic.random.persistence.RandomUserEntity</class>
-		<class>fr.gouv.education.acrennes.alambic.random.persistence.RandomUserEntityPK</class>
+		<class>fr.gouv.education.acrennes.alambic.random.persistence.RandomUserMaleEntity</class>
+		<class>fr.gouv.education.acrennes.alambic.random.persistence.RandomUserFemaleEntity</class>
 		<class>fr.gouv.education.acrennes.alambic.random.persistence.RandomAuditEntity</class>
 		<class>fr.gouv.education.acrennes.alambic.random.persistence.RandomLambdaEntity</class>
+		<class>fr.gouv.education.acrennes.alambic.random.persistence.RandomBlurIDEntity</class>
 		<class>fr.gouv.education.acrennes.alambic.jobs.load.gar.persistence.StaffEntity</class>
 		<class>fr.gouv.education.acrennes.alambic.jobs.load.gar.persistence.StaffEntityPK</class>
 		<class>fr.gouv.education.acrennes.alambic.jobs.load.gar.persistence.EnseignementEntity</class>
 		<class>fr.gouv.education.acrennes.alambic.audit.persistence.AuditEntity</class>
 		<properties>
-			<property name="javax.persistence.jdbc.driver" value="org.apache.derby.jdbc.EmbeddedDriver" />
-			<property name="javax.persistence.jdbc.url" value="jdbc:derby:target/unittestdb;create=true" />
+			<property name="javax.persistence.jdbc.driver" value="org.h2.Driver" />
+			<property name="javax.persistence.jdbc.url" value="jdbc:h2:mem:test;create=true" />
+			<property name="javax.persistence.jdbc.user" value="sa" />
+			<property name="javax.persistence.jdbc.password" value="sa" />
 			<property name="eclipselink.ddl-generation" value="drop-and-create-tables" />
 			<property name="eclipselink.ddl-generation.output-mode" value="database" />
 			<property name="eclipselink.logging.level" value="FINE" />

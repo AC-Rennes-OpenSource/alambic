@@ -1,16 +1,16 @@
 /*******************************************************************************
- * Copyright (C) 2019 Rennes - Brittany Education Authority (<http://www.ac-rennes.fr>) and others.
- * 
+ * Copyright (C) 2019-2020 Rennes - Brittany Education Authority (<http://www.ac-rennes.fr>) and others.
+ *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU Lesser General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU Lesser General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  ******************************************************************************/
@@ -29,6 +29,8 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
+import fr.gouv.education.acrennes.alambic.exception.AlambicException;
+import org.apache.commons.codec.Charsets;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
@@ -42,8 +44,6 @@ import org.apache.http.client.methods.HttpGet;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClientBuilder;
 import org.apache.http.util.EntityUtils;
-
-import fr.gouv.education.acrennes.alambic.exception.AlambicException;
 
 public class BaseXToStateBase implements IToStateBase {
 	
@@ -89,7 +89,7 @@ public class BaseXToStateBase implements IToStateBase {
 		if (StringUtils.isNotBlank(auth_login) && StringUtils.isNotBlank(auth_password)) {
 			byte[] encodedAuth = Base64.getEncoder().encode(String.format("%s:%s", auth_login, auth_password).getBytes(StandardCharsets.ISO_8859_1));
 			this.authHeader = "Basic ".concat(new String(encodedAuth));
-			log.debug("Authentification activée sur le connecteur BaseX");
+			log.debug("Authentification activée.");
 		} else {
 			log.warn("Authentification non activée.");
 		}
@@ -139,14 +139,14 @@ public class BaseXToStateBase implements IToStateBase {
 
             try (CloseableHttpResponse response = this.httpClient.execute(request)) {
             	if (response.getStatusLine().getStatusCode() == 200) {
-            		String body = IOUtils.toString(response.getEntity().getContent());
+            		String body = IOUtils.toString(response.getEntity().getContent(), Charsets.UTF_8);
             		if (StringUtils.isNotBlank(body)) {
             			Map<String, List<String>> item = new HashMap<String, List<String>>();
             			item.put("item", Arrays.asList(body));
             			statebase.add(item);
             		}
             	} else {
-            		log.error("erreur lors de l'appel du web service, code d'erreur = " + response.getStatusLine().getStatusCode());
+            		log.error("erreur lors de l'appel de l'API BaseX, code d'erreur = " + response.getStatusLine().getStatusCode());
             	}
             	EntityUtils.consume(response.getEntity()); // consume the response content to avoid connection leaks
             }

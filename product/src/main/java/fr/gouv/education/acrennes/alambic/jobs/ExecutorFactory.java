@@ -1,16 +1,16 @@
 /*******************************************************************************
- * Copyright (C) 2019 Rennes - Brittany Education Authority (<http://www.ac-rennes.fr>) and others.
- * 
+ * Copyright (C) 2019-2020 Rennes - Brittany Education Authority (<http://www.ac-rennes.fr>) and others.
+ *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU Lesser General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU Lesser General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  ******************************************************************************/
@@ -21,18 +21,18 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 
+import fr.gouv.education.acrennes.alambic.exception.AlambicException;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
-import fr.gouv.education.acrennes.alambic.exception.AlambicException;
 import fr.gouv.education.acrennes.alambic.monitoring.ActivityMBean;
 
 public class ExecutorFactory {
 
 	private static final Log log = LogFactory.getLog(ExecutorFactory.class);
 
+	public static final String THREAD_POOL_SIZE = "multithreading.pool.size";
 	private static final String DEFAULT_THREAD_POOL_SIZE = "20";
-	private static final String THREAD_POOL_SIZE = "multithreading.pool.size";
 	private static ExecutorFactory instance = null;
 	private final ExecutorService executor;
 
@@ -40,11 +40,11 @@ public class ExecutorFactory {
 		executor = Executors.newFixedThreadPool(poolSize);
 	}
 
-	private static ExecutorFactory getInstance() {
+	private static ExecutorFactory getInstance() throws AlambicException {
 		if (null == instance) {
-			instance = new ExecutorFactory(Integer.valueOf(DEFAULT_THREAD_POOL_SIZE));
+			throw new AlambicException("ExecutorFactory is not already instanciated!");
 		}
-
+		
 		return instance;
 	}
 
@@ -79,7 +79,7 @@ public class ExecutorFactory {
 		return future;
 	}
 
-	public static void close() {
+	public static void close() throws AlambicException {
 		getInstance().shutdown();
 	}
 

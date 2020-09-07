@@ -1,16 +1,16 @@
 /*******************************************************************************
- * Copyright (C) 2019 Rennes - Brittany Education Authority (<http://www.ac-rennes.fr>) and others.
- * 
+ * Copyright (C) 2019-2020 Rennes - Brittany Education Authority (<http://www.ac-rennes.fr>) and others.
+ *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU Lesser General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU Lesser General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  ******************************************************************************/
@@ -19,6 +19,7 @@ package fr.gouv.education.acrennes.alambic.ldap;
 import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 import java.util.List;
+
 import javax.naming.NamingEnumeration;
 import javax.naming.NamingException;
 import javax.naming.directory.Attribute;
@@ -27,14 +28,17 @@ import javax.naming.directory.BasicAttribute;
 import javax.naming.directory.BasicAttributes;
 import javax.naming.directory.DirContext;
 import javax.naming.directory.SearchControls;
-import org.apache.log4j.Logger;
 
 import fr.gouv.education.acrennes.alambic.Constants;
 import fr.gouv.education.acrennes.alambic.exception.AlambicException;
 import fr.gouv.education.acrennes.alambic.utils.Functions;
 import fr.gouv.education.acrennes.alambic.utils.LdapUtils;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 
 public class LdapRelation {
+	private static final Log log = LogFactory.getLog(LdapRelation.class);
+	
 	public final static int DELETE = 2;
 	public final static int ADD = 1;
 	public final static int IGNORE = 0;
@@ -45,8 +49,6 @@ public class LdapRelation {
 	private String attribute = "memberOf";
 	private String value = "";
 
-	private Logger logger;
-
 	public LdapRelation(final DirContext ctx, final List<String> listDn, final int updateMode,
 			final String attribute, final String value) throws AlambicException {
 		super();
@@ -56,7 +58,6 @@ public class LdapRelation {
 			this.updateMode = updateMode;
 			this.attribute = attribute;
 			this.value = value;
-			init();
 		} else {
 			throw new AlambicException("Dépassement de capacité sur une mise en relation d'attribut '"+ attribute + "' (taille limite " + Constants.MAX_LDAP_RELATION_SIZE + ")");
 		}
@@ -64,11 +65,6 @@ public class LdapRelation {
 
 	public LdapRelation(final DirContext ctx) {
 		this.ctx = ctx;
-		init();
-	}
-
-	private void init() {
-		logger = Logger.getLogger(this.getClass());
 	}
 
 	public void setDnList(final List<String> listDn) {
@@ -134,11 +130,11 @@ public class LdapRelation {
 				Attribute newAttr = null;
 				switch (updateMode) {
 				case ADD:
-					logger.debug("LdapRelation ADD: " + dn + " -> " + attribute + " -> " + value);
+					log.debug("LdapRelation ADD: " + dn + " -> " + attribute + " -> " + value);
 					newAttr = addValue(existingAttr);
 					break;
 				case DELETE:
-					logger.debug("LdapRelation DEL: " + dn + " -> " + attribute + " -> " + value);
+					log.debug("LdapRelation DEL: " + dn + " -> " + attribute + " -> " + value);
 					newAttr = deleteValue(existingAttr);
 					break;
 				default:
@@ -148,11 +144,12 @@ public class LdapRelation {
 				attrsToMod.put(newAttr);
 				entry.modifyAttributes("", DirContext.REPLACE_ATTRIBUTE, attrsToMod);
 			} catch (NamingException e) {
-				logger.error("MAJ de la valeur (" + value + ") de l'attribut(" + attribute + ")de l'entrée(" + dn + ") : ");
-				logger.error("   -> JAVA ERROR = " + e.getMessage());
+				log.error("MAJ de la valeur (" + value + ") de l'attribut(" + attribute + ")de l'entrée(" + dn + ") : ");
+				log.error("   -> JAVA ERROR = " + e.getMessage());
 			} catch (UnsupportedEncodingException e) {
-				logger.error("Effacement de la valeur (" + value + ") de l'attribut(" + attribute + ")de l'entrée(" + dn + ") : ");
-				logger.error("   -> JAVA ERROR = " + e.getMessage());
+				// TODO Auto-generated catch block
+				log.error("Effacement de la valeur (" + value + ") de l'attribut(" + attribute + ")de l'entrée(" + dn + ") : ");
+				log.error("   -> JAVA ERROR = " + e.getMessage());
 			}
 		}
 		return test;

@@ -1,22 +1,23 @@
 /*******************************************************************************
- * Copyright (C) 2019 Rennes - Brittany Education Authority (<http://www.ac-rennes.fr>) and others.
- * 
+ * Copyright (C) 2019-2020 Rennes - Brittany Education Authority (<http://www.ac-rennes.fr>) and others.
+ *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU Lesser General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU Lesser General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  ******************************************************************************/
 package fr.gouv.education.acrennes.alambic.utils.geo;
 
-import org.apache.log4j.Logger;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.apache.sis.referencing.CRS;
 import org.apache.sis.referencing.CommonCRS;
 import org.opengis.referencing.crs.CoordinateReferenceSystem;
@@ -24,7 +25,8 @@ import org.opengis.referencing.operation.CoordinateOperation;
 import org.opengis.util.FactoryException;
 
 public class GeoConvert {
-	private static Logger logger = Logger.getLogger(GeoConvert.class);
+	private static final Log log = LogFactory.getLog(GeoConvert.class);
+	
 	final CoordinateReferenceSystem targetCRS = CommonCRS.WGS84.geographic();
 
 	final CoordinateOperation lambert93ToWgs84;
@@ -63,7 +65,7 @@ public class GeoConvert {
 	}
 
 	public GeoConvert() {
-		logger.info("Initialisation du convertisseur de coordonnées géographiques...");
+		log.info("Initialisation du convertisseur de coordonnées géographiques...");
 		try {
 		// RGF93 / Lambert-93
 		final CoordinateReferenceSystem lambert93 = CRS.forCode("EPSG:2154");
@@ -94,10 +96,10 @@ public class GeoConvert {
 		// Wallis et Futuna
 		// Polynésie
 		} catch (final FactoryException ex) {
-			logger.error("problème à l'initialisation du convertisseur de coordonnées géographiques.", ex);
+			log.error("problème à l'initialisation du convertisseur de coordonnées géographiques.", ex);
 			throw new GeoConvertInitException(ex);
 		}
-		logger.info("Initialisation du convertisseur de coordonnées géographiques terminé.");
+		log.info("Initialisation du convertisseur de coordonnées géographiques terminé.");
 	}
 
 	public CoordinateOperation getLambert93ToWgs84() {

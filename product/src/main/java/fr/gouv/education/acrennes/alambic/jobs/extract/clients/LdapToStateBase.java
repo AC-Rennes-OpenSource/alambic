@@ -1,16 +1,16 @@
 /*******************************************************************************
- * Copyright (C) 2019 Rennes - Brittany Education Authority (<http://www.ac-rennes.fr>) and others.
- * 
+ * Copyright (C) 2019-2020 Rennes - Brittany Education Authority (<http://www.ac-rennes.fr>) and others.
+ *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU Lesser General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU Lesser General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  ******************************************************************************/
@@ -39,6 +39,7 @@ import javax.naming.ldap.Control;
 import javax.naming.ldap.InitialLdapContext;
 import javax.naming.ldap.LdapContext;
 
+import fr.gouv.education.acrennes.alambic.exception.AlambicException;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
@@ -46,7 +47,6 @@ import com.sun.jndi.ldap.ctl.SortControl;
 import com.sun.jndi.ldap.ctl.VirtualListViewControl;
 import com.sun.jndi.ldap.ctl.VirtualListViewResponseControl;
 
-import fr.gouv.education.acrennes.alambic.exception.AlambicException;
 import fr.gouv.education.acrennes.alambic.utils.Functions;
 
 public class LdapToStateBase implements IToStateBase {
@@ -84,6 +84,8 @@ public class LdapToStateBase implements IToStateBase {
 
 	public List<Map<String, List<String>>> getStateBase(final NamingEnumeration<SearchResult> searchResult) {
 		// FIXME close searchResult outside ?
+		// NdKLH : pas fan de reconstruire une liste à chaque appel de cette méthode, même quand executeQuery n'est pas
+		//         appelé entre les appels... mais pour une correction rapide, cela devrait suffire.
 		results = new ArrayList<>();
 		if (null != searchResult) {
 			try {

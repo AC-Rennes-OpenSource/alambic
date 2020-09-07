@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ldapomatic version="2.0">
+	<variables/>
+	
+	<jobs>
+		<!-- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->
+		<!-- JOBS DEFINITIONS																		 -->
+		<!-- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->
+
+		<job name="external-job">
+			<execute-job name="external-sub-job1"/>
+			<execute-job name="external-sub-job2"/>
+		</job>
+
+		<job name="external-sub-job1">
+			<resources>
+				<resource type="csv" name="entries">
+					<input>%FILES_PATH%/file3.csv</input>
+				</resource>
+			</resources>
+			<destination type="file" name="file">
+				<template>%FILES_PATH%/template1.ftl</template>
+				<output>%OUTPUT_PATH%/result-external1.xml</output>
+			</destination>
+		</job>
+
+		<job name="external-sub-job2">
+			<resources>
+				<resource type="csv" name="entries">
+					<input>%FILES_PATH%/file4.csv</input>
+				</resource>
+			</resources>
+			<destination type="file" name="file">
+				<template>%FILES_PATH%/template1.ftl</template>
+				<output>%OUTPUT_PATH%/result-external2.xml</output>
+			</destination>
+		</job>
+		
+	</jobs>
+</ldapomatic>

@@ -1,16 +1,16 @@
 /*******************************************************************************
- * Copyright (C) 2019 Rennes - Brittany Education Authority (<http://www.ac-rennes.fr>) and others.
- * 
+ * Copyright (C) 2019-2020 Rennes - Brittany Education Authority (<http://www.ac-rennes.fr>) and others.
+ *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU Lesser General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU Lesser General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  ******************************************************************************/
@@ -23,11 +23,12 @@ import javax.naming.Context;
 import javax.naming.NamingException;
 import javax.naming.directory.DirContext;
 import javax.naming.directory.InitialDirContext;
+
+import fr.gouv.education.acrennes.alambic.exception.AlambicException;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.jdom2.Element;
-import fr.gouv.education.acrennes.alambic.exception.AlambicException;
 import fr.gouv.education.acrennes.alambic.jobs.CallableContext;
 import fr.gouv.education.acrennes.alambic.monitoring.ActivityMBean;
 import fr.gouv.education.acrennes.alambic.monitoring.ActivityTrafficLight;
@@ -119,19 +120,19 @@ public class StateBaseToLdapDelete extends AbstractDestination {
 						if (!isDryMode) {
 							ctx.unbind(rdn);
 						}
-						log.info("Effacement de l'entree [" + rdn + "]");
+						log.info("Removing the entry [" + rdn + "]");
 					} else {
 						jobActivity.setTrafficLight(ActivityTrafficLight.RED);
 						log.error("The following entry specifies an empty '" + rdnAttributeName + "' attribut : '" + item.toString());
 					}
 				} else {
 					jobActivity.setTrafficLight(ActivityTrafficLight.RED);
-					log.error("The input source '" + source.getName() + "' doesn't contain the '" + rdnAttributeName + "' mandatory attribut");
+					log.error("The input source '" + source.getName() + "' doesn't contain the '" + rdnAttributeName + "' mandatory attribute");
 					return;
 				}
 			} catch (final NamingException e) {
 				jobActivity.setTrafficLight(ActivityTrafficLight.RED);
-				log.error("Erreur lors de l'effacement de l'entree : " + e.getMessage());
+				log.error("Error while attempting to remove the entry : " + e.getMessage());
 			}
 		}
 

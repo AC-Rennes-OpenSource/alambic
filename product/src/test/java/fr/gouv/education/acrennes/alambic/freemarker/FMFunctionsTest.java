@@ -1,16 +1,16 @@
 /*******************************************************************************
- * Copyright (C) 2019 Rennes - Brittany Education Authority (<http://www.ac-rennes.fr>) and others.
- * 
+ * Copyright (C) 2019-2020 Rennes - Brittany Education Authority (<http://www.ac-rennes.fr>) and others.
+ *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU Lesser General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU Lesser General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  ******************************************************************************/
@@ -26,6 +26,9 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import fr.gouv.education.acrennes.alambic.exception.AlambicException;
+import fr.gouv.education.acrennes.alambic.jobs.CallableContext;
+import fr.gouv.education.acrennes.alambic.jobs.JobContext;
 import org.jdom2.Document;
 import org.jdom2.JDOMException;
 import org.jdom2.input.SAXBuilder;
@@ -34,9 +37,6 @@ import org.junit.Before;
 import org.junit.Test;
 import org.nuxeo.ecm.automation.client.model.PropertyMap;
 
-import fr.gouv.education.acrennes.alambic.exception.AlambicException;
-import fr.gouv.education.acrennes.alambic.jobs.CallableContext;
-import fr.gouv.education.acrennes.alambic.jobs.JobContext;
 import fr.gouv.education.acrennes.alambic.jobs.extract.sources.GREPSource;
 import fr.gouv.education.acrennes.alambic.jobs.extract.sources.Source;
 import fr.gouv.education.acrennes.alambic.utils.Variables;
@@ -96,11 +96,13 @@ public class FMFunctionsTest {
 		try {
 			final String cipheredText = Fn.encrypt("RSA",
 					"./src/test/resources/data/security/alambic.keystore",
-					"testpass",	"JCEKS", "aliasrsa1024", "testpass", "public", PLAIN_TEXT);
+					"testpass",
+					"JCEKS", "aliasrsa1024", "testpass", "public", PLAIN_TEXT);
 
 			final String plainText = Fn.decrypt("RSA",
 					"./src/test/resources/data/security/alambic.keystore",
-					"testpass", "JCEKS", "aliasrsa1024", "testpass", "private", cipheredText);
+					"testpass",
+					"JCEKS", "aliasrsa1024", "testpass", "private", cipheredText);
 			Assert.assertEquals(PLAIN_TEXT, plainText);
 
 		} catch (final AlambicException e) {
@@ -142,7 +144,8 @@ public class FMFunctionsTest {
 		Assert.assertEquals("Jacques-Le-creach", Fn.normalize("Jacques  Le créac  ' h", NormalizationPolicy.EMAIL));
 		Assert.assertEquals("Jacques-Le-creac-h", Fn.normalize("Jacques  Le créac  ' h", NormalizationPolicy.UID));
 		Assert.assertEquals("DUPUIS ex DULONG", Fn.normalize("DUPUIS (ex DULONG)"));
-		Assert.assertEquals("LE-DEAUT", Fn.normalize("LE DEAUT", NormalizationPolicy.NOM));
+		Assert.assertEquals("LE-DEAUT", Fn.normalize(" LE DEAUT", NormalizationPolicy.NOM));
+		Assert.assertEquals("LE-DEAUT", Fn.normalize("LE DEAUT ", NormalizationPolicy.NOM));
 		Assert.assertEquals("Le-Touzo", Fn.normalize("Le Touzo", NormalizationPolicy.NOM));
 		Assert.assertEquals("Le-Touzo", Fn.normalize("Le-Touzo", NormalizationPolicy.EMAIL));
 		Assert.assertEquals("Le-Touzo", Fn.normalize("Le-Touzo", NormalizationPolicy.UID));
@@ -211,4 +214,33 @@ public class FMFunctionsTest {
 		Assert.assertEquals(null, Fn.unescapeXML(null));
 	}
 
+	/**
+	 * Test de la normalisation de la civilité
+	 */
+	@Test
+	public void test9() {
+		Assert.assertEquals("M", Fn.normalize("Monsieur", NormalizationPolicy.CIVILITE, true));
+		Assert.assertEquals("M", Fn.normalize("MonSieur", NormalizationPolicy.CIVILITE, true));
+		Assert.assertEquals("M", Fn.normalize("M", NormalizationPolicy.CIVILITE, true));
+		Assert.assertEquals("M", Fn.normalize("m", NormalizationPolicy.CIVILITE, true));
+		Assert.assertEquals("M", Fn.normalize("MR", NormalizationPolicy.CIVILITE, true));
+		Assert.assertEquals("M", Fn.normalize("mr", NormalizationPolicy.CIVILITE, true));
+		Assert.assertEquals("M", Fn.normalize("Mr.", NormalizationPolicy.CIVILITE, true));
+		Assert.assertEquals("M", Fn.normalize("M.", NormalizationPolicy.CIVILITE, true));
+		Assert.assertEquals("M", Fn.normalize("m.", NormalizationPolicy.CIVILITE, true));
+		
+		Assert.assertEquals("Mme", Fn.normalize("Mme", NormalizationPolicy.CIVILITE, true));
+		Assert.assertEquals("Mme", Fn.normalize("mme", NormalizationPolicy.CIVILITE, true));
+		Assert.assertEquals("Mme", Fn.normalize("mmé", NormalizationPolicy.CIVILITE, true));
+		Assert.assertEquals("Mme", Fn.normalize("Madame", NormalizationPolicy.CIVILITE, true));
+		Assert.assertEquals("Mme", Fn.normalize("MaDaMe", NormalizationPolicy.CIVILITE, true));
+		Assert.assertEquals("Mme", Fn.normalize("Mm", NormalizationPolicy.CIVILITE, true));
+		Assert.assertEquals("Mme", Fn.normalize("MM", NormalizationPolicy.CIVILITE, true));
+		Assert.assertEquals("Mme", Fn.normalize("Me", NormalizationPolicy.CIVILITE, true));
+		Assert.assertEquals("Mme", Fn.normalize("Mlle", NormalizationPolicy.CIVILITE, true));
+		Assert.assertEquals("Mme", Fn.normalize("MLLe", NormalizationPolicy.CIVILITE, true));
+		Assert.assertEquals("Mme", Fn.normalize("Mademoiselle", NormalizationPolicy.CIVILITE, true));
+		Assert.assertEquals("Mme", Fn.normalize("MaDemoIselle", NormalizationPolicy.CIVILITE, true));
+	}
+	
 }

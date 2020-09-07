@@ -1,16 +1,16 @@
 /*******************************************************************************
- * Copyright (C) 2019 Rennes - Brittany Education Authority (<http://www.ac-rennes.fr>) and others.
- * 
+ * Copyright (C) 2019-2020 Rennes - Brittany Education Authority (<http://www.ac-rennes.fr>) and others.
+ *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU Lesser General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU Lesser General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  ******************************************************************************/
@@ -42,6 +42,7 @@ import java.util.concurrent.Future;
 
 import javax.persistence.EntityManager;
 
+import fr.gouv.education.acrennes.alambic.exception.AlambicException;
 import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
@@ -52,7 +53,7 @@ import org.jdom2.JDOMException;
 import org.jdom2.input.SAXBuilder;
 import org.xml.sax.InputSource;
 
-import fr.gouv.education.acrennes.alambic.exception.AlambicException;
+import fr.gouv.education.acrennes.alambic.generator.service.RandomGeneratorService;
 import fr.gouv.education.acrennes.alambic.jobs.CallableContext;
 import fr.gouv.education.acrennes.alambic.jobs.ExecutorFactory;
 import fr.gouv.education.acrennes.alambic.jobs.Jobs;
@@ -106,7 +107,7 @@ public class APIAlambic implements IAPIAlambic {
         this.tempProcessFile = null;
     }
 
-    public static void init(final String ep) throws IOException, AlambicException {
+    public static void init(final String ep, final String threadCount) throws IOException, AlambicException {
         executionPath = ep;
         if (!executionPath.matches(".+/$")) {
             executionPath = executionPath.concat("/");
@@ -115,13 +116,17 @@ public class APIAlambic implements IAPIAlambic {
         // General configuration
         properties = new Properties();
         properties.load(new FileInputStream(executionPath.concat(CONFIG_FILE)));
-
+        
+        if (StringUtils.isNotBlank(threadCount)) {
+        	properties.setProperty(ExecutorFactory.THREAD_POOL_SIZE, threadCount);
+        }
+        
         // Initialize the persistence unit
         Map<String, String> puProperties = new HashMap<>();
-        puProperties.put(JDBC_DRIVER, (String) properties.get(CallableContext.ETL_CFG_JDBC_DRIVER));
-        puProperties.put(JDBC_URL, (String) properties.get(CallableContext.ETL_CFG_JDBC_URL));
-        puProperties.put(JDBC_USER, (String) properties.get(CallableContext.ETL_CFG_JDBC_LOGIN));
-        puProperties.put(JDBC_PASSWORD, (String) properties.get(CallableContext.ETL_CFG_JDBC_PASSWORD));
+        puProperties.put(JDBC_DRIVER, properties.getProperty(CallableContext.ETL_CFG_JDBC_DRIVER));
+        puProperties.put(JDBC_URL, properties.getProperty(CallableContext.ETL_CFG_JDBC_URL));
+        puProperties.put(JDBC_USER, properties.getProperty(CallableContext.ETL_CFG_JDBC_LOGIN));
+        puProperties.put(JDBC_PASSWORD, properties.getProperty(CallableContext.ETL_CFG_JDBC_PASSWORD));
         puProperties.put(TARGET_SERVER, TargetServer.None);
         EntityManagerHelper.getInstance(PERSISTENCE_UNIT, puProperties);
         // this two lines aim to make JPA create all the tables as defined with the persistence unit.
@@ -141,7 +146,10 @@ public class APIAlambic implements IAPIAlambic {
         ExecutorFactory.initialize(properties);
     }
 
-    public static void close() {
+    public static void close() throws AlambicException {
+    	// Close the random generator service
+    	RandomGeneratorService.close();
+    	
         // Close multi-threading factory
         ExecutorFactory.close();
 
@@ -259,6 +267,7 @@ public class APIAlambic implements IAPIAlambic {
         	variables.put(AlambicVariables.ALAMBIC_ADDON_OUTPUTPATH, outputPath.toString());
         	
         	if (!Files.exists(outputPath)) {
+        		// TODO les permissions ne semblent pas appliquées sur le dossier créé ?
         		final Set<PosixFilePermission> permissions = PosixFilePermissions.fromString("rwxr-xr-x");
         		Files.createDirectory(outputPath, PosixFilePermissions.asFileAttribute(permissions));
         	}

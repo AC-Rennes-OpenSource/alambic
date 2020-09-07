@@ -1,16 +1,16 @@
 /*******************************************************************************
- * Copyright (C) 2019 Rennes - Brittany Education Authority (<http://www.ac-rennes.fr>) and others.
- * 
+ * Copyright (C) 2019-2020 Rennes - Brittany Education Authority (<http://www.ac-rennes.fr>) and others.
+ *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU Lesser General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU Lesser General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  ******************************************************************************/
@@ -25,7 +25,7 @@ import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.io.UnsupportedEncodingException;
 import java.io.Writer;
-import java.nio.charset.StandardCharsets;
+import java.security.SecureRandom;
 import java.sql.SQLException;
 import java.sql.Timestamp;
 import java.text.DateFormat;
@@ -53,6 +53,21 @@ import javax.naming.directory.InitialDirContext;
 import javax.naming.directory.SearchControls;
 import javax.naming.directory.SearchResult;
 
+import fr.gouv.education.acrennes.alambic.Constants;
+import fr.gouv.education.acrennes.alambic.exception.AlambicException;
+import fr.gouv.education.acrennes.alambic.freemarker.AlambicObjectWrapper;
+import fr.gouv.education.acrennes.alambic.generator.service.RandomGenerator;
+import fr.gouv.education.acrennes.alambic.generator.service.RandomGeneratorService;
+import fr.gouv.education.acrennes.alambic.jobs.extract.clients.SqlToStateBase;
+import fr.gouv.education.acrennes.alambic.random.persistence.RandomEntity;
+import fr.gouv.education.acrennes.alambic.security.CipherHelper;
+import fr.gouv.education.acrennes.alambic.security.CipherKeyStore;
+import fr.gouv.education.acrennes.alambic.utils.geo.GeoConvert;
+import fr.gouv.education.acrennes.alambic.utils.geo.GeoConvertException;
+import fr.gouv.education.acrennes.alambic.utils.lambert.Lambert;
+import fr.gouv.education.acrennes.alambic.utils.lambert.LambertPoint;
+import fr.gouv.education.acrennes.alambic.utils.lambert.LambertZone;
+import org.apache.commons.codec.Charsets;
 import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
@@ -64,22 +79,6 @@ import org.opengis.geometry.DirectPosition;
 import org.opengis.referencing.operation.CoordinateOperation;
 import org.opengis.referencing.operation.TransformException;
 
-import fr.gouv.education.acrennes.alambic.Constants;
-import fr.gouv.education.acrennes.alambic.exception.AlambicException;
-import fr.gouv.education.acrennes.alambic.freemarker.AlambicObjectWrapper;
-import fr.gouv.education.acrennes.alambic.generator.service.RandomGenerator;
-import fr.gouv.education.acrennes.alambic.generator.service.RandomGeneratorService;
-import fr.gouv.education.acrennes.alambic.generator.service.RandomGeneratorService.GENERATOR_TYPE;
-import fr.gouv.education.acrennes.alambic.jobs.extract.clients.SqlToStateBase;
-import fr.gouv.education.acrennes.alambic.random.persistence.RandomEntity;
-import fr.gouv.education.acrennes.alambic.security.CipherHelper;
-import fr.gouv.education.acrennes.alambic.security.CipherHelper.CIPHER_MODE;
-import fr.gouv.education.acrennes.alambic.security.CipherKeyStore;
-import fr.gouv.education.acrennes.alambic.utils.geo.GeoConvert;
-import fr.gouv.education.acrennes.alambic.utils.geo.GeoConvertException;
-import fr.gouv.education.acrennes.alambic.utils.lambert.Lambert;
-import fr.gouv.education.acrennes.alambic.utils.lambert.LambertPoint;
-import fr.gouv.education.acrennes.alambic.utils.lambert.LambertZone;
 import freemarker.template.Configuration;
 import freemarker.template.TemplateException;
 
@@ -125,7 +124,7 @@ public class Functions {
 
     private Functions() {
         cfg = new Configuration(Constants.FREEMARKER_VERSION);
-        cfg.setURLEscapingCharset(StandardCharsets.UTF_8.toString()); // to allow URL escaping
+        cfg.setURLEscapingCharset(Charsets.UTF_8.toString()); // to allow URL escaping
         cfg.setObjectWrapper(new AlambicObjectWrapper());
         functionPattern = Pattern.compile("\\(([a-zA-Z\\.0-9 ]+)([ ]*mem='([^\\ ']*)?'[ ]*)?\\)(.+?)\\(/\\1\\)");
     }
@@ -290,6 +289,9 @@ public class Functions {
         }
         if ("COMPUTEDATE".equals(fonction)) {
             return computeDate(param);
+        }
+        if ("SALT".equals(fonction)) {
+            return generateSalt(param);
         }
         return null; // Aucune fonction exécutée, rien à retourner
     }
@@ -509,8 +511,8 @@ public class Functions {
                         (StringUtils.isNotBlank(parameters.get("keyPwd"))) ? parameters.get("keyPwd") : parameters.get("ksPwd"),
                         (StringUtils.isNotBlank(parameters.get("keyType"))) ? parameters.get("keyType") : "public");
 
-                if (CIPHER_MODE.ENCRYPT_MODE.toString().equals(parameters.get("mode"))) {
-                    final byte[] cipheredBytes = cipher.execute(CIPHER_MODE.ENCRYPT_MODE, parameters.get("plaintext"));
+                if (CipherHelper.CIPHER_MODE.ENCRYPT_MODE.toString().equals(parameters.get("mode"))) {
+                    final byte[] cipheredBytes = cipher.execute(CipherHelper.CIPHER_MODE.ENCRYPT_MODE, parameters.get("plaintext"));
                     try {
                         result = Base64.encodeBase64String(cipheredBytes);
                     } finally {
@@ -519,7 +521,7 @@ public class Functions {
                 } else {
                     final byte[] cipheredBytes = Base64.decodeBase64(parameters.get("plaintext"));
                     try {
-                        final byte[] plainBytes = cipher.execute(CIPHER_MODE.DECRYPT_MODE, cipheredBytes);
+                        final byte[] plainBytes = cipher.execute(CipherHelper.CIPHER_MODE.DECRYPT_MODE, cipheredBytes);
                         result = new String(plainBytes);
                     } finally {
                         cipher.close();
@@ -613,7 +615,7 @@ public class Functions {
                 final String query = mapper.writeValueAsString(queryMap);
 
                 // Generate a password
-                final RandomGenerator generator = RandomGeneratorService.getInstance().getRandomGenerator(GENERATOR_TYPE.PASSWORD);
+                final RandomGenerator generator = RandomGeneratorService.getRandomGenerator(RandomGeneratorService.GENERATOR_TYPE.PASSWORD);
                 try {
                     final List<RandomEntity> passwordEntities = generator.getEntities(query, (String) queryMap.get("processId"), RandomGenerator.UNICITY_SCOPE.valueOf((String) queryMap.get("scope")));
                     if ((null != passwordEntities) && !passwordEntities.isEmpty()) {
@@ -1000,6 +1002,14 @@ public class Functions {
             }
         }
         return s;
+    }
+
+    public String generateSalt(final String params) {
+    	Integer saltLength = Integer.valueOf(StringUtils.isNotBlank(params) ? params.trim() : String.valueOf(Constants.DEFAULT_SALT_LENGTH));
+    	SecureRandom random = new SecureRandom();
+    	byte[] salt = new byte[saltLength];
+    	random.nextBytes(salt);
+    	return Base64.encodeBase64String(salt).substring(0, saltLength);
     }
 
     public String replaceVarsFromMap(final String patternString, String s, final Map<String, String> mapTable) {

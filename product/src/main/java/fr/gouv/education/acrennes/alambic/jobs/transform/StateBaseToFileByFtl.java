@@ -1,16 +1,16 @@
 /*******************************************************************************
- * Copyright (C) 2019 Rennes - Brittany Education Authority (<http://www.ac-rennes.fr>) and others.
- * 
+ * Copyright (C) 2019-2020 Rennes - Brittany Education Authority (<http://www.ac-rennes.fr>) and others.
+ *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU Lesser General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU Lesser General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  ******************************************************************************/
@@ -23,26 +23,28 @@ import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.io.Writer;
 import java.nio.charset.Charset;
-import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+
 import javax.xml.parsers.ParserConfigurationException;
 
 import fr.gouv.education.acrennes.alambic.Constants;
+import fr.gouv.education.acrennes.alambic.exception.AlambicException;
+import fr.gouv.education.acrennes.alambic.freemarker.AlambicObjectWrapper;
+import fr.gouv.education.acrennes.alambic.freemarker.FMFunctions;
+import fr.gouv.education.acrennes.alambic.jobs.CallableContext;
+import fr.gouv.education.acrennes.alambic.jobs.load.AbstractDestination;
+import fr.gouv.education.acrennes.alambic.monitoring.ActivityMBean;
+import fr.gouv.education.acrennes.alambic.monitoring.ActivityTrafficLight;
+import org.apache.commons.codec.Charsets;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.jdom2.Element;
 import org.xml.sax.SAXException;
-import fr.gouv.education.acrennes.alambic.exception.AlambicException;
-import fr.gouv.education.acrennes.alambic.freemarker.AlambicObjectWrapper;
-import fr.gouv.education.acrennes.alambic.freemarker.FMFunctions;
-import fr.gouv.education.acrennes.alambic.jobs.CallableContext;
+
 import fr.gouv.education.acrennes.alambic.jobs.extract.sources.Source;
-import fr.gouv.education.acrennes.alambic.jobs.load.AbstractDestination;
-import fr.gouv.education.acrennes.alambic.monitoring.ActivityMBean;
-import fr.gouv.education.acrennes.alambic.monitoring.ActivityTrafficLight;
 import freemarker.ext.beans.BeansWrapper;
 import freemarker.template.Configuration;
 import freemarker.template.TemplateHashModel;
@@ -52,7 +54,7 @@ public class StateBaseToFileByFtl extends AbstractDestination {
 
 	private static final Log log = LogFactory.getLog(StateBaseToFileByFtl.class);
 
-	private static final String DEFAULT_OUTPUT_CHARSET = StandardCharsets.UTF_8.toString();
+	private static final String DEFAULT_OUTPUT_CHARSET = Charsets.UTF_8.toString();
 	private final Configuration cfg;
 	private String tplDir;
 	private String tplFile;
@@ -80,8 +82,8 @@ public class StateBaseToFileByFtl extends AbstractDestination {
 
 		// Add wrapping of the Activity traffic light enumeration so that it can be accessed in template
 		TemplateHashModel activityEnums;
-		final BeansWrapper aow = new AlambicObjectWrapper();
-		final TemplateHashModel enumModels = aow.getEnumModels();
+		final BeansWrapper dataloaderObjectWrapper = new AlambicObjectWrapper();
+		final TemplateHashModel enumModels = dataloaderObjectWrapper.getEnumModels();
 		try {
 			activityEnums = (TemplateHashModel) enumModels.get("fr.gouv.education.acrennes.alambic.monitoring.ActivityTrafficLight");
 		} catch (final TemplateModelException e1) {
@@ -96,13 +98,16 @@ public class StateBaseToFileByFtl extends AbstractDestination {
 			throw new AlambicException(e1);
 		}
 
-		root.put("activity", jobActivity);
-		root.put("trafficLight", activityEnums);
-		root.put("normalizationPolicy", normalizationEnums);
-		root.put("variables", context.getVariables().getHashMap());
-		root.put("Fn", new FMFunctions());
-
+		TemplateHashModel staticModels = dataloaderObjectWrapper.getStaticModels();
+		
 		try {
+			root.put("activity", jobActivity);
+			root.put("trafficLight", activityEnums);
+			root.put("normalizationPolicy", normalizationEnums);
+			root.put("variables", context.getVariables().getHashMap());
+			root.put("Fn", new FMFunctions());
+			root.put("Math", (TemplateHashModel) staticModels.get("java.lang.Math"));
+
 			final List<Element> xmlFiles = job.getChildren("xmlfile");
 			if (xmlFiles != null) {
 				for (final Element xmlFile : xmlFiles) {
@@ -115,10 +120,10 @@ public class StateBaseToFileByFtl extends AbstractDestination {
 			// Initialisation FreeMarker
 			cfg = new Configuration(Constants.FREEMARKER_VERSION);
 			cfg.setDirectoryForTemplateLoading(new File(tplDir));
-			cfg.setObjectWrapper(aow);
+			cfg.setObjectWrapper(dataloaderObjectWrapper);
 			cfg.setOutputEncoding(outputEncoding);
 			cfg.setClassicCompatible(classicMode);
-		} catch (SAXException | IOException | ParserConfigurationException e) {
+		} catch (SAXException | IOException | ParserConfigurationException | TemplateModelException e) {
 			throw new AlambicException(e);
 		}
 	}

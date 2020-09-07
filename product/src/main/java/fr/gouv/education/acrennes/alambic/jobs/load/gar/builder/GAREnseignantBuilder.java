@@ -1,16 +1,16 @@
 /*******************************************************************************
- * Copyright (C) 2019 Rennes - Brittany Education Authority (<http://www.ac-rennes.fr>) and others.
- * 
+ * Copyright (C) 2019-2020 Rennes - Brittany Education Authority (<http://www.ac-rennes.fr>) and others.
+ *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU Lesser General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU Lesser General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  ******************************************************************************/
@@ -45,6 +45,10 @@ import javax.xml.xpath.XPathConstants;
 import javax.xml.xpath.XPathExpressionException;
 import javax.xml.xpath.XPathFactory;
 
+import fr.gouv.education.acrennes.alambic.exception.AlambicException;
+import fr.gouv.education.acrennes.alambic.jobs.load.gar.persistence.EnseignementEntity;
+import fr.gouv.education.acrennes.alambic.jobs.load.gar.persistence.StaffEntity;
+import fr.gouv.education.acrennes.alambic.jobs.load.gar.persistence.StaffEntityPK;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -53,7 +57,6 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.xml.sax.SAXException;
 
-import fr.gouv.education.acrennes.alambic.exception.AlambicException;
 import fr.gouv.education.acrennes.alambic.jobs.CallableContext;
 import fr.gouv.education.acrennes.alambic.jobs.extract.sources.Source;
 import fr.gouv.education.acrennes.alambic.jobs.load.gar.binding.GARENTEnseignant;
@@ -62,9 +65,6 @@ import fr.gouv.education.acrennes.alambic.jobs.load.gar.binding.GAREnseignant;
 import fr.gouv.education.acrennes.alambic.jobs.load.gar.binding.GARPersonMEF;
 import fr.gouv.education.acrennes.alambic.jobs.load.gar.binding.GARPersonProfils;
 import fr.gouv.education.acrennes.alambic.jobs.load.gar.binding.ObjectFactory;
-import fr.gouv.education.acrennes.alambic.jobs.load.gar.persistence.EnseignementEntity;
-import fr.gouv.education.acrennes.alambic.jobs.load.gar.persistence.StaffEntity;
-import fr.gouv.education.acrennes.alambic.jobs.load.gar.persistence.StaffEntityPK;
 import fr.gouv.education.acrennes.alambic.monitoring.ActivityMBean;
 import fr.gouv.education.acrennes.alambic.monitoring.ActivityTrafficLight;
 
@@ -293,9 +293,9 @@ public class GAREnseignantBuilder implements GARTypeBuilder {
 				/*
 				 * GARPersonEtab & GARPersonProfil
 				 */
+				functionsCodes.clear();
 				attribute = entity.get("ENTPersonFonctions");
 				if (null != attribute && 0 < attribute.size()) {
-					functionsCodes.clear();
 					for (String value : attribute) {
 						// control the attribute value is relevant (not null and well formated)
 						if (StringUtils.isNotBlank(value) && value.matches("[^\\$]+\\$[^\\$]+.*")) {
@@ -316,8 +316,8 @@ public class GAREnseignantBuilder implements GARTypeBuilder {
 									sdetcnpv = GARHelper.NATIONAL_PROFILE_IDENTIFIER.National_ENS.toString();
 								}
 								
+								// Control the UAI belongs to the involved structures list + was not already processed (functional key is : uai + national profile)
 								if (this.memberStructuresList.contains(uai)) {
-									// Control the UAI belongs to the involved structures list + was not already processed (functional key is : uai + national profile)
 									String fctKey = uai + "$" + sdetcnpv;
 									if (!functionsCodes.contains(fctKey)) {
 										functionsCodes.add(fctKey);
@@ -398,8 +398,8 @@ public class GAREnseignantBuilder implements GARTypeBuilder {
 					for (String value : attribute) {
 						if (StringUtils.isNotBlank(value)) {
 							String uai = GARHelper.getInstance().extractCodeGroup(value, 0).toUpperCase();
-							// Control the UAI belongs to the involved structures list
-							if (this.memberStructuresList.contains(uai)) {
+							// Control the UAI belongs to the exercising structures (teacher has functions into)
+							if (functionsCodes.stream().anyMatch(item -> item.matches(uai.concat("\\$.+")))) {
 								String code = GARHelper.getInstance().extractCodeGroup(value, 1);
 								if (StringUtils.isNotBlank(code)) {
 									if (!map.containsKey(uai)) {
@@ -416,7 +416,7 @@ public class GAREnseignantBuilder implements GARTypeBuilder {
 									continue; // skip this entity as a missing mandatory field won't allow XML production
 								}
 							} else {
-								log.info("Entity '"+ GARHelper.getInstance().getPersonEntityBlurId(entity) +"' teaches subject in structure ('UAI:" + uai + "') out of the involved list");
+								log.info("Entity '" + GARHelper.getInstance().getPersonEntityBlurId(entity) + "' has attribute 'ENTAuxEnsDisciplinesPoste' pointing onto structure ('UAI:" + uai + "') that is not referenced by 'ENTPersonFonctions'");
 							}
 						} else {
 							log.debug("Entity '" + GARHelper.getInstance().getPersonEntityBlurId(entity) + "' has attribute 'ENTAuxEnsDisciplinesPoste' with blank value");
@@ -441,39 +441,34 @@ public class GAREnseignantBuilder implements GARTypeBuilder {
 					for (String value : attribute) {
 						if (StringUtils.isNotBlank(value) && !mefCodes.contains(value)) {
 							String uai = GARHelper.getInstance().extractCodeGroup(value, 0).toUpperCase();
-							// Control the UAI belongs to the involved structures list
-							if (this.memberStructuresList.contains(uai)) {
-								// Control the UAI belongs to the exercising structures (teacher has functions into)
-								if (functionsCodes.stream().anyMatch(item -> item.matches(uai.concat("\\$.+")))) {									
-									/* Control the code is valid indeed
-									 * (Since it has been observed teachers' Toutatice accounts referencing invalid codes (AAF meaning) ) 
-									 */
-									String code = GARHelper.getInstance().extractCodeGroup(value, 1);
-									if (isMEFCodeValid(ENTPersonSourceSI, code)) {
-										// register for persistence
-										if (!mapEnseignements.containsKey(uai)) {
-											mapEnseignements.put(uai, new ArrayList<EnseignementEntity>());
-										}
-										List<EnseignementEntity> enseignements = mapEnseignements.get(uai);
-										EnseignementEntity enseignement = new EnseignementEntity(ENTPersonSourceSI, code, "unset" /* will be obtained from request on AAF */, EnseignementEntity.ENSEIGNEMENT_TYPE.MEF);
-										if (!enseignements.contains(enseignement)) {
-											enseignements.add(enseignement);
-										}
-										
-										GARPersonMEF pmef = factory.createGARPersonMEF();
-										pmef.setGARStructureUAI(uai);
-										pmef.setGARMEFCode(code);
-										pmef.setGARPersonIdentifiant(ENTPersonIdentifiant);
-										writer.add(pmef);
-									} else {
-										// skip this code since it is not valid
-										log.info("Failed to get the 'MEF' information associated to the code '" + code + "' (ENTPersonUid=" + ENTPersonIdentifiant + ", UAI=" + uai + ")");								
+							// Control the UAI belongs to the exercising structures (teacher has functions into)
+							if (functionsCodes.stream().anyMatch(item -> item.matches(uai.concat("\\$.+")))) {
+								/* Control the code is valid indeed
+								 * (Since it has been observed teachers' Toutatice accounts referencing invalid codes (AAF meaning) ) 
+								 */
+								String code = GARHelper.getInstance().extractCodeGroup(value, 1);
+								if (isMEFCodeValid(ENTPersonSourceSI, code)) {
+									// register for persistence
+									if (!mapEnseignements.containsKey(uai)) {
+										mapEnseignements.put(uai, new ArrayList<EnseignementEntity>());
 									}
+									List<EnseignementEntity> enseignements = mapEnseignements.get(uai);
+									EnseignementEntity enseignement = new EnseignementEntity(ENTPersonSourceSI, code, "unset" /* will be obtained from request on AAF */, EnseignementEntity.ENSEIGNEMENT_TYPE.MEF);
+									if (!enseignements.contains(enseignement)) {
+										enseignements.add(enseignement);
+									}
+
+									GARPersonMEF pmef = factory.createGARPersonMEF();
+									pmef.setGARStructureUAI(uai);
+									pmef.setGARMEFCode(code);
+									pmef.setGARPersonIdentifiant(ENTPersonIdentifiant);
+									writer.add(pmef);
 								} else {
-									log.info("Entity '" + GARHelper.getInstance().getPersonEntityBlurId(entity) + "' has attribute 'ENTAuxEnsMef' pointing onto structure ('UAI:" + uai + "') that is not referenced by 'ENTPersonFonctions'");
+									// skip this code since it is not valid
+									log.info("Failed to get the 'MEF' information associated to the code '" + code + "' (ENTPersonUid=" + ENTPersonIdentifiant + ", UAI=" + uai + ")");								
 								}
 							} else {
-								log.info("Entity '"+ GARHelper.getInstance().getPersonEntityBlurId(entity) +"' teaches MEF in structure ('UAI:" + uai + "') out of the involved list");
+								log.info("Entity '" + GARHelper.getInstance().getPersonEntityBlurId(entity) + "' has attribute 'ENTAuxEnsMef' pointing onto structure ('UAI:" + uai + "') that is not referenced by 'ENTPersonFonctions'");
 							}
 							mefCodes.add(value); // Make sure the functional key (UAI / code / id) is respected
 						} else {
@@ -494,35 +489,30 @@ public class GAREnseignantBuilder implements GARTypeBuilder {
 					for (String value : attribute) {
 						if (StringUtils.isNotBlank(value)) {
 							String uai = GARHelper.getInstance().extractCodeGroup(value, 0).toUpperCase();
-							// Control the UAI belongs to the involved structures list
-							if (this.memberStructuresList.contains(uai)) {
-								// Control the UAI belongs to the exercising structures (teacher has functions into)
-								if (functionsCodes.stream().anyMatch(item -> item.matches(uai.concat("\\$.+")))) {
-									/* Control the code is valid indeed
-									 * (Since it has been observed teachers' Toutatice accounts referencing invalid codes (AAF meaning) ) 
-									 */
-									String code = GARHelper.getInstance().extractCodeGroup(value, 2);
-									if (isMatiereCodeValid(ENTPersonSourceSI, code)) {
-										// register for persistence
-										if (!mapEnseignements.containsKey(uai)) {
-											mapEnseignements.put(uai, new ArrayList<EnseignementEntity>());
-										}
-										
-										String divOrGrpCode = GARHelper.getInstance().extractCodeGroup(value, 1);
-										List<EnseignementEntity> enseignements = mapEnseignements.get(uai);
-										EnseignementEntity enseignement = new EnseignementEntity(ENTPersonSourceSI, code, divOrGrpCode, EnseignementEntity.ENSEIGNEMENT_TYPE.CLASSE_MATIERE);
-										if (!enseignements.contains(enseignement)) {
-											enseignements.add(enseignement);
-										}
-									} else {
-										// skip this code since it is not valid
-										log.info("Failed to get the 'Matiere' information associated to the code '" + code + "' (ENTPersonUid=" + ENTPersonIdentifiant + ", UAI=" + uai + ")");								
+							// Control the UAI belongs to the exercising structures (teacher has functions into)
+							if (functionsCodes.stream().anyMatch(item -> item.matches(uai.concat("\\$.+")))) {
+								/* Control the code is valid indeed
+								 * (Since it has been observed teachers' Toutatice accounts referencing invalid codes (AAF meaning) ) 
+								 */
+								String code = GARHelper.getInstance().extractCodeGroup(value, 2);
+								if (isMatiereCodeValid(ENTPersonSourceSI, code)) {
+									// register for persistence
+									if (!mapEnseignements.containsKey(uai)) {
+										mapEnseignements.put(uai, new ArrayList<EnseignementEntity>());
+									}
+
+									String divOrGrpCode = GARHelper.getInstance().extractCodeGroup(value, 1);
+									List<EnseignementEntity> enseignements = mapEnseignements.get(uai);
+									EnseignementEntity enseignement = new EnseignementEntity(ENTPersonSourceSI, code, divOrGrpCode, EnseignementEntity.ENSEIGNEMENT_TYPE.CLASSE_MATIERE);
+									if (!enseignements.contains(enseignement)) {
+										enseignements.add(enseignement);
 									}
 								} else {
-									log.info("Entity '" + GARHelper.getInstance().getPersonEntityBlurId(entity) + "' has attribute 'ENTAuxEnsClassesMatieres' pointing onto structure ('UAI:" + uai + "') that is not referenced by 'ENTPersonFonctions'");
+									// skip this code since it is not valid
+									log.info("Failed to get the 'Matiere' information associated to the code '" + code + "' (ENTPersonUid=" + ENTPersonIdentifiant + ", UAI=" + uai + ")");								
 								}
 							} else {
-								log.info("Entity '"+ GARHelper.getInstance().getPersonEntityBlurId(entity) +"' belongs to a division in structure ('UAI:" + uai + "') out of the involved list");
+								log.info("Entity '" + GARHelper.getInstance().getPersonEntityBlurId(entity) + "' has attribute 'ENTAuxEnsClassesMatieres' pointing onto structure ('UAI:" + uai + "') that is not referenced by 'ENTPersonFonctions'");
 							}
 						} else {
 							log.debug("Entity '" + GARHelper.getInstance().getPersonEntityBlurId(entity) + "' has attribute 'ENTAuxEnsClassesMatieres' with blank value");
@@ -542,35 +532,30 @@ public class GAREnseignantBuilder implements GARTypeBuilder {
 					for (String value : attribute) {
 						if (StringUtils.isNotBlank(value)) {
 							String uai = GARHelper.getInstance().extractCodeGroup(value, 0).toUpperCase();
-							// Control the UAI belongs to the involved structures list
-							if (this.memberStructuresList.contains(uai)) {
-								// Control the UAI belongs to the exercising structures (teacher has functions into)
-								if (functionsCodes.stream().anyMatch(item -> item.matches(uai.concat("\\$.+")))) {
-									/* Control the code is valid indeed
-									 * (Since it has been observed teachers' Toutatice accounts referencing invalid codes (AAF meaning) ) 
-									 */
-									String code = GARHelper.getInstance().extractCodeGroup(value, 2);
-									if (isMatiereCodeValid(ENTPersonSourceSI, code)) {
-										// register for persistence
-										if (!mapEnseignements.containsKey(uai)) {
-											mapEnseignements.put(uai, new ArrayList<EnseignementEntity>());
-										}
+							// Control the UAI belongs to the exercising structures (teacher has functions into)
+							if (functionsCodes.stream().anyMatch(item -> item.matches(uai.concat("\\$.+")))) {
+								/* Control the code is valid indeed
+								 * (Since it has been observed teachers' Toutatice accounts referencing invalid codes (AAF meaning) ) 
+								 */
+								String code = GARHelper.getInstance().extractCodeGroup(value, 2);
+								if (isMatiereCodeValid(ENTPersonSourceSI, code)) {
+									// register for persistence
+									if (!mapEnseignements.containsKey(uai)) {
+										mapEnseignements.put(uai, new ArrayList<EnseignementEntity>());
+									}
 
-										String divOrGrpCode = GARHelper.getInstance().extractCodeGroup(value, 1);
-										List<EnseignementEntity> enseignements = mapEnseignements.get(uai);
-										EnseignementEntity enseignement = new EnseignementEntity(ENTPersonSourceSI, code, divOrGrpCode, EnseignementEntity.ENSEIGNEMENT_TYPE.GROUPE_MATIERE);
-										if (!enseignements.contains(enseignement)) {
-											enseignements.add(enseignement);
-										}
-									} else {
-										// skip this code since it is not valid
-										log.info("Failed to get the 'Matiere' information associated to the code '" + code + "' (ENTPersonUid=" + ENTPersonIdentifiant + ", UAI=" + uai + ")");								
-									}									
+									String divOrGrpCode = GARHelper.getInstance().extractCodeGroup(value, 1);
+									List<EnseignementEntity> enseignements = mapEnseignements.get(uai);
+									EnseignementEntity enseignement = new EnseignementEntity(ENTPersonSourceSI, code, divOrGrpCode, EnseignementEntity.ENSEIGNEMENT_TYPE.GROUPE_MATIERE);
+									if (!enseignements.contains(enseignement)) {
+										enseignements.add(enseignement);
+									}
 								} else {
-									log.info("Entity '" + GARHelper.getInstance().getPersonEntityBlurId(entity) + "' has attribute 'ENTAuxEnsGroupesMatieres' pointing onto structure ('UAI:" + uai + "') that is not referenced by 'ENTPersonFonctions'");
-								}
+									// skip this code since it is not valid
+									log.info("Failed to get the 'Matiere' information associated to the code '" + code + "' (ENTPersonUid=" + ENTPersonIdentifiant + ", UAI=" + uai + ")");								
+								}									
 							} else {
-								log.info("Entity '"+ GARHelper.getInstance().getPersonEntityBlurId(entity) +"' belongs to a group in structure ('UAI:" + uai + "') out of the involved list");
+								log.info("Entity '" + GARHelper.getInstance().getPersonEntityBlurId(entity) + "' has attribute 'ENTAuxEnsGroupesMatieres' pointing onto structure ('UAI:" + uai + "') that is not referenced by 'ENTPersonFonctions'");
 							}
 						} else {
 							log.debug("Entity '" + GARHelper.getInstance().getPersonEntityBlurId(entity) + "' has attribute 'ENTAuxEnsGroupesMatieres' with blank value");

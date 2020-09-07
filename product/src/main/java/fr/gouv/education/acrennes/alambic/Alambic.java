@@ -1,16 +1,16 @@
 /*******************************************************************************
- * Copyright (C) 2019 Rennes - Brittany Education Authority (<http://www.ac-rennes.fr>) and others.
- * 
+ * Copyright (C) 2019-2020 Rennes - Brittany Education Authority (<http://www.ac-rennes.fr>) and others.
+ *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU Lesser General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU Lesser General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  ******************************************************************************/
@@ -26,6 +26,8 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 
 import org.apache.commons.lang.StringUtils;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 
 import fr.gouv.education.acrennes.alambic.api.APIAlambic;
 import fr.gouv.education.acrennes.alambic.exception.AlambicException;
@@ -33,11 +35,14 @@ import fr.gouv.education.acrennes.alambic.monitoring.ActivityMBean;
 
 public class Alambic {
 
-	public static void main(final String[] args) throws InterruptedException {
+	private static final Log log = LogFactory.getLog(Alambic.class);
+
+	public static void main(final String[] args) throws InterruptedException, AlambicException {
 		String jobFileName = "";
 		Map<String, String> jobParameters = null;
 		final List<String> listeTaches = new ArrayList<>();
 		String executionPath = "./";
+		String threadCount = null;
 		boolean executeAllJobs = false;
 		
 		// Traitement des arguments
@@ -64,6 +69,10 @@ public class Alambic {
 			else if (arg.startsWith("--execute-all") || arg.startsWith("-ea")) {
 				executeAllJobs = true;
 				listeTaches.clear();
+			}
+			// Nombre de threads à utiliser (prévaut sur le fichier de configuration)
+			else if (arg.startsWith("--thread-count") || arg.startsWith("-tc")) {
+				threadCount = args[i].substring(args[i].indexOf("=") + 1).trim();
 			}
 			// Paramètres passés au(x) job(s)
 			else if (arg.startsWith("--params")	|| arg.startsWith("-p")) {
@@ -98,7 +107,7 @@ public class Alambic {
 			APIAlambic apiInstance = null;
 			try {
 				// Initialisation de l'API (librairie)
-				APIAlambic.init(executionPath);
+				APIAlambic.init(executionPath, threadCount);
 				apiInstance = new APIAlambic();
 				
 				// Exécution du(es) job(s)
@@ -106,7 +115,8 @@ public class Alambic {
 				
 				// Attente de la fin de l'exécution du(es) job(s) et clôture de l'API
 				for (final Future<ActivityMBean> jobFuture : jobsFuturelist) {
-					jobFuture.get(); // pas d'exploitation du résultat retourné (accessible via l'instance ActivityMBean)
+					ActivityMBean future = jobFuture.get(); // pas d'exploitation du résultat retourné (accessible via l'instance ActivityMBean)
+					log.debug("Got the returned future : " + future);
 				}
 			} catch (ExecutionException | IOException | AlambicException e) {
 				System.out.println("Erreur détectée pendant l'exécution du job, cause : " + e.getMessage());
@@ -131,7 +141,7 @@ public class Alambic {
 				"-j  (--jobs-repository) pour préciser le nom du fichier de jobs. Ex : -j=job-users.xml" +
 				"\n-ea (--execute-all) pour lancer tous les jobs du fichier" +
 				"\n-el (--execute-list) pour lancer un liste de job. Ex : -el=job1:job2:job4" +
-				"\n-p  (--params) pour charger des valeurs dans la liste des variables. Ex : -p=\"gbizet cssaens esatie\"");
+				"\n-p  (--params) pour passer charger des valeurs dans la liste des variables. Ex : -p=\"oadam arupin mallain5 ssimenel\"");
 	}
 
 }

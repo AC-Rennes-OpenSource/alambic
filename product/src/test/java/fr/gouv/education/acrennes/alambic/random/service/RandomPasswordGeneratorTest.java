@@ -1,50 +1,48 @@
 /*******************************************************************************
- * Copyright (C) 2019 Rennes - Brittany Education Authority (<http://www.ac-rennes.fr>) and others.
- * 
+ * Copyright (C) 2019-2020 Rennes - Brittany Education Authority (<http://www.ac-rennes.fr>) and others.
+ *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU Lesser General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU Lesser General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  ******************************************************************************/
 package fr.gouv.education.acrennes.alambic.random.service;
 
-import java.sql.DriverManager;
-import java.sql.SQLException;
 import java.util.List;
-import junit.framework.Assert;
+
+import fr.gouv.education.acrennes.alambic.exception.AlambicException;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
-import fr.gouv.education.acrennes.alambic.exception.AlambicException;
-import fr.gouv.education.acrennes.alambic.generator.service.AbstractRandomGenerator;
+
 import fr.gouv.education.acrennes.alambic.generator.service.RandomGenerator;
-import fr.gouv.education.acrennes.alambic.generator.service.RandomGeneratorService;
 import fr.gouv.education.acrennes.alambic.generator.service.RandomGenerator.UNICITY_SCOPE;
+import fr.gouv.education.acrennes.alambic.generator.service.RandomGeneratorService;
 import fr.gouv.education.acrennes.alambic.generator.service.RandomGeneratorService.GENERATOR_TYPE;
 import fr.gouv.education.acrennes.alambic.persistence.EntityManagerHelper;
 import fr.gouv.education.acrennes.alambic.random.persistence.RandomEntity;
+import junit.framework.Assert;
 
 public class RandomPasswordGeneratorTest {
 
 	// private EntityManagerFactory emf;
-	private static final String UNIT_TEST_PERSISTENCE_UNIT = "DERBY_PERSISTENCE_UNIT";
+	private static final String UNIT_TEST_PERSISTENCE_UNIT = "TEST_PERSISTENCE_UNIT";
 
-	// private EntityManagerFactory emf;
-	private RandomGeneratorService rgs;
 	private RandomGenerator rg;
 
 	@Before
 	public void setUp() throws Exception {
-		// Mock the entity manager helper so that the embbeded persistence unit (derby) is used
+		// Mock the entity manager helper so that the embedded persistence unit (derby) is used
 		EntityManagerHelper.getInstance(UNIT_TEST_PERSISTENCE_UNIT, null);
+		rg = RandomGeneratorService.getRandomGenerator(GENERATOR_TYPE.PASSWORD);
 	}
 
 	/**
@@ -54,20 +52,10 @@ public class RandomPasswordGeneratorTest {
 	@Test
 	public void test1() {
 		try {
-			rgs = RandomGeneratorService.getInstance();
-			rg = rgs.getRandomGenerator(GENERATOR_TYPE.PASSWORD);
-
-			List<RandomEntity> entities = rg.getEntities("{\"count\":1,\"symbols\":\"letter_maj,letter_min,special,digit\",\"length\":8}", "PROCESS_TESTU", UNICITY_SCOPE.PROCESS);
+			List<RandomEntity> entities = rg.getEntities("{\"blurid\":\"1\",\"count\":1,\"symbols\":\"letter_maj,letter_min,special,digit\",\"length\":8}", "PROCESS_TESTU", UNICITY_SCOPE.PROCESS);
 			Assert.assertTrue(1 == entities.size());
 		} catch (AlambicException e) {
 			Assert.fail(e.getMessage());
-		} finally {
-			if (null != rg) {
-				rg.close();
-			}
-			if (null != rgs) {
-				rgs.close();
-			}
 		}
 	}
 
@@ -79,20 +67,10 @@ public class RandomPasswordGeneratorTest {
 	@Test
 	public void test2() {
 		try {
-			rgs = RandomGeneratorService.getInstance();
-			rg = rgs.getRandomGenerator(GENERATOR_TYPE.PASSWORD);
-
 			rg.getEntities("{\"count\":27,\"symbols\":\"letter_maj\",\"length\":1}", "PROCESS_TESTU", UNICITY_SCOPE.PROCESS);
 			Assert.fail("An exception should have been raised: capacity is exceeded.");
 		} catch (AlambicException e) {
 			Assert.assertTrue(true);
-		} finally {
-			if (null != rg) {
-				rg.close();
-			}
-			if (null != rgs) {
-				rgs.close();
-			}
 		}
 	}
 
@@ -104,20 +82,10 @@ public class RandomPasswordGeneratorTest {
 	@Test
 	public void test3() {
 		try {
-			rgs = RandomGeneratorService.getInstance();
-			rg = rgs.getRandomGenerator(GENERATOR_TYPE.PASSWORD);
-
-			List<RandomEntity> entities = rg.getEntities("{\"count\":27,\"symbols\":\"letter_maj\",\"length\":2}", "PROCESS_TESTU", UNICITY_SCOPE.PROCESS);
+			List<RandomEntity> entities = rg.getEntities("{\"blurid\":\"1\",\"count\":27,\"symbols\":\"letter_maj\",\"length\":2}", "PROCESS_TESTU", UNICITY_SCOPE.PROCESS);
 			Assert.assertTrue(27 == entities.size());
 		} catch (AlambicException e) {
 			Assert.fail(e.getMessage());
-		} finally {
-			if (null != rg) {
-				rg.close();
-			}
-			if (null != rgs) {
-				rgs.close();
-			}
 		}
 	}
 
@@ -128,21 +96,18 @@ public class RandomPasswordGeneratorTest {
 	@Test
 	public void test4() {
 		try {
-			RandomGeneratorService rgs = RandomGeneratorService.getInstance();
-			RandomGenerator rug = rgs.getRandomGenerator(GENERATOR_TYPE.PASSWORD);
-
 			// get password with blur id A
-			List<RandomEntity> entities = rug.getEntities("{\"count\":1,\"length\":8,\"symbols\":\"LETTER_MAJ,LETTER_MIN,DIGIT,SPECIAL\",\"reuse\":\"true\",\"blurid\":\"John.Doe@noo.fr\"}", "PROCESS_TESTU", UNICITY_SCOPE.PROCESS);
+			List<RandomEntity> entities = rg.getEntities("{\"count\":1,\"length\":8,\"symbols\":\"LETTER_MAJ,LETTER_MIN,DIGIT,SPECIAL\",\"reuse\":\"true\",\"blurid\":\"John.Doe@noo.fr\"}", "PROCESS_TESTU", UNICITY_SCOPE.PROCESS);
 			Assert.assertTrue(entities.size() == 1);
 			String valueA = entities.get(0).getJson();
 
 			// get password with blur id B
-			entities = rug.getEntities("{\"count\":1,\"length\":8,\"symbols\":\"LETTER_MAJ,LETTER_MIN,DIGIT,SPECIAL\",\"reuse\":\"true\",\"blurid\":\"Lucie.fer@hell.fr\"}", "PROCESS_TESTU", UNICITY_SCOPE.PROCESS);
+			entities = rg.getEntities("{\"count\":1,\"length\":8,\"symbols\":\"LETTER_MAJ,LETTER_MIN,DIGIT,SPECIAL\",\"reuse\":\"true\",\"blurid\":\"Lucie.fer@hell.fr\"}", "PROCESS_TESTU", UNICITY_SCOPE.PROCESS);
 			Assert.assertTrue(entities.size() == 1);
 			String valueB = entities.get(0).getJson();
 
 			// get again password with blur id A
-			entities = rug.getEntities("{\"count\":1,\"length\":8,\"symbols\":\"LETTER_MAJ,LETTER_MIN,DIGIT,SPECIAL\",\"reuse\":\"true\",\"blurid\":\"John.Doe@noo.fr\"}", "PROCESS_TESTU", UNICITY_SCOPE.PROCESS);
+			entities = rg.getEntities("{\"count\":1,\"length\":8,\"symbols\":\"LETTER_MAJ,LETTER_MIN,DIGIT,SPECIAL\",\"reuse\":\"true\",\"blurid\":\"John.Doe@noo.fr\"}", "PROCESS_TESTU", UNICITY_SCOPE.PROCESS);
 			Assert.assertTrue(entities.size() == 1);
 			String valueC = entities.get(0).getJson();
 
@@ -151,33 +116,23 @@ public class RandomPasswordGeneratorTest {
 			Assert.assertNotSame(valueA, valueB);
 		} catch (AlambicException e) {
 			Assert.fail(e.getMessage());
-		} finally {
-			if (null != rg) {
-				rg.close();
-			}
-			if (null != rgs) {
-				rgs.close();
-			}
 		}
 	}
 
 	@After
 	public void tearDown() {
-		try {
-			AbstractRandomGenerator.cleanCapacityCache();
-			
-			/**
-			 * Shutdown the derby system so that other unit tests don't run into exception because the database was not
-			 * released.
-			 * This is not visible when running the tests within Eclipse environment (launcher) but it is when packaging
-			 * the project with maven.
-			 */
-			// emf.close();
-			EntityManagerHelper.close();
-			DriverManager.getConnection("jdbc:derby:;shutdown=true");
-		} catch (SQLException e) {
-			System.out.println("Shutdown derby, message: " + e.getMessage());
+		RandomGeneratorService.close();
+		if (null != rg) {
+			rg.close();
 		}
+
+		/**
+		 * Shutdown the derby system so that other unit tests don't run into exception because the database was not
+		 * released.
+		 * This is not visible when running the tests within Eclipse environment (launcher) but it is when packaging
+		 * the project with maven.
+		 */
+		EntityManagerHelper.close();
 	}
 
 }

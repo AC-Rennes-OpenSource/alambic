@@ -1,23 +1,22 @@
 /*******************************************************************************
- * Copyright (C) 2019 Rennes - Brittany Education Authority (<http://www.ac-rennes.fr>) and others.
- * 
+ * Copyright (C) 2019-2020 Rennes - Brittany Education Authority (<http://www.ac-rennes.fr>) and others.
+ *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU Lesser General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU Lesser General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  ******************************************************************************/
 package fr.gouv.education.acrennes.alambic.api;
 
 import java.nio.charset.Charset;
-import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -31,6 +30,7 @@ import javax.ws.rs.HttpMethod;
 import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.MediaType;
 
+import org.apache.commons.codec.Charsets;
 import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.http.Header;
@@ -55,7 +55,7 @@ import fr.gouv.education.acrennes.alambic.jobs.CallableContext;
 
 public class WebServiceApi {
 	private final static String CONTENT_TYPE_PATTERN = "^([^;]+)(;\\W*charset=(.+))?";
-	private final static Charset DEFAULT_CHARSET = StandardCharsets.UTF_8;
+	private final static Charset DEFAULT_CHARSET = Charsets.UTF_8;
 	private final static String DEFAULT_CONTENT_TYPE = MediaType.APPLICATION_JSON;
 	
 	private HttpUriRequest request = null;

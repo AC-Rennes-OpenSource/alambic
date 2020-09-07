@@ -1,16 +1,16 @@
 /*******************************************************************************
- * Copyright (C) 2019 Rennes - Brittany Education Authority (<http://www.ac-rennes.fr>) and others.
- * 
+ * Copyright (C) 2019-2020 Rennes - Brittany Education Authority (<http://www.ac-rennes.fr>) and others.
+ *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU Lesser General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU Lesser General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  ******************************************************************************/
@@ -29,7 +29,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.StringJoiner;
 
-import org.apache.commons.io.Charsets;
+import fr.gouv.education.acrennes.alambic.exception.AlambicException;
+import org.apache.commons.codec.Charsets;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
@@ -46,7 +47,6 @@ import org.apache.http.util.EntityUtils;
 import org.json.JSONObject;
 
 import fr.gouv.education.acrennes.alambic.api.WebServiceApi;
-import fr.gouv.education.acrennes.alambic.exception.AlambicException;
 
 public class WSToStateBase implements IToStateBase {
 
@@ -149,7 +149,7 @@ public class WSToStateBase implements IToStateBase {
             
             try (CloseableHttpResponse response = this.httpClient.execute(request)) {
             	if (wsapi.isSuccessful(response)) {
-            		String body = IOUtils.toString(response.getEntity().getContent());
+            		String body = IOUtils.toString(response.getEntity().getContent(), Charsets.UTF_8);
             		if (StringUtils.isNotBlank(body)) {
             			Map<String, List<String>> item = new HashMap<>();
             			item.put("item", Collections.singletonList(body));

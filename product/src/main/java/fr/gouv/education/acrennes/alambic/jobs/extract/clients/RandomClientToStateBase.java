@@ -1,16 +1,16 @@
 /*******************************************************************************
- * Copyright (C) 2019 Rennes - Brittany Education Authority (<http://www.ac-rennes.fr>) and others.
- * 
+ * Copyright (C) 2019-2020 Rennes - Brittany Education Authority (<http://www.ac-rennes.fr>) and others.
+ *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU Lesser General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU Lesser General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  ******************************************************************************/
@@ -27,8 +27,8 @@ import org.apache.commons.logging.LogFactory;
 
 import fr.gouv.education.acrennes.alambic.exception.AlambicException;
 import fr.gouv.education.acrennes.alambic.generator.service.RandomGenerator;
-import fr.gouv.education.acrennes.alambic.generator.service.RandomGeneratorService;
 import fr.gouv.education.acrennes.alambic.generator.service.RandomGenerator.UNICITY_SCOPE;
+import fr.gouv.education.acrennes.alambic.generator.service.RandomGeneratorService;
 import fr.gouv.education.acrennes.alambic.generator.service.RandomGeneratorService.GENERATOR_TYPE;
 import fr.gouv.education.acrennes.alambic.random.persistence.RandomEntity;
 
@@ -41,7 +41,7 @@ public class RandomClientToStateBase implements IToStateBase {
 	private final String processId;
 
 	public RandomClientToStateBase(final String defaultProcessId, final GENERATOR_TYPE type) throws AlambicException {
-		this.randomGenerator = RandomGeneratorService.getInstance().getRandomGenerator(type);
+		this.randomGenerator = RandomGeneratorService.getRandomGenerator(type);
 		this.processId = defaultProcessId;
 	}
 
@@ -57,7 +57,7 @@ public class RandomClientToStateBase implements IToStateBase {
 			try {
 				List<RandomEntity> entities = this.randomGenerator.getEntities(query, this.processId, UNICITY_SCOPE.valueOf(scope));
 				for (RandomEntity entity : entities) {
-					this.stateBase.add(RandomGeneratorService.getInstance().toStateBaseEntry(entity));
+					this.stateBase.add(RandomGeneratorService.toStateBaseEntry(entity));
 				}
 			} catch (AlambicException e) {
 				log.error("Failed to execute the query '" + query + "', error: " + e.getMessage());

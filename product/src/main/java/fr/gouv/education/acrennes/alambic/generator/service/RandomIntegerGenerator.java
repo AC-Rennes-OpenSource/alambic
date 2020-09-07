@@ -1,16 +1,16 @@
 /*******************************************************************************
- * Copyright (C) 2019 Rennes - Brittany Education Authority (<http://www.ac-rennes.fr>) and others.
- * 
+ * Copyright (C) 2019-2020 Rennes - Brittany Education Authority (<http://www.ac-rennes.fr>) and others.
+ *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU Lesser General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU Lesser General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  ******************************************************************************/
@@ -28,7 +28,7 @@ public class RandomIntegerGenerator extends AbstractRandomGenerator {
 
 //	private static final Log log = LogFactory.getLog(RandomIntegerGenerator.class);
 
-	public RandomIntegerGenerator(final EntityManager em) throws AlambicException{
+	public RandomIntegerGenerator(final EntityManager em) throws AlambicException {
 		super(em);
 	}
 
@@ -41,7 +41,6 @@ public class RandomIntegerGenerator extends AbstractRandomGenerator {
 		if (maxValue != 0 && (maxValue >= minValue)) {
 			int randomValue = (int) (Math.round(minValue + (Math.random() * (maxValue - minValue))));
 			entity = new RandomLambdaEntity("{\"value\":\"" + randomValue + "\"}");
-			em.persist(entity); // persist the entity built so that it can be found in "reuse" context			
 		} else {
 			throw new AlambicException("Not consistent value of parameters 'minValue' and/or 'maxValue'");
 		}
@@ -50,8 +49,8 @@ public class RandomIntegerGenerator extends AbstractRandomGenerator {
 	}
 
 	@Override
-	public String getType() {
-		return RandomGeneratorService.GENERATOR_TYPE.INTEGER.toString();
+	public RandomGeneratorService.GENERATOR_TYPE getType(final Map<String, Object> query) {
+		return RandomGeneratorService.GENERATOR_TYPE.INTEGER;
 	}
 
 	@Override

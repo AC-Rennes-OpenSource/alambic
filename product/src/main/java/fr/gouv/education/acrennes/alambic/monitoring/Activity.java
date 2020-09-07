@@ -1,16 +1,16 @@
 /*******************************************************************************
- * Copyright (C) 2019 Rennes - Brittany Education Authority (<http://www.ac-rennes.fr>) and others.
- * 
+ * Copyright (C) 2019-2020 Rennes - Brittany Education Authority (<http://www.ac-rennes.fr>) and others.
+ *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU Lesser General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU Lesser General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  ******************************************************************************/
@@ -70,7 +70,7 @@ public class Activity implements ActivityMBean {
 			for (ActivityMBean innerActivity : this.innerActivitiesList) {
 				p += innerActivity.getProgress();
 			}
-			p = p / ((this.innerJobsCount > this.innerActivitiesList.size()) ? this.innerJobsCount : this.innerActivitiesList.size() );
+			p = p / ( (this.innerJobsCount > this.innerActivitiesList.size()) ? this.innerJobsCount : this.innerActivitiesList.size() );
 		}
 		return p;
 	}
@@ -153,7 +153,15 @@ public class Activity implements ActivityMBean {
 
 	@Override
 	public ActivityTrafficLight getTrafficLight() {
-		return trafficLight;
+		ActivityTrafficLight atl = this.trafficLight;
+		if (!this.innerActivitiesList.isEmpty()) {
+			for (ActivityMBean innerActivity : this.innerActivitiesList) {
+				if (atl.isLowerThan(innerActivity.getTrafficLight())) {
+					atl = innerActivity.getTrafficLight();
+				}
+			}
+		}
+		return atl;
 	}
 
 	@Override
@@ -198,6 +206,13 @@ public class Activity implements ActivityMBean {
 	@Override
 	public ObjectName getObjectName() {
 		return objectName;
+	}
+
+	@Override
+	public String toString() {
+		List<String> innerActivitiesResults = new ArrayList<>();
+		this.innerActivitiesList.forEach(a -> innerActivitiesResults.add(a.toString()));
+		return String.format("{\"job_name\":\"%s\",\"status\":\"%s\",\"traffic_light\":\"%s\",\"progress\":%d,\"result\":%s,\"inner_jobs\":[%s]}", getJobName(), getStatus(), getTrafficLight(), getProgress(), getResult(), String.join(",", innerActivitiesResults));
 	}
 	
 }

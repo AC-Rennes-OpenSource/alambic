@@ -1,30 +1,29 @@
 /*******************************************************************************
- * Copyright (C) 2019 Rennes - Brittany Education Authority (<http://www.ac-rennes.fr>) and others.
- * 
+ * Copyright (C) 2019-2020 Rennes - Brittany Education Authority (<http://www.ac-rennes.fr>) and others.
+ *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU Lesser General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU Lesser General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  ******************************************************************************/
 package fr.gouv.education.acrennes.alambic.jobs.extract.sources;
-
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-import org.jdom2.Element;
 
 import fr.gouv.education.acrennes.alambic.exception.AlambicException;
 import fr.gouv.education.acrennes.alambic.jobs.CallableContext;
 import fr.gouv.education.acrennes.alambic.jobs.extract.clients.LdapToTrash;
 import fr.gouv.education.acrennes.alambic.jobs.stats.LdapStatsMdp;
 import fr.gouv.education.acrennes.alambic.utils.Functions;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.jdom2.Element;
 
 public class SourceFactory {
 
@@ -65,6 +64,10 @@ public class SourceFactory {
 				source = new RandomUUidSource(context, sourceNode);
 			} else if ("randomIntegerGenerator".equals(sourceType)) {
 				source = new RandomIntegerSource(context, sourceNode);
+			} else if ("randomUAIGenerator".equals(sourceType)) {
+				source = new RandomUAISource(context, sourceNode);
+			} else if ("randomMailGenerator".equals(sourceType)) {
+				source = new RandomMailSource(context, sourceNode);
 			} else if ("unikGenerator".equals(sourceType)) {
                 source = new UnikGeneratorSource(context, sourceNode);
 			} else if ("fileExplorer".equals(sourceType)) {
@@ -73,6 +76,10 @@ public class SourceFactory {
 				source = new WebServiceSource(context, sourceNode);
 			} else if ("baseX".equals(sourceType)) {
 				source = new BaseXSource(context, sourceNode);
+			} else if ("blurIdGenerator".equals(sourceType)) {
+				source = new BlurIdSource(context, sourceNode);
+			} else if ("elastic".equals(sourceType)) {
+				source = new ElasticSource(context, sourceNode);
 			} else {
 				throw new AlambicException("Type de source [" + sourceType + "] inconnu.");
 			}

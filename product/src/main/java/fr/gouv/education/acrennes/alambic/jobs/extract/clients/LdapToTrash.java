@@ -1,22 +1,23 @@
 /*******************************************************************************
- * Copyright (C) 2019 Rennes - Brittany Education Authority (<http://www.ac-rennes.fr>) and others.
- * 
+ * Copyright (C) 2019-2020 Rennes - Brittany Education Authority (<http://www.ac-rennes.fr>) and others.
+ *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU Lesser General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU Lesser General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  ******************************************************************************/
 package fr.gouv.education.acrennes.alambic.jobs.extract.clients;
 
 import java.util.Hashtable;
+
 import javax.naming.Context;
 import javax.naming.NamingEnumeration;
 import javax.naming.NamingException;
@@ -24,17 +25,22 @@ import javax.naming.directory.DirContext;
 import javax.naming.directory.InitialDirContext;
 import javax.naming.directory.SearchControls;
 import javax.naming.directory.SearchResult;
-import org.apache.log4j.Logger;
+
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+
 import fr.gouv.education.acrennes.alambic.jobs.load.StateBaseToLdapDelete;
 
 /**
  * @deprecated
  * The destination {@link StateBaseToLdapDelete} must be prefered.
+ * @author mberhaut1
  */
 @Deprecated
 public class LdapToTrash {
+	private static final Log log = LogFactory.getLog(LdapToTrash.class);
+
 	private int countEntriesDeleted = 0;
-	private final Logger logger;
 
 	private final Hashtable<String, String> confLdap = new Hashtable<>(5);
 	private final SearchControls contraintes = new SearchControls();
@@ -48,13 +54,13 @@ public class LdapToTrash {
 		confLdap.put(Context.SECURITY_CREDENTIALS, pwd);
 		contraintes.setSearchScope(SearchControls.ONELEVEL_SCOPE);
 		contraintes.setReturningAttributes(new String[] { "uid" });
-		logger = Logger.getLogger(this.getClass());
+		
 		// Execution de la requète LDAP
 		try {
 			ctx = new InitialDirContext(confLdap);
 			searchRes = ctx.search("", query, contraintes);
 		} catch (final NamingException e) {
-			logger.error("Erreur ouverture du contexte : " + e.getMessage());
+			log.error("Erreur ouverture du contexte : " + e.getMessage());
 		}
 	}
 
@@ -66,13 +72,13 @@ public class LdapToTrash {
 				final SearchResult sR = searchRes.next();
 				final String rdn = new String(sR.getName());
 				ctx.unbind(rdn);
-				logger.info("Effacement de l'entree [" + rdn + "]");
+				log.info("Effacement de l'entree [" + rdn + "]");
 				countEntriesDeleted++;
 			}
 			searchRes.close();
 		} catch (final NamingException e) {
 			// Erreur à l'effacement
-			logger.error("Effacement de l'entree : " + e.getMessage(), e);
+			log.error("Effacement de l'entree : " + e.getMessage(), e);
 		}
 	}
 
@@ -84,12 +90,12 @@ public class LdapToTrash {
 		try {
 			searchRes.close();
 		} catch (final NamingException e) {
-			logger.error("Fermeture du contexte : " + e.getMessage(), e);
+			log.error("Fermeture du contexte : " + e.getMessage(), e);
 		}
 		try {
 			ctx.close();
 		} catch (final NamingException e) {
-			logger.error("Fermeture du contexte : " + e.getMessage(), e);
+			log.error("Fermeture du contexte : " + e.getMessage(), e);
 		}
 	}
 

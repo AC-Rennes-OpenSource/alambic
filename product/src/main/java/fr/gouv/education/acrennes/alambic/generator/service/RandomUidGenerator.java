@@ -1,16 +1,16 @@
 /*******************************************************************************
- * Copyright (C) 2019 Rennes - Brittany Education Authority (<http://www.ac-rennes.fr>) and others.
- * 
+ * Copyright (C) 2019-2020 Rennes - Brittany Education Authority (<http://www.ac-rennes.fr>) and others.
+ *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU Lesser General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU Lesser General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  ******************************************************************************/
@@ -20,12 +20,12 @@ import java.util.Map;
 
 import javax.persistence.EntityManager;
 
-import org.apache.commons.lang.StringUtils;
-
 import fr.gouv.education.acrennes.alambic.Constants;
 import fr.gouv.education.acrennes.alambic.exception.AlambicException;
 import fr.gouv.education.acrennes.alambic.freemarker.FMFunctions;
 import fr.gouv.education.acrennes.alambic.freemarker.NormalizationPolicy;
+import org.apache.commons.lang.StringUtils;
+
 import fr.gouv.education.acrennes.alambic.random.persistence.RandomEntity;
 import fr.gouv.education.acrennes.alambic.random.persistence.RandomLambdaEntity;
 
@@ -39,7 +39,7 @@ public class RandomUidGenerator extends AbstractRandomGenerator {
 	
 	private final FMFunctions fcts;
 
-	public RandomUidGenerator(final EntityManager em) throws AlambicException{
+	public RandomUidGenerator(final EntityManager em) throws AlambicException {
 		super(em);
 		this.fcts = new FMFunctions();
 	}
@@ -77,16 +77,14 @@ public class RandomUidGenerator extends AbstractRandomGenerator {
 			uid = uid.concat(String.valueOf(iteration));
 		}
 
-		// persist the entity built so that it can be found in "reuse" context
 		entity = new RandomLambdaEntity("{\"uid\":\"" + uid + "\"}");
-		em.persist(entity);
 
 		return entity;
 	}
 
 	@Override
-	public String getType() {
-		return RandomGeneratorService.GENERATOR_TYPE.UID.toString();
+	public RandomGeneratorService.GENERATOR_TYPE getType(final Map<String, Object> query) {
+		return RandomGeneratorService.GENERATOR_TYPE.UID;
 	}
 
 	@Override

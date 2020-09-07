@@ -1,16 +1,16 @@
 /*******************************************************************************
- * Copyright (C) 2019 Rennes - Brittany Education Authority (<http://www.ac-rennes.fr>) and others.
- * 
+ * Copyright (C) 2019-2020 Rennes - Brittany Education Authority (<http://www.ac-rennes.fr>) and others.
+ *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU Lesser General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU Lesser General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  ******************************************************************************/
@@ -80,11 +80,21 @@ public interface NormalizationToolbox {
 	/**
      * Replace non-word characters by hyphen. Example: "Les 3: (graces) " becomes "Les-3-graces"
      */
-    static final String NORMALIZE_REGEX_REMOVE_SPECIAL_CHARACTERS = "\\W+=";
-
+    static final String NORMALIZE_REGEX_REMOVE_SPECIAL_CHARACTERS = "[\\W_]+=";
+    
 	/**
 	 * Replace quotation marks by simple quotes. Example: "Le livre "Le rouge et le noir" est de Stendhal" becomes "Le livre 'Le rouge et le noir' est de Stendhal"
 	 */
 	static final String NORMALIZE_REGEX_REPLACE_SPECIAL_QUOTE_MARK_BY_QUOTES = "\"='";
+	
+	/**
+	 * Replace female civility by normalised one. Example: "Mm" & "Melle" becomes "Mme"
+	 */
+	static final String NORMALIZE_REGEX_CIVILITY_FEMALE = "^[Mm][Ll][Ll][Ee].*|^[Mm][Mm][Ee]?.*|^[Mm][Ee].*|^[Mm][Aa][Dd][Aa][Mm][Ee].*|^[Mm][Aa][Dd][Ee][Mm][Oo][Ii][Ss][Ee][Ll][Ll][Ee].*=Mme";
 
+	/**
+	 * Replace male civility by normalised one. Example: "Mr" & "Monsieur" becomes "M"
+	 */
+	static final String NORMALIZE_REGEX_CIVILITY_MALE = "^m$|^[Mm][Rr].*|^[Mm]\\..*|^[Mm][Oo][Nn][Ss][Ii][Ee][Uu][Rr].*=M";
+	
 }

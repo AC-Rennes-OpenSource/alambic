@@ -1,16 +1,16 @@
 /*******************************************************************************
- * Copyright (C) 2019 Rennes - Brittany Education Authority (<http://www.ac-rennes.fr>) and others.
- * 
+ * Copyright (C) 2019-2020 Rennes - Brittany Education Authority (<http://www.ac-rennes.fr>) and others.
+ *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU Lesser General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU Lesser General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  ******************************************************************************/
@@ -20,16 +20,11 @@ import java.io.File;
 import java.io.IOException;
 import java.io.StringWriter;
 import java.nio.charset.Charset;
-import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 import javax.xml.parsers.ParserConfigurationException;
-
-import org.apache.commons.lang.StringUtils;
-import org.jdom2.Element;
-import org.xml.sax.SAXException;
 
 import fr.gouv.education.acrennes.alambic.Constants;
 import fr.gouv.education.acrennes.alambic.exception.AlambicException;
@@ -39,6 +34,12 @@ import fr.gouv.education.acrennes.alambic.jobs.CallableContext;
 import fr.gouv.education.acrennes.alambic.jobs.load.AbstractDestination;
 import fr.gouv.education.acrennes.alambic.monitoring.ActivityMBean;
 import fr.gouv.education.acrennes.alambic.monitoring.ActivityTrafficLight;
+
+import org.apache.commons.codec.Charsets;
+import org.apache.commons.lang.StringUtils;
+import org.jdom2.Element;
+import org.xml.sax.SAXException;
+
 import freemarker.ext.beans.BeansWrapper;
 import freemarker.template.Configuration;
 import freemarker.template.TemplateHashModel;
@@ -46,7 +47,7 @@ import freemarker.template.TemplateModelException;
 
 public class StateBaseToStringByFtl extends AbstractDestination {
 
-	private static final String DEFAULT_OUTPUT_CHARSET = StandardCharsets.UTF_8.toString();
+	private static final String DEFAULT_OUTPUT_CHARSET = Charsets.UTF_8.toString();
 	private final Configuration cfg;
 	private String tplDir;
 	private String tplFile;

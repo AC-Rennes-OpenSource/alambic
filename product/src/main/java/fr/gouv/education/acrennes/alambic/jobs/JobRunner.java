@@ -1,16 +1,16 @@
 /*******************************************************************************
- * Copyright (C) 2019 Rennes - Brittany Education Authority (<http://www.ac-rennes.fr>) and others.
- * 
+ * Copyright (C) 2019-2020 Rennes - Brittany Education Authority (<http://www.ac-rennes.fr>) and others.
+ *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU Lesser General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU Lesser General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  ******************************************************************************/
@@ -22,6 +22,11 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.Future;
+
+import fr.gouv.education.acrennes.alambic.exception.AlambicException;
+import fr.gouv.education.acrennes.alambic.jobs.load.AbstractDestination;
+import fr.gouv.education.acrennes.alambic.jobs.load.Destination;
+import fr.gouv.education.acrennes.alambic.jobs.load.DestinationFactory;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -29,13 +34,9 @@ import org.jdom2.Attribute;
 import org.jdom2.Element;
 
 import fr.gouv.education.acrennes.alambic.Constants;
-import fr.gouv.education.acrennes.alambic.exception.AlambicException;
 import fr.gouv.education.acrennes.alambic.jobs.extract.sources.FakeSource;
 import fr.gouv.education.acrennes.alambic.jobs.extract.sources.Source;
 import fr.gouv.education.acrennes.alambic.jobs.extract.sources.SourceFactory;
-import fr.gouv.education.acrennes.alambic.jobs.load.AbstractDestination;
-import fr.gouv.education.acrennes.alambic.jobs.load.Destination;
-import fr.gouv.education.acrennes.alambic.jobs.load.DestinationFactory;
 import fr.gouv.education.acrennes.alambic.monitoring.ActivityHelper;
 import fr.gouv.education.acrennes.alambic.monitoring.ActivityMBean;
 import fr.gouv.education.acrennes.alambic.monitoring.ActivityMBean.ACTIVITY_STATUS;
@@ -48,20 +49,20 @@ public class JobRunner implements CallableJob {
 
 	private final Element job;
 	private Source source;
-	private Map<String, Source> resources;
-	private final List<Element> listeJobs;
-	private final List<Element> listeTemplateJobs;
 	private Source pagedSource;
+	private Map<String, Source> resources;
 	private final boolean isAsynchronous;
 	private final CallableContext context;
 	private final ActivityMBean parentActivityBean;
 	private final String runId;
 
-	public JobRunner(final CallableContext context, final Element job, final List<Element> listeTemplateJobs, final List<Element> listeJobs, final Source pagedSource, ActivityMBean parentActivityBean, final String runId) {
+	public JobRunner(final CallableContext context, final Element job, final String runId) {
+		this(context, job, null, null, runId);
+	}
+
+	public JobRunner(final CallableContext context, final Element job, final Source pagedSource, ActivityMBean parentActivityBean, final String runId) {
 		this.context = context;
 		this.job = job;
-		this.listeJobs = listeJobs;
-		this.listeTemplateJobs = listeTemplateJobs;
 		this.pagedSource = pagedSource;
 		this.isAsynchronous = Boolean.parseBoolean(job.getAttributeValue(Constants.JOB_ASYNCH_ATTRIBUTE_NAME));
 		this.parentActivityBean = parentActivityBean;
@@ -71,22 +72,20 @@ public class JobRunner implements CallableJob {
 	@Override
 	public ActivityMBean call() {
 		ActivityMBean bean = null;
-
-		log.info("Start processing job '" + getName() + "'");
+		String jobName = getName();
+		
+		log.info("Start processing job '" + jobName + "'");
 
 		bean = execute(this.job, this.parentActivityBean, runId);
 
-		log.info("Finished processing job '" + getName() + "'");
+		log.info("Finished processing job '" + jobName + "'");
 
 		return bean;
 	}
 
 	public ActivityMBean execute(final Element job, final ActivityMBean parentActivityBean, final String runId) {
 		Destination destination = null;
-
-		/**
-		 * TODO : l'implémentation des "template" ne s'inscrit dans le pattern classique consistant à instancier un JobRunner par template / job fils. À revoir.
-		 */
+		
 		final ActivityMBean jobActivity = ActivityHelper.getMBean(getName(job), (null == parentActivityBean) ? ACTIVITY_TYPE.META : ACTIVITY_TYPE.INNER, runId);
 		jobActivity.setStatus(ACTIVITY_STATUS.RUNNING.toString());
 		jobActivity.setProcessing("Analyze job definition...");
@@ -104,16 +103,18 @@ public class JobRunner implements CallableJob {
 				final List<Future<ActivityMBean>> futuresList = new ArrayList<>();
 				jobActivity.setInnerJobsCount(jobList.size());
 				final Iterator<Element> itr = jobList.iterator();
-				while (itr.hasNext()) {
+				while (itr.hasNext() && doRunJob(job, jobActivity)) {
 					final Element node = itr.next();
-					final Element jobDefinition = locateJob(node.getAttributeValue("name"));
+					JobDefinition jobDefinition = JobHelper.getJobDefinition(this.context, node);
 					if (null != jobDefinition) {
 						if (Boolean.parseBoolean(job.getAttributeValue(Constants.CHILD_JOBS_ASYNCH_ATTRIBUTE_NAME))) {
-							jobDefinition.setAttribute(Constants.JOB_ASYNCH_ATTRIBUTE_NAME, "true");
+							jobDefinition.getDefinition().setAttribute(Constants.JOB_ASYNCH_ATTRIBUTE_NAME, "true");
 						}
-						jobActivity.setProcessing("Submit job '" + jobDefinition.getAttributeValue("name") + "' for execution");
-						final Future<ActivityMBean> future = ExecutorFactory.submitJob(new JobRunner(context, jobDefinition, listeTemplateJobs, listeJobs, null, jobActivity, runId));
+						jobActivity.setProcessing("Submit job '" + jobDefinition.getDefinition().getAttributeValue("name") + "' for execution");
+						final Future<ActivityMBean> future = ExecutorFactory.submitJob(new JobRunner(jobDefinition.getContext(), jobDefinition.getDefinition(), null, jobActivity, runId));
 						futuresList.add(future);
+					} else {
+						throw new AlambicException("Failed to find the XML definition of the job '" + node.getAttributeValue("name") + "'");
 					}
 				}
 
@@ -129,10 +130,10 @@ public class JobRunner implements CallableJob {
 					final Iterator<List<Map<String, List<String>>>> pageItr = pagedSource.getPageIterator();
 					int page = 1;
 					final List<Future<ActivityMBean>> futuresList = new ArrayList<>();
-					while (pageItr.hasNext()) {
+					while (pageItr.hasNext() && doRunJob(job, jobActivity)) {
 						// Run a new job dealing with this page of results straight away (since multi-threaded) and go back to search for a new page of results
 						job.setAttribute(Constants.JOB_ASYNCH_ATTRIBUTE_NAME, "true");
-						final Future<ActivityMBean> future = ExecutorFactory.submitJob(new JobRunner(context, job, listeTemplateJobs, listeJobs, new FakeSource(pagedSource.getName(), page++, pageItr.next()), jobActivity, runId));
+						final Future<ActivityMBean> future = ExecutorFactory.submitJob(new JobRunner(context, job, new FakeSource(pagedSource.getName(), page++, pageItr.next()), jobActivity, runId));
 						futuresList.add(future);
 					}
 
@@ -182,7 +183,7 @@ public class JobRunner implements CallableJob {
 				}
 			}
 		} catch (final Exception e) {
-			log.error("Failed to run the job '" + getName(), e);
+			log.error("Failed to run the job '" + getName() + "', error : " + e.getMessage());
 			if (null != jobActivity) {
 				jobActivity.setTrafficLight(ActivityTrafficLight.RED);
 			}
@@ -266,6 +267,19 @@ public class JobRunner implements CallableJob {
 
 		return pagedSource;
 	}
+	
+	private boolean doRunJob(final Element job, final ActivityMBean activityBean) {
+		boolean doRun = false;
+		
+		String jobFailureThreshold = job.getAttributeValue("failure-threshold");
+		if ( StringUtils.isBlank(jobFailureThreshold) || ActivityTrafficLight.valueOf(jobFailureThreshold).isGreaterThan(activityBean.getTrafficLight()) ) {
+			doRun = true;
+		} else {
+			log.error("The failure threshold '" + jobFailureThreshold + "' is reached. Job '" + job.getAttributeValue("name") + "' is interrupted (report : " + activityBean + ").");
+		}
+		
+		return doRun;
+	}
 
 	private void executeSubJobTemplateList(final List<Element> executeList) throws AlambicException {
 		int index = 0;
@@ -294,16 +308,13 @@ public class JobRunner implements CallableJob {
 			Element jobTemplate = null;
 			if (attrTemplate != null) {
 				final String template = attrTemplate.getValue();
-				jobTemplate = locateTemplate(template);
+				jobTemplate = JobHelper.getTemplateDefinition(this.context.getJobDocument(), template);
 				if (jobTemplate == null) {
-					throw new IllegalArgumentException(
-							"Il n'y a pas de template correspondant au nom["
-									+ template + "]");
+					throw new IllegalArgumentException("Il n'y a pas de template correspondant au nom["	+ template + "]");
 				}
 			} else {
 				log.debug("Chargement du template de job");
-				throw new IllegalArgumentException(
-						"Veuillez preciser un template de Job.'");
+				throw new IllegalArgumentException("Veuillez preciser un template de Job.'");
 			}
 
 			// Mode Iteratif
@@ -346,7 +357,7 @@ public class JobRunner implements CallableJob {
 						execute(job, null, runId);
 					}
 				} else {
-					throw new IllegalArgumentException("La logique d'iteration exprimée n'est pas prise en charge. elle doit etre de type 'aa..zz' ou '045/AZT/bizet.'");
+					throw new IllegalArgumentException("La logique d'iteration exprimee n'est pas prise en charge. elle doit etre de type 'aa..zz' ou '045/AZT/adam.'");
 				}
 			} else {
 				final Element job = jobTemplate.clone();
@@ -354,26 +365,6 @@ public class JobRunner implements CallableJob {
 				execute(job, null, runId);
 			}
 		}
-	}
-
-	private Element locateJob(final String jobNameToLocate) throws AlambicException {
-		Element foundJob = null;
-
-		boolean test = false;
-		// Localisation du job
-		for (final Element job : listeJobs) {
-			if (jobNameToLocate.equals(job.getAttributeValue("name"))) {
-				foundJob = job;
-				test = true;
-				break;
-			}
-		}
-
-		if (!test) {
-			log.error("Tache [" + jobNameToLocate + "] inconnue");
-		}
-
-		return foundJob;
 	}
 
 	public static int fromBase26(final String number) {
@@ -398,18 +389,6 @@ public class JobRunner implements CallableJob {
 		} while (number > 0);
 
 		return converted;
-	}
-
-	private Element locateTemplate(final String jobNameToLocate) {
-		// Localisation du job
-		if (listeTemplateJobs != null) {
-			for (final Element job : listeTemplateJobs) {
-				if (jobNameToLocate.equals(job.getAttributeValue("name"))) {
-					return job;
-				}
-			}
-		}
-		return null;
 	}
 	
 }

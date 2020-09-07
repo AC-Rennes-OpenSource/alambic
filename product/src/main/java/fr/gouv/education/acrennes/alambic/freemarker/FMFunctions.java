@@ -1,16 +1,16 @@
 /*******************************************************************************
- * Copyright (C) 2019 Rennes - Brittany Education Authority (<http://www.ac-rennes.fr>) and others.
- * 
+ * Copyright (C) 2019-2020 Rennes - Brittany Education Authority (<http://www.ac-rennes.fr>) and others.
+ *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU Lesser General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU Lesser General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  ******************************************************************************/
@@ -19,7 +19,9 @@ package fr.gouv.education.acrennes.alambic.freemarker;
 import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.IOException;
+import java.io.StringWriter;
 import java.io.UnsupportedEncodingException;
+import java.io.Writer;
 import java.net.URLDecoder;
 import java.net.URLEncoder;
 import java.text.Normalizer;
@@ -32,10 +34,19 @@ import java.util.List;
 import java.util.Map;
 import java.util.Random;
 import java.util.UUID;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
 import javax.xml.parsers.ParserConfigurationException;
+import javax.xml.transform.OutputKeys;
+import javax.xml.transform.Transformer;
+import javax.xml.transform.TransformerException;
+import javax.xml.transform.TransformerFactory;
+import javax.xml.transform.TransformerFactoryConfigurationError;
+import javax.xml.transform.dom.DOMSource;
+import javax.xml.transform.stream.StreamResult;
 
 import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.codec.digest.DigestUtils;
@@ -54,6 +65,7 @@ import fr.gouv.education.acrennes.alambic.jobs.extract.sources.Source;
 import fr.gouv.education.acrennes.alambic.jobs.extract.sources.SourceFilter;
 import fr.gouv.education.acrennes.alambic.security.CipherHelper;
 import fr.gouv.education.acrennes.alambic.security.CipherKeyStore;
+import fr.gouv.education.acrennes.alambic.utils.Functions;
 import freemarker.ext.dom.NodeModel;
 
 public class FMFunctions {
@@ -64,10 +76,12 @@ public class FMFunctions {
 	private static final String VOCABULARY_KEY_ID = "id";
 	private final Random randomGenerator;
 	private final Map<String, List<Map<String, List<String>>>> cachedResources;
-
+	private final Map<String, List<Object>> cache;
+	
 	public FMFunctions() {
 		randomGenerator = new Random();
 		cachedResources = new HashMap<String, List<Map<String, List<String>>>>();
+		cache = new ConcurrentHashMap<String, List<Object>>();
 	}
 
 	public int getRandomNumber(final int min, final int max) {
@@ -316,6 +330,19 @@ public class FMFunctions {
 		}
 	}
 
+	public void logNodeModel(final String level, final NodeModel item) {
+		try {
+			Transformer tf = TransformerFactory.newInstance().newTransformer();
+			tf.setOutputProperty(OutputKeys.ENCODING, "UTF-8");
+			tf.setOutputProperty(OutputKeys.INDENT, "yes");
+			Writer out = new StringWriter();
+			tf.transform(new DOMSource(item.getNode()), new StreamResult(out));
+			log(level, out.toString());
+		} catch (TransformerFactoryConfigurationError | TransformerException e) {
+			log.error("Failed to log the Freemarker NodeModel object, error : " + e.getMessage());
+		}
+	}
+
 	public String encodeURI(final String URI) {
 		String encodedURI = "";
 
@@ -420,5 +447,59 @@ public class FMFunctions {
 	public String unescapeXML(String str) {
 		return StringEscapeUtils.unescapeXml(str);
 	}
+
+	public String getRandomSalt(final int length) {
+		return Functions.getInstance().generateSalt(String.valueOf(length));
+	}
+
+	public List<Object> getCacheList(final String key) {
+		this.cache.putIfAbsent(key, new ArrayList<Object>());
+		return this.cache.get(key);
+	}
 	
+	public int getCacheListSize(final String key) {
+		return getCacheList(key).size();
+	}
+	
+	public List<List<Object>> getCacheLists(final String key_pattern) {
+		return this.cache.entrySet().stream()
+				.filter(entry -> entry.getKey().matches(key_pattern))
+				.map(entry -> entry.getValue())
+				.collect(Collectors.toList());
+	}
+
+	public List<String> getCacheKeys(final String regex) {
+		return this.cache.keySet().stream()
+				.filter(k -> k.matches(regex))
+				.collect(Collectors.toList());
+	}
+
+	public boolean addToCacheList(final String key, final Object value) {
+		this.cache.putIfAbsent(key, new ArrayList<Object>());
+		return this.cache.get(key).add(value);
+	}
+
+	public boolean addToCacheList(final String key, final List<Object> values) {
+		this.cache.putIfAbsent(key, new ArrayList<Object>());
+		return this.cache.get(key).addAll(values);
+	}
+
+	public Object setToCacheList(final String key, final int index, final Object value) {
+		return this.cache.get(key).set(index, value);
+	}
+
+	public void removeFromCacheList(final String key) {
+		this.cache.remove(key);
+	}
+
+	public void clearCacheList() {
+		this.cache.clear();
+	}
+
+	public void clearCacheList(final String key) {
+		if (this.cache.containsKey(key)) {
+			this.cache.get(key).clear();
+		}
+	}
+
 }

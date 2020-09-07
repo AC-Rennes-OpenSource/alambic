@@ -1,16 +1,16 @@
 /*******************************************************************************
- * Copyright (C) 2019 Rennes - Brittany Education Authority (<http://www.ac-rennes.fr>) and others.
- * 
+ * Copyright (C) 2019-2020 Rennes - Brittany Education Authority (<http://www.ac-rennes.fr>) and others.
+ *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU Lesser General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU Lesser General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  ******************************************************************************/
@@ -38,6 +38,8 @@ import javax.xml.transform.stream.StreamSource;
 import javax.xml.validation.Schema;
 import javax.xml.validation.SchemaFactory;
 
+import fr.gouv.education.acrennes.alambic.jobs.load.gar.persistence.EnseignementEntity;
+import fr.gouv.education.acrennes.alambic.jobs.load.gar.persistence.StaffEntity;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -52,9 +54,6 @@ import fr.gouv.education.acrennes.alambic.jobs.load.gar.binding.GAREnsGroupeMati
 import fr.gouv.education.acrennes.alambic.jobs.load.gar.binding.GARGroupe;
 import fr.gouv.education.acrennes.alambic.jobs.load.gar.binding.GARPersonGroupe;
 import fr.gouv.education.acrennes.alambic.jobs.load.gar.binding.ObjectFactory;
-import fr.gouv.education.acrennes.alambic.jobs.load.gar.persistence.EnseignementEntity;
-import fr.gouv.education.acrennes.alambic.jobs.load.gar.persistence.EnseignementEntity.ENSEIGNEMENT_TYPE;
-import fr.gouv.education.acrennes.alambic.jobs.load.gar.persistence.StaffEntity;
 import fr.gouv.education.acrennes.alambic.monitoring.ActivityMBean;
 import fr.gouv.education.acrennes.alambic.monitoring.ActivityTrafficLight;
 
@@ -179,7 +178,7 @@ public class GARGroupeBuilder implements GARTypeBuilder {
 				}
 
 				/**
-				 * The following filtering treatments will be depreciated as soon as the GARGroupe functional key becomes {UAI, code, statut} instead of simply {UAI, code}.
+				 * The following filtering treatments will be deprecated as soon as the GARGroupe functional key becomes {UAI, code, statut} instead of simply {UAI, code}.
 				 * Maybe in a future version of the grammar.
 				 * 
 				 * Until then, groups and division sharing the same code must be excluded from the export. Moreover, the references to the excluded divisions must be removed 
@@ -256,11 +255,11 @@ public class GARGroupeBuilder implements GARTypeBuilder {
 					// Iterate over the list of "enseignements" within valid groups and divisions
 					for (EnseignementEntity enseignement : enseignant.getEnseignements()) {
 						// Only division & groups types of "enseignement" are relevant
-						if (ENSEIGNEMENT_TYPE.CLASSE_MATIERE.equals(enseignement.getType()) || ENSEIGNEMENT_TYPE.GROUPE_MATIERE.equals(enseignement.getType())) {
+						if (EnseignementEntity.ENSEIGNEMENT_TYPE.CLASSE_MATIERE.equals(enseignement.getType()) || EnseignementEntity.ENSEIGNEMENT_TYPE.GROUPE_MATIERE.equals(enseignement.getType())) {
 							// Control the overall consistency of divisions & groups against structure definitions (GAREnsGroupeMatiere, GAREnsClasseMatiere & GARPersonGroupe Versus GARGroupeCode)
 							String groupCode = enseignement.getDivOrGrpCode();
 							if (validStructGrpCodesList.contains(groupCode) || validStructDivCodesList.contains(groupCode)) {
-								if (ENSEIGNEMENT_TYPE.GROUPE_MATIERE.equals(enseignement.getType())) {
+								if (EnseignementEntity.ENSEIGNEMENT_TYPE.GROUPE_MATIERE.equals(enseignement.getType())) {
 									if (validStructGrpCodesList.contains(groupCode)) {
 										if (!listTeacherGrp.containsKey(groupCode)) {
 											listTeacherGrp.put(groupCode, factory.createGAREnsGroupeMatiere());
@@ -347,7 +346,7 @@ public class GARGroupeBuilder implements GARTypeBuilder {
 				for (StaffEntity student : students) {
 					for (EnseignementEntity enseignement : student.getEnseignements()) {
 						// Only division & groups types of "enseignement" are relevant
-						if (ENSEIGNEMENT_TYPE.CLASSE_MATIERE.equals(enseignement.getType()) || ENSEIGNEMENT_TYPE.GROUPE_MATIERE.equals(enseignement.getType())) {
+						if (EnseignementEntity.ENSEIGNEMENT_TYPE.CLASSE_MATIERE.equals(enseignement.getType()) || EnseignementEntity.ENSEIGNEMENT_TYPE.GROUPE_MATIERE.equals(enseignement.getType())) {
 							String groupCode = enseignement.getDivOrGrpCode();
 							// Control the overall consistency of divisions & groups against structure definitions (GARPersonGroupe Versus GARGroupeCode)
 							if (validStructGrpCodesList.contains(groupCode) || validStructDivCodesList.contains(groupCode)) {

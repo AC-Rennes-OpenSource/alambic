@@ -1,16 +1,16 @@
 /*******************************************************************************
- * Copyright (C) 2019 Rennes - Brittany Education Authority (<http://www.ac-rennes.fr>) and others.
- * 
+ * Copyright (C) 2019-2020 Rennes - Brittany Education Authority (<http://www.ac-rennes.fr>) and others.
+ *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU Lesser General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU Lesser General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  ******************************************************************************/
@@ -33,7 +33,7 @@ import javax.xml.namespace.QName;
 /**
  * This object contains factory methods for each 
  * Java content interface and Java element interface 
- * generated in the fr.gouv.education.acrennes.alambic.jobs.load.gar.binding package. 
+ * generated in the fr.toutatice.dataloader.jobs.load.gar.binding package. 
  * <p>An ObjectFactory allows you to programatically 
  * construct new instances of the Java representation 
  * for XML content. The Java representation of XML 
@@ -54,7 +54,7 @@ public class ObjectFactory {
     private final static QName _GARENTGroupe_QNAME = new QName("http://data.education.fr/ns/gar", "GAR-ENT-Groupe");
 
     /**
-     * Create a new ObjectFactory that can be used to create new instances of schema derived classes for package: fr.gouv.education.acrennes.alambic.jobs.load.gar.binding
+     * Create a new ObjectFactory that can be used to create new instances of schema derived classes for package: fr.toutatice.dataloader.jobs.load.gar.binding
      * 
      */
     public ObjectFactory() {
