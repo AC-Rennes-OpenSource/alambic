@@ -232,8 +232,8 @@ Contains the environment variables that will be used on the remote machine at jo
 | etl_jdbc_url | **Mandatory  :** the url to connect to the ETL database.|
 | etl_jdbc_user | **Mandatory  :** the user to connect to the ETL database.|
 | etl_jdbc_password | **Mandatory  :** the user password to connect to the ETL database.|
-| maven_release_repository | **Mandatory  :** the Nexus URL of the releases repository where to get the ETL artifacts.|
-| maven_snapshot_repository | **Mandatory  :** the Nexus URL of the sanapshots repository where to get the ETL artifacts.|
+| maven_release_repository | **Mandatory  :** the Nexus URL of the releases repository where to get the ETL artifacts (see Maven documentation to deploy artifacts to a Nexus).|
+| maven_snapshot_repository | **Mandatory  :** the Nexus URL of the snapshots repository where to get the ETL artifacts.|
 | repository_variables | **Mandatory  :** the full pathname of the file _variables.xml_ which stores all jobs's common variable definitions.|
 | repository_keystore | **Mandatory  :** full pathname of the keystore used by the ETL ciphering functions.|
 | ALAMBIC_TARGET_ENVIRONMENT | **/!\\ Do not modify :** spécifies the current execution environment (development, qualification, staging, production...).|
