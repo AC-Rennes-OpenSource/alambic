@@ -4,8 +4,13 @@
   become: yes
   become_user: "{{ etl_user_name }}"
 
+  vars:
+    env_name: "{{ inventory_dir | regex_replace('.+/([^/]+)+$', '\\1') }}"
+    addon_dir: "{{ playbook_dir }}/{{ addon_name }}"
+
   roles:
     - ask_confirmation
+    - load_env_vars
     - run_addon_script
 
   environment:
@@ -14,7 +19,7 @@
     ALAMBIC_TARGET_ENVIRONMENT: "{{ ALAMBIC_TARGET_ENVIRONMENT }}"
     ALAMBIC_NOTIFICATION_EMAIL_LIST: "{{ ALAMBIC_NOTIFICATION_EMAIL_LIST }}"
     ALAMBIC_KEYSTORE_PATH: "{{ repository_keystore }}"
-    ALAMBIC_COMMON_VARIABLES_PATH: "{{ repository_variables: }}"
+    ALAMBIC_COMMON_VARIABLES_PATH: "{{ repository_variables }}"
     BASEX_API_URL: "{{ BASEX_API_URL }}"
     BASEX_API_BASIC_AUTH_TOKEN: "{{ BASEX_API_BASIC_AUTH_TOKEN }}"
     ELASTIC_API_URL: "{{ ELASTIC_API_URL }}"

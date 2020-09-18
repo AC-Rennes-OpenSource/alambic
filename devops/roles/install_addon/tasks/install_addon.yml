@@ -46,7 +46,12 @@
     lineinfile:
       path: "{{ ansible_env.HOME }}/opt/etl/addons/{{ addon_name }}-{{ version }}/addon.properties"
       line: 'addon.version={{ version }}'
-      
+
+  - name: Remove devops directory
+    file:
+      path: "{{ ansible_env.HOME }}/opt/etl/addons/{{ addon_name }}-{{ version }}/devops"
+      state: absent
+
   - name: List former addon versions
     find:
       paths: "{{ ansible_env.HOME }}/opt/etl/addons"
@@ -61,4 +66,4 @@
       path: "{{ item.path }}"
       state: absent
     with_items: "{{ former_versions_list.files }}"
-    
+

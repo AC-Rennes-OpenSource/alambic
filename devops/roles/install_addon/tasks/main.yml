@@ -25,13 +25,41 @@
   - name: Deflate the artifact archive
     local_action: unarchive src="{{ tempdir.stdout }}/{{ artifactId }}-{{ version }}.zip" dest="{{ tempdir.stdout }}" remote_src="no"
 
+  - name: Set addon_name variable
+    set_fact:
+      addon_name: "{{ lookup('ini', 'addon.name type=properties file={{ tempdir.stdout }}/addon.properties') }}"
+
+  - debug:
+      msg: "Addon name {{ addon_name }}"
+
   - name: Install the addon
     import_tasks: install_addon.yml
     vars:
       archive: "{{ tempdir.stdout }}/{{ artifactId }}-{{ version }}.zip"
-      addon_name: "{{ lookup('ini', 'addon.name type=properties file={{ tempdir.stdout }}/addon.properties') }}"
     become: yes
     become_user: "{{ etl_user_name }}"
+
+  - name: Check whether a devops part should be installed
+    stat:
+      path: "{{ tempdir.stdout }}/devops"
+    register: devopsdir
+
+  - name: Remove existing devops directory for {{ addon_name }}
+    local_action: file path="{{ playbook_dir }}/{{ addon_name }}" state=absent
+
+  - name: Copy devops directory for {{ addon_name }}
+    local_action: copy src="{{ tempdir.stdout }}/devops/" dest="{{ playbook_dir }}/{{ addon_name }}"
+    when: devopsdir.stat.exists
+
+  - name: List shell script files
+    local_action: find paths="{{ playbook_dir }}/{{ addon_name }}" recurse=no file_type="file" patterns="*.sh"
+    register: shell_files_list
+    when: devopsdir.stat.exists
+
+  - name: Set shell files permissions
+    local_action: file path="{{ item.path }}" mode="u=rwx,g=rwx,o=rx"
+    with_items: "{{ shell_files_list.files }}"
+    when: devopsdir.stat.exists
 
   - name: Remove the temporary directory
     local_action: file path="{{ tempdir.stdout }}" state=absent

@@ -4,6 +4,9 @@
   become: yes
   become_user: "{{ controller_user_name }}"
 
+  vars:
+    env_name: "{{ inventory_dir | regex_replace('.+/([^/]+)+$', '\\1') }}"
+
   roles:
     - ask_confirmation
     - install_addon
