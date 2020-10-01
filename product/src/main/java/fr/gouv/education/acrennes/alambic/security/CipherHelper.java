@@ -16,13 +16,9 @@
  ******************************************************************************/
 package fr.gouv.education.acrennes.alambic.security;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
+import java.io.*;
 import java.security.Key;
+import java.util.Properties;
 
 import javax.crypto.Cipher;
 import javax.crypto.CipherInputStream;
@@ -32,6 +28,7 @@ import fr.gouv.education.acrennes.alambic.exception.AlambicException;
 import fr.gouv.education.acrennes.alambic.jobs.CallableContext;
 import fr.gouv.education.acrennes.alambic.jobs.load.AbstractDestination;
 import fr.gouv.education.acrennes.alambic.monitoring.ActivityMBean;
+import fr.gouv.education.acrennes.alambic.utils.Config;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -177,6 +174,24 @@ public class CipherHelper extends AbstractDestination {
 			key = CipherKeyFactory.getKey(algorithm, keystore, alias, keyPwd, keyType);
 			cipher = Cipher.getInstance(algorithm);
 			// initialize(algorithm, mode, key);
+		} catch (Exception e) {
+			throw new AlambicException("Failed to instantiate Ciphering operation, error: " + e.getMessage());
+		}
+	}
+
+	/**
+	 * Instantiates Cipher using default keystore
+	 * @param algorithm Algorithm to use (RSA or AES)
+	 * @param alias Key alias in the default keystore
+	 * @throws AlambicException Exception thrown when Cipher could not be instantiated
+	 */
+	public CipherHelper(final String algorithm, final String alias) throws AlambicException {
+		String keystorePath = Config.getProperty("repository.keystore");
+		String keyPassword = Config.getProperty("repository.keystore.password");
+		CipherKeyStore keystore = new CipherKeyStore(keystorePath, CipherKeyStore.KEYSTORE_TYPE.JCEKS, keyPassword);
+		try {
+			key = CipherKeyFactory.getKey(algorithm, keystore, alias, keyPassword, "private");
+			cipher = Cipher.getInstance(algorithm);
 		} catch (Exception e) {
 			throw new AlambicException("Failed to instantiate Ciphering operation, error: " + e.getMessage());
 		}

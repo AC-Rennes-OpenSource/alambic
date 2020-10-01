@@ -16,6 +16,7 @@
  ******************************************************************************/
 package fr.gouv.education.acrennes.alambic.utils;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -23,11 +24,17 @@ import java.util.Map;
 import java.util.Map.Entry;
 
 import fr.gouv.education.acrennes.alambic.exception.AlambicException;
+import fr.gouv.education.acrennes.alambic.security.CipherHelper;
+import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang.StringUtils;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.jdom2.Element;
 
 public class Variables {
+
+	protected static final Log log = LogFactory.getLog(Variables.class);
 
 	private static final String VARIABLE_DELIMITER = "%";
 	private static final String VARIABLE_PATTERN = "(?s).*(" + VARIABLE_DELIMITER + ".+" + VARIABLE_DELIMITER + "){1,}.*";
@@ -38,8 +45,27 @@ public class Variables {
 		for (final Element element : listeVars) {
 			final String value = element.getText();
 			final String key = element.getAttributeValue("name");
-			if ((key != null) && (value != null)) {
-				tableVars.put(key, value);
+			if (element.getAttribute("encrypted") != null && element.getAttribute("alias") != null) {
+				final String algorithm = element.getAttributeValue("encrypted");
+				final String alias = element.getAttributeValue("alias");
+
+				if (algorithm.equals("RSA") || algorithm.equals("AES")) {
+					try {
+						CipherHelper cipherHelper = new CipherHelper(algorithm, alias);
+						if (key != null && value != null) {
+							tableVars.put(key, new String(cipherHelper.execute(CipherHelper.CIPHER_MODE.DECRYPT_MODE, Base64.decodeBase64(value))));
+						}
+					} catch (AlambicException e) {
+						log.error("Error while deciphering value : " + e.getMessage());
+						log.error("Variable " + key + " will not be loaded");
+					}
+				} else {
+					log.error(algorithm + " is not a supported encryption algorithm, variable " + key + " will not be loaded");
+				}
+			} else {
+				if (key != null && value != null) {
+					tableVars.put(key, value);
+				}
 			}
 		}
 	}
@@ -73,7 +99,7 @@ public class Variables {
 		history.add(sR);
 		return resolvString(sR, history);
 	}
-	
+
 	public String resolvString(String sR, List<String> history) throws AlambicException {
 		if (StringUtils.isNotBlank(sR)) {
 			if (sR.matches(VARIABLE_PATTERN)) {
