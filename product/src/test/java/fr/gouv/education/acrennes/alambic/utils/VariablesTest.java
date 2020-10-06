@@ -128,8 +128,7 @@ public class VariablesTest {
 	@Test
 	public void testLoadEncryptedVars() {
 		Properties properties = new Properties();
-		properties.put("repository.keystore", "./src/test/resources/data/security/alambic.keystore");
-		properties.put("repository.keystore.password", "testpass");
+		properties.put("repository.security.properties", "./src/test/resources/data/security/security.properties");
 		Config.setProperties(properties);
 
 		InputSource xmlVars = new InputSource("./src/test/resources/data/security/testvars.xml");
@@ -153,8 +152,7 @@ public class VariablesTest {
 	@Test
 	public void testEncryptionResolvString() {
 		Properties properties = new Properties();
-		properties.put("repository.keystore", "./src/test/resources/data/security/alambic.keystore");
-		properties.put("repository.keystore.password", "testpass");
+		properties.put("repository.security.properties", "./src/test/resources/data/security/security.properties");
 		Config.setProperties(properties);
 
 		InputSource xmlVars = new InputSource("./src/test/resources/data/security/testvars.xml");

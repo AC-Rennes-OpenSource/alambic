@@ -186,9 +186,19 @@ public class CipherHelper extends AbstractDestination {
 	 * @throws AlambicException Exception thrown when Cipher could not be instantiated
 	 */
 	public CipherHelper(final String algorithm, final String alias) throws AlambicException {
-		String keystorePath = Config.getProperty("repository.keystore");
-		String keyPassword = Config.getProperty("repository.keystore.password");
-		CipherKeyStore keystore = new CipherKeyStore(keystorePath, CipherKeyStore.KEYSTORE_TYPE.JCEKS, keyPassword);
+		Properties keystoreProperties = new Properties();
+		String keystorePath;
+		String keystorePassword;
+		String keyPassword;
+		try(FileInputStream securityPropertiesStream = new FileInputStream(new File(Config.getProperty("repository.security.properties")))) {
+			keystoreProperties.load(securityPropertiesStream);
+			keystorePath = keystoreProperties.getProperty("repository.keystore");
+			keystorePassword = keystoreProperties.getProperty("repository.keystore.password");
+			keyPassword = keystoreProperties.getProperty("repository.keystore.password." + alias, keystorePassword);
+		} catch (IOException e) {
+			throw new AlambicException("Failed to load keystore properties, error: " + e.getMessage());
+		}
+		CipherKeyStore keystore = new CipherKeyStore(keystorePath, CipherKeyStore.KEYSTORE_TYPE.JCEKS, keystorePassword);
 		try {
 			key = CipherKeyFactory.getKey(algorithm, keystore, alias, keyPassword, "private");
 			cipher = Cipher.getInstance(algorithm);
