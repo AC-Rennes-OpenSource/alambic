@@ -28,7 +28,6 @@ import fr.gouv.education.acrennes.alambic.exception.AlambicException;
 import fr.gouv.education.acrennes.alambic.jobs.CallableContext;
 import fr.gouv.education.acrennes.alambic.jobs.load.AbstractDestination;
 import fr.gouv.education.acrennes.alambic.monitoring.ActivityMBean;
-import fr.gouv.education.acrennes.alambic.utils.Config;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -73,7 +72,7 @@ public class CipherHelper extends AbstractDestination {
 			return cipherMode;
 		}
 
-	};
+	}
 
 	public CipherHelper(final CallableContext context, final Element job, final ActivityMBean jobActivity) throws AlambicException {
 		super(context, job, jobActivity);
@@ -181,23 +180,18 @@ public class CipherHelper extends AbstractDestination {
 
 	/**
 	 * Instantiates Cipher using default keystore
+	 * @param keystoreProperties Properties containing information about the keystore (path, passwords…)
 	 * @param algorithm Algorithm to use (RSA or AES)
 	 * @param alias Key alias in the default keystore
 	 * @throws AlambicException Exception thrown when Cipher could not be instantiated
 	 */
-	public CipherHelper(final String algorithm, final String alias) throws AlambicException {
-		Properties keystoreProperties = new Properties();
+	public CipherHelper(final Properties keystoreProperties, final String algorithm, final String alias) throws AlambicException {
 		String keystorePath;
 		String keystorePassword;
 		String keyPassword;
-		try(FileInputStream securityPropertiesStream = new FileInputStream(new File(Config.getProperty("repository.security.properties")))) {
-			keystoreProperties.load(securityPropertiesStream);
-			keystorePath = keystoreProperties.getProperty("repository.keystore");
-			keystorePassword = keystoreProperties.getProperty("repository.keystore.password");
-			keyPassword = keystoreProperties.getProperty("repository.keystore.password." + alias, keystorePassword);
-		} catch (IOException e) {
-			throw new AlambicException("Failed to load keystore properties, error: " + e.getMessage());
-		}
+		keystorePath = keystoreProperties.getProperty("repository.keystore");
+		keystorePassword = keystoreProperties.getProperty("repository.keystore.password");
+		keyPassword = keystoreProperties.getProperty("repository.keystore.password." + alias, keystorePassword);
 		CipherKeyStore keystore = new CipherKeyStore(keystorePath, CipherKeyStore.KEYSTORE_TYPE.JCEKS, keystorePassword);
 		try {
 			key = CipherKeyFactory.getKey(algorithm, keystore, alias, keyPassword, "private");

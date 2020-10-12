@@ -16,11 +16,10 @@
  ******************************************************************************/
 package fr.gouv.education.acrennes.alambic.utils;
 
+import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.Map.Entry;
 
 import fr.gouv.education.acrennes.alambic.exception.AlambicException;
@@ -41,6 +40,17 @@ public class Variables {
 	private Map<String, String> tableVars = new HashMap<>();
 
 	public void loadFromXmlNode(final List<Element> listeVars) {
+		// Chargement des propriétés de chiffrement
+		Properties keystoreProperties = new Properties();
+		if (Config.getProperty("repository.security.properties") != null) {
+			try(FileInputStream securityPropertiesStream = new FileInputStream(new File(Config.getProperty("repository.security.properties")))) {
+				keystoreProperties.load(securityPropertiesStream);
+			} catch (IOException e) {
+				log.error("Error while loading security properties file : " + e.getMessage());
+				log.error("Encrypted variables will not be loaded");
+			}
+		}
+
 		// Récupération des variables
 		for (final Element element : listeVars) {
 			final String value = element.getText();
@@ -51,7 +61,7 @@ public class Variables {
 
 				if (algorithm.equals("RSA") || algorithm.equals("AES")) {
 					try {
-						CipherHelper cipherHelper = new CipherHelper(algorithm, alias);
+						CipherHelper cipherHelper = new CipherHelper(keystoreProperties, algorithm, alias);
 						if (key != null && value != null) {
 							tableVars.put(key, new String(cipherHelper.execute(CipherHelper.CIPHER_MODE.DECRYPT_MODE, Base64.decodeBase64(value))));
 						}

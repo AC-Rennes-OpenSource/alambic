@@ -236,6 +236,9 @@ Contains the environment variables that will be used on the remote machine at jo
 | maven_snapshot_repository | **Mandatory  :** the Nexus URL of the snapshots repository where to get the ETL artifacts.|
 | repository_variables | **Mandatory  :** the full pathname of the file _variables.xml_ which stores all jobs's common variable definitions.|
 | repository_keystore | **Mandatory  :** full pathname of the keystore used by the ETL ciphering functions.|
+| repository_keystore_password | **Mandatory  :** Keystore password.|
+| repository_keystore_password_alias | **Mandatory  :** Password for the default alias in the keystore.|
+| repository_keystore_key_alias | **Mandatory  :** Default alias used by the keystore.|
 | ALAMBIC_TARGET_ENVIRONMENT | **/!\\ Do not modify :** spécifies the current execution environment (development, qualification, staging, production...).|
 | ALAMBIC_NOTIFICATION_EMAIL_LIST | The email address that will receive the Alambic activity notifications (INFO, WARNING or ERROR mesages). As default : no one is defined.|
 | BASEX_API_URL | The url to connect to a BasieX server.|
@@ -365,7 +368,7 @@ An example of file content :
 		<variable name="LDAP_DRIVER">com.sun.jndi.ldap.LdapCtxFactory</variable>
 		<variable name="LDAP_ENT_URI">ldap://***:389</variable>
 		<variable name="LDAP_ENT_LOGIN">cn=Directory Manager</variable>
-		<variable name="LDAP_ENT_PWD">***</variable>
+		<variable name="LDAP_ENT_PWD" encrypted="RSA" alias="aliasrsa2048">CHL1R7O8+cTlMw5tyUZPKoUhatBBvFJft4rJtSPQAD5s4vC+HkNoX1QXp+QFKmndNkW90hw4md/DOjR2kUqQqlAQRihq85dAw3nkscUGIpayTzFrTidQDDYlD5IgZ23wn+dlxt2XnOz0m49Sw5bzfL/EeSOCBq8symVJeojFaoBu1e0cH8ERpnCka7QK1Xxxh+8Mgb0Fa7I5MvrGZ6ID+bHbK1oFIzwCKcNkP8MWGKULZ4ewQt2B1PBZAgdjUBHBj6+AQ0LcWxi4TbsiZQatXBcW0Iw66bDG1sbYbi8JFkbaSzkYXeDae2lm5LpRun61+NTrktWcgFtzgONEFsiXVQ==</variable>
 		...
 	</variables>
 </alambic>
@@ -374,6 +377,7 @@ An example of file content :
 
 **Tip :** 
 - the full path of the file _variables.xml_ must be set to the property _repository_variables_ from the Ansible inventory file _etl.yml_ (refer to [§Files description](#files-description)).
+- Variables with attributes *encrypted* and *alias* are encrypted using the default keystore (with *encrypted* specifying the algorithm used - RSA or AES - and *alias* the key alias to use). They will therefore be decrypted when loaded, thanks to the specified information.
 
 
 ##### How to produce the required keys and keystore file
@@ -414,6 +418,18 @@ Run the following command :
 ```
 $ keytool -list -storetype jceks -keystore <the keystore file name>
 ```
+
+##### The security.properties file
+
+In the **conf/** folder there is a **security.properties** file. This file contains the following properties :
+
+| Property | Description |
+| --- | --- |
+| repository.keystore | Path to the default keystore |
+| repository.keystore.password | Keystore password |
+| repository.keystore.password.*\<alias\>* | One property for each alias. Contains the key password associated to that alias. If a password for an alias is needed and no associated property exists, the keystore password will be used (therefore this property is not mandatory if the alias password is the same as the keystore password). |
+
+By default, this file is initialized on installation, using the ansible inventories. However this method supports only one alias. If you need to handle several aliases with different passwords you can directly replace this file in the **conf/** folder.
 
 ### Rollback a deployed version on a host
 To rollback a version, run the deploy command with a former version.
