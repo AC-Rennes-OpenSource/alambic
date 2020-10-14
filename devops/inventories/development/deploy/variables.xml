@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<alambic>
+  <variables>
+    <variable name="LDAP_DRIVER">com.sun.jndi.ldap.LdapCtxFactory</variable>
+    <variable name="LDAP_ENT_URI">ldap://***:389</variable>
+    <variable name="LDAP_ENT_LOGIN">cn=Directory Manager</variable>
+    <variable name="LDAP_ENT_PWD" encrypted="RSA" alias="aliasrsa2048">jFWUXtfTdUymo9npoeRevQztp9aEv/sKtkot73/VofByDxQi7Ins0yyXgYd62palJyNqKtEs1ly4oVjRhPtADIrqiZ3NQTZU805unyZLYeIPhI59tGAJID81vwE6gMPdXU81gYNMz1Of4XuBY3BYjvt60ZtLEqitVgMEsjnNfYfpccqNzk9KlHD6H224Ezlp1pMzx0KYb/ZbYxhDSyOvgJNPe4zGjG5jBnD6dCx2Xx/7pgLD+/vKNzzz6yUKUlofTF0bpR9wCK+I0RuXvHEDHmQEM97pg26eSKR4ApImbn0qDGctd6vEsN1LOxofBQVc/BNPJsHK2qv8f76JbfseIw==</variable>
+  </variables>
+</alambic>
