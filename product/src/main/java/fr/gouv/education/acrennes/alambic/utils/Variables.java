@@ -40,6 +40,58 @@ public class Variables {
 	private Map<String, String> tableVars = new HashMap<>();
 
 	public void loadFromXmlNode(final List<Element> listeVars) {
+		Properties keystoreProperties = getKeystoreProperties();
+
+		Map<String, String> mapAliasAlgorithms = new HashMap<>();
+		Map<String, Map<String, String>> mapEncryptedValues = new HashMap<>();
+
+		// Récupération des variables
+		for (final Element variable : listeVars) {
+			loadVariable(mapAliasAlgorithms, mapEncryptedValues, variable);
+		}
+
+		// Insertion des variables chiffrées
+		for (Entry<String, Map<String, String>> encryptedSet: mapEncryptedValues.entrySet()) {
+			String alias = encryptedSet.getKey();
+			Map<String, String> variables = encryptedSet.getValue();
+			try {
+				CipherHelper cipherHelper = new CipherHelper(keystoreProperties, mapAliasAlgorithms.get(alias), alias);
+				for (Entry<String, String> variable : variables.entrySet()) {
+					if (variable.getKey() != null && variable.getValue() != null) {
+						tableVars.put(variable.getKey(), new String(cipherHelper.execute(CipherHelper.CIPHER_MODE.DECRYPT_MODE, Base64.decodeBase64(variable.getValue()))));
+					}
+				}
+			} catch (AlambicException e) {
+				log.error("Error while deciphering value : " + e.getMessage());
+				log.error("Variables encrypted with alias " + alias + " will not be loaded");
+			}
+		}
+	}
+
+	private void loadVariable(Map<String, String> mapAliasAlgorithms, Map<String, Map<String, String>> mapEncryptedValues, Element variable) {
+		final String value = variable.getText();
+		final String key = variable.getAttributeValue("name");
+		if (variable.getAttribute("encrypted") != null && variable.getAttribute("alias") != null) {
+			final String algorithm = variable.getAttributeValue("encrypted");
+			final String alias = variable.getAttributeValue("alias");
+
+			if (algorithm.equals("RSA") || algorithm.equals("AES")) {
+				mapAliasAlgorithms.put(alias, algorithm);
+				if (!mapEncryptedValues.containsKey(alias)) {
+					mapEncryptedValues.put(alias, new HashMap<>());
+				}
+				mapEncryptedValues.get(alias).put(key, value);
+			} else {
+				log.error(algorithm + " is not a supported encryption algorithm, variable " + key + " will not be loaded");
+			}
+		} else {
+			if (key != null && value != null) {
+				tableVars.put(key, value);
+			}
+		}
+	}
+
+	private Properties getKeystoreProperties() {
 		// Chargement des propriétés de chiffrement
 		Properties keystoreProperties = new Properties();
 		if (Config.getProperty("repository.security.properties") != null) {
@@ -50,34 +102,7 @@ public class Variables {
 				log.error("Encrypted variables will not be loaded");
 			}
 		}
-
-		// Récupération des variables
-		for (final Element element : listeVars) {
-			final String value = element.getText();
-			final String key = element.getAttributeValue("name");
-			if (element.getAttribute("encrypted") != null && element.getAttribute("alias") != null) {
-				final String algorithm = element.getAttributeValue("encrypted");
-				final String alias = element.getAttributeValue("alias");
-
-				if (algorithm.equals("RSA") || algorithm.equals("AES")) {
-					try {
-						CipherHelper cipherHelper = new CipherHelper(keystoreProperties, algorithm, alias);
-						if (key != null && value != null) {
-							tableVars.put(key, new String(cipherHelper.execute(CipherHelper.CIPHER_MODE.DECRYPT_MODE, Base64.decodeBase64(value))));
-						}
-					} catch (AlambicException e) {
-						log.error("Error while deciphering value : " + e.getMessage());
-						log.error("Variable " + key + " will not be loaded");
-					}
-				} else {
-					log.error(algorithm + " is not a supported encryption algorithm, variable " + key + " will not be loaded");
-				}
-			} else {
-				if (key != null && value != null) {
-					tableVars.put(key, value);
-				}
-			}
-		}
+		return keystoreProperties;
 	}
 
 	public void loadFromMap(final Map<String, String> map) {
