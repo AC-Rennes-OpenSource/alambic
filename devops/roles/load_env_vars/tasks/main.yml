@@ -1,0 +1,12 @@
+- name: Check if file exists
+  local_action: stat path="{{ addon_dir }}/env/{{ env_name }}.yml"
+  register: addon_env_file
+
+- name: Load variables
+  local_action: include_vars file="{{ addon_dir }}/env/{{ env_name }}.yml" name="addon_env"
+  when: addon_env_file.stat.exists
+
+- name: Create empty addon_env dictionary if there are no variables to be loaded
+  set_fact:
+    addon_env: {}
+  when: not addon_env_file.stat.exists

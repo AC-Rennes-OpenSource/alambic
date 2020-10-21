@@ -58,7 +58,7 @@ Its main assets are :
 - request tuples from a relational database via SQL language,
 - request documents from the [Elastic](https://www.elastic.co/fr/products/elasticsearch) index cluster (paging is supported),
 - request documents from the ECM [Nuxeo](https://www.nuxeo.com/fr/) server (paging is supported via [Elastic](https://www.elastic.co/fr/products/elasticsearch) integration) via [NxQL](https://doc.nuxeo.com/nxdoc/nxql/) language,
-- request documents from the XML database [Basex](http://basex.org) server via [XPATH](https://www.w3.org/TR/1999/REC-xpath-19991116/) language (paging is supported), 
+- request documents from the XML database [Basex](http://basex.org) server via [XPATH](https://www.w3.org/TR/1999/REC-xpath-19991116/) language (paging is supported),
 - request read APIs from a web service whatever API grammar is,
 - load CSV file content,
 - load XML file content and navigate inside via [XPATH](https://www.w3.org/TR/1999/REC-xpath-19991116/) request language,
@@ -78,7 +78,7 @@ Its main assets are :
 - request write APIs from a web service whatever API grammar is.
 
 ## Data transformation
-The folloowing two transformation technologies are supported :
+The following two transformation technologies are supported :
 - [XSLT](https://www.w3.org/TR/2017/REC-xslt-30-20170608/)
 - [Freemarker templating engine](https://freemarker.apache.org)
 
@@ -143,11 +143,11 @@ A key pair of RSA keys is generated on the control machine, whose public key is 
 All operations dealing with Alambic are based-on [Ansible](https://www.ansible.com/) technology. Hence, pre-requisits are :
 
  - The Ansible *minimal* version 2.6 is required on the control machine.
- 
+
 > "control machine" stands for the machine used for running all Ansible command lines (installation, job execution, fetch of reports...).
 
  - The control machine have access to the [Nexus](https://fr.sonatype.com/nexus-repository-sonatype) server that will index the Alambic artefact.
- 
+
   **Tip** : the scripts are designed so that only the control machine requires this Nexus server access. It is responsible for downloading the artifacts and then upload them to the remote hosts. This aims to reduce the network configurations.
 
  - The remote host machines have python pacakges installed (minimal version would be 2.7) and _lxml_ python package installed too (ubuntu : _$ sudo apt-get install python-lxml_).
@@ -193,8 +193,8 @@ inventories
 ##### ```> inventories/<environment>/hosts.yml```
 
 Defines the typology of the ETL execution context. What is the host of the Alambic ETL.
-The following example declares the ETL will be hosted by *localhost*. 
-**Tip :** 
+The following example declares the ETL will be hosted by *localhost*.
+**Tip :**
 1. The ETL hostname defined here must fit the file name stored within _host_vars/<hostname>.yml_ (i.e. _host_vars/localhot.yml_, see file description below)
 2. The database information are commented since this one **must be installed manually**. The Ansible scripts won't do it themsleves.
 
@@ -281,7 +281,7 @@ etl_user_password: alambic
 $ ansible-vault view vault_vars.yml
 ```
 
-##### Security 
+##### Security
 **/!\\** Store the vault password typed at step _1._ into a file. For security reasons again, make sure this file has a restricted and protected access.
 ```
 $ echo "<your vault password here>" >  .vault_pass.txt
@@ -372,7 +372,7 @@ An example of file content :
 
 ```
 
-**Tip :** 
+**Tip :**
 - the full path of the file _variables.xml_ must be set to the property _repository_variables_ from the Ansible inventory file _etl.yml_ (refer to [§Files description](#files-description)).
 
 
@@ -386,7 +386,7 @@ Run the following command :
 $ keytool -genseckey -alias <your key alias> -keyalg AES -keysize <your key size (256 minimum advised)> -storepass <your keystore password> -keypass <your key password> -storetype JCEKS -keystore <your keystore file name>
 ```
 
-**Tip :** 
+**Tip :**
 - the keystore type is _jceks_ since only this type allows to store both symmetrical and asymmetrical keys.
 - the full path of the produced keystore file must be set to the property _repository_keystore_ from the Ansible inventory file _etl.yml_ (refer to [§Files description](#files-description)).
 - the keystore name and password, the key alias and password will be required when calling the ciphering feature.
@@ -419,7 +419,7 @@ $ keytool -list -storetype jceks -keystore <the keystore file name>
 To rollback a version, run the deploy command with a former version.
 
 ### How to uninstall the ETL on a host
-The following command fully uninstall the ETL on the host. 
+The following command fully uninstall the ETL on the host.
 
 > **/!\\** **All related objects (directories, user, groupe, logs) will be removed.**
 
@@ -603,7 +603,7 @@ Multiple jobs can contribute to achieve an operation on information system.
 ## Job definition examples
 
 ### With no templating
-This example loads entries from one source LDAP into a target LDAP server. 
+This example loads entries from one source LDAP into a target LDAP server.
 
 ```xml
 <alambic>
@@ -614,7 +614,7 @@ This example loads entries from one source LDAP into a target LDAP server.
 		<variable name="LDAP_SRC_LOGIN">...</variable>
 		<variable name="LDAP_SRC_PWD">...</variable>
 		<variable name="LDAP_SRC_BASE_DN">dc=***</variable>
-		
+
 		<!-- target LDAP credentials -->
 		<variable name="LDAP_DST_DRIVER">com.sun.jndi.ldap.LdapCtxFactory</variable>
 		<variable name="LDAP_DST_URI">ldap://***:389</variable>
@@ -622,9 +622,9 @@ This example loads entries from one source LDAP into a target LDAP server.
 		<variable name="LDAP_DST_PWD">...</variable>
 		<variable name="LDAP_DST_BASE_DN">dc=***</variable>
 	</variables>
-	
+
 	...
-	
+
 	<job name="my-job">
 		<source type="ldap" name="source LDAP">
 			<driver>%LDAP_SRC_DRIVER%</driver>
@@ -642,14 +642,14 @@ This example loads entries from one source LDAP into a target LDAP server.
 			<pivot>my-intermediate-file.xml</pivot>
 		</destination>
 	</job>
-	
+
 	...
 
 </alambic>
 ```
 
 The intermediate file is a static file which respects the ETL product's grammar to load data into a LDAP server.
-It contains variables whose names fit the attributes name of each entry of the input result set. 
+It contains variables whose names fit the attributes name of each entry of the input result set.
 The variable is then replaced by the value of the eponym entry attribute.
 
 ```xml
@@ -689,7 +689,7 @@ The variable is then replaced by the value of the eponym entry attribute.
 				</attr>
 				<attr name="profiles" modifyMode="replace">
 					<value>%LDAP_SRC_URI%/%LDAP_SRC_profiles_dn%?uid?one?(&amp;(objectClass=profile)(member=uid=%uid%))</value>
-				</attr>				
+				</attr>
 			</attributes>
 		</entry>
 	</entries>
@@ -700,14 +700,14 @@ The attributes of each entry from the source result set are referenced the same 
 The following XML element specifies which target entity must be created (or modified if it already exists) :
 ```xml
 <entry verifyIfExist="(&amp;(objectClass=ENTPerson)(uid=%uid%))">
-``` 
+```
 
 The following XML element specifies what LDAP request to execute so that to fill-in the _profiles_ attribute value :
 ```xml
 <attr name="profiles" modifyMode="replace">
 	<value>%LDAP_SRC_URI%/%LDAP_SRC_profiles_dn%?uid?one?(&amp;(objectClass=profile)(member=uid=%uid%))</value>
-</attr>				
-``` 
+</attr>
+```
 
 The following XML element shows how a treatment can be called to generate an attribut value. Here an UUID (version 4 : random) is generated :
 ```xml
@@ -722,7 +722,7 @@ This example loads entries from one XML file into a target LDAP server (after ha
 ```xml
 <?xml version="1.0" encoding="UTF-8"?>
 <alambic>
-	<variables>		
+	<variables>
 		<!-- target LDAP credentials -->
 		<variable name="LDAP_DST_DRIVER">com.sun.jndi.ldap.LdapCtxFactory</variable>
 		<variable name="LDAP_DST_URI">ldap://***:389</variable>
@@ -730,9 +730,9 @@ This example loads entries from one XML file into a target LDAP server (after ha
 		<variable name="LDAP_DST_PWD">...</variable>
 		<variable name="LDAP_DST_BASE_DN">dc=***</variable>
 	</variables>
-	
+
 	...
-	
+
 	<job name="my-job">
 		<source type="xml" name="XMLFile">
 			<xml>my-input-file.xml</xml>
@@ -772,7 +772,7 @@ This example loads a target LDAP server with entries consolidated from multiple 
 		<variable name="DATABASE_SRC_URI">jdbc:postgresql://<database host name>:5432/<database name></variable>
 		<variable name="DATABASE_SRC_LOGIN">...</variable>
 		<variable name="DATABASE_SRC_PWD">...</variable>
-		
+
 		<!-- target LDAP credentials -->
 		<variable name="LDAP_DST_DRIVER">com.sun.jndi.ldap.LdapCtxFactory</variable>
 		<variable name="LDAP_DST_URI">ldap://***:389</variable>
@@ -780,12 +780,12 @@ This example loads a target LDAP server with entries consolidated from multiple 
 		<variable name="LDAP_DST_PWD">...</variable>
 		<variable name="LDAP_DST_BASE_DN">dc=***</variable>
 	</variables>
-	
+
 	<job name="BUILD-AND-LOAD">
 		<execute-job name="BUILD-INTERMEDIATE-FILE-JOB"/>
 		<execute-job name="LOAD-INTERMEDIATE-FILE-JOB"/>
 	</job>
-	
+
 	<!-- Will build the intermediate file based-on data consolidation from multiple sources -->
 	<job name="BUILD-INTERMEDIATE-FILE-JOB">
 	    <variables/>
@@ -831,7 +831,7 @@ This example loads a target LDAP server with entries consolidated from multiple 
 			<passwd>%LDAP_DST_PWD%</passwd>
 			<pivot>../output/an-intermediate-file.xml</pivot>
 		</destination>
-	</job>		
+	</job>
 
 </alambic>
 ```
@@ -927,7 +927,7 @@ For each running job, the following information is monitored :
 - its duration,
 - a traffic light indicating its status (ok, warning, error),
 - the current operation being processed,
-- the hosting thread. 
+- the hosting thread.
 
 ## Display dashboard
 To display the dashboard during runtime, type-in full path name of the _dashboard.html_ file in a web browser.
@@ -935,7 +935,7 @@ To display the dashboard during runtime, type-in full path name of the _dashboar
 Example : ```file:///home/***/alambic/product/src/main/resources/monitoring/dashboard.html```
 
 ## Monitor a remote Alambic instance
-As default, the dashboard only monitors a local Alambic instance. 
+As default, the dashboard only monitors a local Alambic instance.
 It is possible to monitor any remote Alambic instance by editing the file _dashboard.html_ (provided the network configuration is correct).
 
 Add an entry inside the structure _targetsList_ :
