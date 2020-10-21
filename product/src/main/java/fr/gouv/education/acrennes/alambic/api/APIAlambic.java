@@ -43,6 +43,7 @@ import java.util.concurrent.Future;
 import javax.persistence.EntityManager;
 
 import fr.gouv.education.acrennes.alambic.exception.AlambicException;
+import fr.gouv.education.acrennes.alambic.utils.Config;
 import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
@@ -124,6 +125,9 @@ public class APIAlambic implements IAPIAlambic {
         if (StringUtils.isNotBlank(threadCount)) {
         	properties.setProperty(ExecutorFactory.THREAD_POOL_SIZE, threadCount);
         }
+
+        // Initialize the config object to access properties later
+        Config.setProperties(properties);
         
         // Initialize the persistence unit
         Map<String, String> puProperties = new HashMap<>();

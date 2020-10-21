@@ -19,8 +19,15 @@ package fr.gouv.education.acrennes.alambic.utils;
 import static org.junit.Assert.fail;
 
 import fr.gouv.education.acrennes.alambic.exception.AlambicException;
+import org.jdom2.Element;
+import org.jdom2.JDOMException;
+import org.jdom2.input.SAXBuilder;
 import org.junit.Assert;
 import org.junit.Test;
+import org.xml.sax.InputSource;
+
+import java.io.IOException;
+import java.util.Properties;
 
 public class VariablesTest {
 
@@ -117,4 +124,59 @@ public class VariablesTest {
 			Assert.assertTrue(true);
 		}
 	}
+
+	@Test
+	public void testLoadEncryptedVars() {
+		Properties properties = new Properties();
+		properties.put("repository.security.properties", "./src/test/resources/data/security/security.properties");
+		Config.setProperties(properties);
+
+		InputSource xmlVars = new InputSource("./src/test/resources/data/security/testvars.xml");
+		SAXBuilder builder = new SAXBuilder();
+		try {
+			Element root = builder.build(xmlVars).getRootElement();
+			Variables variables = new Variables();
+			Element varEntries = root.getChild("variables");
+			variables.loadFromXmlNode(varEntries.getChildren());
+
+			Assert.assertTrue(variables.getHashMap().containsKey("plain") && variables.getHashMap().get("plain").equals("TextPlain"));
+			Assert.assertTrue(variables.getHashMap().containsKey("aes128") && variables.getHashMap().get("aes128").equals("TextAES128"));
+			Assert.assertTrue(variables.getHashMap().containsKey("aes256") && variables.getHashMap().get("aes256").equals("TextAES256"));
+			Assert.assertTrue(variables.getHashMap().containsKey("rsa1024") && variables.getHashMap().get("rsa1024").equals("TextRSA1024"));
+			Assert.assertTrue(variables.getHashMap().containsKey("rsa2048") && variables.getHashMap().get("rsa2048").equals("TextRSA2048"));
+		} catch (JDOMException | IOException e) {
+			fail("Error while reading XML file : " + e.getMessage());
+		}
+	}
+
+	@Test
+	public void testEncryptionResolvString() {
+		Properties properties = new Properties();
+		properties.put("repository.security.properties", "./src/test/resources/data/security/security.properties");
+		Config.setProperties(properties);
+
+		InputSource xmlVars = new InputSource("./src/test/resources/data/security/testvars.xml");
+		SAXBuilder builder = new SAXBuilder();
+		try {
+			Element root = builder.build(xmlVars).getRootElement();
+			Variables variables = new Variables();
+			Element varEntries = root.getChild("variables");
+			variables.loadFromXmlNode(varEntries.getChildren());
+
+			Assert.assertTrue(variables.getHashMap().containsKey("login") && variables.getHashMap().get("login").equals("gargamel"));
+			Assert.assertTrue(variables.getHashMap().containsKey("password") && variables.getHashMap().get("password").equals("azrael"));
+			Assert.assertTrue(variables.getHashMap().containsKey("credentials") && variables.getHashMap().get("credentials").equals("%login%/azrael"));
+
+			variables.executeFunctions();
+
+			Assert.assertTrue(variables.getHashMap().containsKey("login") && variables.getHashMap().get("login").equals("gargamel"));
+			Assert.assertTrue(variables.getHashMap().containsKey("password") && variables.getHashMap().get("password").equals("azrael"));
+			Assert.assertTrue(variables.getHashMap().containsKey("credentials") && variables.getHashMap().get("credentials").equals("gargamel/azrael"));
+		} catch (JDOMException | IOException e) {
+			fail("Error while reading XML file : " + e.getMessage());
+		} catch (AlambicException e) {
+			fail("Error while resolving strings : " + e.getMessage());
+		}
+	}
+
 }

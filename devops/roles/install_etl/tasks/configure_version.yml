@@ -5,10 +5,27 @@
         {{ item.name }}={{ item.value }}
       marker: "# {mark} ANSIBLE MANAGED BLOCK {{ item.name }}"
     with_items:
-      - { name: repository.variables, value: "{{ repository_variables }}" }
-      - { name: repository.keystore, value: "{{ repository_keystore }}" }
+      - { name: repository.variables, value: "{{ ansible_env.HOME }}/opt/etl/tags/{{ version }}/conf/variables.xml" }
+      - { name: repository.security.properties, value: "{{ ansible_env.HOME }}/opt/etl/tags/{{ version }}/conf/security.properties" }
       - { name: multithreading.pool.size, value: "{{ multithreading_pool_size }}" }
       - { name: etl.jdbc.driver, value: "{{ etl_jdbc_driver }}" }
       - { name: etl.jdbc.url, value: "{{ etl_jdbc_url }}" }
       - { name: etl.jdbc.user, value: "{{ etl_jdbc_user }}" }
       - { name: etl.jdbc.password, value: "{{ etl_jdbc_password }}" }
+
+  - name: Set alias
+    replace:
+      path: "{{ ansible_env.HOME }}/opt/etl/active/conf/security.properties"
+      regexp: "%alias%"
+      replace: "{{ repository_keystore_key_alias }}"
+
+  - name: insert/update security/keystore configuration
+    blockinfile:
+      dest: "{{ ansible_env.HOME }}/opt/etl/active/conf/security.properties"
+      block: |
+        {{ item.name }}={{ item.value }}
+      marker: "# {mark} ANSIBLE MANAGED BLOCK {{ item.name }}"
+    with_items:
+      - { name: repository.keystore, value: "{{ ansible_env.HOME }}/opt/etl/tags/{{ version }}/conf/alambic.keystore" }
+      - { name: repository.keystore.password, value: "{{ repository_keystore_password }}" }
+      - { name: "repository.keystore.password.{{ repository_keystore_key_alias }}", value: "{{ repository_keystore_password_alias }}" }

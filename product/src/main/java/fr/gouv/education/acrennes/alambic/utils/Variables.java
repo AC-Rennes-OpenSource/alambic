@@ -16,32 +16,93 @@
  ******************************************************************************/
 package fr.gouv.education.acrennes.alambic.utils;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.util.*;
 import java.util.Map.Entry;
 
 import fr.gouv.education.acrennes.alambic.exception.AlambicException;
+import fr.gouv.education.acrennes.alambic.security.CipherHelper;
+import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang.StringUtils;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.jdom2.Element;
 
 public class Variables {
+
+	protected static final Log log = LogFactory.getLog(Variables.class);
 
 	private static final String VARIABLE_DELIMITER = "%";
 	private static final String VARIABLE_PATTERN = "(?s).*(" + VARIABLE_DELIMITER + ".+" + VARIABLE_DELIMITER + "){1,}.*";
 	private Map<String, String> tableVars = new HashMap<>();
 
 	public void loadFromXmlNode(final List<Element> listeVars) {
+		Properties keystoreProperties = getKeystoreProperties();
+
+		Map<String, String> mapAliasAlgorithms = new HashMap<>();
+		Map<String, Map<String, String>> mapEncryptedValues = new HashMap<>();
+
 		// Récupération des variables
-		for (final Element element : listeVars) {
-			final String value = element.getText();
-			final String key = element.getAttributeValue("name");
-			if ((key != null) && (value != null)) {
+		for (final Element variable : listeVars) {
+			loadVariable(mapAliasAlgorithms, mapEncryptedValues, variable);
+		}
+
+		// Insertion des variables chiffrées
+		for (Entry<String, Map<String, String>> encryptedSet: mapEncryptedValues.entrySet()) {
+			String alias = encryptedSet.getKey();
+			Map<String, String> variables = encryptedSet.getValue();
+			try {
+				CipherHelper cipherHelper = new CipherHelper(keystoreProperties, mapAliasAlgorithms.get(alias), alias);
+				for (Entry<String, String> variable : variables.entrySet()) {
+					if (variable.getKey() != null && variable.getValue() != null) {
+						tableVars.put(variable.getKey(), new String(cipherHelper.execute(CipherHelper.CIPHER_MODE.DECRYPT_MODE, Base64.decodeBase64(variable.getValue()))));
+					}
+				}
+			} catch (AlambicException e) {
+				log.error("Error while deciphering value : " + e.getMessage());
+				log.error("Variables encrypted with alias " + alias + " will not be loaded");
+			}
+		}
+	}
+
+	private void loadVariable(Map<String, String> mapAliasAlgorithms, Map<String, Map<String, String>> mapEncryptedValues, Element variable) {
+		final String value = variable.getText();
+		final String key = variable.getAttributeValue("name");
+		if (variable.getAttribute("encrypted") != null && variable.getAttribute("alias") != null) {
+			final String algorithm = variable.getAttributeValue("encrypted");
+			final String alias = variable.getAttributeValue("alias");
+
+			if (algorithm.equals("RSA") || algorithm.equals("AES")) {
+				mapAliasAlgorithms.put(alias, algorithm);
+				if (!mapEncryptedValues.containsKey(alias)) {
+					mapEncryptedValues.put(alias, new HashMap<>());
+				}
+				mapEncryptedValues.get(alias).put(key, value);
+			} else {
+				log.error(algorithm + " is not a supported encryption algorithm, variable " + key + " will not be loaded");
+			}
+		} else {
+			if (key != null && value != null) {
 				tableVars.put(key, value);
 			}
 		}
+	}
+
+	private Properties getKeystoreProperties() {
+		// Chargement des propriétés de chiffrement
+		Properties keystoreProperties = new Properties();
+		if (Config.getProperty("repository.security.properties") != null) {
+			try(FileInputStream securityPropertiesStream = new FileInputStream(new File(Config.getProperty("repository.security.properties")))) {
+				keystoreProperties.load(securityPropertiesStream);
+			} catch (IOException e) {
+				log.error("Error while loading security properties file : " + e.getMessage());
+				log.error("Encrypted variables will not be loaded");
+			}
+		}
+		return keystoreProperties;
 	}
 
 	public void loadFromMap(final Map<String, String> map) {
@@ -73,7 +134,7 @@ public class Variables {
 		history.add(sR);
 		return resolvString(sR, history);
 	}
-	
+
 	public String resolvString(String sR, List<String> history) throws AlambicException {
 		if (StringUtils.isNotBlank(sR)) {
 			if (sR.matches(VARIABLE_PATTERN)) {

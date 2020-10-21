@@ -16,13 +16,9 @@
  ******************************************************************************/
 package fr.gouv.education.acrennes.alambic.security;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
+import java.io.*;
 import java.security.Key;
+import java.util.Properties;
 
 import javax.crypto.Cipher;
 import javax.crypto.CipherInputStream;
@@ -76,7 +72,7 @@ public class CipherHelper extends AbstractDestination {
 			return cipherMode;
 		}
 
-	};
+	}
 
 	public CipherHelper(final CallableContext context, final Element job, final ActivityMBean jobActivity) throws AlambicException {
 		super(context, job, jobActivity);
@@ -177,6 +173,29 @@ public class CipherHelper extends AbstractDestination {
 			key = CipherKeyFactory.getKey(algorithm, keystore, alias, keyPwd, keyType);
 			cipher = Cipher.getInstance(algorithm);
 			// initialize(algorithm, mode, key);
+		} catch (Exception e) {
+			throw new AlambicException("Failed to instantiate Ciphering operation, error: " + e.getMessage());
+		}
+	}
+
+	/**
+	 * Instantiates Cipher using default keystore
+	 * @param keystoreProperties Properties containing information about the keystore (path, passwords…)
+	 * @param algorithm Algorithm to use (RSA or AES)
+	 * @param alias Key alias in the default keystore
+	 * @throws AlambicException Exception thrown when Cipher could not be instantiated
+	 */
+	public CipherHelper(final Properties keystoreProperties, final String algorithm, final String alias) throws AlambicException {
+		String keystorePath;
+		String keystorePassword;
+		String keyPassword;
+		keystorePath = keystoreProperties.getProperty("repository.keystore");
+		keystorePassword = keystoreProperties.getProperty("repository.keystore.password");
+		keyPassword = keystoreProperties.getProperty("repository.keystore.password." + alias, keystorePassword);
+		CipherKeyStore keystore = new CipherKeyStore(keystorePath, CipherKeyStore.KEYSTORE_TYPE.JCEKS, keystorePassword);
+		try {
+			key = CipherKeyFactory.getKey(algorithm, keystore, alias, keyPassword, "private");
+			cipher = Cipher.getInstance(algorithm);
 		} catch (Exception e) {
 			throw new AlambicException("Failed to instantiate Ciphering operation, error: " + e.getMessage());
 		}

@@ -74,11 +74,16 @@
     become: true
     become_user: "{{ controller_user_name }}"
 
+  - name: Copy files to deploy from the inventory
+    copy:
+      src: "{{ inventory_dir }}/deploy/"
+      dest: "{{ ansible_env.HOME }}/opt/etl/tags/{{ version }}/conf"
+
   - name: Set the active symbolic link on the newly installed version
-    file: 
-      src: "{{ ansible_env.HOME }}/opt/etl/tags/{{ version }}" 
-      dest: "{{ ansible_env.HOME }}/opt/etl/active" 
-      state: link 
+    file:
+      src: "{{ ansible_env.HOME }}/opt/etl/tags/{{ version }}"
+      dest: "{{ ansible_env.HOME }}/opt/etl/active"
+      state: link
       mode: "u=rwx,g=rwx,o=rx"
 
   - name: Install the Alambic properties file (with verison info inside)

@@ -52,7 +52,6 @@
     with_items: "{{ former_versions_list.files }}"
 
   - name: Remove the "former" symbolic link (since deprecated)
-    file: 
-      path: "{{ ansible_env.HOME }}/opt/etl/former" 
-      state: absent 
-    
+    file:
+      path: "{{ ansible_env.HOME }}/opt/etl/former"
+      state: absent
