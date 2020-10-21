@@ -186,6 +186,7 @@ public class JobRunner implements CallableJob {
 			log.error("Failed to run the job '" + getName() + "', error : " + e.getMessage());
 			if (null != jobActivity) {
 				jobActivity.setTrafficLight(ActivityTrafficLight.RED);
+				jobActivity.addError(e);
 			}
 		} finally {
 			if (null != pagedSource) {
@@ -221,6 +222,7 @@ public class JobRunner implements CallableJob {
 				jobActivity.setStatus(ACTIVITY_STATUS.COMPLETED.toString());
 			}
 		}
+		
 		ActivityHelper.releaseMBean(jobActivity);
 		return jobActivity;
 	}
@@ -275,6 +277,7 @@ public class JobRunner implements CallableJob {
 		if ( StringUtils.isBlank(jobFailureThreshold) || ActivityTrafficLight.valueOf(jobFailureThreshold).isGreaterThan(activityBean.getTrafficLight()) ) {
 			doRun = true;
 		} else {
+			activityBean.setStatus("COMPLETED");
 			log.error("The failure threshold '" + jobFailureThreshold + "' is reached. Job '" + job.getAttributeValue("name") + "' is interrupted (report : " + activityBean + ").");
 		}
 		

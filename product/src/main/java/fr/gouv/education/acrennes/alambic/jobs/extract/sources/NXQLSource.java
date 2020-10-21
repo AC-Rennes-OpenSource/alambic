@@ -104,7 +104,7 @@ public class NXQLSource extends AbstractSource {
 		try {
 			setClient(new NxqlToStateBase(uri, login, pwd, Boolean.parseBoolean(useES), schemas, Float.valueOf(version)));
 		} catch (final Exception e) {
-			log.error("Failed to instanciate the client of source '" + getName(), e);
+			log.error("Failed to instanciate the client of source '" + getName() + "'", e);
 		}
 	}
 

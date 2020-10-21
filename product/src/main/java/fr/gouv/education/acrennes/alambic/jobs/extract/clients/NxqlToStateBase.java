@@ -16,7 +16,6 @@
  ******************************************************************************/
 package fr.gouv.education.acrennes.alambic.jobs.extract.clients;
 
-import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -24,9 +23,10 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.CompletableFuture;
+
 import javax.naming.NamingException;
 
-import fr.gouv.education.acrennes.alambic.exception.AlambicException;
 import org.apache.commons.codec.Charsets;
 import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.lang.SerializationUtils;
@@ -40,6 +40,8 @@ import org.nuxeo.ecm.automation.client.jaxrs.spi.JsonMarshalling;
 import org.nuxeo.ecm.automation.client.model.Document;
 import org.nuxeo.ecm.automation.client.model.Documents;
 import org.nuxeo.ecm.automation.client.model.PropertyMap;
+
+import fr.gouv.education.acrennes.alambic.exception.AlambicException;
 import fr.gouv.education.acrennes.alambic.nuxeo.marshaller.EsMarshaller;
 
 public class NxqlToStateBase implements IToStateBase {
@@ -49,13 +51,13 @@ public class NxqlToStateBase implements IToStateBase {
 	private List<Map<String, List<String>>> results = new ArrayList<>();
 	private Documents searchResultSet;
 	private HttpAutomationClient client;
-	private final Session session;
+	private Session session;
 	private boolean useElasticSearch = false;
 	private String schemas = "dublincore";
 	private NuxeoResultsPageIterator pageIterator;
 	private final float version;
 
-	public NxqlToStateBase(final String uri, final String login, final String password, final float version) throws SQLException, ClassNotFoundException {
+	public NxqlToStateBase(final String uri, final String login, final String password, final float version) {
 		this(uri, login, password, false, null, version);
 	}
 
@@ -66,7 +68,7 @@ public class NxqlToStateBase implements IToStateBase {
 			this.schemas = schemas;
 		}
 
-		// Connextion à Nuxeo
+		// Connexion à Nuxeo
 		client = new HttpAutomationClient(uri);
 		session = client.getSession(login, password);
 
@@ -126,13 +128,20 @@ public class NxqlToStateBase implements IToStateBase {
 
 	@Override
 	public void close() {
-		if (client != null) {
+		if (this.session != null) {
+			this.session.close();
+			this.session = null;
+		}
+
+		if (this.client != null) {
 			try {
-				client.shutdown();
+				/* Run the client shutdown asynchronously as it is cost expansive (~ 2s). Painful in API mode. */
+				CompletableFuture.runAsync(() -> {
+					this.client.shutdown();
+					this.client = null;
+				});
 			} catch (final Exception e) {
-				log.error("Failed to close NXQL client.", e);
-			} finally {
-				client = null;
+				log.error("Failed to close NXQL client, error : " + e.getMessage());
 			}
 		}
 

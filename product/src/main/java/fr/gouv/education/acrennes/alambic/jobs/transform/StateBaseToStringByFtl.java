@@ -89,26 +89,29 @@ public class StateBaseToStringByFtl extends AbstractDestination {
 			throw new AlambicException(e1);
 		}
 
-		root.put("activity", jobActivity);
-		root.put("trafficLight", activityEnums);
-		root.put("normalizationPolicy", normalizationEnums);
-		root.put("variables", context.getVariables().getHashMap());
-		root.put("Fn", new FMFunctions());
-
+		TemplateHashModel staticModels = aow.getStaticModels();
+		
 		try {
+			root.put("activity", jobActivity);
+			root.put("trafficLight", activityEnums);
+			root.put("normalizationPolicy", normalizationEnums);
+			root.put("variables", context.getVariables().getHashMap());
+			root.put("Fn", new FMFunctions());
+			root.put("Math", (TemplateHashModel) staticModels.get("java.lang.Math"));
+
 			List<Element> xmlFiles = job.getChildren("xmlfile");
 			if (xmlFiles != null) {
 				for (Element xmlFile : xmlFiles) {
 					root.put(xmlFile.getAttributeValue("name"), freemarker.ext.dom.NodeModel.parse(new File(context.resolvePath(xmlFile.getText()))));
 				}
 			}
-
-			// Initialisation FreeMarker
+			
+			// Initialization FreeMarker
 			cfg = new Configuration(Constants.FREEMARKER_VERSION);
 			cfg.setDirectoryForTemplateLoading(new File(tplDir));
 			cfg.setObjectWrapper(aow);
 			cfg.setOutputEncoding(outputEncoding);
-		} catch (SAXException | IOException | ParserConfigurationException e) {
+		} catch (SAXException | IOException | ParserConfigurationException | TemplateModelException e) {
 			throw new AlambicException(e);
 		}
 	}
@@ -122,7 +125,9 @@ public class StateBaseToStringByFtl extends AbstractDestination {
 			StringWriter stringWriter = new StringWriter();
 			cfg.getTemplate(tplFile).process(root, stringWriter);
 			String result = stringWriter.toString();
-			this.jobActivity.setResult(result);
+			if (StringUtils.isNotBlank(result)) {
+				this.jobActivity.setResult(result);
+			}
 			stringWriter.flush();
 		} catch (Exception e) {
 			jobActivity.setTrafficLight(ActivityTrafficLight.RED);

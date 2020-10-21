@@ -17,13 +17,22 @@
 package fr.gouv.education.acrennes.alambic.monitoring;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import javax.management.ObjectName;
+import javax.xml.bind.JAXBException;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.json.simple.JSONObject;
+
+import fr.gouv.education.acrennes.alambic.exception.AlambicException;
+import fr.gouv.education.acrennes.alambic.nuxeo.marshaller.Report;
+import fr.gouv.education.acrennes.alambic.nuxeo.marshaller.ReportUnmarshaller;
 
 public class Activity implements ActivityMBean {
 
@@ -41,20 +50,22 @@ public class Activity implements ActivityMBean {
 	private long endTime;
 	private Object result;
 	private ObjectName objectName;
+	private List<Exception> errors;
 	
 	public Activity(final String name, final ObjectName objectName, final String threadName) {
-		jobName = name;
+		this.jobName = name;
 		this.threadName = threadName;
-		progress = 0;
-		processing = "";
-		innerActivitiesList = Collections.emptyList();
-		startTime = 0;
-		endTime = 0;
-		innerJobsCount = 0;
-		result = null;
-		status = ACTIVITY_STATUS.WAITING;
-		trafficLight = ActivityTrafficLight.GREEN;
+		this.progress = 0;
+		this.processing = "";
+		this.startTime = 0;
+		this.endTime = 0;
+		this.innerJobsCount = 0;
+		this.status = ACTIVITY_STATUS.WAITING;
+		this.trafficLight = ActivityTrafficLight.GREEN;
 		this.objectName = objectName;
+		this.result = null;
+		this.innerActivitiesList = Collections.emptyList();
+		this.errors = Collections.emptyList();
 	}
 
 	@Override
@@ -135,9 +146,9 @@ public class Activity implements ActivityMBean {
 
 	@Override
 	public void registerInnerActivity(final ActivityMBean innerActivity) {
-		if (Collections.EMPTY_LIST.equals(innerActivitiesList)) {
-			innerActivitiesList = new ArrayList<>();
-		}
+		if (Collections.EMPTY_LIST == this.innerActivitiesList) {
+			this.innerActivitiesList = new ArrayList<ActivityMBean>();
+		}		
 		innerActivitiesList.add(innerActivity);
 	}
 
@@ -210,9 +221,63 @@ public class Activity implements ActivityMBean {
 
 	@Override
 	public String toString() {
-		List<String> innerActivitiesResults = new ArrayList<>();
-		this.innerActivitiesList.forEach(a -> innerActivitiesResults.add(a.toString()));
-		return String.format("{\"job_name\":\"%s\",\"status\":\"%s\",\"traffic_light\":\"%s\",\"progress\":%d,\"result\":%s,\"inner_jobs\":[%s]}", getJobName(), getStatus(), getTrafficLight(), getProgress(), getResult(), String.join(",", innerActivitiesResults));
+		List<String> innerActivitiesBeans = new ArrayList<>();
+		this.innerActivitiesList.forEach(a -> innerActivitiesBeans.add(a.toString()));
+		return String.format("{\"job_name\":\"%s\", \"status\":\"%s\", \"traffic_light\":\"%s\", \"duration\":%d, \"progress\":%d, \"inner_jobs\":[%s]}", getJobName(), getStatus(), getTrafficLight(), getDuration(), getProgress(), String.join(",", innerActivitiesBeans));
+	}
+
+	@Override
+	public long getDuration() {
+		return getEndTime() - getStartTime();
+	}
+
+	@Override
+	public void addError(String e) {
+		addError(new AlambicException(e));
+	}
+	
+	@Override
+	public void addError(Exception e) {
+		if (Collections.EMPTY_LIST == this.errors) {
+			this.errors = new ArrayList<Exception>();
+		}		
+		
+		this.errors.add(e);
+	}
+
+	@Override
+	public List<Exception> getErrors() {
+		List<Exception> job_errors = new ArrayList<Exception>(this.errors);
+		if (!this.innerActivitiesList.isEmpty()) {
+			for (ActivityMBean innerActivity : this.innerActivitiesList) {
+				job_errors.addAll(innerActivity.getErrors());
+			}
+		}
+		return job_errors;
+	}
+
+	@Override
+	public Report getReport() {
+		Report report = new Report("error", Arrays.asList("Erreur interne de production du rapport d'activité"), null);
+
+		try {
+			String json_report;
+			if (getErrors().isEmpty()) {
+				json_report = String.format("{\"report\":{\"status\":\"success\",\"activity\":%s}}", this);
+			} else {
+				String reasons = (this.getErrors().isEmpty()) ? "" : String.join(",", this.getErrors().stream()
+						.filter(e -> StringUtils.isNotBlank(e.getMessage()))
+						.map(e -> "\"" + JSONObject.escape(e.getMessage()) + "\"")
+						.collect(Collectors.toList()));
+				json_report = String.format("{\"report\":{\"status\":\"error\",\"reasons\":[%s],\"activity\":%s}}", reasons, this);
+			}
+			ReportUnmarshaller unmarshaller = new ReportUnmarshaller();
+			report = unmarshaller.unmarshall(json_report);
+		} catch (JAXBException e) {
+			e.printStackTrace();
+		}
+		
+		return report;
 	}
 	
 }

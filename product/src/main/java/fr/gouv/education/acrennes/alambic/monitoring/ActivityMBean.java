@@ -16,7 +16,11 @@
  ******************************************************************************/
 package fr.gouv.education.acrennes.alambic.monitoring;
 
+import java.util.List;
+
 import javax.management.ObjectName;
+
+import fr.gouv.education.acrennes.alambic.nuxeo.marshaller.Report;
 
 public interface ActivityMBean {
 
@@ -36,6 +40,8 @@ public interface ActivityMBean {
 	public int getProgress();
 
 	public void setProgress(int value);
+	
+	public long getDuration();
 
 	public String getProcessing();
 
@@ -73,6 +79,13 @@ public interface ActivityMBean {
 	
 	public ObjectName getObjectName();
 	
+	public void addError(String e);
+
+	public void addError(Exception e);
+	
+	public List<Exception> getErrors();
+	
 	public String toString();
 	
+	public Report getReport();	
 }

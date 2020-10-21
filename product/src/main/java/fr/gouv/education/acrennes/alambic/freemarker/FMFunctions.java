@@ -18,6 +18,7 @@ package fr.gouv.education.acrennes.alambic.freemarker;
 
 import java.io.ByteArrayInputStream;
 import java.io.File;
+import java.io.FileReader;
 import java.io.IOException;
 import java.io.StringWriter;
 import java.io.UnsupportedEncodingException;
@@ -56,6 +57,9 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.json.JSONObject;
+import org.json.simple.JSONArray;
+import org.json.simple.parser.JSONParser;
+import org.json.simple.parser.ParseException;
 import org.nuxeo.ecm.automation.client.model.PropertyMap;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
@@ -77,8 +81,10 @@ public class FMFunctions {
 	private final Random randomGenerator;
 	private final Map<String, List<Map<String, List<String>>>> cachedResources;
 	private final Map<String, List<Object>> cache;
+	private JSONParser parser;
 	
 	public FMFunctions() {
+		parser = new JSONParser();
 		randomGenerator = new Random();
 		cachedResources = new HashMap<String, List<Map<String, List<String>>>>();
 		cache = new ConcurrentHashMap<String, List<Object>>();
@@ -371,8 +377,44 @@ public class FMFunctions {
 		return decodedURI;
 	}
 	
-	public JSONObject getJSONObject(String json) {
-		return new JSONObject(json);
+	public JSONObject getJSONObject(final String json) throws AlambicException {
+		JSONObject obj = null;
+		try {
+			obj = (JSONObject) this.parser.parse(json);
+		} catch (ParseException e) {
+			throw new AlambicException("Error file parsing the JSON string '" + json + "', error: " + e.getMessage());
+		}
+		return obj;
+	}
+
+	public JSONArray getJSONArray(final String json) throws AlambicException {
+		JSONArray obj = null;
+		try {
+			obj = (JSONArray) this.parser.parse(json);
+		} catch (ParseException e) {
+			throw new AlambicException("Error file parsing the JSON string '" + json + "', error: " + e.getMessage());
+		}
+		return obj;
+	}
+
+	public JSONObject getJSONObjectFromFile(final String filepath) throws AlambicException {
+		JSONObject obj = null;
+		try {
+			obj = (JSONObject) this.parser.parse(new FileReader(filepath));
+		} catch (IOException | ParseException e) {
+			throw new AlambicException("Error file parsing the JSON file '" + filepath + "', error: " + e.getMessage());
+		}
+		return obj;
+	}
+
+	public JSONArray getJSONArrayFromFile(final String filepath) throws AlambicException {
+		JSONArray obj = null;
+		try {
+			obj = (JSONArray) this.parser.parse(new FileReader(filepath));
+		} catch (IOException | ParseException e) {
+			throw new AlambicException("Error file parsing the JSON file '" + filepath + "', error: " + e.getMessage());
+		}
+		return obj;
 	}
 	
 	public NodeModel getNodeModel(final String filepath) {

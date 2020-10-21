@@ -107,6 +107,10 @@ public class APIAlambic implements IAPIAlambic {
         this.tempProcessFile = null;
     }
 
+    public static void init(final String ep) throws IOException, AlambicException {
+    	init(ep, null);
+    }
+    
     public static void init(final String ep, final String threadCount) throws IOException, AlambicException {
         executionPath = ep;
         if (!executionPath.matches(".+/$")) {
@@ -129,7 +133,7 @@ public class APIAlambic implements IAPIAlambic {
         puProperties.put(JDBC_PASSWORD, properties.getProperty(CallableContext.ETL_CFG_JDBC_PASSWORD));
         puProperties.put(TARGET_SERVER, TargetServer.None);
         EntityManagerHelper.getInstance(PERSISTENCE_UNIT, puProperties);
-        // this two lines aim to make JPA create all the tables as defined with the persistence unit.
+        // this two lines aim to make JPA create all the tables as defined by the persistence unit.
         EntityManager em = EntityManagerHelper.getEntityManager();
         em.close();
 
@@ -228,7 +232,7 @@ public class APIAlambic implements IAPIAlambic {
                         variables.loadFromMap(parameters);
                     }
 
-                    // Instanciation et exécution
+                    // Instantiation et exécution
                     Jobs jobs = new Jobs(executionPath, addonJobFilePath, variables, properties);
                     if (tasksList != null && !tasksList.isEmpty()) {
                         jobsFuturelist = jobs.executeJobList(tasksList, runId);
