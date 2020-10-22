@@ -80,10 +80,11 @@ public class APIAlambic implements IAPIAlambic {
     private static final String PERSISTENCE_UNIT = "PRODUCTION_PERSISTENCE_UNIT";
     private static final String DEFAULT_RUN_ID = "DEFAULT_CONTEXT";
 
+    private static final Log log = LogFactory.getLog(APIAlambic.class);
+    private static final Variables fileStaticVariables = new Variables();;
     private static String repositoryPath = "";
     private static String executionPath = "./";
     private static Properties properties;
-    private static final Log log = LogFactory.getLog(APIAlambic.class);
 
     private final RunIdGenerator runIdGenerator;
     private File tempProcessFile;
@@ -129,6 +130,20 @@ public class APIAlambic implements IAPIAlambic {
         // Initialize the config object to access properties later
         Config.setProperties(properties);
         
+        // Load the static variables (file 'variables.xml')
+        try {
+        	InputSource staticVariablesFile = new InputSource(properties.getProperty(REPOSITORY_VARIABLES));
+        	SAXBuilder saxBuilder = new SAXBuilder();
+        	Element staticVariables = saxBuilder.build(staticVariablesFile).getRootElement();
+        	Element varEntries = staticVariables.getChild("variables");
+        	if (varEntries != null) {
+        		APIAlambic.fileStaticVariables.loadFromXmlNode(varEntries.getChildren());
+        	}
+        } catch (JDOMException | IOException e) {
+        	log.error("Failed to load the file of static variables, error : " + e.getMessage(), e);
+        	throw new AlambicException(e);
+        }
+
         // Initialize the persistence unit
         Map<String, String> puProperties = new HashMap<>();
         puProperties.put(JDBC_DRIVER, properties.getProperty(CallableContext.ETL_CFG_JDBC_DRIVER));
@@ -218,37 +233,22 @@ public class APIAlambic implements IAPIAlambic {
             // Exécuter le job s'il est défini en mode "read only" ou si aucun autre processus ETL correspondant est en cours
             if (isReadOnlyJob || isRunnableJob(addonJobFilePath)) {
                 try {
-                    // Chargement de la liste des variables statiques d'exécution (fichier 'variables.xml')
-                    InputSource fVariablesXml = new InputSource(properties.getProperty(REPOSITORY_VARIABLES));
-                    SAXBuilder saxBuilder = new SAXBuilder();
-                    Element racineVariables = saxBuilder.build(fVariablesXml).getRootElement();
-
-                    Variables variables = new Variables();
-                    Element varEntries = racineVariables.getChild("variables");
-                    if (varEntries != null) {
-                        variables.loadFromXmlNode(varEntries.getChildren());
-                    }
-
-                    final String runId = initAddonContext(variables, addonName);
+                    final String runId = initAddonContext(APIAlambic.fileStaticVariables, addonName);
 
                     // Chargement des paramètres d'exécution
                     if (null != parameters) {
-                        variables.loadFromMap(parameters);
+                    	APIAlambic.fileStaticVariables.loadFromMap(parameters);
                     }
 
                     // Instantiation et exécution
-                    Jobs jobs = new Jobs(executionPath, addonJobFilePath, variables, properties);
+                    Jobs jobs = new Jobs(executionPath, addonJobFilePath, APIAlambic.fileStaticVariables, properties);
                     if (tasksList != null && !tasksList.isEmpty()) {
                         jobsFuturelist = jobs.executeJobList(tasksList, runId);
                     } else {
                         log.info("Execution de toutes les taches");
                         jobsFuturelist = jobs.executeAllJobs(runId);
                     }
-                } catch (JDOMException e) {
-                    log.error("Lecture XML " + e.getMessage(), e);
-                } catch (IOException e) {
-                    log.error("Lecture/ecriture de fichier " + e.getMessage(), e);
-                } catch (AlambicException e) {
+                } catch (AlambicException | IOException | JDOMException e) {
                     log.error(e.getMessage(), e);
                 }
             } else {
