@@ -37,6 +37,7 @@ public class Variables {
 
 	private static final String VARIABLE_DELIMITER = "%";
 	private static final String VARIABLE_PATTERN = "(?s).*(" + VARIABLE_DELIMITER + ".+" + VARIABLE_DELIMITER + "){1,}.*";
+	private static final String SECURITY_PROPERTY_NAME = "repository.security.properties";
 	private Map<String, String> tableVars = new HashMap<>();
 
 	public void loadFromXmlNode(final List<Element> listeVars) {
@@ -94,13 +95,15 @@ public class Variables {
 	private Properties getKeystoreProperties() {
 		// Chargement des propriétés de chiffrement
 		Properties keystoreProperties = new Properties();
-		if (Config.getProperty("repository.security.properties") != null) {
-			try(FileInputStream securityPropertiesStream = new FileInputStream(new File(Config.getProperty("repository.security.properties")))) {
+		if (Config.getProperty(SECURITY_PROPERTY_NAME) != null) {
+			try(FileInputStream securityPropertiesStream = new FileInputStream(new File(Config.getProperty(SECURITY_PROPERTY_NAME)))) {
 				keystoreProperties.load(securityPropertiesStream);
 			} catch (IOException e) {
 				log.error("Error while loading security properties file : " + e.getMessage());
 				log.error("Encrypted variables will not be loaded");
 			}
+		} else {
+			log.warn("Missing security property '" + SECURITY_PROPERTY_NAME + "', encrypted variables will not be loaded");
 		}
 		return keystoreProperties;
 	}
