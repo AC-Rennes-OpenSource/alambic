@@ -278,7 +278,7 @@ public class JobRunner implements CallableJob {
 			doRun = true;
 		} else {
 			activityBean.setStatus("COMPLETED");
-			log.error("The failure threshold '" + jobFailureThreshold + "' is reached. Job '" + job.getAttributeValue("name") + "' is interrupted (report : " + activityBean + ").");
+			log.warn("The failure threshold '" + jobFailureThreshold + "' is reached. Job '" + job.getAttributeValue("name") + "' is interrupted (report : " + activityBean + ").");
 		}
 		
 		return doRun;

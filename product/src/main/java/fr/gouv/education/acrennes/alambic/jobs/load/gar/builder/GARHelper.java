@@ -35,23 +35,23 @@ public class GARHelper {
 	private static GARHelper instance;
 	private DateFormat dateFormatter;
 	private Map<String, String> cacheSourceSI;
-	
+
 	// Singleton
 	private GARHelper() {
 		this.dateFormatter = new SimpleDateFormat("yyyyMMdd_HHmmss");
 		this.cacheSourceSI = new HashMap<String, String>();
 	}
-	
+
 	public static GARHelper getInstance() {
 		if (null == instance) {
 			instance = new GARHelper();
 		}
 		return instance;
 	}
-	
+
 	/**
 	 * Convertir le code "personalTitle" en valeur compatible avec le SDET.
-	 * 
+	 *
 	 */
 	public String getSDETCompliantTitleValue(final String personalTitle) {
 		String compliantPersonalTitle = personalTitle;
@@ -67,7 +67,7 @@ public class GARHelper {
 	 * Convertir le code "contrat" en valeur compatible avec le SDET.
 	 * "PUBLIC" devient "PU"
 	 * "PRIVE" devient "PR"
-	 * 
+	 *
 	 */
 	public String getSDETCompliantContractValue(final String contrat) {
 		return contrat.substring(0, 2);
@@ -75,13 +75,12 @@ public class GARHelper {
 
 	/**
 	 * Convertir le code représentant le profil d'accédant tel qu'il apparaît dans les exports AAF en un code respectant le SDET.
-	 * 
+	 *
 	 * Sources documentaires :
-	 * - SDET_annexe-operationnelle_6.0_660225.pdf - chapitre 4.7 Profils de l'accédant -
-	 * (http://cache.media.eduscol.education.fr/file/sdet/22/5/SDET_annexe-operationnelle_6.0_660225.pdf)
-	 * - SDET-Interoperabilite-v4.0_226607.pdf - chapitre 5.6 Profils de l'accédant -
-	 * (http://cache.media.eduscol.education.fr/file/sdet/60/7/SDET-Interoperabilite-v4.0_226607.pdf)
-	 * 
+	 * - SDET_Annexe-operationnelle_v6.3_1158753.pdf - chapitre 4.7 Profils de l'accédant -
+	 * (https://cache.media.eduscol.education.fr/file/ENT/75/3/SDET_Annexe-operationnelle_v6.3_1158753.pdf)
+	 * - GAR_RTFS_Informations_Detaillees_ENT_GARv4.0.pdf
+	 *
 	 * @param function the job function
 	 * @param title the title
 	 */
@@ -123,7 +122,7 @@ public class GARHelper {
 
 	public String getPersonEntityBlurId(Map<String, List<String>> entity) {
 		String blurId = entity.toString();
-		
+
 		List<String> attribute = entity.get("ENTPersonUid");
 		if (null != attribute && StringUtils.isNotBlank(attribute.get(0))) {
 			blurId = String.format("(ENTPersonUid=%s)", attribute.get(0));
@@ -133,18 +132,18 @@ public class GARHelper {
 				blurId = String.format("(ENTPersonJointure=%s)", attribute.get(0));
 			}
 		}
-		
+
 		return blurId;
 	}
 
 	public String getStructEntityBlurId(Map<String, List<String>> entity) {
 		String blurId = entity.toString();
-		
+
 		List<String> attribute = entity.get("ENTStructureUAI");
 		if (null != attribute && StringUtils.isNotBlank(attribute.get(0))) {
 			blurId = String.format("(ENTStructureUAI=%s)", attribute.get(0));
 		}
-		
+
 		return blurId;
 	}
 
@@ -153,7 +152,7 @@ public class GARHelper {
 		String key = Normalizer.normalize(sourceSI.concat(objectType.toString()), Form.NFD).replaceAll("[^\\p{ASCII}]", "")
 				.trim()
 				.toLowerCase();
-		
+
 		if (!this.cacheSourceSI.containsKey(key)) {
 			if (sourceSI.matches("(?i:.*AGRI.*)")) {
 				if (objectType.equals(INDEXATION_OBJECT_TYPE.MEF)) {
@@ -202,6 +201,7 @@ public class GARHelper {
 		ORI(NATIONAL_PROFILE_IDENTIFIER.National_ETA),
 		OUV(NATIONAL_PROFILE_IDENTIFIER.National_ETA),
 		PPA(NATIONAL_PROFILE_IDENTIFIER.National_ENS),
+		PSY(NATIONAL_PROFILE_IDENTIFIER.National_ETA),
 		RH1D(NATIONAL_PROFILE_IDENTIFIER.National_ENS),
 		RPL(NATIONAL_PROFILE_IDENTIFIER.National_ENS),
 		SUR(NATIONAL_PROFILE_IDENTIFIER.National_EVS),
@@ -235,7 +235,7 @@ public class GARHelper {
 
 		MEF("aaf_alias_mefeducnat"),
 		Matiere("aaf_alias_mateducnat");
-		
+
 		private final String default_alias;
 
 		private INDEXATION_OBJECT_TYPE(final String value) {

@@ -338,7 +338,7 @@ public class GAREnseignantBuilder implements GARTypeBuilder {
 								}
 							} else {
 								jobActivity.setTrafficLight(ActivityTrafficLight.ORANGE);
-								log.warn("Entity '" + GARHelper.getInstance().getPersonEntityBlurId(entity) + "' has no national profil that could be associated with the profile '" + profile + "'");
+								log.warn("Entity '" + GARHelper.getInstance().getPersonEntityBlurId(entity) + "' has no national profile that could be associated with the profile '" + profile + "'");
 							}
 						} else {
 							jobActivity.setTrafficLight(ActivityTrafficLight.ORANGE);
@@ -371,7 +371,7 @@ public class GAREnseignantBuilder implements GARTypeBuilder {
 							}
 						} else {
 							jobActivity.setTrafficLight(ActivityTrafficLight.ORANGE);
-							log.warn("Entity '" + GARHelper.getInstance().getPersonEntityBlurId(entity) + "' has no national profil that could be associated with the title '" + entity.get("title").get(0) + "' and ENTPersonNationalProfil '" + attribute.get(0) + "'");
+							log.warn("Entity '" + GARHelper.getInstance().getPersonEntityBlurId(entity) + "' has no national profile that could be associated with the title '" + entity.get("title").get(0) + "' and ENTPersonNationalProfil '" + attribute.get(0) + "'");
 						}
 					} else {
 						jobActivity.setTrafficLight(ActivityTrafficLight.ORANGE);
