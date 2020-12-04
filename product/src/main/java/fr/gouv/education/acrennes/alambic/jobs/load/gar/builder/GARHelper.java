@@ -179,6 +179,7 @@ public class GARHelper {
 		ASH(NATIONAL_PROFILE_IDENTIFIER.National_ETA),
 		BED(NATIONAL_PROFILE_IDENTIFIER.National_ENS),
 		CFC(NATIONAL_PROFILE_IDENTIFIER.National_ETA),
+		COLTER(NATIONAL_PROFILE_IDENTIFIER.National_COL),
 		CPD(NATIONAL_PROFILE_IDENTIFIER.National_ETA),
 		CTR(NATIONAL_PROFILE_IDENTIFIER.National_ETA),
 		DEC(NATIONAL_PROFILE_IDENTIFIER.National_DIR),
@@ -205,11 +206,12 @@ public class GARHelper {
 		RH1D(NATIONAL_PROFILE_IDENTIFIER.National_ENS),
 		RPL(NATIONAL_PROFILE_IDENTIFIER.National_ENS),
 		SUR(NATIONAL_PROFILE_IDENTIFIER.National_EVS),
+		TEC(NATIONAL_PROFILE_IDENTIFIER.National_ETA),
 		UPI(NATIONAL_PROFILE_IDENTIFIER.National_ENS);
 
 		private final NATIONAL_PROFILE_IDENTIFIER profileId;
 
-		private TITLE_FUNCTION_MATCHING(final NATIONAL_PROFILE_IDENTIFIER value) {
+		TITLE_FUNCTION_MATCHING(final NATIONAL_PROFILE_IDENTIFIER value) {
 			this.profileId = value;
 		}
 
@@ -220,15 +222,25 @@ public class GARHelper {
 
 	public enum NATIONAL_PROFILE_IDENTIFIER {
 
-		National_ELV,
-		National_TUT,
-		National_ENS,
-		National_DIR,
-		National_EVS,
-		National_ETA,
-		National_ACA,
-		National_DOC,
-		National_COL;
+		National_ELV(false),
+		National_TUT(false),
+		National_ENS(true),
+		National_DIR(true),
+		National_EVS(true),
+		National_ETA(true),
+		National_ACA(false),
+		National_DOC(true),
+		National_COL(true);
+
+		private final boolean supported;
+
+		NATIONAL_PROFILE_IDENTIFIER(final boolean supported) {
+			this.supported = supported;
+		}
+
+		public boolean isSupported() {
+			return this.supported;
+		}
 	}
 
 	public enum INDEXATION_OBJECT_TYPE {
