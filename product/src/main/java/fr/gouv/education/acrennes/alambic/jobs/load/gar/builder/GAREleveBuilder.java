@@ -27,6 +27,7 @@ import java.util.GregorianCalendar;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.regex.Pattern;
 
 import javax.persistence.EntityManager;
 import javax.persistence.EntityTransaction;
@@ -70,6 +71,7 @@ import fr.gouv.education.acrennes.alambic.monitoring.ActivityTrafficLight;
 
 public class GAREleveBuilder implements GARTypeBuilder {
 	private static final Log log = LogFactory.getLog(GAREleveBuilder.class);
+	private static final Pattern GAR_ELE_CLASS_GROUP_VALIDITY_PATTERN = Pattern.compile("[^\\$]+\\$[^\\$]+(\\$.*)?");
 
 	private final int page;
 	private final int maxNodesCount;
@@ -184,7 +186,6 @@ public class GAREleveBuilder implements GARTypeBuilder {
 
 				/*
 				 * GARPersonCivilite
-				 * (TODO Waiting Redmine #11110: use attribute 'ENTPersonSexe' instead of 'personalTitle')
 				 */
 				attribute = entity.get("ENTPersonSexe");
 				if (null != attribute && 0 < attribute.size() && StringUtils.isNotBlank(attribute.get(0))) {
@@ -465,7 +466,7 @@ public class GAREleveBuilder implements GARTypeBuilder {
 				attribute = entity.get("ENTEleveClasses");
 				if (null != attribute && 0 < attribute.size()) {
 					for (String value : attribute) {
-						if (StringUtils.isNotBlank(value)) {
+						if (StringUtils.isNotBlank(value) && GAR_ELE_CLASS_GROUP_VALIDITY_PATTERN.matcher(value).matches()) {
 							String uai = GARHelper.getInstance().extractCodeGroup(value, 0).toUpperCase();
 							// Control the UAI belongs to the involved structures list
 							if (this.memberStructuresList.contains(uai)) {
@@ -491,7 +492,7 @@ public class GAREleveBuilder implements GARTypeBuilder {
 								log.info("Student with blur identifier '"+ ENTPersonIdentifiant +"' belongs to a class within a structure ('UAI:" + uai + "') out of the involved list");
 							}
 						} else {
-							log.debug("Entity '" + GARHelper.getInstance().getPersonEntityBlurId(entity) + "' has attribute 'ENTEleveClasses' with blank value");
+							log.debug("Entity '" + GARHelper.getInstance().getPersonEntityBlurId(entity) + "' has attribute 'ENTEleveClasses' with blank value or not fitting the pattern '*$*'");
 						}
 					}
 				} else {
@@ -506,7 +507,7 @@ public class GAREleveBuilder implements GARTypeBuilder {
 				attribute = entity.get("ENTEleveGroupes");
 				if (null != attribute && 0 < attribute.size()) {
 					for (String value : attribute) {
-						if (StringUtils.isNotBlank(value)) {
+						if (StringUtils.isNotBlank(value) && GAR_ELE_CLASS_GROUP_VALIDITY_PATTERN.matcher(value).matches()) {
 							String uai = GARHelper.getInstance().extractCodeGroup(value, 0).toUpperCase();
 							// Control the UAI belongs to the involved structures list
 							if (this.memberStructuresList.contains(uai)) {
@@ -532,7 +533,7 @@ public class GAREleveBuilder implements GARTypeBuilder {
 								log.info("Student with blur identifier '"+ ENTPersonIdentifiant +"' belongs to a group within a structure ('UAI:" + uai + "') out of the involved list");
 							}
 						} else {
-							log.debug("Entity '" + GARHelper.getInstance().getPersonEntityBlurId(entity) + "' has attribute 'ENTEleveGroupes' with blank value");
+							log.debug("Entity '" + GARHelper.getInstance().getPersonEntityBlurId(entity) + "' has attribute 'ENTEleveGroupes' with blank value or not fitting the pattern '*$*'");
 						}
 					}
 				} else {
