@@ -11,6 +11,7 @@
 		<class>fr.gouv.education.acrennes.alambic.jobs.load.gar.persistence.StaffEntity</class>
 		<class>fr.gouv.education.acrennes.alambic.jobs.load.gar.persistence.StaffEntityPK</class>
 		<class>fr.gouv.education.acrennes.alambic.jobs.load.gar.persistence.EnseignementEntity</class>
+		<class>fr.gouv.education.acrennes.alambic.jobs.load.gar.persistence.PersonGroupeEntity</class>
 		<class>fr.gouv.education.acrennes.alambic.audit.persistence.AuditEntity</class>
 		<properties>
 			<property name="eclipselink.ddl-generation" value="create-or-extend-tables" />
@@ -30,6 +31,7 @@
 		<class>fr.gouv.education.acrennes.alambic.jobs.load.gar.persistence.StaffEntity</class>
 		<class>fr.gouv.education.acrennes.alambic.jobs.load.gar.persistence.StaffEntityPK</class>
 		<class>fr.gouv.education.acrennes.alambic.jobs.load.gar.persistence.EnseignementEntity</class>
+		<class>fr.gouv.education.acrennes.alambic.jobs.load.gar.persistence.PersonGroupeEntity</class>
 		<class>fr.gouv.education.acrennes.alambic.audit.persistence.AuditEntity</class>
 		<properties>
 			<property name="javax.persistence.jdbc.driver" value="org.h2.Driver" />

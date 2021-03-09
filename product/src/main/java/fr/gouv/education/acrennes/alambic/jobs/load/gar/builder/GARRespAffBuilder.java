@@ -24,7 +24,6 @@ import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import javax.persistence.EntityManager;
 import javax.xml.XMLConstants;
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBElement;
@@ -45,11 +44,10 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.xml.sax.SAXException;
 
-import fr.gouv.education.acrennes.alambic.jobs.CallableContext;
 import fr.gouv.education.acrennes.alambic.jobs.extract.sources.Source;
-import fr.gouv.education.acrennes.alambic.jobs.load.gar.binding.GARENTRespAff;
-import fr.gouv.education.acrennes.alambic.jobs.load.gar.binding.GARRespAff;
-import fr.gouv.education.acrennes.alambic.jobs.load.gar.binding.ObjectFactory;
+import fr.gouv.education.acrennes.alambic.jobs.load.gar.binding2d.GARENTRespAff;
+import fr.gouv.education.acrennes.alambic.jobs.load.gar.binding2d.GARRespAff;
+import fr.gouv.education.acrennes.alambic.jobs.load.gar.binding2d.ObjectFactory;
 import fr.gouv.education.acrennes.alambic.monitoring.ActivityMBean;
 import fr.gouv.education.acrennes.alambic.monitoring.ActivityTrafficLight;
 
@@ -68,22 +66,21 @@ public class GARRespAffBuilder implements GARTypeBuilder {
 	private final List<Map<String, List<String>>> responsables;
 	private final List<String> memberStructuresList;
 
-	public GARRespAffBuilder(final CallableContext context, final Map<String, Source> resources, final int page, final ActivityMBean jobActivity, final int maxNodesCount, final String version,
-			final String output, final String xsdFile, final EntityManager em, final Map<String, Document> exportFiles) {
-		this.page = page;
-		this.jobActivity = jobActivity;
-		this.maxNodesCount = maxNodesCount;
-		this.version = version;
-		this.output = output;
-		this.exportFiles = exportFiles;
+	public GARRespAffBuilder(GARBuilderParameters parameters) {
+		this.page = parameters.getPage();
+		this.jobActivity = parameters.getJobActivity();
+		this.maxNodesCount = parameters.getMaxNodesCount();
+		this.version = parameters.getVersion();
+		this.output = parameters.getOutput();
+		this.exportFiles = parameters.getExportFiles();
 		XPathFactory xpf = XPathFactory.newInstance();
 		this.xpath = xpf.newXPath();
-		this.xsdFile = xsdFile;
+		this.xsdFile = parameters.getXsdFile();
 		this.pattern = Pattern.compile("cn=(\\d+\\w)_GARRespAff,.+", Pattern.CASE_INSENSITIVE);
 		// Get the list of involved responsibles
-		this.responsables = resources.get("Entries").getEntries();
+		this.responsables = parameters.getResources().get("Entries").getEntries();
 		// Get the list of involved structures
-		Source structuresSource = resources.get("Structures");
+		Source structuresSource = parameters.getResources().get("Structures");
 		this.memberStructuresList = new ArrayList<String>();
 		List<Map<String, List<String>>> structures = structuresSource.getEntries();
 		structures.forEach(structure -> { 

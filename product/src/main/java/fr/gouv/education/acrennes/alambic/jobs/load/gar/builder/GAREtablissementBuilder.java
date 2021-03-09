@@ -41,17 +41,15 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.json.JSONObject;
-import org.w3c.dom.Document;
 import org.xml.sax.SAXException;
 
 import fr.gouv.education.acrennes.alambic.exception.AlambicException;
-import fr.gouv.education.acrennes.alambic.jobs.CallableContext;
 import fr.gouv.education.acrennes.alambic.jobs.extract.sources.Source;
-import fr.gouv.education.acrennes.alambic.jobs.load.gar.binding.GARENTEtab;
-import fr.gouv.education.acrennes.alambic.jobs.load.gar.binding.GAREtab;
-import fr.gouv.education.acrennes.alambic.jobs.load.gar.binding.GARMEF;
-import fr.gouv.education.acrennes.alambic.jobs.load.gar.binding.GARMatiere;
-import fr.gouv.education.acrennes.alambic.jobs.load.gar.binding.ObjectFactory;
+import fr.gouv.education.acrennes.alambic.jobs.load.gar.binding2d.GARENTEtab;
+import fr.gouv.education.acrennes.alambic.jobs.load.gar.binding2d.GAREtab;
+import fr.gouv.education.acrennes.alambic.jobs.load.gar.binding2d.GARMEF;
+import fr.gouv.education.acrennes.alambic.jobs.load.gar.binding2d.GARMatiere;
+import fr.gouv.education.acrennes.alambic.jobs.load.gar.binding2d.ObjectFactory;
 import fr.gouv.education.acrennes.alambic.monitoring.ActivityMBean;
 import fr.gouv.education.acrennes.alambic.monitoring.ActivityTrafficLight;
 
@@ -68,17 +66,16 @@ public class GAREtablissementBuilder implements GARTypeBuilder {
 	private final List<Map<String, List<String>>> structures;
 	private final Source aafSource;
 
-	public GAREtablissementBuilder(final CallableContext context, final Map<String, Source> resources, final int page, final ActivityMBean jobActivity, final int maxNodesCount, final String version,
-			final String output, final String xsdFile, final EntityManager em, final Map<String, Document> exportFiles) {
-		this.page = page;
-		this.jobActivity = jobActivity;
-		this.maxNodesCount = maxNodesCount;
-		this.version = version;
-		this.output = output;
-		this.em = em;
-		this.xsdFile = xsdFile;
-		this.structures = resources.get("Entries").getEntries(); // Get the list of involved structures
-		this.aafSource = resources.get("AAF");
+	public GAREtablissementBuilder(GARBuilderParameters parameters) {
+		this.page = parameters.getPage();
+		this.jobActivity = parameters.getJobActivity();
+		this.maxNodesCount = parameters.getMaxNodesCount();
+		this.version = parameters.getVersion();
+		this.output = parameters.getOutput();
+		this.em = parameters.getEm();
+		this.xsdFile = parameters.getXsdFile();
+		this.structures = parameters.getResources().get("Entries").getEntries(); // Get the list of involved structures
+		this.aafSource = parameters.getResources().get("AAF");
 	}
 
 	@Override
