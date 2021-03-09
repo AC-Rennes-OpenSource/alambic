@@ -58,14 +58,13 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.xml.sax.SAXException;
 
-import fr.gouv.education.acrennes.alambic.jobs.CallableContext;
 import fr.gouv.education.acrennes.alambic.jobs.extract.sources.Source;
-import fr.gouv.education.acrennes.alambic.jobs.load.gar.binding.GARENTEleve;
-import fr.gouv.education.acrennes.alambic.jobs.load.gar.binding.GAREleve;
-import fr.gouv.education.acrennes.alambic.jobs.load.gar.binding.GAREleveEnseignement;
-import fr.gouv.education.acrennes.alambic.jobs.load.gar.binding.GARPersonMEF;
-import fr.gouv.education.acrennes.alambic.jobs.load.gar.binding.GARPersonProfils;
-import fr.gouv.education.acrennes.alambic.jobs.load.gar.binding.ObjectFactory;
+import fr.gouv.education.acrennes.alambic.jobs.load.gar.binding2d.GARENTEleve;
+import fr.gouv.education.acrennes.alambic.jobs.load.gar.binding2d.GAREleve;
+import fr.gouv.education.acrennes.alambic.jobs.load.gar.binding2d.GAREleveEnseignement;
+import fr.gouv.education.acrennes.alambic.jobs.load.gar.binding2d.GARPersonMEF;
+import fr.gouv.education.acrennes.alambic.jobs.load.gar.binding2d.GARPersonProfils;
+import fr.gouv.education.acrennes.alambic.jobs.load.gar.binding2d.ObjectFactory;
 import fr.gouv.education.acrennes.alambic.monitoring.ActivityMBean;
 import fr.gouv.education.acrennes.alambic.monitoring.ActivityTrafficLight;
 
@@ -86,21 +85,20 @@ public class GAREleveBuilder implements GARTypeBuilder {
 	private final List<String> memberStructuresList;
 	private final Source aafSource;	
 
-	public GAREleveBuilder(final CallableContext context, final Map<String, Source> resources, final int page, final ActivityMBean jobActivity, final int maxNodesCount, final String version,
-			final String output, final String xsdFile, final EntityManager em, final Map<String, Document> exportFiles) {
-		this.page = page;
-		this.jobActivity = jobActivity;
-		this.maxNodesCount = maxNodesCount;
-		this.version = version;
-		this.output = output;
-		this.em = em;
-		this.exportFiles = exportFiles;
+	public GAREleveBuilder(GARBuilderParameters parameters) {
+		this.page = parameters.getPage();
+		this.jobActivity = parameters.getJobActivity();
+		this.maxNodesCount = parameters.getMaxNodesCount();
+		this.version = parameters.getVersion();
+		this.output = parameters.getOutput();
+		this.em = parameters.getEm();
+		this.exportFiles = parameters.getExportFiles();
 		XPathFactory xpf = XPathFactory.newInstance();
 		this.xpath = xpf.newXPath();		
-		this.xsdFile = xsdFile;
-		this.students = resources.get("Entries").getEntries(); // Get the list of involved students
-		Source structuresSource = resources.get("Structures"); // Get the list of involved structures
-		this.aafSource = resources.get("AAF");
+		this.xsdFile = parameters.getXsdFile();
+		this.students = parameters.getResources().get("Entries").getEntries(); // Get the list of involved students
+		Source structuresSource = parameters.getResources().get("Structures"); // Get the list of involved structures
+		this.aafSource = parameters.getResources().get("AAF");
 		this.memberStructuresList = new ArrayList<String>();
 		List<Map<String, List<String>>> structures = structuresSource.getEntries();
 		structures.forEach(structure -> { 

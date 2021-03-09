@@ -47,6 +47,7 @@ import javax.xml.xpath.XPathExpressionException;
 import javax.xml.xpath.XPathFactory;
 
 import fr.gouv.education.acrennes.alambic.exception.AlambicException;
+import fr.gouv.education.acrennes.alambic.jobs.load.gar.builder.exception.MissingAttributeException;
 import fr.gouv.education.acrennes.alambic.jobs.load.gar.persistence.EnseignementEntity;
 import fr.gouv.education.acrennes.alambic.jobs.load.gar.persistence.StaffEntity;
 import fr.gouv.education.acrennes.alambic.jobs.load.gar.persistence.StaffEntityPK;
@@ -60,14 +61,13 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.xml.sax.SAXException;
 
-import fr.gouv.education.acrennes.alambic.jobs.CallableContext;
 import fr.gouv.education.acrennes.alambic.jobs.extract.sources.Source;
-import fr.gouv.education.acrennes.alambic.jobs.load.gar.binding.GARENTEnseignant;
-import fr.gouv.education.acrennes.alambic.jobs.load.gar.binding.GAREnsDisciplinesPostes;
-import fr.gouv.education.acrennes.alambic.jobs.load.gar.binding.GAREnseignant;
-import fr.gouv.education.acrennes.alambic.jobs.load.gar.binding.GARPersonMEF;
-import fr.gouv.education.acrennes.alambic.jobs.load.gar.binding.GARPersonProfils;
-import fr.gouv.education.acrennes.alambic.jobs.load.gar.binding.ObjectFactory;
+import fr.gouv.education.acrennes.alambic.jobs.load.gar.binding2d.GARENTEnseignant;
+import fr.gouv.education.acrennes.alambic.jobs.load.gar.binding2d.GAREnsDisciplinesPostes;
+import fr.gouv.education.acrennes.alambic.jobs.load.gar.binding2d.GAREnseignant;
+import fr.gouv.education.acrennes.alambic.jobs.load.gar.binding2d.GARPersonMEF;
+import fr.gouv.education.acrennes.alambic.jobs.load.gar.binding2d.GARPersonProfils;
+import fr.gouv.education.acrennes.alambic.jobs.load.gar.binding2d.ObjectFactory;
 import fr.gouv.education.acrennes.alambic.monitoring.ActivityMBean;
 import fr.gouv.education.acrennes.alambic.monitoring.ActivityTrafficLight;
 
@@ -88,21 +88,20 @@ public class GAREnseignantBuilder implements GARTypeBuilder {
 	private final List<String> memberStructuresList;
 	private final Source aafSource;
 
-	public GAREnseignantBuilder(final CallableContext context, final Map<String, Source> resources, final int page, final ActivityMBean jobActivity, final int maxNodesCount, final String version,
-			final String output, final String xsdFile, final EntityManager em, final Map<String, Document> exportFiles) {
-		this.page = page;
-		this.jobActivity = jobActivity;
-		this.maxNodesCount = maxNodesCount;
-		this.version = version;
-		this.output = output;
-		this.em = em;
-		this.exportFiles = exportFiles;
+	public GAREnseignantBuilder(GARBuilderParameters parameters) {
+		this.page = parameters.getPage();
+		this.jobActivity = parameters.getJobActivity();
+		this.maxNodesCount = parameters.getMaxNodesCount();
+		this.version = parameters.getVersion();
+		this.output = parameters.getOutput();
+		this.em = parameters.getEm();
+		this.exportFiles = parameters.getExportFiles();
 		XPathFactory xpf = XPathFactory.newInstance();
 		this.xpath = xpf.newXPath();		
-		this.xsdFile = xsdFile;
-		this.teachers = resources.get("Entries").getEntries(); // Get the list of involved teachers
-		Source structuresSource = resources.get("Structures"); // Get the list of involved structures
-		this.aafSource = resources.get("AAF");
+		this.xsdFile = parameters.getXsdFile();
+		this.teachers = parameters.getResources().get("Entries").getEntries(); // Get the list of involved teachers
+		Source structuresSource = parameters.getResources().get("Structures"); // Get the list of involved structures
+		this.aafSource = parameters.getResources().get("AAF");
 		this.memberStructuresList = new ArrayList<String>();
 		List<Map<String, List<String>>> structures = structuresSource.getEntries();
 		structures.forEach(structure -> { 
@@ -687,13 +686,6 @@ public class GAREnseignantBuilder implements GARTypeBuilder {
 			container.setVersion(version);
 		}
 
-	}
-
-	@SuppressWarnings("serial")
-	private class MissingAttributeException extends Exception {
-		public MissingAttributeException(String message) {
-			super(message);
-		}
 	}
 
 }
