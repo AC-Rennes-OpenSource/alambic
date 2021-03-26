@@ -48,8 +48,7 @@ public class StateBaseToGAR extends AbstractDestination {
 	private final String garType;
 	private final String garLevel;
 	private final EntityManager em;
-
-	private final GARBuilderParameters parameters;
+	private final Map<String, Document> exportFiles;
 
 	public StateBaseToGAR(final CallableContext context, final Element job, final ActivityMBean jobActivity) throws AlambicException {
 		super(context, job, jobActivity);
@@ -58,7 +57,7 @@ public class StateBaseToGAR extends AbstractDestination {
 		garLevel = StringUtils.isNotBlank(levelFromContext) ? levelFromContext.toUpperCase() : "2D";
 		em = EntityManagerHelper.getEntityManager();
 		em.setFlushMode(FlushModeType.AUTO);
-		Map<String, Document> exportFiles = new HashMap<>();
+		exportFiles = new HashMap<>();
 
 		List<Element> xmlFiles = job.getChildren("xmlfile");
 		if (null != xmlFiles && !xmlFiles.isEmpty()) {
@@ -69,15 +68,17 @@ public class StateBaseToGAR extends AbstractDestination {
 					String xmlFileName = context.resolvePath(xmlFile.getValue());
 					if (StringUtils.isNotBlank(xmlFileName)) {
 						Document document = builder.parse(xmlFileName);
-						exportFiles.put(xmlFile.getAttributeValue("name"), document);						
+						exportFiles.put(xmlFile.getAttributeValue("name"), document);
 					}
 				} catch (ParserConfigurationException | SAXException | IOException e) {
 					throw new AlambicException(e.getMessage());
 				}
 			}
 		}
+	}
 
-		parameters = new GARBuilderParameters(context, resources, page, jobActivity, MAX_XML_NODES_COUNT,
+	private GARBuilderParameters getParameters() throws AlambicException {
+		return new GARBuilderParameters(context, resources, page, jobActivity, MAX_XML_NODES_COUNT,
 				context.resolveString(job.getAttributeValue("GARVersion")),
 				context.resolvePath(job.getChildText("output")),
 				context.resolvePath(job.getChildText("xsd")),
@@ -91,52 +92,52 @@ public class StateBaseToGAR extends AbstractDestination {
 
 		switch (garType + garLevel) {
 		case "Eleve2D":
-			builder = new GAREleveBuilder(parameters);
+			builder = new GAREleveBuilder(getParameters());
 			builder.execute();
 			break;
 
 		case "Enseignant2D":
-			builder = new GAREnseignantBuilder(parameters);
+			builder = new GAREnseignantBuilder(getParameters());
 			builder.execute();
 			break;
 
 		case "Etablissement2D":
-			builder = new GAREtablissementBuilder(parameters);
+			builder = new GAREtablissementBuilder(getParameters());
 			builder.execute();
 			break;
 
 		case "Groupe2D":
-			builder = new GARGroupeBuilder(parameters);
+			builder = new GARGroupeBuilder(getParameters());
 			builder.execute();
 			break;
 
 		case "Responsable2D":
-			builder = new GARRespAffBuilder(parameters);
+			builder = new GARRespAffBuilder(getParameters());
 			builder.execute();
 			break;
 
 		case "Eleve1D":
-			builder = new GAR1DEleveBuilder(parameters);
+			builder = new GAR1DEleveBuilder(getParameters());
 			builder.execute();
 			break;
 
 		case "Enseignant1D":
-			builder = new GAR1DEnseignantBuilder(parameters);
+			builder = new GAR1DEnseignantBuilder(getParameters());
 			builder.execute();
 			break;
 
 		case "Etablissement1D":
-			builder = new GAR1DEtablissementBuilder(parameters);
+			builder = new GAR1DEtablissementBuilder(getParameters());
 			builder.execute();
 			break;
 
 		case "Groupe1D":
-			builder = new GAR1DGroupeBuilder(parameters);
+			builder = new GAR1DGroupeBuilder(getParameters());
 			builder.execute();
 			break;
 
 		case "Responsable1D":
-			builder = new GAR1DRespAffBuilder(parameters);
+			builder = new GAR1DRespAffBuilder(getParameters());
 			builder.execute();
 			break;
 

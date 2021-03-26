@@ -16,10 +16,13 @@
  ******************************************************************************/
 package fr.gouv.education.acrennes.alambic.jobs.load.gar.persistence;
 
+import org.eclipse.persistence.annotations.Index;
+
 import javax.persistence.*;
 import java.io.Serializable;
 
 @Entity
+@Index(name = "persongroupeentity_uai_idx", columnNames = { "uai" })
 public class PersonGroupeEntity implements Serializable {
 
     public enum PERSON_TYPE {
