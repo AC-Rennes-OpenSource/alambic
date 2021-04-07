@@ -68,12 +68,12 @@ public class GAR1DRespAffBuilderTest extends GAR1DBuilderTestUtils {
         entity.put("givenName", Collections.singletonList("Fabien"));
         entity.put("personalTitle", Collections.singletonList("M."));
         entity.put("ENTPersonProfils", Stream.of(
-                "cn=0351234A_GARRespAff,ou=profils,ou=groupes,dc=ent-bretagne,dc=fr",
+                "cn=0351234A_GAR1DRespAff,ou=profils,ou=groupes,dc=ent-bretagne,dc=fr",
                 "cn=0351234A_ens,ou=profils,ou=groupes,dc=ent-bretagne,dc=fr",
-                "cn=0354321B_GARRespAff,ou=profils,ou=groupes,dc=ent-bretagne,dc=fr",
+                "cn=0354321B_GAR1DRespAff,ou=profils,ou=groupes,dc=ent-bretagne,dc=fr",
                 "cn=0354321B_ens,ou=profils,ou=groupes,dc=ent-bretagne,dc=fr",
                 "cn=0352143C_ens,ou=profils,ou=groupes,dc=ent-bretagne,dc=fr",
-                "cn=0356789D_GARRespAff,ou=profils,ou=groupes,dc=ent-bretagne,dc=fr"
+                "cn=0356789D_GAR1DRespAff,ou=profils,ou=groupes,dc=ent-bretagne,dc=fr"
         ).collect(Collectors.toList()));
         entity.put("mail", Stream.of(
                 "fabien.garcia@example.com",
@@ -100,7 +100,7 @@ public class GAR1DRespAffBuilderTest extends GAR1DBuilderTestUtils {
         entity.put("ENTPersonUid", Collections.singletonList("993053f3-58ec-4291-85c8-640945247e57"));
         entity.put("sn", Collections.singletonList("Willis"));
         entity.put("givenName", Collections.singletonList("Debra"));
-        entity.put("ENTPersonProfils", Collections.singletonList("cn=0351234A_GARRespAff,ou=profils,ou=groupes,dc=ent-bretagne,dc=fr"));
+        entity.put("ENTPersonProfils", Collections.singletonList("cn=0351234A_GAR1DRespAff,ou=profils,ou=groupes,dc=ent-bretagne,dc=fr"));
         entity.put("mail", Collections.singletonList("debra.willis@example.com"));
 
         GARRespAff expectedGarRespAff = new ObjectFactory().createGARRespAff();

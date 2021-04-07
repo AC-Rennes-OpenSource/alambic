@@ -195,7 +195,7 @@ public class GAR1DEnseignantBuilder extends GAR1DIdentiteBuilder {
     private void addEtabAndProfils(Map<String, List<String>> entity, GAREnseignant garEnseignant, String uai, String profile, List<String> functionCodes) {
         String sdetcnpv = GARHelper.getInstance().getSDETCompliantProfileValue(entity.get("title").get(0), profile);
 
-        if (StringUtils.isNotBlank(sdetcnpv)) {
+        if (StringUtils.isNotBlank(sdetcnpv) && !("X".equals(profile))) {
             /*
              * GAR platform does not support all profiles.
              * Hence, the following statements implement security by filtering supported profiles.

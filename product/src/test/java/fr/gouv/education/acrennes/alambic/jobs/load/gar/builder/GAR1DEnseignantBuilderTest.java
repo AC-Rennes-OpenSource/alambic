@@ -23,6 +23,7 @@ import fr.gouv.education.acrennes.alambic.jobs.load.gar.binding1d.GAREnseignant;
 import fr.gouv.education.acrennes.alambic.jobs.load.gar.binding1d.GARPersonProfils;
 import fr.gouv.education.acrennes.alambic.jobs.load.gar.binding1d.ObjectFactory;
 import fr.gouv.education.acrennes.alambic.jobs.load.gar.builder.exception.MissingAttributeException;
+import fr.gouv.education.acrennes.alambic.monitoring.ActivityMBean;
 import org.apache.commons.lang.StringUtils;
 import org.junit.Assert;
 import org.junit.Before;
@@ -58,7 +59,7 @@ public class GAR1DEnseignantBuilderTest extends GAR1DBuilderTestUtils {
                 null,
                 resources,
                 0,
-                null,
+                PowerMockito.mock(ActivityMBean.class),
                 100,
                 "1",
                 "",
@@ -141,6 +142,40 @@ public class GAR1DEnseignantBuilderTest extends GAR1DBuilderTestUtils {
 
         GAREnseignant garEnseignant = builder.buildGarEnseignant(entity);
         Assert.assertTrue(garEnseignantEquals(expectedGAREnseignant, garEnseignant));
+    }
+
+    @Test
+    public void testBuildGarEnseignantXFonction() throws MissingAttributeException {
+        Map<String, List<String>> entity = new HashMap<>();
+        entity.put("ENTPersonUid", Collections.singletonList("1cd83a84-4c5a-4a24-b0fb-949c9648feb8"));
+        entity.put("sn", Collections.singletonList("Leroux"));
+        entity.put("givenName", Collections.singletonList("Luna"));
+        entity.put("ENTPersonFonctions", Stream.of("0354321B$ENS", "0351234A$X").collect(Collectors.toList()));
+        entity.put("title", Collections.singletonList("ENS"));
+
+        ObjectFactory factory = new ObjectFactory();
+        GAREnseignant expectedGAREnseignant = factory.createGAREnseignant();
+        expectedGAREnseignant.setGARPersonIdentifiant("1cd83a84-4c5a-4a24-b0fb-949c9648feb8");
+        expectedGAREnseignant.getGARPersonProfils().add(createProfil("0354321B", "National_ENS"));
+        expectedGAREnseignant.setGARPersonNom("Leroux");
+        expectedGAREnseignant.setGARPersonPrenom("Luna");
+        expectedGAREnseignant.getGARPersonAutresPrenoms().add("Luna");
+        expectedGAREnseignant.getGARPersonEtab().add("0354321B");
+
+        GAREnseignant garEnseignant = builder.buildGarEnseignant(entity);
+        Assert.assertTrue(garEnseignantEquals(expectedGAREnseignant, garEnseignant));
+    }
+
+    @Test(expected = MissingAttributeException.class)
+    public void testBuildGarEnseignantXFonctionOnly() throws MissingAttributeException {
+        Map<String, List<String>> entity = new HashMap<>();
+        entity.put("ENTPersonUid", Collections.singletonList("1cd83a84-4c5a-4a24-b0fb-949c9648feb8"));
+        entity.put("sn", Collections.singletonList("Leroux"));
+        entity.put("givenName", Collections.singletonList("Luna"));
+        entity.put("ENTPersonFonctions", Collections.singletonList("0354321B$X"));
+        entity.put("title", Collections.singletonList("ENS"));
+
+        builder.buildGarEnseignant(entity);
     }
 
     private boolean garEnseignantEquals(GAREnseignant expected, GAREnseignant actual) {

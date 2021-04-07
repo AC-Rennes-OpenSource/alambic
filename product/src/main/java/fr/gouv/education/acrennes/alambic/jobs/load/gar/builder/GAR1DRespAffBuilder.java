@@ -52,7 +52,7 @@ public class GAR1DRespAffBuilder extends GAR1DBuilder {
 
     public GAR1DRespAffBuilder(GARBuilderParameters parameters) {
         super(parameters);
-        pattern = Pattern.compile("cn=(\\d+\\w)_GARRespAff,.+", Pattern.CASE_INSENSITIVE);
+        pattern = Pattern.compile("cn=(\\d+\\w)_GAR1dRespAff,.+", Pattern.CASE_INSENSITIVE);
         exportFiles = parameters.getExportFiles();
         XPathFactory xpf = XPathFactory.newInstance();
 		xpath = xpf.newXPath();

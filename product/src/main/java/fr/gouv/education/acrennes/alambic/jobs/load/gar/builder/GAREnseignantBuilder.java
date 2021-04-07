@@ -537,7 +537,7 @@ public class GAREnseignantBuilder implements GARTypeBuilder {
 		// get SDET compliant national profile value based on both the title and function values
 		String sdetcnpv = GARHelper.getInstance().getSDETCompliantProfileValue(entity.get("title").get(0), profile);
 
-		if (StringUtils.isNotBlank(sdetcnpv)) {
+		if (StringUtils.isNotBlank(sdetcnpv) && !("X".equals(profile))) {
 			/*
 			 * GAR platform does not support all profiles.
 			 * Hence, the following statements implement security by filtering supported profiles.
