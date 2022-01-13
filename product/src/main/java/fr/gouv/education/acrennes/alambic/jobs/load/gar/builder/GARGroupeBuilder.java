@@ -46,14 +46,12 @@ import org.apache.commons.logging.LogFactory;
 import org.xml.sax.SAXException;
 
 import fr.gouv.education.acrennes.alambic.exception.AlambicException;
-import fr.gouv.education.acrennes.alambic.jobs.CallableContext;
-import fr.gouv.education.acrennes.alambic.jobs.extract.sources.Source;
-import fr.gouv.education.acrennes.alambic.jobs.load.gar.binding.GARENTGroupe;
-import fr.gouv.education.acrennes.alambic.jobs.load.gar.binding.GAREnsClasseMatiere;
-import fr.gouv.education.acrennes.alambic.jobs.load.gar.binding.GAREnsGroupeMatiere;
-import fr.gouv.education.acrennes.alambic.jobs.load.gar.binding.GARGroupe;
-import fr.gouv.education.acrennes.alambic.jobs.load.gar.binding.GARPersonGroupe;
-import fr.gouv.education.acrennes.alambic.jobs.load.gar.binding.ObjectFactory;
+import fr.gouv.education.acrennes.alambic.jobs.load.gar.binding2d.GARENTGroupe;
+import fr.gouv.education.acrennes.alambic.jobs.load.gar.binding2d.GAREnsClasseMatiere;
+import fr.gouv.education.acrennes.alambic.jobs.load.gar.binding2d.GAREnsGroupeMatiere;
+import fr.gouv.education.acrennes.alambic.jobs.load.gar.binding2d.GARGroupe;
+import fr.gouv.education.acrennes.alambic.jobs.load.gar.binding2d.GARPersonGroupe;
+import fr.gouv.education.acrennes.alambic.jobs.load.gar.binding2d.ObjectFactory;
 import fr.gouv.education.acrennes.alambic.monitoring.ActivityMBean;
 import fr.gouv.education.acrennes.alambic.monitoring.ActivityTrafficLight;
 
@@ -69,17 +67,16 @@ public class GARGroupeBuilder implements GARTypeBuilder {
 	private final EntityManager em;
 	private final List<Map<String, List<String>>> structures;
 
-	public GARGroupeBuilder(final CallableContext context, final Map<String, Source> resources, final int page, final ActivityMBean jobActivity, final int maxNodesCount, final String version,
-			final String output, final String xsdFile, final EntityManager em) {
-		this.page = page;
-		this.jobActivity = jobActivity;
-		this.maxNodesCount = maxNodesCount;
-		this.version = version;
-		this.output = output;
-		this.em = em;
-		this.xsdFile = xsdFile;
+	public GARGroupeBuilder(GARBuilderParameters parameters) {
+		this.page = parameters.getPage();
+		this.jobActivity = parameters.getJobActivity();
+		this.maxNodesCount = parameters.getMaxNodesCount();
+		this.version = parameters.getVersion();
+		this.output = parameters.getOutput();
+		this.em = parameters.getEm();
+		this.xsdFile = parameters.getXsdFile();
 		// Get the list of involved groups
-		this.structures = resources.get("Entries").getEntries();
+		this.structures = parameters.getResources().get("Entries").getEntries();
 	}
 
 	@Override

@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (C) 2019-2020 Rennes - Brittany Education Authority (<http://www.ac-rennes.fr>) and others.
+ * Copyright (C) 2019-2021 Rennes - Brittany Education Authority (<http://www.ac-rennes.fr>) and others.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
@@ -28,6 +28,7 @@ import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 
 import fr.gouv.education.acrennes.alambic.exception.AlambicException;
+import fr.gouv.education.acrennes.alambic.jobs.load.gar.builder.*;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -36,12 +37,6 @@ import org.w3c.dom.Document;
 import org.xml.sax.SAXException;
 
 import fr.gouv.education.acrennes.alambic.jobs.CallableContext;
-import fr.gouv.education.acrennes.alambic.jobs.load.gar.builder.GAREleveBuilder;
-import fr.gouv.education.acrennes.alambic.jobs.load.gar.builder.GAREnseignantBuilder;
-import fr.gouv.education.acrennes.alambic.jobs.load.gar.builder.GAREtablissementBuilder;
-import fr.gouv.education.acrennes.alambic.jobs.load.gar.builder.GARGroupeBuilder;
-import fr.gouv.education.acrennes.alambic.jobs.load.gar.builder.GARRespAffBuilder;
-import fr.gouv.education.acrennes.alambic.jobs.load.gar.builder.GARTypeBuilder;
 import fr.gouv.education.acrennes.alambic.monitoring.ActivityMBean;
 import fr.gouv.education.acrennes.alambic.persistence.EntityManagerHelper;
 
@@ -50,16 +45,19 @@ public class StateBaseToGAR extends AbstractDestination {
 	private static final Log log = LogFactory.getLog(StateBaseToGAR.class);
 	private static final int MAX_XML_NODES_COUNT = 10000;
 
-	private final String type;
+	private final String garType;
+	private final String garLevel;
 	private final EntityManager em;
 	private final Map<String, Document> exportFiles;
 
 	public StateBaseToGAR(final CallableContext context, final Element job, final ActivityMBean jobActivity) throws AlambicException {
 		super(context, job, jobActivity);
-		type = context.resolveString(job.getAttributeValue("GARType"));
+		garType = context.resolveString(job.getAttributeValue("GARType"));
+		String levelFromContext = context.resolveString(job.getAttributeValue("GARLevel"));
+		garLevel = StringUtils.isNotBlank(levelFromContext) ? levelFromContext.toUpperCase() : "2D";
 		em = EntityManagerHelper.getEntityManager();
 		em.setFlushMode(FlushModeType.AUTO);
-		exportFiles = new HashMap<String, Document>();
+		exportFiles = new HashMap<>();
 
 		List<Element> xmlFiles = job.getChildren("xmlfile");
 		if (null != xmlFiles && !xmlFiles.isEmpty()) {
@@ -70,7 +68,7 @@ public class StateBaseToGAR extends AbstractDestination {
 					String xmlFileName = context.resolvePath(xmlFile.getValue());
 					if (StringUtils.isNotBlank(xmlFileName)) {
 						Document document = builder.parse(xmlFileName);
-						exportFiles.put(xmlFile.getAttributeValue("name"), document);						
+						exportFiles.put(xmlFile.getAttributeValue("name"), document);
 					}
 				} catch (ParserConfigurationException | SAXException | IOException e) {
 					throw new AlambicException(e.getMessage());
@@ -79,62 +77,72 @@ public class StateBaseToGAR extends AbstractDestination {
 		}
 	}
 
+	private GARBuilderParameters getParameters() throws AlambicException {
+		return new GARBuilderParameters(context, resources, page, jobActivity, MAX_XML_NODES_COUNT,
+				context.resolveString(job.getAttributeValue("GARVersion")),
+				context.resolvePath(job.getChildText("output")),
+				context.resolvePath(job.getChildText("xsd")),
+				em,
+				exportFiles);
+	}
+
 	@Override
 	public void execute() throws AlambicException {
 		GARTypeBuilder builder;
 
-		switch (type) {
-		case "Eleve":
-			builder = new GAREleveBuilder(context, resources, page, jobActivity, MAX_XML_NODES_COUNT,
-					context.resolveString(job.getAttributeValue("GARVersion")),
-					context.resolvePath(job.getChildText("output")),
-					context.resolvePath(job.getChildText("xsd")),
-					em,
-					exportFiles);
+		switch (garType + garLevel) {
+		case "Eleve2D":
+			builder = new GAREleveBuilder(getParameters());
 			builder.execute();
 			break;
 
-		case "Enseignant":
-			builder = new GAREnseignantBuilder(context, resources, page, jobActivity, MAX_XML_NODES_COUNT,
-					context.resolveString(job.getAttributeValue("GARVersion")),
-					context.resolvePath(job.getChildText("output")),
-					context.resolvePath(job.getChildText("xsd")),
-					em,
-					exportFiles);
+		case "Enseignant2D":
+			builder = new GAREnseignantBuilder(getParameters());
 			builder.execute();
 			break;
 
-		case "Etablissement":
-			builder = new GAREtablissementBuilder(context, resources, page, jobActivity, MAX_XML_NODES_COUNT,
-					context.resolveString(job.getAttributeValue("GARVersion")),
-					context.resolvePath(job.getChildText("output")),
-					context.resolvePath(job.getChildText("xsd")),
-					em,
-					exportFiles);
+		case "Etablissement2D":
+			builder = new GAREtablissementBuilder(getParameters());
 			builder.execute();
 			break;
 
-		case "Groupe":
-			builder = new GARGroupeBuilder(context, resources, page, jobActivity, MAX_XML_NODES_COUNT,
-					context.resolveString(job.getAttributeValue("GARVersion")),
-					context.resolvePath(job.getChildText("output")),
-					context.resolvePath(job.getChildText("xsd")),
-					em);
+		case "Groupe2D":
+			builder = new GARGroupeBuilder(getParameters());
 			builder.execute();
 			break;
 
-		case "Responsable":
-			builder = new GARRespAffBuilder(context, resources, page, jobActivity, MAX_XML_NODES_COUNT,
-					context.resolveString(job.getAttributeValue("GARVersion")),
-					context.resolvePath(job.getChildText("output")),
-					context.resolvePath(job.getChildText("xsd")),
-					null,
-					exportFiles);
+		case "Responsable2D":
+			builder = new GARRespAffBuilder(getParameters());
+			builder.execute();
+			break;
+
+		case "Eleve1D":
+			builder = new GAR1DEleveBuilder(getParameters());
+			builder.execute();
+			break;
+
+		case "Enseignant1D":
+			builder = new GAR1DEnseignantBuilder(getParameters());
+			builder.execute();
+			break;
+
+		case "Etablissement1D":
+			builder = new GAR1DEtablissementBuilder(getParameters());
+			builder.execute();
+			break;
+
+		case "Groupe1D":
+			builder = new GAR1DGroupeBuilder(getParameters());
+			builder.execute();
+			break;
+
+		case "Responsable1D":
+			builder = new GAR1DRespAffBuilder(getParameters());
 			builder.execute();
 			break;
 
 		default:
-			log.error("Not supported output GAR type '" + type + "'");
+			log.error("Not supported output GAR type '" + garType + "'");
 			break;
 		}
 	}
