@@ -33,7 +33,7 @@
 		<class>fr.gouv.education.acrennes.alambic.audit.persistence.AuditEntity</class>
 		<properties>
 			<property name="javax.persistence.jdbc.driver" value="org.h2.Driver" />
-			<property name="javax.persistence.jdbc.url" value="jdbc:h2:mem:test;create=true" />
+			<property name="javax.persistence.jdbc.url" value="jdbc:h2:mem:test" />
 			<property name="javax.persistence.jdbc.user" value="sa" />
 			<property name="javax.persistence.jdbc.password" value="sa" />
 			<property name="eclipselink.ddl-generation" value="drop-and-create-tables" />
