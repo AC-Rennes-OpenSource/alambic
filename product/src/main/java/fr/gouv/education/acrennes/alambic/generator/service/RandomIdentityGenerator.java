@@ -31,7 +31,7 @@ import fr.gouv.education.acrennes.alambic.random.persistence.RandomLambdaEntity;
 public class RandomIdentityGenerator extends AbstractRandomGenerator {
 
 //	private static final Log log = LogFactory.getLog(RandomIdentityGenerator.class);
-	private static String QUERY_TOTAL_COUNT_OF_ITEMS = "SELECT count(rie.primaryKey.id) FROM RandomDictionaryEntity rie WHERE rie.primaryKey.element = :element";
+	private static String QUERY_TOTAL_COUNT_OF_ITEMS = "SELECT count(rie.primaryKey.id) FROM RandomDictionaryEntity rie WHERE rie.primaryKey.elementname = :elementname";
 
 	public enum IDENTITY_GENDER {
 		FEMALE,
@@ -69,13 +69,13 @@ public class RandomIdentityGenerator extends AbstractRandomGenerator {
 			rdepk = new RandomDictionaryEntityPK(RandomDictionaryEntityPK.IDENTITY_ELEMENT.FIRSTNAME_MALE, randomDictionaryIndex);
 		}
 		rde = em.find(RandomDictionaryEntity.class, rdepk);
-		randomFirstName = rde.getValue();
+		randomFirstName = rde.getElementvalue();
 		
 		// Get a random last name
 		randomDictionaryIndex = getRandomNumber(1, lastNameCount);
 		rdepk = new RandomDictionaryEntityPK(RandomDictionaryEntityPK.IDENTITY_ELEMENT.LASTNAME, randomDictionaryIndex);
 		rde = em.find(RandomDictionaryEntity.class, rdepk);
-		randomLastName = rde.getValue();
+		randomLastName = rde.getElementvalue();
 
 		entity = new RandomLambdaEntity(String.format("{\"gender\":\"%s\", \"name\":{\"first\":\"%s\", \"last\":\"%s\"}}", queriedGender.toString().toLowerCase(), randomFirstName, randomLastName));
 		return entity;
@@ -83,15 +83,15 @@ public class RandomIdentityGenerator extends AbstractRandomGenerator {
 
 	private void initialize() {
 		Query emQuery = em.createQuery(QUERY_TOTAL_COUNT_OF_ITEMS);
-		emQuery.setParameter("element", RandomDictionaryEntityPK.IDENTITY_ELEMENT.FIRSTNAME_FEMALE);		
+		emQuery.setParameter("elementname", RandomDictionaryEntityPK.IDENTITY_ELEMENT.FIRSTNAME_FEMALE);		
 		this.femaleFirstNameCount = (long) emQuery.getSingleResult();
 		
 		emQuery = em.createQuery(QUERY_TOTAL_COUNT_OF_ITEMS);
-		emQuery.setParameter("element", RandomDictionaryEntityPK.IDENTITY_ELEMENT.FIRSTNAME_MALE);		
+		emQuery.setParameter("elementname", RandomDictionaryEntityPK.IDENTITY_ELEMENT.FIRSTNAME_MALE);		
 		this.maleFirstNameCount = (long) emQuery.getSingleResult();
 
 		emQuery = em.createQuery(QUERY_TOTAL_COUNT_OF_ITEMS);
-		emQuery.setParameter("element", RandomDictionaryEntityPK.IDENTITY_ELEMENT.LASTNAME);		
+		emQuery.setParameter("elementname", RandomDictionaryEntityPK.IDENTITY_ELEMENT.LASTNAME);		
 		this.lastNameCount = (long) emQuery.getSingleResult();
 	}
 

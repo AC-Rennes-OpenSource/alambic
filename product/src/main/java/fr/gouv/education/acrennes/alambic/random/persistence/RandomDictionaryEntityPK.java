@@ -41,14 +41,14 @@ public class RandomDictionaryEntityPK implements Serializable {
 	private long id;
 
 	@Enumerated(EnumType.STRING)
-	@Column(name = "element")
-	private IDENTITY_ELEMENT element;
+	@Column(name = "elementname")
+	private IDENTITY_ELEMENT elementname;
 
 	public RandomDictionaryEntityPK() {
 	}
 
-	public RandomDictionaryEntityPK(final IDENTITY_ELEMENT element, final long id) {
-		this.element = element;
+	public RandomDictionaryEntityPK(final IDENTITY_ELEMENT elementname, final long id) {
+		this.elementname = elementname;
 		this.id = id;
 	}
 
@@ -60,12 +60,12 @@ public class RandomDictionaryEntityPK implements Serializable {
 		this.id = id;
 	}
 
-	public IDENTITY_ELEMENT getElement() {
-		return this.element;
+	public IDENTITY_ELEMENT getElementname() {
+		return this.elementname;
 	}
 
-	public void setElement(final IDENTITY_ELEMENT element) {
-		this.element = element;
+	public void setElementname(final IDENTITY_ELEMENT elementname) {
+		this.elementname = elementname;
 	}
 
 	@Override
@@ -82,7 +82,7 @@ public class RandomDictionaryEntityPK implements Serializable {
 		} else if (null != obj) {
 			if (obj instanceof RandomDictionaryEntityPK) {
 				RandomDictionaryEntityPK other = (RandomDictionaryEntityPK) obj;
-				if (id == other.getId() && element == other.getElement()) {
+				if (this.id == other.getId() && this.elementname == other.getElementname()) {
 					isEqual = true;
 				}
 			}
@@ -93,7 +93,7 @@ public class RandomDictionaryEntityPK implements Serializable {
 
 	@Override
 	public String toString() {
-		return "{\"element\":\"" + element + "\", \"id\":" + id + "}";
+		return "{\"element\":\"" + this.elementname + "\", \"id\":" + id + "}";
 	}
 
 }

@@ -27,8 +27,8 @@ import org.eclipse.persistence.annotations.Indexes;
 
 @Entity
 @Indexes({
-	@Index(name = "randomdictionaryentity_pk_idx", unique = true, columnNames = { "id", "element" }),
-	@Index(name = "randomdictionaryentity_element_idx", columnNames = { "element" }),
+	@Index(name = "randomdictionaryentity_pk_idx", unique = true, columnNames = { "id", "elementname" }),
+	@Index(name = "randomdictionaryentity_elementname_idx", columnNames = { "elementname" }),
 	@Index(name = "randomdictionaryentity_id_idx", columnNames = { "id" })
 })
 public class RandomDictionaryEntity implements Serializable {
@@ -38,15 +38,15 @@ public class RandomDictionaryEntity implements Serializable {
 	@EmbeddedId
 	private RandomDictionaryEntityPK primaryKey;
 
-	@Column(name = "value")
-	private String value;
+	@Column(name = "elementvalue")
+	private String elementvalue;
 
 	public RandomDictionaryEntity() {
 	}
 
 	public RandomDictionaryEntity(final RandomDictionaryEntityPK pk, final String value) {
 		this.primaryKey = pk;
-		this.value = value;
+		this.elementvalue = value;
 	}
 
 	public RandomDictionaryEntityPK getPrimaryKey() {
@@ -57,17 +57,17 @@ public class RandomDictionaryEntity implements Serializable {
 		this.primaryKey = primaryKey;
 	}
 
-	public String getValue() {
-		return value;
+	public String getElementvalue() {
+		return elementvalue;
 	}
 
-	public void setValue(String value) {
-		this.value = value;
+	public void setElementvalue(String value) {
+		this.elementvalue = value;
 	}
 	
 	@Override
 	public String toString() {
-		return "{\"PK\":" + ((null != this.primaryKey) ? this.primaryKey.toString() : "{}") + ",\"value\":\"" + this.value + "\"}";
+		return "{\"PK\":" + ((null != this.primaryKey) ? this.primaryKey.toString() : "{}") + ",\"value\":\"" + this.elementvalue + "\"}";
 	}
 	
 }

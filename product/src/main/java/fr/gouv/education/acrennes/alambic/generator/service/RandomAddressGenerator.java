@@ -31,7 +31,7 @@ import fr.gouv.education.acrennes.alambic.random.persistence.RandomLambdaEntity;
 public class RandomAddressGenerator extends AbstractRandomGenerator {
 
 //	private static final Log log = LogFactory.getLog(RandomAddressGenerator.class);
-	private static String QUERY_TOTAL_COUNT_OF_ITEMS = "SELECT count(rie.primaryKey.id) FROM RandomDictionaryEntity rie WHERE rie.primaryKey.element = :element";
+	private static String QUERY_TOTAL_COUNT_OF_ITEMS = "SELECT count(rie.primaryKey.id) FROM RandomDictionaryEntity rie WHERE rie.primaryKey.elementname = :elementname";
 
 	private long addressTypeCount;
 	private long addressLabelCount;
@@ -62,19 +62,19 @@ public class RandomAddressGenerator extends AbstractRandomGenerator {
 		randomDictionaryIndex = getRandomNumber(1, addressTypeCount);
 		rdepk = new RandomDictionaryEntityPK(RandomDictionaryEntityPK.IDENTITY_ELEMENT.ADDRESS_TYPE, randomDictionaryIndex);
 		rde = em.find(RandomDictionaryEntity.class, rdepk);
-		randomAddressType = rde.getValue();
+		randomAddressType = rde.getElementvalue();
 		
 		// Get a random address label
 		randomDictionaryIndex = getRandomNumber(1, addressLabelCount);
 		rdepk = new RandomDictionaryEntityPK(RandomDictionaryEntityPK.IDENTITY_ELEMENT.ADDRESS_LABEL, randomDictionaryIndex);
 		rde = em.find(RandomDictionaryEntity.class, rdepk);
-		randomAddressLabel = rde.getValue();
+		randomAddressLabel = rde.getElementvalue();
 		
 		// Get a random address city
 		randomDictionaryIndex = getRandomNumber(1, addressCityCount);
 		rdepk = new RandomDictionaryEntityPK(RandomDictionaryEntityPK.IDENTITY_ELEMENT.ADDRESS_CITY, randomDictionaryIndex);
 		rde = em.find(RandomDictionaryEntity.class, rdepk);
-		randomAddressCity = rde.getValue();
+		randomAddressCity = rde.getElementvalue();
 
 		// Get a random postcode
 		randomAddressPostCode = getRandomNumber(1, 99999);
@@ -85,15 +85,15 @@ public class RandomAddressGenerator extends AbstractRandomGenerator {
 
 	private void initialize() {
 		Query emQuery = em.createQuery(QUERY_TOTAL_COUNT_OF_ITEMS);
-		emQuery.setParameter("element", RandomDictionaryEntityPK.IDENTITY_ELEMENT.ADDRESS_TYPE);		
+		emQuery.setParameter("elementname", RandomDictionaryEntityPK.IDENTITY_ELEMENT.ADDRESS_TYPE);		
 		this.addressTypeCount = (long) emQuery.getSingleResult();
 		
 		emQuery = em.createQuery(QUERY_TOTAL_COUNT_OF_ITEMS);
-		emQuery.setParameter("element", RandomDictionaryEntityPK.IDENTITY_ELEMENT.ADDRESS_LABEL);		
+		emQuery.setParameter("elementname", RandomDictionaryEntityPK.IDENTITY_ELEMENT.ADDRESS_LABEL);		
 		this.addressLabelCount = (long) emQuery.getSingleResult();
 
 		emQuery = em.createQuery(QUERY_TOTAL_COUNT_OF_ITEMS);
-		emQuery.setParameter("element", RandomDictionaryEntityPK.IDENTITY_ELEMENT.ADDRESS_CITY);		
+		emQuery.setParameter("elementname", RandomDictionaryEntityPK.IDENTITY_ELEMENT.ADDRESS_CITY);		
 		this.addressCityCount = (long) emQuery.getSingleResult();
 	}
 
