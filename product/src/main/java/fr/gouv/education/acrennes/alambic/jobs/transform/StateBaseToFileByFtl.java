@@ -105,7 +105,7 @@ public class StateBaseToFileByFtl extends AbstractDestination {
 			root.put("trafficLight", activityEnums);
 			root.put("normalizationPolicy", normalizationEnums);
 			root.put("variables", context.getVariables().getHashMap());
-			root.put("Fn", new FMFunctions());
+			root.put("Fn", new FMFunctions(context));
 			root.put("Math", (TemplateHashModel) staticModels.get("java.lang.Math"));
 
 			final List<Element> xmlFiles = job.getChildren("xmlfile");

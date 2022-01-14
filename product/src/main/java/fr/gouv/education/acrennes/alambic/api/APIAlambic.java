@@ -122,8 +122,9 @@ public class APIAlambic implements IAPIAlambic {
         // General configuration
         properties = new Properties();
         properties.load(new FileInputStream(executionPath.concat(CONFIG_FILE)));
-        
-        if (StringUtils.isNotBlank(threadCount)) {
+
+        // Override the thread count configuration according to the count passed-in parameter (if not 0)
+        if (StringUtils.isNotBlank(threadCount) && Integer.valueOf(threadCount) > 0) {
         	properties.setProperty(ExecutorFactory.THREAD_POOL_SIZE, threadCount);
         }
 
@@ -151,7 +152,8 @@ public class APIAlambic implements IAPIAlambic {
         puProperties.put(JDBC_USER, properties.getProperty(CallableContext.ETL_CFG_JDBC_LOGIN));
         puProperties.put(JDBC_PASSWORD, properties.getProperty(CallableContext.ETL_CFG_JDBC_PASSWORD));
         puProperties.put(TARGET_SERVER, TargetServer.None);
-        EntityManagerHelper.getInstance(PERSISTENCE_UNIT, puProperties);
+        String cfg_persistence_unit = properties.getProperty(CallableContext.ETL_CFG_PERSISTENCE_UNIT, PERSISTENCE_UNIT);
+        EntityManagerHelper.getInstance(cfg_persistence_unit, puProperties);
         // this two lines aim to make JPA create all the tables as defined by the persistence unit.
         EntityManager em = EntityManagerHelper.getEntityManager();
         em.close();

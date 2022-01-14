@@ -25,6 +25,8 @@ import fr.gouv.education.acrennes.alambic.jobs.CallableContext;
 import fr.gouv.education.acrennes.alambic.jobs.load.AbstractDestination;
 import fr.gouv.education.acrennes.alambic.monitoring.ActivityMBean;
 import fr.gouv.education.acrennes.alambic.monitoring.ActivityTrafficLight;
+import fr.gouv.education.acrennes.alambic.nuxeo.marshaller.EsMarshaller;
+
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -90,6 +92,9 @@ public class AutomationChainRunner extends AbstractDestination {
 			count = 0;
 
 			registry = JsonMarshalling.readRegistry("{\"operations\":[" + OperationPersistFile.getJSONDescription() + "," + OperationGetLocalFile.getJSONDescription() + "," + OperationSetVar.getJSONDescription() + "," + OperationSetInputVar.getJSONDescription() + "," + OperationRestoreDocumentInput.getJSONDescription() + "]}");
+
+			// Add Elastic responses marshaller to support operations like 'Document.QueryES' which lead to request Elastic 
+			JsonMarshalling.addMarshaller(new EsMarshaller());
 		} catch (final Exception e) {
 			throw new AlambicException(e.getMessage());
 		}
@@ -203,7 +208,7 @@ public class AutomationChainRunner extends AbstractDestination {
 				log.info("Ignore the error while executing the operation '" + operationId + "' (input document is : '" + input + "'), error : " + e.getMessage());
 			} else {
 				jobActivity.setTrafficLight(ActivityTrafficLight.RED);
-				log.error(e.getMessage());
+				log.error(e.getCause());
 			}
 		}
 
@@ -221,6 +226,8 @@ public class AutomationChainRunner extends AbstractDestination {
 			value = stringValue.split(",");
 		} else if ("document".equals(type)) {
 			value = new IdRef(stringValue);
+		} else if ("integer".equals(type)) {
+			value = new Integer(stringValue);
 		}
 
 		return value;

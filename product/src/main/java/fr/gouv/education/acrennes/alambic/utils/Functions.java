@@ -415,8 +415,8 @@ public class Functions {
                             final String newCandidate = searchFunctions(ifc.getFulltext(), new HashMap<String, String>(), callStack);
                             uniqueValue = unicity(searchString.replace(uniqueValue, newCandidate), callStack);
                         } else {
-                            // No inner function was used to build the candidate value: compute the new unique value via a incremental suffix and based on the previous search
-                            // result
+                            // No inner function was used to build the candidate value: compute the new unique value via an
+                            // incremental suffix and based on the previous search result
                             final ArrayList<String> list = new ArrayList<>();
                             while (resultSet.hasMore()) {
                                 final SearchResult result = resultSet.next();

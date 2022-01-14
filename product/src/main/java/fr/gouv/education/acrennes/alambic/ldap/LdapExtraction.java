@@ -28,7 +28,6 @@ import javax.naming.directory.SearchResult;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.apache.log4j.Logger;
 
 public class LdapExtraction {
 	private static final Log log = LogFactory.getLog(LdapExtraction.class);
@@ -36,7 +35,6 @@ public class LdapExtraction {
 	private Hashtable<String, String> confLdap = new Hashtable<String, String>(5);
 	private SearchControls contraintes= new SearchControls();
 	protected DirContext ctx = null;
-	protected Logger logger;
 	protected NamingEnumeration<SearchResult> searchRes;
 
 	public LdapExtraction(String driver, String url, String login, String pwd, String query, String[] attributeList) {

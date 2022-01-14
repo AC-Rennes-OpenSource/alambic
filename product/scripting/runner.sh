@@ -19,6 +19,7 @@ JOBS_LIST="all"
 EXECUTE_ALL="FALSE"
 VERBOSE=0
 SUPERVISION_MODE="FALSE"
+THREAD_POOL_SIZE="0" # '0' means : not definied, use the configuration file instead.
 NOTIFICATION_THRESHOLD_NONE=0
 NOTIFICATION_THRESHOLD_ERROR=1
 NOTIFICATION_THRESHOLD_WARNING=2
@@ -27,7 +28,7 @@ NOTIFICATION_THRESHOLD=${NOTIFICATION_THRESHOLD_ERROR}
 NOTIFICATION_MAILING_LIST="${ALAMBIC_NOTIFICATION_EMAIL_LIST}"
 CMD_PARAMS=""
 # Heap sizing & Jolokia permanent additional JVM parameters
-JVM_ADDITIONAL_PARAMS="-Xms512m -Xmx2g -XX:+HeapDumpOnOutOfMemoryError -Dfile.encoding=UTF-8 -Dcom.sun.jndi.ldap.connect.pool.timeout=60000 -Dlog4j.configurationFile=${EXECUTION_PATH}/conf/log4j2.xml -XX:+UseConcMarkSweepGC -javaagent:${EXECUTION_PATH}/lib/jolokia-jvm.jar=port=8778,host=0.0.0.0"
+JVM_ADDITIONAL_PARAMS="-Xms512m -Xmx2g -XX:+HeapDumpOnOutOfMemoryError -Dfile.encoding=UTF-8 -Dcom.sun.jndi.ldap.connect.pool.timeout=60000 -Dlog4j.configurationFile=${EXECUTION_PATH}/conf/log4j2.xml -XX:+UseConcMarkSweepGC -javaagent:${EXECUTION_PATH}/lib/org.jolokia-jolokia-jvm.jar=port=8778,host=0.0.0.0"
 # Debug optional additional JVM parameters
 DEFAULT_DEBUG_JVM_PARAMS="-Xdebug -Xrunjdwp:transport=dt_socket,address=8787,server=y,suspend=y"
 # JMX optional additional JVM parameters (so that a tool like JVisualVM is used for deep application profiling - not Jolokia WEB end-point)
@@ -55,7 +56,7 @@ logger() {
 }
 
 usage() {
-echo "Usage: \"$0 -f <jobs xml file> [-j (jobs list. ':' character as separator) -a (to execute all jobs) -s (supervision, a notification is done according to the threshold specified by -t parameter) -t (defines the notification threshold - values: NONE, INFO, WARNING, ERROR - ERROR as default) -m (mailing list - as default is set by the environment variable 'ALAMBIC_NOTIFICATION_EMAIL_LIST') -p (optional arguments for ETL execution) -v (verbose) -d (debug) -D (debug with specific jvm parameters)]\""
+	echo "Usage: \"$0 -f <jobs xml file> [-j (jobs list. ':' character as separator) -a (to execute all jobs) -s (supervision, a notification is done according to the threshold specified by -t parameter) -t (defines the notification threshold - values: NONE, INFO, WARNING, ERROR - ERROR as default) -m (mailing list - as default is set by the environment variable 'ALAMBIC_NOTIFICATION_EMAIL_LIST') -p (optional arguments for ETL execution) -c (the thread pool size. As default, use the configuration file's definition) -v (verbose) -d (debug) -D (debug with specific jvm parameters)]\""
 }
 
 setNotificationThreshold() {
@@ -99,7 +100,7 @@ report() {
 
 	# Compute the report/log files unique process identifier
 	NORMALIZED_JOBS_LIST=$(echo ${JOBS_LIST} | sed -r 's#\W+#-#g')
-	NORMALIZED_INPUT_FILE=$(echo ${INPUT_FILE} | sed -r 's/.+\/([^\/]+)\.xml/\1/')
+	NORMALIZED_INPUT_FILE=$(echo ${INPUT_FILE} | sed -r 's#(.*/)?([^/\.]+)(\..+)?#\2#')	
 	FILE_PROCESS_IDENTIFIER=$(echo "${PROCESS_IDENTIFIER}-${NORMALIZED_INPUT_FILE}-${NORMALIZED_JOBS_LIST}")
 
 	# Keep copy of the addon logs (and discards any null characters that could be inserted when the log file is modified via an inner process)
@@ -235,7 +236,7 @@ finally() {
 if [ $# -ge 1 ]
 then
 	# parse the command options
-	while getopts ":f:j:l:t:m:p:avdxD:s" opt
+	while getopts ":f:j:l:t:m:p:avdxD:c:s" opt
 	do
 		case $opt in
 			f)
@@ -284,7 +285,7 @@ then
 				;;
 			t)
 				# set the notification threshold
-				setNotificationThreshold $OPTARG
+				setNotificationThreshold=$OPTARG
 				;;
 			m)
 				# set the mailing list
@@ -292,6 +293,10 @@ then
 				;;
 			p)
 				CMD_PARAMS=$OPTARG
+				;;
+			c)
+				# set the thread pool size
+				THREAD_POOL_SIZE=$OPTARG
 				;;
 			\?)
 				logger "ERROR" "Invalid argument: -$OPTARG" >&2
@@ -317,23 +322,23 @@ then
 		if [ "TRUE" = "${EXECUTE_ALL}" ]
 		then
 			logger "INFO" "Lancement de tous les jobs (fichier d'entrée: '${INPUT_FILE}')"
-
+			
 			if [ "" != "$CMD_PARAMS" ]
 			then
 				PARAMETERS="$(echo ${CMD_PARAMS} | sed -r 's/,/ /g')"
-				java ${JVM_ADDITIONAL_PARAMS} -jar ${EXECUTION_PATH}/bin/alambic.jar --execution-path=${EXECUTION_PATH} -j="$INPUT_FILE" -ea -p="$PARAMETERS"
+				java ${JVM_ADDITIONAL_PARAMS} -jar ${EXECUTION_PATH}/bin/toutatice-tools-dataloader.jar --execution-path=${EXECUTION_PATH} --thread-count=${THREAD_POOL_SIZE} -j="$INPUT_FILE" -ea -p="$PARAMETERS"
 			else
-				java ${JVM_ADDITIONAL_PARAMS} -jar ${EXECUTION_PATH}/bin/alambic.jar --execution-path=${EXECUTION_PATH} -j="$INPUT_FILE" -ea
+				java ${JVM_ADDITIONAL_PARAMS} -jar ${EXECUTION_PATH}/bin/toutatice-tools-dataloader.jar --execution-path=${EXECUTION_PATH} --thread-count=${THREAD_POOL_SIZE} -j="$INPUT_FILE" -ea
 			fi
 		else
 			logger "INFO" "Lancement des jobs '$JOBS_LIST' (fichier d'entrée: '${INPUT_FILE}')"
-
+			
 			if [ "" != "$CMD_PARAMS" ]
 			then
 				PARAMETERS="$(echo ${CMD_PARAMS} | sed -r 's/,/ /g')"
-				java ${JVM_ADDITIONAL_PARAMS} -jar ${EXECUTION_PATH}/bin/alambic.jar --execution-path=${EXECUTION_PATH} -j="$INPUT_FILE" -el="$JOBS_LIST" -p="$PARAMETERS"
+				java ${JVM_ADDITIONAL_PARAMS} -jar ${EXECUTION_PATH}/bin/toutatice-tools-dataloader.jar --execution-path=${EXECUTION_PATH} --thread-count=${THREAD_POOL_SIZE} -j="$INPUT_FILE" -el="$JOBS_LIST" -p="$PARAMETERS"
 			else
-				java ${JVM_ADDITIONAL_PARAMS} -jar ${EXECUTION_PATH}/bin/alambic.jar --execution-path=${EXECUTION_PATH} -j="$INPUT_FILE" -el="$JOBS_LIST"
+				java ${JVM_ADDITIONAL_PARAMS} -jar ${EXECUTION_PATH}/bin/toutatice-tools-dataloader.jar --execution-path=${EXECUTION_PATH} --thread-count=${THREAD_POOL_SIZE} -j="$INPUT_FILE" -el="$JOBS_LIST"
 			fi
 		fi
 

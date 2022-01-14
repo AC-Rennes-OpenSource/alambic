@@ -16,14 +16,15 @@
  ******************************************************************************/
 package fr.gouv.education.acrennes.alambic.jobs.extract.sources;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.jdom2.Element;
+
 import fr.gouv.education.acrennes.alambic.exception.AlambicException;
 import fr.gouv.education.acrennes.alambic.jobs.CallableContext;
 import fr.gouv.education.acrennes.alambic.jobs.extract.clients.LdapToTrash;
 import fr.gouv.education.acrennes.alambic.jobs.stats.LdapStatsMdp;
 import fr.gouv.education.acrennes.alambic.utils.Functions;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-import org.jdom2.Element;
 
 public class SourceFactory {
 
@@ -69,7 +70,9 @@ public class SourceFactory {
 			} else if ("randomMailGenerator".equals(sourceType)) {
 				source = new RandomMailSource(context, sourceNode);
 			} else if ("unikGenerator".equals(sourceType)) {
-                source = new UnikGeneratorSource(context, sourceNode);
+				source = new UnikGeneratorSource(context, sourceNode);
+			} else if ("randomImageGenerator".equals(sourceType)) {
+				source = new RandomImageSource(context, sourceNode);
 			} else if ("fileExplorer".equals(sourceType)) {
 				source = new FileExplorerSource(context, sourceNode);
 			} else if ("webService".equals(sourceType)) {

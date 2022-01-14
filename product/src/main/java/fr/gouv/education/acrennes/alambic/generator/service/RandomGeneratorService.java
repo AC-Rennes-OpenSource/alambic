@@ -46,8 +46,7 @@ public class RandomGeneratorService {
 
 	public enum GENERATOR_TYPE {
 		USER,
-		USER_MALE,
-		USER_FEMALE,
+		IDENTITY,
 		PASSWORD,
 		ADDRESS,
 		DATE,
@@ -56,7 +55,8 @@ public class RandomGeneratorService {
 		INTEGER,
 		UNIK,
 		MAIL,
-		UAI
+		UAI,
+		IMAGE
 	}
 
 	// Singleton pattern
@@ -105,6 +105,15 @@ public class RandomGeneratorService {
 			break;
 		case UAI:
 			generator = new RandomUAIGenerator(getEntityManager());
+			break;
+		case IMAGE:
+			generator = new RandomImageGenerator(getEntityManager());
+			break;
+		case IDENTITY:
+			generator = new RandomIdentityGenerator(getEntityManager());
+			break;
+		case ADDRESS:
+			generator = new RandomAddressGenerator(getEntityManager());
 			break;
 		default:
 			throw new AlambicException("Not supported yet random generator type : '" + type + "'");

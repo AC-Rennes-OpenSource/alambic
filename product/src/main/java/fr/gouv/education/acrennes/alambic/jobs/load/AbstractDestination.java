@@ -31,6 +31,11 @@ public abstract class AbstractDestination implements Destination {
 
 	private static final Log log = LogFactory.getLog(AbstractDestination.class);
 	public static final int NOT_PAGED = -1;
+	public static enum IsAnythingToDoStatus {
+		UNDEFINED,
+		YES,
+		NO;
+	}
 
 	protected Element job;
 	protected ActivityMBean jobActivity;
@@ -38,6 +43,7 @@ public abstract class AbstractDestination implements Destination {
 	protected Map<String, Source> resources;
 	protected int page;
 	protected boolean isDryMode;
+	protected IsAnythingToDoStatus isAnythingToDo = IsAnythingToDoStatus.UNDEFINED;
 	protected String type;
 	protected CallableContext context;
 
@@ -100,6 +106,11 @@ public abstract class AbstractDestination implements Destination {
 	@Override
 	public boolean isDryModeSupported() {
 		return false; // As default, dry mode is not supported by destination
+	}
+	
+	@Override
+	public IsAnythingToDoStatus isAnythingToDo() {
+		return IsAnythingToDoStatus.YES;
 	}
 
 	@Override

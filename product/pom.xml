@@ -62,8 +62,7 @@
 		<dependency>
 			<groupId>org.freemarker</groupId>
 			<artifactId>freemarker</artifactId>
-			<version>2.3.30</version>
-			<scope>compile</scope>
+			<version>2.3.31</version>
 		</dependency>
 		<dependency>
 			<groupId>org.mvel</groupId>
@@ -116,11 +115,6 @@
 			<version>${log4j.version}</version>
 		</dependency>
 		<dependency>
-			<groupId>org.apache.logging.log4j</groupId>
-			<artifactId>log4j-1.2-api</artifactId>
-			<version>${log4j.version}</version>
-		</dependency>
-		<dependency>
 			<groupId>net.sf.json-lib</groupId>
 			<artifactId>json-lib</artifactId>
 			<version>2.4</version>
@@ -140,6 +134,12 @@
 			<groupId>org.nuxeo.common</groupId>
 			<artifactId>nuxeo-common</artifactId>
 			<version>${nuxeo.version}</version>
+			<exclusions>
+				<exclusion>
+					<groupId>org.freemarker</groupId>
+					<artifactId>freemarker</artifactId>
+				</exclusion>
+			</exclusions>
 		</dependency>
 		<dependency>
 			<groupId>com.ibm.db2.jcc</groupId>
@@ -153,9 +153,9 @@
 			<version>8.0.16</version>
 		</dependency>
 		<dependency>
-			<groupId>com.informix</groupId>
-			<artifactId>informix-driver</artifactId>
-			<version>3.70</version>
+		    <groupId>com.ibm.informix</groupId>
+		    <artifactId>jdbc</artifactId>
+		    <version>4.50.7</version>
 		</dependency>
 		<dependency>
 			<groupId>xom</groupId>
@@ -230,7 +230,10 @@
 		<dependency>
 			<groupId>com.h2database</groupId>
 			<artifactId>h2</artifactId>
+			<version>1.4.200</version>
+			<!-- Not compatible with the RandomUserGenerator test !
 			<version>2.0.206</version>
+			 -->
 		</dependency>
 		<dependency>
 			<groupId>com.sun.jersey</groupId>
@@ -329,8 +332,9 @@
 	<build>
 		<plugins>
 			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-shade-plugin</artifactId>
-				<version>1.7.1</version>
+				<version>3.2.4</version>
 				<executions>
 					<execution>
 						<phase>package</phase>
@@ -344,7 +348,7 @@
 								<transformer implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
 									<manifestEntries>
 										<Main-Class>fr.gouv.education.acrennes.alambic.Alambic</Main-Class>
-										<Class-Path>lib/db2jcc.jar lib/informix-driver.jar lib/mysql-connector-java.jar</Class-Path>
+										<Class-Path>lib/db2jcc4.jar lib/jdbc.jar lib/mysql-connector-java.jar</Class-Path>
 										<Created-By>Rennes - Brittany Education Authority</Created-By>
 									</manifestEntries>
 								</transformer>
@@ -354,10 +358,13 @@
 				</executions>
 			</plugin>
 			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-assembly-plugin</artifactId>
-				<version>2.4</version>
+				<version>3.3.0</version>
 				<configuration>
-					<descriptor>src/main/assembly/assembly.xml</descriptor>
+					<descriptors>
+						<descriptor>src/main/assembly/assembly.xml</descriptor>
+					</descriptors>
 					<finalName>${project.artifactId}-${project.version}</finalName>
 					<appendAssemblyId>false</appendAssemblyId>
 				</configuration>

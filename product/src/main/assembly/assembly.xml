@@ -23,10 +23,10 @@
 			<includes>
 				<include>com.ibm.db2.jcc:db2jcc4</include>
 				<include>mysql:mysql-connector-java</include>
-				<include>com.informix:informix-driver</include>
+				<include>com.ibm.informix:jdbc</include>
 				<include>org.jolokia:jolokia-jvm</include>
 			</includes>
-			<outputFileNameMapping>${artifact.artifactId}.${artifact.extension}</outputFileNameMapping>
+			<outputFileNameMapping>${artifact.groupId}-${artifact.artifactId}.${artifact.extension}</outputFileNameMapping>
 			<excludes />
 			<outputDirectory>scripting/lib</outputDirectory>
 		</dependencySet>

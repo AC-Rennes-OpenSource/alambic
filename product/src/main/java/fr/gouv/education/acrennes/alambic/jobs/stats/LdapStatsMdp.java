@@ -18,15 +18,22 @@ package fr.gouv.education.acrennes.alambic.jobs.stats;
 
 import java.io.UnsupportedEncodingException;
 import java.security.NoSuchAlgorithmException;
+
 import javax.naming.NamingException;
 import javax.naming.directory.Attribute;
 import javax.naming.directory.SearchResult;
+
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+
 import fr.gouv.education.acrennes.alambic.ldap.LdapExtraction;
 import fr.gouv.education.acrennes.alambic.utils.EncodeUtils;
 import fr.gouv.education.acrennes.alambic.utils.Functions;
 
 public class LdapStatsMdp extends LdapExtraction {
 
+	private static final Log log = LogFactory.getLog(LdapStatsMdp.class);
+	
 	private int countEntries = 0;
 	private int countMdpChanged = 0;
 	private int countMdpUnChanged = 0;
@@ -43,16 +50,16 @@ public class LdapStatsMdp extends LdapExtraction {
 				String rdn = new String(sR.getName());
 				if (isChanged(sR)) {
 					countMdpChanged++;
-					logger.debug("Mot de passe de " + rdn + " change : O");
+					log.debug("Mot de passe de " + rdn + " change : O");
 				}
 				else {
 					countMdpUnChanged++;
-					logger.debug("Mot de passe de " + rdn + " change : N");
+					log.debug("Mot de passe de " + rdn + " change : N");
 				}
 				countEntries++;
 			}
 		} catch (NamingException e) {
-			logger.error("Comparaison MdP / valeur par defaut : " + e.getMessage());
+			log.error("Comparaison MdP / valeur par defaut : " + e.getMessage());
 		}
 	}
 
@@ -73,11 +80,11 @@ public class LdapStatsMdp extends LdapExtraction {
 
 			return !mdp.equals(mdpDef);
 		} catch (UnsupportedEncodingException e) {
-			logger.error(e.getMessage());
+			log.error(e.getMessage());
 		} catch (NoSuchAlgorithmException e) {
-			logger.error(e.getMessage());
+			log.error(e.getMessage());
 		} catch (NamingException e) {
-			logger.error(e.getMessage());
+			log.error(e.getMessage());
 		}
 		return false;
 	}

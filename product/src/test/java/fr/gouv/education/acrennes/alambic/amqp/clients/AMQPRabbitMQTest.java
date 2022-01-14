@@ -19,6 +19,7 @@ package fr.gouv.education.acrennes.alambic.amqp.clients;
 import java.io.IOException;
 
 import org.junit.AfterClass;
+import org.junit.Assert;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -29,7 +30,6 @@ import com.rabbitmq.client.ConnectionFactory;
 import com.rabbitmq.client.GetResponse;
 
 import fr.gouv.education.acrennes.alambic.amqp.broker.EmbeddedBroker;
-import junit.framework.Assert;
 
 public class AMQPRabbitMQTest {
 

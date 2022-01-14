@@ -16,16 +16,13 @@
  ******************************************************************************/
 package fr.gouv.education.acrennes.alambic.jobs.extract.clients;
 
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.junit.runners.Parameterized;
-
 import java.util.Arrays;
 import java.util.Collection;
 
-import static org.hamcrest.CoreMatchers.equalTo;
-import static org.hamcrest.CoreMatchers.is;
-import static org.junit.Assert.assertThat;
+import org.junit.Assert;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.junit.runners.Parameterized;
 
 @RunWith(Parameterized.class)
 public class WSToStateBaseGetFullAPIURL {
@@ -80,6 +77,6 @@ public class WSToStateBaseGetFullAPIURL {
 
     @Test
     public void getFullAPIURL() throws Exception {
-        assertThat(WSToStateBase.getFullAPIURL(baseUrl, path, queryParams), is(equalTo(exp)));
+    	Assert.assertEquals(exp, WSToStateBase.getFullAPIURL(baseUrl, path, queryParams));
     }
 }

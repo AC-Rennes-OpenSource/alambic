@@ -22,18 +22,18 @@ import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
-import fr.gouv.education.acrennes.alambic.exception.AlambicException;
 import org.junit.After;
+import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
+import fr.gouv.education.acrennes.alambic.exception.AlambicException;
 import fr.gouv.education.acrennes.alambic.generator.service.RandomGenerator;
 import fr.gouv.education.acrennes.alambic.generator.service.RandomGenerator.UNICITY_SCOPE;
 import fr.gouv.education.acrennes.alambic.generator.service.RandomGeneratorService;
 import fr.gouv.education.acrennes.alambic.generator.service.RandomGeneratorService.GENERATOR_TYPE;
 import fr.gouv.education.acrennes.alambic.persistence.EntityManagerHelper;
 import fr.gouv.education.acrennes.alambic.random.persistence.RandomEntity;
-import junit.framework.Assert;
 
 public class RandomDateGeneratorTest {
 

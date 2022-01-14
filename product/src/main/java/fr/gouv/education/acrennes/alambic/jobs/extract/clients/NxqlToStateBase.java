@@ -72,6 +72,7 @@ public class NxqlToStateBase implements IToStateBase {
 		client = new HttpAutomationClient(uri);
 		session = client.getSession(login, password);
 
+		// To support pass-through Elastic requesting
 		JsonMarshalling.addMarshaller(new EsMarshaller());
 	}
 
@@ -105,8 +106,6 @@ public class NxqlToStateBase implements IToStateBase {
 	}
 
 	public List<Map<String, List<String>>> getStateBase(final Documents documents) {
-		// NdKLH : pas fan de reconstruire une liste à chaque appel de cette méthode, même quand executeQuery n'est pas
-		//         appelé entre les appels... mais pour une correction rapide, cela devrait suffire.
 		results = new ArrayList<>();
 		final Iterator<Document> itr = documents.iterator();
 		while (itr.hasNext()) {
@@ -197,7 +196,6 @@ public class NxqlToStateBase implements IToStateBase {
 
 		private List<Map<String, List<String>>> entries;
 		private int offset;
-		// private final int total;
 		private final int pageSize;
 		private final String query;
 		private final String sortBy;
@@ -205,8 +203,7 @@ public class NxqlToStateBase implements IToStateBase {
 		private final Session session;
 
 		public NuxeoResultsPageIterator(final Session session, final String query, final String scope, final int pageSize, final String sortBy, final String orderBy) {
-			offset = 0;
-			// total = 0;
+			this.offset = 0;
 			this.pageSize = pageSize;
 			this.query = query;
 			this.sortBy = sortBy;

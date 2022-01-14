@@ -21,7 +21,7 @@ import freemarker.template.Version;
 
 public interface Constants {
 
-	public static final Version FREEMARKER_VERSION = Configuration.VERSION_2_3_28;
+	public static final Version FREEMARKER_VERSION = Configuration.VERSION_2_3_31;
 	public static final String JOB_ASYNCH_ATTRIBUTE_NAME = "asynch";
 	public static final String CHILD_JOBS_ASYNCH_ATTRIBUTE_NAME = "asynchChildJobs";
 	public static final String RANDOM_GENERATOR_INNER_ITERATION = "random_generator_inner_iteration";

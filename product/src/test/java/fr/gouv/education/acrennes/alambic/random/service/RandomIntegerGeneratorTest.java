@@ -24,6 +24,7 @@ import javax.persistence.FlushModeType;
 
 import fr.gouv.education.acrennes.alambic.exception.AlambicException;
 import org.junit.After;
+import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -40,7 +41,6 @@ import fr.gouv.education.acrennes.alambic.generator.service.RandomIntegerGenerat
 import fr.gouv.education.acrennes.alambic.persistence.EntityManagerHelper;
 import fr.gouv.education.acrennes.alambic.random.persistence.RandomEntity;
 import fr.gouv.education.acrennes.alambic.random.persistence.RandomLambdaEntity;
-import junit.framework.Assert;
 
 @RunWith(PowerMockRunner.class)
 @PrepareForTest({ RandomGeneratorService.class })

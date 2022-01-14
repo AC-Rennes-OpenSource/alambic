@@ -49,8 +49,6 @@ public interface RandomGenerator {
 
 	public void auditEntity(final Map<String, Object> query, final RandomEntity entity, final String processId) throws AlambicException;
 	
-	public void revoke(final RandomEntity entity) throws AlambicException;
-
 	public void close();
 
 }

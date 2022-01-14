@@ -18,18 +18,20 @@ package fr.gouv.education.acrennes.alambic.random.service;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import javax.persistence.EntityManager;
 import javax.persistence.EntityTransaction;
 
-import fr.gouv.education.acrennes.alambic.exception.AlambicException;
 import org.apache.commons.vfs.FileObject;
 import org.apache.commons.vfs.FileSystemException;
 import org.apache.commons.vfs.FileSystemManager;
 import org.apache.commons.vfs.VFS;
 import org.apache.commons.vfs.impl.StandardFileSystemManager;
 import org.junit.After;
+import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -43,32 +45,32 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 
+import fr.gouv.education.acrennes.alambic.exception.AlambicException;
 import fr.gouv.education.acrennes.alambic.generator.service.RandomGenerator;
 import fr.gouv.education.acrennes.alambic.generator.service.RandomGenerator.UNICITY_SCOPE;
 import fr.gouv.education.acrennes.alambic.generator.service.RandomGeneratorService;
 import fr.gouv.education.acrennes.alambic.generator.service.RandomGeneratorService.GENERATOR_TYPE;
 import fr.gouv.education.acrennes.alambic.generator.service.RandomUserGenerator;
 import fr.gouv.education.acrennes.alambic.persistence.EntityManagerHelper;
+import fr.gouv.education.acrennes.alambic.random.persistence.RandomDictionaryEntity;
+import fr.gouv.education.acrennes.alambic.random.persistence.RandomDictionaryEntityPK;
 import fr.gouv.education.acrennes.alambic.random.persistence.RandomEntity;
-import fr.gouv.education.acrennes.alambic.random.persistence.RandomUserFemaleEntity;
-import fr.gouv.education.acrennes.alambic.random.persistence.RandomUserMaleEntity;
-import junit.framework.Assert;
 
 @RunWith(PowerMockRunner.class)
 @PrepareForTest({ RandomGeneratorService.class, RandomUserGenerator.class , VFS.class})
 @PowerMockIgnore("javax.management.*")
 public class RandomUserGeneratorTest {
 
-	private static final String TEST_USERS_DICTIONARY_ARCHIVE = "src/test/resources/data/alambic/user-dictionaries.tar.gz";
+	private static final String TEST_USERS_DICTIONARY_ARCHIVE = "src/test/resources/data/alambic/user-dictionaries-testu.tar.gz";
 	private static final String UNIT_TEST_PERSISTENCE_UNIT = "TEST_PERSISTENCE_UNIT";
-	private static final String USERS_DICTIONARY_ARCHIVE = "../resources/user-dictionaries.tar.gz"; // ! A NOTER ! Le addon "initialize-random-generators" est responsable de fournir le dictionnaire dans son dossier "resources"
+	private static final String USERS_DICTIONARY_ARCHIVE = "../resources/user-dictionaries.tar.gz";
 
 	private RandomGenerator rg = null;
 	private FileSystemManager fsManager;
-
+	
 	@Before
 	public void setUp() throws Exception {
-		// Mock the entity manager helper so that the embedded persistence unit (derby) is used
+		// Mock the entity manager helper so that the embedded persistence unit (h2) is used
 		EntityManagerHelper.getInstance(UNIT_TEST_PERSISTENCE_UNIT, null);
 		
 		/**
@@ -100,22 +102,28 @@ public class RandomUserGeneratorTest {
 			// List the children of the archive file
 			FileObject[] children = archive.getChildren();
 			ObjectMapper mapper = new ObjectMapper();
-			long maleIndex = 1;
-			long femaleIndex = 1;
+			
+			Map<String, Long> idmap = new HashMap<>();
+			idmap.put(RandomDictionaryEntityPK.IDENTITY_ELEMENT.FIRSTNAME_MALE.toString(), (long) 1);
+			idmap.put(RandomDictionaryEntityPK.IDENTITY_ELEMENT.FIRSTNAME_FEMALE.toString(), (long) 1);
+			idmap.put(RandomDictionaryEntityPK.IDENTITY_ELEMENT.LASTNAME.toString(), (long) 1);
+			idmap.put(RandomDictionaryEntityPK.IDENTITY_ELEMENT.ADDRESS_TYPE.toString(), (long) 1);
+			idmap.put(RandomDictionaryEntityPK.IDENTITY_ELEMENT.ADDRESS_LABEL.toString(), (long) 1);
+			idmap.put(RandomDictionaryEntityPK.IDENTITY_ELEMENT.ADDRESS_CITY.toString(), (long) 1);
 			for (int i = 0; i < children.length; i++) {
 				transac.begin();
 				FileObject fo = children[i];
 				JsonNode rootNode = mapper.readTree(fo.getContent().getInputStream());
-				ArrayNode resultsNode = (ArrayNode) rootNode.get("results");
-				for (JsonNode node : resultsNode) {
-					if ("\"male\"".equalsIgnoreCase(node.get("gender").toString())) {
-						RandomUserMaleEntity ru = new RandomUserMaleEntity(maleIndex++, node.toString());
-						em.persist(ru);
-					} else {
-						RandomUserFemaleEntity ru = new RandomUserFemaleEntity(femaleIndex++, node.toString());
-						em.persist(ru);
-					}
+				ArrayNode dictionaryNode = (ArrayNode) rootNode.get("dictionary");
+				for (JsonNode node : dictionaryNode) {
+					RandomDictionaryEntityPK.IDENTITY_ELEMENT element = RandomDictionaryEntityPK.IDENTITY_ELEMENT.valueOf(node.get("element").textValue().toUpperCase());
+					Long index = idmap.get(element.toString());
+					RandomDictionaryEntityPK pk = new RandomDictionaryEntityPK(element, index);
+					RandomDictionaryEntity rie = new RandomDictionaryEntity(pk, node.get("value").textValue());
+					em.persist(rie);
+					idmap.put(element.toString(), ++index);
 				}
+				
 				/**
 				 * Add flush and clear methods so that persistence entities objects are made available
 				 * for garbage collection.
@@ -131,7 +139,7 @@ public class RandomUserGeneratorTest {
 	}
 
 	/**
-	 * Request 2 random users among a dictionary with 5 male/female entries.
+	 * Request 2 random female identities among a dictionary with 9 female entries.
 	 * The dictionary capacity is not overlaid (audit table is empty - the dictionary has not been used yet).
 	 */
 	@Test
@@ -145,138 +153,122 @@ public class RandomUserGeneratorTest {
 	}
 
 	/**
-	 * Request 5 random users among a dictionary with 5 male/female entries.
+	 * Request 9 random female identities among a dictionary with 9 female entries.
 	 * The dictionary capacity is not overlaid but reaches its limit (audit table is dropped and created - the dictionary has not been used yet).
 	 */
 	@Test
 	public void test2() {
 		try {
-			List<RandomEntity> entities = rg.getEntities("{\"blurid\":\"1\",\"gender\":\"male\",\"count\":5}", "PROCESS_TESTU", UNICITY_SCOPE.PROCESS);
-			Assert.assertTrue(5 == entities.size());
+			List<RandomEntity> entities = rg.getEntities("{\"blurid\":\"1\",\"gender\":\"female\",\"count\":9}", "PROCESS_TESTU", UNICITY_SCOPE.PROCESS);
+			Assert.assertTrue(9 == entities.size());
 		} catch (AlambicException e) {
 			Assert.fail(e.getMessage());
 		}
 	}
 
 	/**
-	 * 1/ Request 3 random female users among a dictionary with 5 male/female entries.
-	 * 2/ Request 3 random female users among a dictionary with 5 male/female entries.
-	 * 3/ Requests have the same scope : SINGLE process identifier.
-	 * Check the random generator service throws an exception straight away as the second request cannot be served.
+	 * Request 10 random female identities among a dictionary with 9 female entries.
+	 * The dictionary capacity is overlaid => un exception should be raised.
 	 */
 	@Test
 	public void test3() {
-		List<RandomEntity> entities;
-
 		try {
-			entities = rg.getEntities("{\"blurid\":\"1\",\"gender\":\"female\",\"count\":3}", "PROCESS_TESTU", UNICITY_SCOPE.PROCESS);
-			Assert.assertTrue(3 == entities.size());
-		} catch (AlambicException e) {
-			Assert.fail(e.getMessage());
-		}
-
-		try {
-			entities = rg.getEntities("{\"blurid\":\"1\",\"gender\":\"female\",\"count\":3}", "PROCESS_TESTU", UNICITY_SCOPE.PROCESS);
+			rg.getEntities("{\"blurid\":\"1\",\"gender\":\"female\",\"count\":10}", "PROCESS_TESTU", UNICITY_SCOPE.PROCESS);
 			Assert.fail("Should not have returned entities but throw exception instead.");
 		} catch (AlambicException e) {
-			Assert.assertTrue(true);
+			Assert.assertTrue(e instanceof AlambicException);
 		}
 	}
 
 	/**
-	 * 1/ Request 3 random female users among a dictionary with 5 male/female entries.
-	 * 2/ Request 3 random female users among a dictionary with 5 male/female entries.
-	 * 3/ Requests have the same scope : ALL processes.
+	 * 1/ Request 7 random female identities among a dictionary with 9 female entries.
+	 * 2/ Request 4 random female identities among a dictionary with 9 female entries.
+	 * 3/ Requests have the same scope : SINGLE process identifier.
 	 * Check the random generator service throws an exception straight away as the second request cannot be served.
 	 */
 	@Test
 	public void test4() {
-		List<RandomEntity> entities;
-
 		try {
-			entities = rg.getEntities("{\"blurid\":\"1\",\"gender\":\"female\",\"count\":3}", "PROCESS_TESTU", UNICITY_SCOPE.PROCESS_ALL);
-			Assert.assertTrue(3 == entities.size());
-		} catch (AlambicException e) {
-			Assert.fail(e.getMessage());
-		}
+			List<RandomEntity> entities = rg.getEntities("{\"blurid\":\"1\",\"gender\":\"female\",\"count\":7}", "PROCESS_TESTU", UNICITY_SCOPE.PROCESS);
+			Assert.assertTrue(7 == entities.size());
 
-		try {
-			entities = rg.getEntities("{\"blurid\":\"1\",\"gender\":\"female\",\"count\":3}", "PROCESS_TESTU", UNICITY_SCOPE.PROCESS_ALL);
-			Assert.fail("Should not have returned entities but throw exception instead.");
+			rg.getEntities("{\"blurid\":\"1\",\"gender\":\"female\",\"count\":4}", "PROCESS_TESTU", UNICITY_SCOPE.PROCESS);
+			Assert.fail("un exception should be raised for overlaid capacity reason.");
 		} catch (AlambicException e) {
-			Assert.assertTrue(true);
+			Assert.assertTrue(e instanceof AlambicException);
 		}
 	}
 
 	/**
-	 * 1/ Request 3 random female users among a dictionary with 5 male/female entries.
-	 * 2/ Request 3 random male users among a dictionary with 5 male/female entries.
-	 * 3/ Requests have the same scope : SINGLE process identifier.
-	 * Check the random generator service returns the requested entities each time.
+	 * 1/ Request 7 random female identities among a dictionary with 9 female entries.
+	 * 2/ Request 4 random female identities among a dictionary with 9 female entries.
+	 * 3/ Requests have two different scopes : SINGLE process identifier.
+	 * Check the random generator services the two requests.
 	 */
 	@Test
 	public void test5() {
-		List<RandomEntity> entities;
-
 		try {
-			entities = rg.getEntities("{\"blurid\":\"1\",\"gender\":\"female\",\"count\":3}", "PROCESS_TESTU", UNICITY_SCOPE.PROCESS);
-			Assert.assertTrue(3 == entities.size());
-		} catch (AlambicException e) {
-			Assert.fail(e.getMessage());
-		}
+			List<RandomEntity> entities = rg.getEntities("{\"blurid\":\"1\",\"gender\":\"female\",\"count\":7}", "PROCESS_TESTU_A", UNICITY_SCOPE.PROCESS);
+			Assert.assertTrue(7 == entities.size());
 
-		try {
-			entities = rg.getEntities("{\"blurid\":\"1\",\"gender\":\"male\",\"count\":3}", "PROCESS_TESTU", UNICITY_SCOPE.PROCESS);
-			Assert.assertTrue(3 == entities.size());
+			entities = rg.getEntities("{\"blurid\":\"1\",\"gender\":\"female\",\"count\":4}", "PROCESS_TESTU_B", UNICITY_SCOPE.PROCESS);
+			Assert.assertTrue(4 == entities.size());
 		} catch (AlambicException e) {
 			Assert.fail(e.getMessage());
 		}
 	}
 
 	/**
-	 * 1/ Request 3 random female users among a dictionary with 5 male/female entries.
-	 * 2/ Request 3 random male users among a dictionary with 5 male/female entries.
-	 * 3/ Requests have the same scope : ALL processes.
-	 * Check the random generator service returns the requested entities each time.
+	 * 1/ Request 7 random female identities among a dictionary with 9 female entries.
+	 * 2/ Request 4 random female identities among a dictionary with 9 female entries.
+	 * 3/ Requests have the same scope : ALL (unicity is required over all processes).
+	 * Check the random generator service throws an exception straight away as the second request cannot be served.
 	 */
 	@Test
 	public void test6() {
-		List<RandomEntity> entities;
-
 		try {
-			entities = rg.getEntities("{\"blurid\":\"1\",\"gender\":\"female\",\"count\":3}", "PROCESS_TESTU", UNICITY_SCOPE.PROCESS_ALL);
-			Assert.assertTrue(3 == entities.size());
+			List<RandomEntity> entities = rg.getEntities("{\"blurid\":\"1\",\"gender\":\"female\",\"count\":7}", "PROCESS_TESTU", UNICITY_SCOPE.PROCESS_ALL);
+			Assert.assertTrue(7 == entities.size());
+
+			rg.getEntities("{\"blurid\":\"1\",\"gender\":\"female\",\"count\":4}", "PROCESS_TESTU", UNICITY_SCOPE.PROCESS_ALL);
+			Assert.fail("un exception should be raised for overlaid capacity reason.");
 		} catch (AlambicException e) {
-			Assert.fail(e.getMessage());
+			Assert.assertTrue(e instanceof AlambicException);
 		}
+	}
 
+	/**
+	 * 1/ Request 7 random female identities among a dictionary with 9 female entries.
+	 * 2/ Request 4 random female identities among a dictionary with 9 female entries.
+	 * 3/ Requests have two different scopes : NONE (no unicity control est required).
+	 * Check the random generator services the two requests.
+	 */
+	@Test
+	public void test7() {
 		try {
-			entities = rg.getEntities("{\"blurid\":\"1\",\"gender\":\"male\",\"count\":3}", "PROCESS_TESTU", UNICITY_SCOPE.PROCESS_ALL);
-			Assert.assertTrue(3 == entities.size());
+			List<RandomEntity> entities = rg.getEntities("{\"blurid\":\"1\",\"gender\":\"female\",\"count\":7}", "PROCESS_TESTU", UNICITY_SCOPE.PROCESS);
+			Assert.assertTrue(7 == entities.size());
+
+			entities = rg.getEntities("{\"blurid\":\"1\",\"gender\":\"female\",\"count\":4}", "PROCESS_TESTU", UNICITY_SCOPE.NONE);
+			Assert.assertTrue(4 == entities.size());
 		} catch (AlambicException e) {
 			Assert.fail(e.getMessage());
 		}
 	}
 
 	/**
-	 * 1/ Request 3 random female users among a dictionary with 5 male/female entries.
-	 * 2/ Request 5 random female users among a dictionary with 5 male/female entries.
-	 * 3/ Requests have the same scope : NONE.
-	 * Check the random generator service returns the requested entities each time.
+	 * 1/ Request 7 random female identities among a dictionary with 9 female entries.
+	 * 2/ Request 5 random male identities among a dictionary with 9 male entries.
+	 * 3/ Requests have two different scopes : NONE (no unicity control est required).
+	 * Check the random generator services the two requests.
 	 */
 	@Test
-	public void test7() {
-		List<RandomEntity> entities;
-
+	public void test8() {
 		try {
-			entities = rg.getEntities("{\"blurid\":\"1\",\"gender\":\"female\",\"count\":3}", "PROCESS_TESTU", UNICITY_SCOPE.NONE);
-			Assert.assertTrue(3 == entities.size());
-		} catch (AlambicException e) {
-			Assert.fail(e.getMessage());
-		}
+			List<RandomEntity> entities = rg.getEntities("{\"blurid\":\"1\",\"gender\":\"female\",\"count\":7}", "PROCESS_TESTU", UNICITY_SCOPE.PROCESS);
+			Assert.assertTrue(7 == entities.size());
 
-		try {
-			entities = rg.getEntities("{\"blurid\":\"1\",\"gender\":\"female\",\"count\":5}", "PROCESS_TESTU", UNICITY_SCOPE.NONE);
+			entities = rg.getEntities("{\"blurid\":\"1\",\"gender\":\"male\",\"count\":5}", "PROCESS_TESTU", UNICITY_SCOPE.PROCESS);
 			Assert.assertTrue(5 == entities.size());
 		} catch (AlambicException e) {
 			Assert.fail(e.getMessage());
@@ -284,103 +276,149 @@ public class RandomUserGeneratorTest {
 	}
 
 	/**
-	 * 1/ Request 6 random female users among a dictionary with 5 male/female entries.
-	 * 2/ Use the scope : NONE.
-	 * Check the random generator service throws an exception straight away since the dictionary capacity is overlaid.
-	 */
-	@Test
-	public void test8() {
-		try {
-			rg.getEntities("{\"blurid\":\"1\",\"gender\":\"female\",\"count\":6}", "PROCESS_TESTU", UNICITY_SCOPE.NONE);
-			Assert.fail("Should not have returned entities but throw exception instead.");
-		} catch (AlambicException e) {
-			Assert.assertTrue(true);
-		}
-	}
-
-	/**
-	 * 1/ Request 1 random female user among a dictionary with 5 male/female entries (blurId is set).
-	 * 2/ Use the scope : NONE.
-	 * 3/ Request again 1 random female user with same blur identifier and requiring reuse of any former entity for this one.
-	 * Check the random generator service returns the same entities.
+	 * 1/ Request 2 random female identity among a dictionary with 9 female entries.
+	 * 2/ Request again 2 random female identity and requiring reuse of any former entity for this one.
+	 * 3/ Requests have the same scope and blur identifier : SINGLE process identifier.
+	 * Check the random generator services the two requests with the SAME results.
 	 */
 	@Test
 	public void test9() {
 		try {
-			List<RandomEntity> firstCallResultSet = rg.getEntities("{\"gender\":\"female\",\"count\":1, \"reuse\":\"true\", \"blurid\":\"12547\"}", "PROCESS_TESTU", UNICITY_SCOPE.NONE);
-			List<RandomEntity> secondCallResultSet = rg.getEntities("{\"gender\":\"female\",\"count\":1, \"reuse\":\"true\", \"blurid\":\"12547\"}", "PROCESS_TESTU", UNICITY_SCOPE.NONE);
+			List<RandomEntity> firstCallEntities = rg.getEntities("{\"blurid\":\"1\",\"gender\":\"female\",\"count\":2, \"reuse\":\"true\"}", "PROCESS_TESTU", UNICITY_SCOPE.PROCESS);
+			Assert.assertTrue(2 == firstCallEntities.size());
 
-			Assert.assertEquals(1, firstCallResultSet.size());
-			Assert.assertEquals(1, secondCallResultSet.size());
-			Assert.assertEquals(firstCallResultSet, secondCallResultSet);
+			List<RandomEntity> secondCallEntities = rg.getEntities("{\"blurid\":\"1\",\"gender\":\"female\",\"count\":2, \"reuse\":\"true\"}", "PROCESS_TESTU", UNICITY_SCOPE.PROCESS);
+			Assert.assertTrue(2 == secondCallEntities.size());
+			
+			Assert.assertTrue(firstCallEntities.toString().equals(secondCallEntities.toString()));
 		} catch (AlambicException e) {
-			Assert.assertTrue(true);
+			Assert.fail(e.getMessage());
 		}
 	}
 
 	/**
-	 * 1/ Request 1 random female user among a dictionary with 5 male/female entries (blurId is set).
-	 * 2/ Use the scope : NONE.
-	 * 3/ Request again 1 random female user with same blur identifier and requiring reuse of any former entity for this one.
-	 * 4/ Two different process identifiers are specified but no scope is used
-	 * Check the random generator service returns the same entities.
+	 * 1/ Request 1 random female identity among a dictionary with 9 female entries.
+	 * 2/ Request again 1 random female identity and requiring reuse of any former entity for this one.
+	 * 3/ Requests have the same scope and two different blur identifiers : SINGLE process identifier.
+	 * Check the random generator services the two requests with DIFFERENT results.
 	 */
 	@Test
 	public void test10() {
 		try {
-			List<RandomEntity> firstCallResultSet = rg.getEntities("{\"gender\":\"female\",\"count\":1, \"reuse\":\"true\", \"blurid\":\"12547\"}", "PROCESS_TESTU", UNICITY_SCOPE.NONE);
-			List<RandomEntity> secondCallResultSet = rg.getEntities("{\"gender\":\"female\",\"count\":1, \"reuse\":\"true\", \"blurid\":\"12547\"}", "PROCESS_TESTU_2", UNICITY_SCOPE.NONE);
+			List<RandomEntity> firstCallEntities = rg.getEntities("{\"blurid\":\"1\",\"gender\":\"female\",\"count\":1, \"reuse\":\"true\"}", "PROCESS_TESTU", UNICITY_SCOPE.PROCESS);
+			Assert.assertTrue(1 == firstCallEntities.size());
 
-			Assert.assertEquals(1, firstCallResultSet.size());
-			Assert.assertEquals(1, secondCallResultSet.size());
-			Assert.assertEquals(firstCallResultSet, secondCallResultSet);
+			List<RandomEntity> secondCallEntities = rg.getEntities("{\"blurid\":\"2\",\"gender\":\"female\",\"count\":1, \"reuse\":\"true\"}", "PROCESS_TESTU", UNICITY_SCOPE.PROCESS);
+			Assert.assertTrue(1 == secondCallEntities.size());
+			
+			Assert.assertFalse(firstCallEntities.toString().equals(secondCallEntities.toString()));
 		} catch (AlambicException e) {
-			Assert.assertTrue(true);
+			Assert.fail(e.getMessage());
 		}
 	}
 
 	/**
-	 * 1/ Request 1 random female user among a dictionary with 5 male/female entries (blurId is set).
-	 * 2/ Use the scope : NONE.
-	 * 3/ Request again 1 random female user with same blur identifier and requiring reuse of any former entity for this one.
-	 * 4/ Two different process identifiers are specified and PROCESS scope is used
-	 * Check the random generator service returns two different entities.
+	 * 1/ Request 1 random female identity among a dictionary with 9 female entries.
+	 * 2/ Request again 1 random female identity and requiring reuse of any former entity for this one.
+	 * 3/ Requests have the same scope and same blur identifiers BUT TWO DIFFERENT PROCESS NAME
+	 * Check the random generator services the two requests with DIFFERENT results.
 	 */
 	@Test
 	public void test11() {
 		try {
-			List<RandomEntity> firstCallResultSet = rg.getEntities("{\"gender\":\"female\",\"count\":1, \"reuse\":\"true\", \"blurid\":\"12547\"}", "PROCESS_TESTU", UNICITY_SCOPE.PROCESS);
-			List<RandomEntity> secondCallResultSet = rg.getEntities("{\"gender\":\"female\",\"count\":1, \"reuse\":\"true\", \"blurid\":\"12547\"}", "PROCESS_TESTU_2", UNICITY_SCOPE.PROCESS);
+			List<RandomEntity> firstCallEntities = rg.getEntities("{\"blurid\":\"1\",\"gender\":\"female\",\"count\":1, \"reuse\":\"true\"}", "PROCESS_TESTU_A", UNICITY_SCOPE.PROCESS);
+			Assert.assertTrue(1 == firstCallEntities.size());
 
-			Assert.assertEquals(1, firstCallResultSet.size());
-			Assert.assertEquals(1, secondCallResultSet.size());
-			/*
-			 * This assertion is removed since the dictionary size isn't big enough to ensure the random service returns two different entities
-			 */
-			// Assert.assertFalse(firstCallResultSet.equals(secondCallResultSet));
+			List<RandomEntity> secondCallEntities = rg.getEntities("{\"blurid\":\"1\",\"gender\":\"female\",\"count\":1, \"reuse\":\"true\"}", "PROCESS_TESTU_B", UNICITY_SCOPE.PROCESS);
+			Assert.assertTrue(1 == secondCallEntities.size());
+			
+			Assert.assertFalse(firstCallEntities.toString().equals(secondCallEntities.toString()));
 		} catch (AlambicException e) {
-			Assert.assertTrue(true);
+			Assert.fail(e.getMessage());
 		}
 	}
 
 	/**
-	 * 1/ Request 1 random female user among a dictionary with 5 male/female entries (blurId is set).
-	 * 2/ Use the scope : NONE.
-	 * 3/ Request again 1 random female user with same blur identifier and requiring reuse of any former entity for this one.
-	 * 4/ Two different process identifiers are specified and PROCESS_ALL scope is used
-	 * Check the random generator service returns the same entities.
+	 * 1/ Request 1 random female identity among a dictionary with 9 female entries.
+	 * 2/ Request again 1 random female identity and requiring reuse of any former entity for this one.
+	 * 3/ Requests have the same scope NONE and same blur identifiers
+	 * Check the random generator services the two requests with same results.
 	 */
 	@Test
 	public void test12() {
 		try {
-			List<RandomEntity> firstCallResultSet = rg.getEntities("{\"gender\":\"female\",\"count\":1, \"reuse\":\"true\", \"blurid\":\"12547\"}", "PROCESS_TESTU", UNICITY_SCOPE.PROCESS_ALL);
-			List<RandomEntity> secondCallResultSet = rg.getEntities("{\"gender\":\"female\",\"count\":1, \"reuse\":\"true\", \"blurid\":\"12547\"}", "PROCESS_TESTU_2", UNICITY_SCOPE.PROCESS_ALL);
+			List<RandomEntity> firstCallEntities = rg.getEntities("{\"blurid\":\"1\",\"gender\":\"female\",\"count\":1, \"reuse\":\"true\"}", "PROCESS_TESTU_A", UNICITY_SCOPE.NONE);
+			Assert.assertTrue(1 == firstCallEntities.size());
 
-			Assert.assertEquals(1, firstCallResultSet.size());
-			Assert.assertEquals(1, secondCallResultSet.size());
-			Assert.assertEquals(firstCallResultSet, secondCallResultSet);
+			List<RandomEntity> secondCallEntities = rg.getEntities("{\"blurid\":\"1\",\"gender\":\"female\",\"count\":1, \"reuse\":\"true\"}", "PROCESS_TESTU_B", UNICITY_SCOPE.NONE);
+			Assert.assertTrue(1 == secondCallEntities.size());
+			
+			Assert.assertTrue(firstCallEntities.toString().equals(secondCallEntities.toString()));
 		} catch (AlambicException e) {
-			Assert.assertTrue(true);
+			Assert.fail(e.getMessage());
+		}
+	}
+
+	/**
+	 * 1/ Request 1 random female identity among a dictionary with 9 female entries.
+	 * 2/ Request again 1 random female identity and requiring reuse of any former entity for this one.
+	 * 3/ Requests have the same scope NONE and DIFFERENT blur identifiers
+	 * Check the random generator services the two requests with different results.
+	 */
+	@Test
+	public void test13() {
+		try {
+			List<RandomEntity> firstCallEntities = rg.getEntities("{\"blurid\":\"1\",\"gender\":\"female\",\"count\":1, \"reuse\":\"true\"}", "PROCESS_TESTU_A", UNICITY_SCOPE.NONE);
+			Assert.assertTrue(1 == firstCallEntities.size());
+
+			List<RandomEntity> secondCallEntities = rg.getEntities("{\"blurid\":\"2\",\"gender\":\"female\",\"count\":1, \"reuse\":\"true\"}", "PROCESS_TESTU_B", UNICITY_SCOPE.NONE);
+			Assert.assertTrue(1 == secondCallEntities.size());
+			
+			Assert.assertFalse(firstCallEntities.toString().equals(secondCallEntities.toString()));
+		} catch (AlambicException e) {
+			Assert.fail(e.getMessage());
+		}
+	}
+
+	/**
+	 * 1/ Request 1 random female identity among a dictionary with 9 female entries.
+	 * 2/ Request again 1 random female identity and requiring reuse of any former entity for this one.
+	 * 3/ Requests have the same scope ALL and same blur identifiers
+	 * Check the random generator services the two requests with same results.
+	 */
+	@Test
+	public void test14() {
+		try {
+			List<RandomEntity> firstCallEntities = rg.getEntities("{\"blurid\":\"1\",\"gender\":\"female\",\"count\":1, \"reuse\":\"true\"}", "PROCESS_TESTU_A", UNICITY_SCOPE.PROCESS_ALL);
+			Assert.assertTrue(1 == firstCallEntities.size());
+
+			List<RandomEntity> secondCallEntities = rg.getEntities("{\"blurid\":\"1\",\"gender\":\"female\",\"count\":1, \"reuse\":\"true\"}", "PROCESS_TESTU_B", UNICITY_SCOPE.PROCESS_ALL);
+			Assert.assertTrue(1 == secondCallEntities.size());
+			
+			Assert.assertTrue(firstCallEntities.toString().equals(secondCallEntities.toString()));
+		} catch (AlambicException e) {
+			Assert.fail(e.getMessage());
+		}
+	}
+
+	/**
+	 * 1/ Request 1 random female identity among a dictionary with 9 female entries.
+	 * 2/ Request again 1 random female identity and requiring reuse of any former entity for this one.
+	 * 3/ Requests have the same scope ALL and DIFFERENT blur identifiers
+	 * Check the random generator services the two requests with different results.
+	 */
+	@Test
+	public void test15() {
+		try {
+			List<RandomEntity> firstCallEntities = rg.getEntities("{\"blurid\":\"1\",\"gender\":\"female\",\"count\":1, \"reuse\":\"true\"}", "PROCESS_TESTU_A", UNICITY_SCOPE.PROCESS_ALL);
+			Assert.assertTrue(1 == firstCallEntities.size());
+
+			List<RandomEntity> secondCallEntities = rg.getEntities("{\"blurid\":\"2\",\"gender\":\"female\",\"count\":1, \"reuse\":\"true\"}", "PROCESS_TESTU_B", UNICITY_SCOPE.PROCESS_ALL);
+			Assert.assertTrue(1 == secondCallEntities.size());
+			
+			Assert.assertFalse(firstCallEntities.toString().equals(secondCallEntities.toString()));
+		} catch (AlambicException e) {
+			Assert.fail(e.getMessage());
 		}
 	}
 

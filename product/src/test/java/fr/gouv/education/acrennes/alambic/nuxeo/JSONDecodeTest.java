@@ -18,7 +18,7 @@ package fr.gouv.education.acrennes.alambic.nuxeo;
 
 import java.io.IOException;
 
-import junit.framework.Assert;
+import org.junit.Assert;
 import junit.framework.TestCase;
 import net.sf.json.JSONArray;
 import net.sf.json.JSONObject;

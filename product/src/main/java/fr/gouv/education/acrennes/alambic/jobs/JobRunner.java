@@ -23,10 +23,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.Future;
 
-import fr.gouv.education.acrennes.alambic.exception.AlambicException;
-import fr.gouv.education.acrennes.alambic.jobs.load.AbstractDestination;
-import fr.gouv.education.acrennes.alambic.jobs.load.Destination;
-import fr.gouv.education.acrennes.alambic.jobs.load.DestinationFactory;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -34,9 +30,14 @@ import org.jdom2.Attribute;
 import org.jdom2.Element;
 
 import fr.gouv.education.acrennes.alambic.Constants;
+import fr.gouv.education.acrennes.alambic.exception.AlambicException;
 import fr.gouv.education.acrennes.alambic.jobs.extract.sources.FakeSource;
 import fr.gouv.education.acrennes.alambic.jobs.extract.sources.Source;
 import fr.gouv.education.acrennes.alambic.jobs.extract.sources.SourceFactory;
+import fr.gouv.education.acrennes.alambic.jobs.load.AbstractDestination;
+import fr.gouv.education.acrennes.alambic.jobs.load.AbstractDestination.IsAnythingToDoStatus;
+import fr.gouv.education.acrennes.alambic.jobs.load.Destination;
+import fr.gouv.education.acrennes.alambic.jobs.load.DestinationFactory;
 import fr.gouv.education.acrennes.alambic.monitoring.ActivityHelper;
 import fr.gouv.education.acrennes.alambic.monitoring.ActivityMBean;
 import fr.gouv.education.acrennes.alambic.monitoring.ActivityMBean.ACTIVITY_STATUS;
@@ -170,7 +171,7 @@ public class JobRunner implements CallableJob {
 					if ((null != pagedSource) && (null != source) && (pagedSource.getName().equals(source.getName()))) {
 						source = pagedSource;
 					}
-
+					
 					// destination
 					destination = DestinationFactory.getDestination(context, job.getChild("destination"), jobActivity);
 					jobActivity.setProcessing("Start loading in destination...");
@@ -178,7 +179,11 @@ public class JobRunner implements CallableJob {
 						destination.setResources(resources);
 						destination.setSource(source);
 						destination.setPage((null != pagedSource) ? pagedSource.getPage() : AbstractDestination.NOT_PAGED);
-						destination.execute();
+						if (destination.isAnythingToDo().equals(IsAnythingToDoStatus.YES)) {
+							destination.execute();
+						} else {
+							log.info("Job '" + getName() + "' : no operations defined by the job input file");
+						}
 					}
 				}
 			}

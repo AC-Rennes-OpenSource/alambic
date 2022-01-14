@@ -17,13 +17,15 @@
 package fr.gouv.education.acrennes.alambic.utils;
 
 import java.io.File;
-import junit.framework.Assert;
+
+import org.junit.Assert;
+import org.junit.Before;
+import org.junit.Test;
+
 import nu.xom.Builder;
 import nu.xom.Document;
 import nu.xom.Element;
 import nu.xom.Nodes;
-import org.junit.Before;
-import org.junit.Test;
 
 public class XOMTest {
 

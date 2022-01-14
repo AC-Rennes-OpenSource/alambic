@@ -40,8 +40,8 @@ public class GAR1DBuilderTestUtils {
     public void assertStringListEquals(List<String> expected, List<String> actual) {
         List<String> workExpected = expected.stream().sorted().collect(Collectors.toList());
         List<String> workActual = actual.stream().sorted().collect(Collectors.toList());
-        for (int i = 0; i < expected.size(); i++) {
-            Assert.assertEquals(expected.get(i), actual.get(i));
+        for (int i = 0; i < workExpected.size(); i++) {
+            Assert.assertEquals(workExpected.get(i), workActual.get(i));
         }
     }
 

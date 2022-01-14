@@ -21,6 +21,7 @@ import java.util.function.Predicate;
 
 import fr.gouv.education.acrennes.alambic.exception.AlambicException;
 import org.junit.After;
+import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -30,7 +31,6 @@ import fr.gouv.education.acrennes.alambic.generator.service.RandomGeneratorServi
 import fr.gouv.education.acrennes.alambic.generator.service.RandomGeneratorService.GENERATOR_TYPE;
 import fr.gouv.education.acrennes.alambic.persistence.EntityManagerHelper;
 import fr.gouv.education.acrennes.alambic.random.persistence.RandomEntity;
-import junit.framework.Assert;
 
 public class RandomUAIGeneratorTest {
 

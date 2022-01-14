@@ -65,6 +65,7 @@ import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 
 import fr.gouv.education.acrennes.alambic.exception.AlambicException;
+import fr.gouv.education.acrennes.alambic.jobs.CallableContext;
 import fr.gouv.education.acrennes.alambic.jobs.extract.sources.Source;
 import fr.gouv.education.acrennes.alambic.jobs.extract.sources.SourceFilter;
 import fr.gouv.education.acrennes.alambic.security.CipherHelper;
@@ -81,13 +82,19 @@ public class FMFunctions {
 	private final Random randomGenerator;
 	private final Map<String, List<Map<String, List<String>>>> cachedResources;
 	private final Map<String, List<Object>> cache;
-	private JSONParser parser;
+	private CallableContext context = null;
+	JSONParser parser;
 	
 	public FMFunctions() {
 		parser = new JSONParser();
 		randomGenerator = new Random();
 		cachedResources = new HashMap<String, List<Map<String, List<String>>>>();
 		cache = new ConcurrentHashMap<String, List<Object>>();
+	}
+
+	public FMFunctions(final CallableContext context) {
+		this();
+		this.context = context;
 	}
 
 	public int getRandomNumber(final int min, final int max) {
@@ -492,6 +499,20 @@ public class FMFunctions {
 
 	public String getRandomSalt(final int length) {
 		return Functions.getInstance().generateSalt(String.valueOf(length));
+	}
+
+	public String resolveString(String stg) throws AlambicException {
+		String resolvedString = null;
+		if (null != this.context) {
+			if (stg.matches("^%.+%$")) {
+				resolvedString = this.context.resolveString(stg);				
+			} else {
+				log.error("Can't resolve the string '" + stg + "' since it doesn't match the pattern '%<name>%'");
+			}
+		} else {
+			log.error("Can't resolve the string '" + stg + "' since no context is initialized");
+		}
+		return resolvedString;
 	}
 
 	public List<Object> getCacheList(final String key) {

@@ -20,6 +20,7 @@ import java.util.Map;
 
 import fr.gouv.education.acrennes.alambic.exception.AlambicException;
 import fr.gouv.education.acrennes.alambic.jobs.extract.sources.Source;
+import fr.gouv.education.acrennes.alambic.jobs.load.AbstractDestination.IsAnythingToDoStatus;
 
 public interface Destination {
 
@@ -41,4 +42,5 @@ public interface Destination {
 
 	public void close() throws AlambicException;
 
+	public IsAnythingToDoStatus isAnythingToDo();
 }

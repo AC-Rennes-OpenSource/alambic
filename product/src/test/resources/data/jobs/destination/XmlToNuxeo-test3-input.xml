@@ -1,0 +1,99 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<alambic>
+	<documents>
+		<document name="espace-collaboratif-triskell-0010752t" type="Workspace" lifecycle="project">
+			<attributes>
+				<attr name="ttcs:spaceMembers" modifyMode="not_set">
+					<value>
+						<attr name="item" modifyMode="not_set">
+							<value>
+								<attr name="newsPeriod" modifyMode="not_set">
+									<value>none</value>
+								</attr>
+								<attr name="login" modifyMode="not_set">
+									<value>john.rambo@ATEN</value>
+								</attr>
+								<attr name="joinedDate" modifyMode="not_set">
+									<value>2021-06-10T09:16:14Z</value>
+								</attr>
+							</value>
+						</attr>
+						<attr name="item" modifyMode="not_set">
+							<value>
+								<attr name="newsPeriod" modifyMode="not_set">
+									<value>none</value>
+								</attr>
+								<attr name="login" modifyMode="not_set">
+									<value>abbie.fletcher001@ATEN</value>
+								</attr>
+								<attr name="joinedDate" modifyMode="not_set">
+									<value>2021-06-10T09:16:14Z</value>
+								</attr>
+							</value>
+						</attr>
+						<attr name="item" modifyMode="not_set">
+							<value>
+								<attr name="newsPeriod" modifyMode="not_set">
+									<value>none</value>
+								</attr>
+								<attr name="login" modifyMode="not_set">
+									<value>cat.stevens@ATEN</value>
+								</attr>
+								<attr name="joinedDate" modifyMode="not_set">
+									<value>2021-06-10T09:16:14Z</value>
+								</attr>
+							</value>
+						</attr>
+					</value>
+				</attr>
+			</attributes>
+		</document>	
+		<document name="espace-collaboratif-triskell-0011084q" type="Workspace" lifecycle="project">
+			<attributes>
+				<attr name="ttcs:spaceMembers" modifyMode="not_set">
+					<value>
+						<attr name="item" modifyMode="not_set">
+							<value>
+								<attr name="newsPeriod" modifyMode="not_set">
+									<value>none</value>
+								</attr>
+								<attr name="login" modifyMode="not_set">
+									<value>mary.poppins@ATEN</value>
+								</attr>
+								<attr name="joinedDate" modifyMode="not_set">
+									<value>2021-06-10T09:16:14Z</value>
+								</attr>
+							</value>
+						</attr>
+						<attr name="item" modifyMode="not_set">
+							<value>
+								<attr name="newsPeriod" modifyMode="not_set">
+									<value>none</value>
+								</attr>
+								<attr name="login" modifyMode="not_set">
+									<value>abbie.fletcher001@ATEN</value>
+								</attr>
+								<attr name="joinedDate" modifyMode="not_set">
+									<value>2021-06-10T09:16:14Z</value>
+								</attr>
+							</value>
+						</attr>
+						<attr name="item" modifyMode="not_set">
+							<value>
+								<attr name="newsPeriod" modifyMode="not_set">
+									<value>none</value>
+								</attr>
+								<attr name="login" modifyMode="not_set">
+									<value>peter.pan@ATEN</value>
+								</attr>
+								<attr name="joinedDate" modifyMode="not_set">
+									<value>2021-06-10T09:16:14Z</value>
+								</attr>
+							</value>
+						</attr>
+					</value>
+				</attr>
+			</attributes>
+		</document>	
+	</documents>
+</alambic>

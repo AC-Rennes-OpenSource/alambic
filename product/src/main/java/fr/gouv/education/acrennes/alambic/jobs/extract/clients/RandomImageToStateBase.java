@@ -14,14 +14,15 @@
  * You should have received a copy of the GNU Lesser General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  ******************************************************************************/
-package fr.gouv.education.acrennes.alambic.random.persistence;
+package fr.gouv.education.acrennes.alambic.jobs.extract.clients;
 
-import java.io.Serializable;
+import fr.gouv.education.acrennes.alambic.exception.AlambicException;
+import fr.gouv.education.acrennes.alambic.generator.service.RandomGeneratorService.GENERATOR_TYPE;
 
-public interface RandomUserEntity extends Serializable {
+public class RandomImageToStateBase extends RandomClientToStateBase {
 
-	public void setIs_available(final Boolean is_available);
-	
-	public Boolean getIs_available();
+	public RandomImageToStateBase(final String defaultProcessId) throws AlambicException {
+		super(defaultProcessId, GENERATOR_TYPE.IMAGE);
+	}
 
 }

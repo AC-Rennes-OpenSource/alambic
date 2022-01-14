@@ -35,6 +35,7 @@ public interface CallableContext {
 	public final String ETL_CFG_JDBC_URL = "etl.jdbc.url";
 	public final String ETL_CFG_JDBC_LOGIN = "etl.jdbc.user";
 	public final String ETL_CFG_JDBC_PASSWORD = "etl.jdbc.password";
+	public final String ETL_CFG_PERSISTENCE_UNIT = "etl.persistence.unit";
 
 	public Float getVersion();
 

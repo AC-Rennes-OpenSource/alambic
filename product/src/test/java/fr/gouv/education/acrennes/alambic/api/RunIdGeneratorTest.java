@@ -16,18 +16,16 @@
  ******************************************************************************/
 package fr.gouv.education.acrennes.alambic.api;
 
-import org.junit.Test;
-
 import java.time.Clock;
 import java.time.Instant;
 import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.stream.Collectors;
 
-import static org.hamcrest.CoreMatchers.equalTo;
-import static org.hamcrest.CoreMatchers.is;
-import static org.junit.Assert.assertThat;
+import org.junit.Assert;
+import org.junit.Test;
 
 /**
  * Campagne de test pour la génération des identifiants d'exécution.
@@ -41,7 +39,7 @@ public class RunIdGeneratorTest {
 
         final String generatedId = generator.nextId();
 
-        assertThat(generatedId, is(equalTo("20180206-181420000-0001")));
+        Assert.assertEquals(generatedId, "20180206-181420000-0001");
     }
 
     @Test
@@ -59,7 +57,9 @@ public class RunIdGeneratorTest {
                 "20180207-103154030-000F",
                 "20180207-103154030-0010"
         );
-        assertThat(generatedIds, is(equalTo(expected)));
+        
+        Assert.assertEquals(String.join(",", expected.stream().sorted().collect(Collectors.toList())), 
+        		String.join(",", generatedIds.stream().sorted().collect(Collectors.toList())));
     }
 
     @Test
@@ -75,7 +75,9 @@ public class RunIdGeneratorTest {
                 "20180207-103810871-FFFF",
                 "20180207-103810871-0000"
         );
-        assertThat(generatedIds, is(equalTo(expected)));
+
+        Assert.assertEquals(String.join(",", expected.stream().sorted().collect(Collectors.toList())), 
+        		String.join(",", generatedIds.stream().sorted().collect(Collectors.toList())));
     }
 
     @Test
@@ -85,6 +87,7 @@ public class RunIdGeneratorTest {
 
         final String generatedId = generator.nextId();
 
-        assertThat(generatedId, is(equalTo("20180207-103810871-0000")));
+        Assert.assertEquals(generatedId, "20180207-103810871-0000");
     }
+    
 }

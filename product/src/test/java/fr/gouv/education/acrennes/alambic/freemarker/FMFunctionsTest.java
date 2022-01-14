@@ -155,6 +155,13 @@ public class FMFunctionsTest {
 		Assert.assertEquals("L-operation-3-5-4-2-3", Fn.normalize("L'opération 3*5+4,2/3=?", NormalizationPolicy.NUXEO_ECM_NAME));
 		Assert.assertEquals("IP-127-0-0-1", Fn.normalize("@IP=[127.0.0.1]", NormalizationPolicy.NUXEO_ECM_NAME));
 		Assert.assertEquals("un text avec 'guillemets gênants'", Fn.normalize("un text avec \"guillemets gênants\"", NormalizationPolicy.JSON, false));
+		Assert.assertEquals("TS2-ERA", Fn.normalize("TS2 ÉRA", NormalizationPolicy.NUXEO_ECM_NAME));
+		Assert.assertEquals("TS2ERA", Fn.normalize("TS2ÉRA", NormalizationPolicy.NUXEO_ECM_NAME));
+		Assert.assertEquals("TS2-ERA", Fn.normalize("TS2-ERA", NormalizationPolicy.NUXEO_ECM_NAME));
+		Assert.assertEquals("TS-2ERA", Fn.normalize("TS 2ERA", NormalizationPolicy.NUXEO_ECM_NAME));
+		Assert.assertEquals("TS2-ERA", Fn.normalize("TS2&ERA", NormalizationPolicy.NUXEO_ECM_NAME));
+		Assert.assertEquals("TS2-ERA", Fn.normalize("TS2.ERA", NormalizationPolicy.NUXEO_ECM_NAME));
+		Assert.assertEquals("TS2-ERA", Fn.normalize("TS2(ERA)", NormalizationPolicy.NUXEO_ECM_NAME));
 	}
 
 	/**

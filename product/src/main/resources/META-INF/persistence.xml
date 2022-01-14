@@ -3,8 +3,8 @@
   version="2.0" xmlns="http://java.sun.com/xml/ns/persistence">
 	<persistence-unit name="PRODUCTION_PERSISTENCE_UNIT" transaction-type="RESOURCE_LOCAL">
 		<provider>org.eclipse.persistence.jpa.PersistenceProvider</provider>
-		<class>fr.gouv.education.acrennes.alambic.random.persistence.RandomUserMaleEntity</class>
-		<class>fr.gouv.education.acrennes.alambic.random.persistence.RandomUserFemaleEntity</class>
+		<class>fr.gouv.education.acrennes.alambic.random.persistence.RandomDictionaryEntity</class>
+		<class>fr.gouv.education.acrennes.alambic.random.persistence.RandomDictionaryEntityPK</class>
 		<class>fr.gouv.education.acrennes.alambic.random.persistence.RandomAuditEntity</class>
 		<class>fr.gouv.education.acrennes.alambic.random.persistence.RandomLambdaEntity</class>
 		<class>fr.gouv.education.acrennes.alambic.random.persistence.RandomBlurIDEntity</class>
@@ -23,8 +23,8 @@
 	</persistence-unit>
 	<persistence-unit name="TEST_PERSISTENCE_UNIT" transaction-type="RESOURCE_LOCAL">
 		<provider>org.eclipse.persistence.jpa.PersistenceProvider</provider>
-		<class>fr.gouv.education.acrennes.alambic.random.persistence.RandomUserMaleEntity</class>
-		<class>fr.gouv.education.acrennes.alambic.random.persistence.RandomUserFemaleEntity</class>
+		<class>fr.gouv.education.acrennes.alambic.random.persistence.RandomDictionaryEntity</class>
+		<class>fr.gouv.education.acrennes.alambic.random.persistence.RandomDictionaryEntityPK</class>
 		<class>fr.gouv.education.acrennes.alambic.random.persistence.RandomAuditEntity</class>
 		<class>fr.gouv.education.acrennes.alambic.random.persistence.RandomLambdaEntity</class>
 		<class>fr.gouv.education.acrennes.alambic.random.persistence.RandomBlurIDEntity</class>

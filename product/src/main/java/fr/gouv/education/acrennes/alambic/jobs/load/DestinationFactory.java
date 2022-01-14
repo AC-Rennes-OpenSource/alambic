@@ -65,6 +65,8 @@ public class DestinationFactory {
 				destination = new StateBaseToGAR(context, destinationNode, jobActivity);
 			} else if ("webService".equals(destinationType)) {
 				destination = new StateBaseToWS(context, destinationNode, jobActivity);
+			} else if ("fileDelete".equals(destinationType)) {
+				destination = new StateBaseToFileDelete(context, destinationNode, jobActivity);
 			} else {
 				throw new AlambicException("Type de destination [" + destinationType + "] inconnu.");
 			}

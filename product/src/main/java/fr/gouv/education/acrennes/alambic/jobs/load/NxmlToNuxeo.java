@@ -21,7 +21,6 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
-import fr.gouv.education.acrennes.alambic.exception.AlambicException;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -41,7 +40,9 @@ import org.nuxeo.ecm.automation.client.model.PropertyList;
 import org.nuxeo.ecm.automation.client.model.PropertyMap;
 import org.xml.sax.InputSource;
 
+import fr.gouv.education.acrennes.alambic.exception.AlambicException;
 import fr.gouv.education.acrennes.alambic.jobs.CallableContext;
+import fr.gouv.education.acrennes.alambic.jobs.JobHelper;
 import fr.gouv.education.acrennes.alambic.monitoring.ActivityMBean;
 import fr.gouv.education.acrennes.alambic.monitoring.ActivityTrafficLight;
 import fr.gouv.education.acrennes.alambic.nuxeo.ACE;
@@ -54,10 +55,10 @@ public class NxmlToNuxeo extends AbstractDestination {
 
 	private static final Log log = LogFactory.getLog(NxmlToNuxeo.class);
 
-	private final HttpAutomationClient client;
-	private final Session session;
+	private HttpAutomationClient client;
+	private Session session;
 	private Element pivot;
-	private final DocumentService dc;
+	private DocumentService dc;
 	private String inputFile;
 	private String nuxeoPath;
 
@@ -102,10 +103,12 @@ public class NxmlToNuxeo extends AbstractDestination {
 			inputFile = context.resolvePath(inputFile);
 		}
 
-		// Connextion à Nuxeo
-		client = new HttpAutomationClient(uri);
-		session = client.getSession(login, pwd);
-		dc = new DocumentService(session);
+		// Connexion à Nuxeo (si nécessaire uniquement)
+		if (isAnythingToDo().equals(IsAnythingToDoStatus.YES)) {
+			client = new HttpAutomationClient(uri);
+			session = client.getSession(login, pwd);
+			dc = new DocumentService(session);
+		}
 	}
 
 	@Override
@@ -127,6 +130,23 @@ public class NxmlToNuxeo extends AbstractDestination {
 			jobActivity.setTrafficLight(ActivityTrafficLight.RED);
 			log.error("Ouverture fichier XML : " + e.getMessage());
 		}
+	}
+
+	@Override
+	public IsAnythingToDoStatus isAnythingToDo() {
+		if (this.isAnythingToDo.equals(IsAnythingToDoStatus.UNDEFINED)) {
+			this.isAnythingToDo = IsAnythingToDoStatus.NO;					
+			try {
+				org.jdom2.Document inputFileXMLDocument = JobHelper.parse(this.inputFile);
+				List<Element> rset = JobHelper.evaluateExpressionForElements(inputFileXMLDocument, "/*/documents/document");
+				if (rset.size() != 0) {
+					this.isAnythingToDo = IsAnythingToDoStatus.YES;
+				}
+			} catch (AlambicException e) {
+				log.error("Failed to check whether anything has to be done, error : " + e.getMessage());
+			}
+		}
+		return this.isAnythingToDo;
 	}
 
 	private void setACP(final String path, final Element acpElement) throws Exception {

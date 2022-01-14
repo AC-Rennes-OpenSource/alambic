@@ -27,8 +27,6 @@ import java.util.concurrent.locks.ReentrantReadWriteLock.WriteLock;
 import javax.persistence.EntityManager;
 import javax.persistence.Query;
 
-import fr.gouv.education.acrennes.alambic.Constants;
-import fr.gouv.education.acrennes.alambic.exception.AlambicException;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -36,6 +34,8 @@ import org.apache.commons.logging.LogFactory;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
+import fr.gouv.education.acrennes.alambic.Constants;
+import fr.gouv.education.acrennes.alambic.exception.AlambicException;
 import fr.gouv.education.acrennes.alambic.generator.service.RandomGeneratorService.GENERATOR_TYPE;
 import fr.gouv.education.acrennes.alambic.random.persistence.RandomAuditEntity;
 import fr.gouv.education.acrennes.alambic.random.persistence.RandomEntity;
@@ -102,7 +102,7 @@ public abstract class AbstractRandomGenerator implements RandomGenerator {
 				}
 			}
 
-			// get a random entity whenever either no former entity was requested nor found
+			// get random entities whenever either no former entities were requested or found
 			while (entitiesList.size() < (int) queryMap.get("count")) {
 				/**
 				 * Check the random generator capacity to serve the requested entities count (object: preserve from non finishing loops).
@@ -250,20 +250,8 @@ public abstract class AbstractRandomGenerator implements RandomGenerator {
 		if (0 == results.size()) {
 			isUsed = false;
 		}
-
-		/*
-		 * Additional security to resolve possible inconsistencies between table RandomAuditEntity and RandomUserMale/FemaleEntity (due to human operation)
-		 */
-		if (isUsed) {
-			revoke(entity);
-		}
 		
 		return isUsed;
-	}
-
-	@Override
-	public void revoke(final RandomEntity entity) throws AlambicException {
-		// no-op
 	}
 
 	@SuppressWarnings("unchecked")

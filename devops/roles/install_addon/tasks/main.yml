@@ -12,7 +12,7 @@
   - name: Download the addon artifact
     import_tasks: download_addon.yml
     vars:
-      dest: "{{ tempdir.stdout }}"
+      dest: "{{ tempdir.stdout }}/{{ artifactId }}-{{ version }}.zip"
       groupId: "{{ groupId }}"
       artifactId: "{{ artifactId }}"
       version: "{{ version }}"

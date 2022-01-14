@@ -68,8 +68,8 @@ public class RandomLambdaEntity implements RandomEntity {
 	}
 
 	public RandomLambdaEntity(final String json) {
-		json_definition = json;
-		setHash(getHash());
+		this.json_definition = json;
+		setHash(computeHash());
 	}
 
 	public Long getId() {
@@ -90,6 +90,25 @@ public class RandomLambdaEntity implements RandomEntity {
 
 	@Override
 	public String getHash() {
+		return this.hash;
+	}
+	
+	@Override
+	public void setHash(final String hash) {
+		this.hash = hash;
+	}
+
+	@Override
+	public String toString() {
+		return "{\"json_definition\":" + getJson() + "}";
+	}
+
+	@Override
+	public String getJson() {
+		return this.json_definition;
+	}
+
+	private String computeHash() {
 		String hash = null;
 
 		try {
@@ -102,20 +121,6 @@ public class RandomLambdaEntity implements RandomEntity {
 		}
 
 		return hash;
-	}
-
-	public void setHash(final String hash) {
-		this.hash = hash;
-	}
-
-	@Override
-	public String toString() {
-		return "{\"json_definition\":\"" + this.json_definition + "\"}";
-	}
-
-	@Override
-	public String getJson() {
-		return json_definition;
 	}
 
 }

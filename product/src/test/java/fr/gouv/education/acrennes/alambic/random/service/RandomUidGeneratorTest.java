@@ -19,6 +19,7 @@ package fr.gouv.education.acrennes.alambic.random.service;
 import java.util.List;
 
 import org.junit.After;
+import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -29,7 +30,6 @@ import fr.gouv.education.acrennes.alambic.generator.service.RandomGeneratorServi
 import fr.gouv.education.acrennes.alambic.generator.service.RandomGeneratorService.GENERATOR_TYPE;
 import fr.gouv.education.acrennes.alambic.persistence.EntityManagerHelper;
 import fr.gouv.education.acrennes.alambic.random.persistence.RandomEntity;
-import junit.framework.Assert;
 
 public class RandomUidGeneratorTest {
 
