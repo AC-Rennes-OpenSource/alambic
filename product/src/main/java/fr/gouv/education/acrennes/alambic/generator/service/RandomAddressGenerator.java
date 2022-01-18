@@ -79,7 +79,7 @@ public class RandomAddressGenerator extends AbstractRandomGenerator {
 		// Get a random postcode
 		randomAddressPostCode = getRandomNumber(1, 99999);
 		
-		entity = new RandomLambdaEntity(String.format("{\"location\":{\"street\":\"%s %s %s\", \"city\":\"%s\", \"postcode\":%d}}", randomAddressNumber, randomAddressType, randomAddressLabel, randomAddressCity, randomAddressPostCode));
+		entity = new RandomLambdaEntity(String.format("{\"location\":{\"street\":{\"name\":\"%s %s %s\"}, \"city\":\"%s\", \"postcode\":%d}}", randomAddressNumber, randomAddressType, randomAddressLabel, randomAddressCity, randomAddressPostCode));
 		return entity;
 	}
 
