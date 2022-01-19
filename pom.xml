@@ -49,4 +49,20 @@
 		</plugins>
 	</build>
 
+	<scm>
+		<connection>scm:git:https://github.com/AC-Rennes-OpenSource/alambic.git</connection>
+		<developerConnection>scm:git:https://github.com/AC-Rennes-OpenSource/alambic.git</developerConnection>
+	</scm>
+	
+	<distributionManagement>
+		<repository>
+			<id>${releaseRepoId}</id>
+			<url>${releaseRepoUrl}</url>
+		</repository>
+		<snapshotRepository>
+			<id>${snapshotRepoId}</id>
+			<url>${snapshotRepoUrl}</url>
+		</snapshotRepository>
+	</distributionManagement>
+
 </project>
