@@ -967,4 +967,3 @@ function initialize() {
 	}
 }
 ```
-
