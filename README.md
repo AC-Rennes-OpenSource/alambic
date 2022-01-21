@@ -946,7 +946,7 @@ For each running job, the following information is monitored :
 - the hosting thread.
 
 ## Display dashboard
-To display the dashboard during runtime, type-in full path name of the _dashboard.html_ file in a web browser.
+To display the dashboard during runtime, type-in the full path name of the _dashboard.html_ file in a web browser.
 
 Example : ```file:///home/***/alambic/product/src/main/resources/monitoring/dashboard.html```
 
