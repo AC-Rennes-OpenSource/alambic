@@ -72,6 +72,10 @@ import fr.gouv.education.acrennes.alambic.security.CipherHelper;
 import fr.gouv.education.acrennes.alambic.security.CipherKeyStore;
 import fr.gouv.education.acrennes.alambic.utils.Functions;
 import freemarker.ext.dom.NodeModel;
+import net.htmlparser.jericho.CharacterEntityReference;
+import net.htmlparser.jericho.Config;
+import net.htmlparser.jericho.NumericCharacterReference;
+import net.htmlparser.jericho.Config.CharacterReferenceEncodingBehaviour;
 
 public class FMFunctions {
 
@@ -79,23 +83,35 @@ public class FMFunctions {
 	private static final String VOCABULARY_SEPARATOR = "/";
 	private static final String DICTIONARY_SEPARATOR = ",";
 	private static final String VOCABULARY_KEY_ID = "id";
+	private static final String[] XML_SPECIAL_CHARACTERS = new String[] {"&", "'", "<", ">", "\""};
 	private final Random randomGenerator;
 	private final Map<String, List<Map<String, List<String>>>> cachedResources;
 	private final Map<String, List<Object>> cache;
 	private CallableContext context = null;
-	JSONParser parser;
+	private JSONParser parser;
 	
 	public FMFunctions() {
 		parser = new JSONParser();
 		randomGenerator = new Random();
 		cachedResources = new HashMap<String, List<Map<String, List<String>>>>();
 		cache = new ConcurrentHashMap<String, List<Object>>();
+		Config.CurrentCharacterReferenceEncodingBehaviour=CUSTOM_CHARACTER_REFERENCE_ENCODING_BEHAVIOUR;
+		Config.IsApostropheEncoded = false;
 	}
 
 	public FMFunctions(final CallableContext context) {
 		this();
 		this.context = context;
 	}
+
+	/* Select the accented characters only to be encoded by the method escapeHTMLAccentedCharacters()
+	(XML special characters are excluded)
+	 */
+	public static final CharacterReferenceEncodingBehaviour CUSTOM_CHARACTER_REFERENCE_ENCODING_BEHAVIOUR=new CharacterReferenceEncodingBehaviour() {
+		public boolean isEncoded(final char ch, final boolean insideAttributeValue) {
+			return ch>127 && CharacterEntityReference.getName(ch)!=null && !Arrays.stream(XML_SPECIAL_CHARACTERS).anyMatch(x -> x.equals(ch));
+		}
+	};
 
 	public int getRandomNumber(final int min, final int max) {
 		int randomNum = randomGenerator.nextInt((max - min) + 1) + min;
@@ -493,7 +509,20 @@ public class FMFunctions {
 		return UUID.randomUUID().toString();
 	}
 
-	public String unescapeXML(String str) {
+	/* Encode string into Numeric Character Reference (either decimal or hexadecimal format) (https://www.w3.org/TR/html401/charset.html#h-5.3) */
+	public String escapeHTMLAccentedCharacters(final String str, final HtmlEncodingFormat format) {
+		String escapedStr="";
+		
+		if (HtmlEncodingFormat.DECIMAL.equals(format)) {
+			escapedStr = NumericCharacterReference.encodeDecimal(str);
+		} else {
+			escapedStr =  NumericCharacterReference.encodeHexadecimal(str);
+		}
+		
+		return escapedStr;
+	}
+
+	public String unescapeXML(final String str) {
 		return StringEscapeUtils.unescapeXml(str);
 	}
 

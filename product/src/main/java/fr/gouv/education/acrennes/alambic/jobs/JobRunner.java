@@ -189,6 +189,10 @@ public class JobRunner implements CallableJob {
 			}
 		} catch (final Exception e) {
 			log.error("Failed to run the job '" + getName() + "', error : " + e.getMessage());
+			if (null == e.getMessage()) {
+				e.printStackTrace();
+			}
+			
 			if (null != jobActivity) {
 				jobActivity.setTrafficLight(ActivityTrafficLight.RED);
 				jobActivity.addError(e);

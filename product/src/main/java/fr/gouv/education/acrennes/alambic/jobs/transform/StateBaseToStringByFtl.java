@@ -89,24 +89,33 @@ public class StateBaseToStringByFtl extends AbstractDestination {
 			throw new AlambicException(e1);
 		}
 
+		// Add wrapping of the HTML encoding formats enumeration so that it can be accessed in template
+		TemplateHashModel htmlEncodingEnums;
+		try {
+			htmlEncodingEnums = (TemplateHashModel) enumModels.get("fr.gouv.education.acrennes.alambic.freemarker.HtmlEncodingFormat");
+		} catch (final TemplateModelException e1) {
+			throw new AlambicException(e1);
+		}
+
 		TemplateHashModel staticModels = aow.getStaticModels();
 		
 		try {
 			root.put("activity", jobActivity);
 			root.put("trafficLight", activityEnums);
 			root.put("normalizationPolicy", normalizationEnums);
+			root.put("htmlEncodingFormats", htmlEncodingEnums);
 			root.put("variables", context.getVariables().getHashMap());
 			root.put("Fn", new FMFunctions(context));
 			root.put("Math", (TemplateHashModel) staticModels.get("java.lang.Math"));
 
-			List<Element> xmlFiles = job.getChildren("xmlfile");
+			final List<Element> xmlFiles = job.getChildren("xmlfile");
 			if (xmlFiles != null) {
 				for (Element xmlFile : xmlFiles) {
 					root.put(xmlFile.getAttributeValue("name"), freemarker.ext.dom.NodeModel.parse(new File(context.resolvePath(xmlFile.getText()))));
 				}
 			}
 			
-			// Initialization FreeMarker
+			// Initialization of FreeMarker
 			cfg = new Configuration(Constants.FREEMARKER_VERSION);
 			cfg.setDirectoryForTemplateLoading(new File(tplDir));
 			cfg.setObjectWrapper(aow);

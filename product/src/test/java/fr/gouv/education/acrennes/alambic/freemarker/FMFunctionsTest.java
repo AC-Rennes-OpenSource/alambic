@@ -250,4 +250,15 @@ public class FMFunctionsTest {
 		Assert.assertEquals("Mme", Fn.normalize("MaDemoIselle", NormalizationPolicy.CIVILITE, true));
 	}
 	
+	@Test
+	public void test10() {
+		Assert.assertEquals("All&#xe9;e", Fn.escapeHTMLAccentedCharacters("Allée", HtmlEncodingFormat.HEXADECIMAL));
+		Assert.assertEquals("H&#xe9;lo&#xef;se", Fn.escapeHTMLAccentedCharacters("Héloïse", HtmlEncodingFormat.HEXADECIMAL));
+		Assert.assertEquals("&#xc9;tienne", Fn.escapeHTMLAccentedCharacters("Étienne", HtmlEncodingFormat.HEXADECIMAL));
+		Assert.assertEquals("All&#233;e", Fn.escapeHTMLAccentedCharacters("Allée", HtmlEncodingFormat.DECIMAL));
+		Assert.assertEquals("H&#233;lo&#239;se", Fn.escapeHTMLAccentedCharacters("Héloïse", HtmlEncodingFormat.DECIMAL));
+		Assert.assertEquals("&#201;tienne", Fn.escapeHTMLAccentedCharacters("Étienne", HtmlEncodingFormat.DECIMAL));
+		Assert.assertEquals("l'&#226;ge d'&#201;tienne", Fn.escapeHTMLAccentedCharacters("l'âge d'Étienne", HtmlEncodingFormat.DECIMAL));
+	}
+
 }
