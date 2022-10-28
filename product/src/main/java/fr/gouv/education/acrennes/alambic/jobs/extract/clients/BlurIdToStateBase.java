@@ -173,7 +173,7 @@ public class BlurIdToStateBase implements IToStateBase {
 	}
 
 	/**
-	 * Build the signatures of on person's identity entity.
+	 * Build the signatures of one person's identity entity.
 	 * The implemented algorithm is compliant with the one used by the project EduConnect in order to gather 
 	 * together AAF identities dealing with the same physical person.
 	 * 
