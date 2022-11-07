@@ -73,6 +73,7 @@ public class Entry {
 	private static final String RELATION = "relation";
 	private static final String ATTRIBUTES = "attributes";
 	private static final String MODIFY_MODE = "modifyMode";
+	private static final String CASE_SENSITIVE = "caseSensitive";
 	private static final String EXPLICIT_MEMBER = "ExplicitMember";
 	private Variables variables = new Variables();
 	private Variables parentVariables;
@@ -91,6 +92,7 @@ public class Entry {
 	private boolean createOnly = false;
 	private boolean updateOnly = false;
 	private boolean deleteOnly = false;
+	private boolean caseSensitiveEntry = false;
 
 	private final Datasources datasources;
 	private final Map<String, List<String>> cr;
@@ -139,6 +141,13 @@ public class Entry {
 		} else {
 			subContext = context;
 		}
+
+		// Sensibilité globale à la casse
+		String caseSensitive = variables.resolvString(entry.getAttributeValue(CASE_SENSITIVE));
+		if (StringUtils.isNotBlank(caseSensitive) && caseSensitive.equalsIgnoreCase("true")) {
+			caseSensitiveEntry = true;
+		}
+
 		// ouverture du contexte de travail
 		workCtx = (DirContext) rootCtx.lookup(subContext);
 	}
@@ -179,7 +188,7 @@ public class Entry {
 	private DirContext getLdapEntry() throws NamingException {
 		// Récupération du rdn de l'ou "personnes"
 		DirContext ldapEntry = null;
-		// Vérification de l'existance de l'entrée à créer
+		// Vérification de l'existence de l'entrée à créer
 		final NamingEnumeration<SearchResult> searchRes = workCtx.search("", filtre, contraintes);
 		try {
 			if ((searchRes != null) && searchRes.hasMore()) {
@@ -330,7 +339,11 @@ public class Entry {
 					final String relation = pAttr.getAttributeValue(RELATION);
 					if (relation == null) {
 						// Si les attributs sont égaux => pas de modification . Retourne la valeur IGNORE
-						majAction = LdapUtils.compareAttributes(workAttr, existingAttr);
+						boolean caseSensitive = caseSensitiveEntry;
+						if (StringUtils.isNotBlank(pAttr.getAttributeValue(CASE_SENSITIVE))) {
+							caseSensitive = pAttr.getAttributeValue(CASE_SENSITIVE).equalsIgnoreCase("true");
+						}
+						majAction = LdapUtils.compareAttributes(workAttr, existingAttr, caseSensitive);
 					} else {
 						// Cas ou l'attribut contient une relation avec une autre entrée (member - memberOf)
 						final List<String> deltaToAdd = LdapUtils.positiveDelta(pivotAttr, existingAttr);

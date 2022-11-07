@@ -40,12 +40,12 @@ public class LdapUtils {
 
 	private static final Pattern REGEXP_PATTERN = Pattern.compile("\\(REGEXP\\)(.+)\\(/REGEXP\\)");
 
-	public static int compareAttributes(final Attribute attrA, final Attribute attrB) throws NamingException, UnsupportedEncodingException {
+	public static int compareAttributes(final Attribute attrA, final Attribute attrB, final boolean caseSensitive) throws NamingException, UnsupportedEncodingException {
 		int res = 0;
-		if (attributeContainsValues(attrA, attrB.getAll())) {
+		if (attributeContainsValues(attrA, attrB.getAll(), caseSensitive)) {
 			res = 1;
 		}
-		if (attributeContainsValues(attrB, attrA.getAll())) {
+		if (attributeContainsValues(attrB, attrA.getAll(), caseSensitive)) {
 			res += 2;
 		}
 		return res;
@@ -82,7 +82,7 @@ public class LdapUtils {
 		}
 	}
 
-	public static boolean attributeContainsValues(final Attribute attr, final NamingEnumeration<?> listValues) throws NamingException, UnsupportedEncodingException {
+	public static boolean attributeContainsValues(final Attribute attr, final NamingEnumeration<?> listValues, final boolean caseSensitive) throws NamingException, UnsupportedEncodingException {
 		boolean test = true;
 		while (listValues.hasMore() && test) {
 			// test de l'existance de la valeur
@@ -95,7 +95,11 @@ public class LdapUtils {
 				while (listValuesCurrentAttrLdap.hasMore() && !test) {
 					String currentValueFromCurrentAttrLdap =
 							Functions.getInstance().valueToString(listValuesCurrentAttrLdap.next());
-					test = currentValueFromTemporaryAttrLdap.equalsIgnoreCase(currentValueFromCurrentAttrLdap);
+					if (caseSensitive) {
+						test = currentValueFromTemporaryAttrLdap.equals(currentValueFromCurrentAttrLdap);
+					} else {
+						test = currentValueFromTemporaryAttrLdap.equalsIgnoreCase(currentValueFromCurrentAttrLdap);
+					}
 				}
 			} finally {
 				listValuesCurrentAttrLdap.close();

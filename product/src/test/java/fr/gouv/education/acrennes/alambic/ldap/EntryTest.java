@@ -1262,4 +1262,174 @@ public class EntryTest {
         verify(mockedDirContext, never()).modifyAttributes(anyString(), anyInt(), any(Attributes.class));
     }
 
+    /*
+    Test use case :
+    - when entry from LDAP and pivot only differ in case, and no attribute specifies that a modification must be case sensitive,
+    entry is not updated
+     */
+    @Test
+    public void testReplaceDefaultCase() {
+        try {
+            InputStream is = EntryTest.class.getClassLoader().getResourceAsStream("data/entry/pivotReplaceDefaultCase.xml");
+            Element mockedPivotEntry = (new SAXBuilder()).build(is).getRootElement();
+
+            PowerMockito.when(mockedDirContext.getNameInNamespace()).thenReturn("uid=epoe,ou=personnes,dc=ent-bretagne,dc=fr");
+            PowerMockito.when(mockedDirContext.lookup(Matchers.anyString())).thenReturn(mockedDirContext);
+
+            Entry entry = new Entry(mockedPivotEntry, mockedDirContext, null, new Variables(), null, null);
+            Assert.assertNotNull(entry);
+
+            String existingEntryInLDAP = "{" +
+                    "\"uid\":\"id\"," +
+                    "\"ENTFoo\":\"foo\"," +
+                    "\"ENTBar\":\"bar\"" +
+                    "}";
+
+            setEntryInLdap(existingEntryInLDAP);
+
+            entry.update();
+
+            verify(mockedDirContext, never()).modifyAttributes(Mockito.anyString(), Mockito.anyInt(), Mockito.any());
+        } catch (Exception e) {
+            System.out.println(e.getMessage());
+            Assert.fail();
+        }
+    }
+
+    /*
+    Test use case :
+    - when entry from LDAP and pivot only differ in case, and one attribute specifies that a modification must be case sensitive,
+    this attribute must be updated
+     */
+    @Test
+    public void testReplaceEntryDefaultCaseAttrOverride() {
+        try {
+            InputStream is = EntryTest.class.getClassLoader().getResourceAsStream("data/entry/pivotReplaceEntryDefaultCaseAttrOverride.xml");
+            Element mockedPivotEntry = (new SAXBuilder()).build(is).getRootElement();
+
+            PowerMockito.when(mockedDirContext.getNameInNamespace()).thenReturn("uid=epoe,ou=personnes,dc=ent-bretagne,dc=fr");
+            PowerMockito.when(mockedDirContext.lookup(Matchers.anyString())).thenReturn(mockedDirContext);
+
+            Entry entry = new Entry(mockedPivotEntry, mockedDirContext, null, new Variables(), null, null);
+            Assert.assertNotNull(entry);
+
+            String existingEntryInLDAP = "{" +
+                    "\"uid\":\"id\"," +
+                    "\"ENTFoo\":\"foo\"," +
+                    "\"ENTBar\":\"bar\"" +
+                    "}";
+
+            setEntryInLdap(existingEntryInLDAP);
+
+            entry.update();
+
+            verify(mockedDirContext).modifyAttributes("", DirContext.REPLACE_ATTRIBUTE, buildAttributes("{\"ENTBar\":\"Bar\"}"));
+        } catch (Exception e) {
+            System.out.println(e.getMessage());
+            Assert.fail();
+        }
+    }
+
+    /*
+    Test use case :
+    - when entry from LDAP and pivot only differ in case, and the entry specifies that modifications must be case sensitive,
+    attributes must be updated
+     */
+    @Test
+    public void testReplaceEntryCaseSensitive() {
+        try {
+            InputStream is = EntryTest.class.getClassLoader().getResourceAsStream("data/entry/pivotReplaceEntryCaseSensitive.xml");
+            Element mockedPivotEntry = (new SAXBuilder()).build(is).getRootElement();
+
+            PowerMockito.when(mockedDirContext.getNameInNamespace()).thenReturn("uid=epoe,ou=personnes,dc=ent-bretagne,dc=fr");
+            PowerMockito.when(mockedDirContext.lookup(Matchers.anyString())).thenReturn(mockedDirContext);
+
+            Entry entry = new Entry(mockedPivotEntry, mockedDirContext, null, new Variables(), null, null);
+            Assert.assertNotNull(entry);
+
+            String existingEntryInLDAP = "{" +
+                    "\"uid\":\"id\"," +
+                    "\"ENTFoo\":\"foo\"," +
+                    "\"ENTBar\":\"bar\"" +
+                    "}";
+
+            setEntryInLdap(existingEntryInLDAP);
+
+            entry.update();
+
+            verify(mockedDirContext).modifyAttributes("", DirContext.REPLACE_ATTRIBUTE, buildAttributes("{\"ENTFoo\":\"Foo\", \"ENTBar\":\"Bar\"}"));
+        } catch (Exception e) {
+            System.out.println(e.getMessage());
+            Assert.fail();
+        }
+    }
+
+    /*
+    Test use case :
+    - when entry from LDAP and pivot only differ in case, and the entry specifies that modifications must be case sensitive,
+    attributes must be updated, except if they specify otherwise
+     */
+    @Test
+    public void testReplaceEntryCaseSensitiveAttrOverride() {
+        try {
+            InputStream is = EntryTest.class.getClassLoader().getResourceAsStream("data/entry/pivotReplaceEntryCaseSensitiveAttrOverride.xml");
+            Element mockedPivotEntry = (new SAXBuilder()).build(is).getRootElement();
+
+            PowerMockito.when(mockedDirContext.getNameInNamespace()).thenReturn("uid=epoe,ou=personnes,dc=ent-bretagne,dc=fr");
+            PowerMockito.when(mockedDirContext.lookup(Matchers.anyString())).thenReturn(mockedDirContext);
+
+            Entry entry = new Entry(mockedPivotEntry, mockedDirContext, null, new Variables(), null, null);
+            Assert.assertNotNull(entry);
+
+            String existingEntryInLDAP = "{" +
+                    "\"uid\":\"id\"," +
+                    "\"ENTFoo\":\"foo\"," +
+                    "\"ENTBar\":\"bar\"" +
+                    "}";
+
+            setEntryInLdap(existingEntryInLDAP);
+
+            entry.update();
+
+            verify(mockedDirContext).modifyAttributes("", DirContext.REPLACE_ATTRIBUTE, buildAttributes("{\"ENTFoo\":\"Foo\"}"));
+        } catch (Exception e) {
+            System.out.println(e.getMessage());
+            Assert.fail();
+        }
+    }
+
+    /*
+    Test use case :
+    - when entry from LDAP and pivot only differ in case, and the entry specifies that modifications must not be case sensitive,
+    attributes must not be updated, except if they specify otherwise
+     */
+    @Test
+    public void testReplaceEntryCaseInsensitiveAttrOverride() {
+        try {
+            InputStream is = EntryTest.class.getClassLoader().getResourceAsStream("data/entry/pivotReplaceEntryCaseInsensitiveAttrOverride.xml");
+            Element mockedPivotEntry = (new SAXBuilder()).build(is).getRootElement();
+
+            PowerMockito.when(mockedDirContext.getNameInNamespace()).thenReturn("uid=epoe,ou=personnes,dc=ent-bretagne,dc=fr");
+            PowerMockito.when(mockedDirContext.lookup(Matchers.anyString())).thenReturn(mockedDirContext);
+
+            Entry entry = new Entry(mockedPivotEntry, mockedDirContext, null, new Variables(), null, null);
+            Assert.assertNotNull(entry);
+
+            String existingEntryInLDAP = "{" +
+                    "\"uid\":\"id\"," +
+                    "\"ENTFoo\":\"foo\"," +
+                    "\"ENTBar\":\"bar\"" +
+                    "}";
+
+            setEntryInLdap(existingEntryInLDAP);
+
+            entry.update();
+
+            verify(mockedDirContext).modifyAttributes("", DirContext.REPLACE_ATTRIBUTE, buildAttributes("{\"ENTBar\":\"Bar\"}"));
+        } catch (Exception e) {
+            System.out.println(e.getMessage());
+            Assert.fail();
+        }
+    }
+
 }
