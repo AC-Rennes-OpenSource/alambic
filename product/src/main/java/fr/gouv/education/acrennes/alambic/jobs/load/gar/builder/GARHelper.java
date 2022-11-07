@@ -107,9 +107,9 @@ public class GARHelper {
 	public String extractCodeGroup(final String code, final int index) {
 		String group = null;
 
-		final String[] groups = code.split("\\$");
-		if ((null != groups) && (groups.length > index)) {
-			group = groups[index];
+		final String[] groups = (StringUtils.isNotBlank(code)) ? code.split("\\$") : new String[0];
+		if (groups.length > index) {
+			group = groups[index].trim();
 		}
 
 		return group;
