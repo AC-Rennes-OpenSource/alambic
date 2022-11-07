@@ -44,7 +44,7 @@ public class BlurIdToStateBaseTest extends TestCase {
 	@Override
 	@Before
 	public void setUp() throws Exception {		
-		// Mock the entity manager helper so that the embedded persistence unit (derby) is used
+		// Mock the entity manager helper so that the embedded persistence unit (h2) is used
 		EntityManagerHelper.getInstance(UNIT_TEST_PERSISTENCE_UNIT, null);
 		bitsb = new BlurIdToStateBase("b.TY1aGh0Ukm/er=");
 	}
@@ -331,11 +331,98 @@ public class BlurIdToStateBaseTest extends TestCase {
 		Assert.assertTrue(blurId2.equals(blurId1));
 	}
 
+	/**
+	 * Use case :
+	 * - Two blur identifiers are requested
+	 * - The two entities are different (not the same person, no common phone number)
+	 * - /!\ The new query's JSON key "key" is used as the key "processId" is deprecated for this usage (blur identifier generation).
+	 */
+	@Test
+	public void test9() throws AlambicException {
+		// First query to get a blur identifier
+		String jsonQuery = "{"
+				+ "\"blur_mode\":\"SIGNATURE\","
+				+ "\"key\":\"TESTU\","
+				+ "\"id\":\"12345\","
+				+ "\"firstName\":\"Guy\","
+				+ "\"lastName\":\"Tariste\","
+				+ "\"civility\":\"M.\","
+				+ "\"phones\":[\"06.01.02.03.04\", \"07.01.02.03.04\"],"
+				+ "}";
+		bitsb.executeQuery(jsonQuery);
+		List<Map<String, List<String>>> sb = bitsb.getStateBase();
+		Assert.assertEquals(1, sb.size());
+		final String blurId1 = sb.get(0).get("blurId").get(0);
+		Assert.assertTrue(blurId1.matches(".{8}-.{4}-.{4}-.{4}-.{12}"));
+
+		// Second query to get a blur identifier
+		jsonQuery = "{"
+				+ "\"blur_mode\":\"SIGNATURE\","
+				+ "\"key\":\"TESTU\","
+				+ "\"id\":\"9876\","
+				+ "\"firstName\":\"Eve\","
+				+ "\"lastName\":\"Idamen\","
+				+ "\"civility\":\"Madame\","
+				+ "\"phones\":[\"06.02.03.04.05\", \"07.02.03.04.05\"],"
+				+ "}";
+		bitsb.executeQuery(jsonQuery);
+		sb = bitsb.getStateBase();
+		Assert.assertEquals(1, sb.size());
+		final String blurId2 = sb.get(0).get("blurId").get(0);
+		Assert.assertTrue(blurId2.matches(".{8}-.{4}-.{4}-.{4}-.{12}"));
+		Assert.assertFalse(blurId1.equalsIgnoreCase(blurId2));
+	}
+
+	/**
+	 * Use case :
+	 * - Two blur identifiers are requested
+	 * - The two entities are different (not the same person, no common phone number)
+	 * - /!\ The new query's JSON key "key" is used as the key "processId" is deprecated for this usage (blur identifier generation).
+	 * - /!\ Check that the JSON key "key" prevails over the "processId" key
+	 */
+	@Test
+	public void test10() throws AlambicException {
+		// First query to get a blur identifier
+		String jsonQuery = "{"
+				+ "\"blur_mode\":\"SIGNATURE\","
+				+ "\"processId\":\"deprecated-one\","
+				+ "\"key\":\"TESTU\","
+				+ "\"id\":\"12345\","
+				+ "\"firstName\":\"Guy\","
+				+ "\"lastName\":\"Tariste\","
+				+ "\"civility\":\"M.\","
+				+ "\"phones\":[\"06.01.02.03.04\"],"
+				+ "}";
+		bitsb.executeQuery(jsonQuery);
+		List<Map<String, List<String>>> sb = bitsb.getStateBase();
+		Assert.assertEquals(1, sb.size());
+		final String blurId1 = sb.get(0).get("blurId").get(0);
+		Assert.assertTrue(blurId1.matches(".{8}-.{4}-.{4}-.{4}-.{12}"));
+
+		// Second query to get a blur identifier
+		jsonQuery = "{"
+				+ "\"blur_mode\":\"SIGNATURE\","
+				+ "\"processId\":\"deprecated-two\","
+				+ "\"key\":\"TESTU\","
+				+ "\"id\":\"54321\","
+				+ "\"firstName\":\"Guy\","
+				+ "\"lastName\":\"Tariste\","
+				+ "\"civility\":\"M.\","
+				+ "\"phones\":[\"07.01.02.03.04\", \"06.01.02.03.04\"],"
+				+ "}";
+		bitsb.executeQuery(jsonQuery);
+		sb = bitsb.getStateBase();
+		Assert.assertEquals(1, sb.size());
+		final String blurId2 = sb.get(0).get("blurId").get(0);
+		Assert.assertTrue(blurId2.matches(".{8}-.{4}-.{4}-.{4}-.{12}"));
+		Assert.assertTrue(blurId1.equalsIgnoreCase(blurId2));
+	}
+
 	@Override
 	@After
 	public void tearDown() {
 		/**
-		 * Shutdown the derby system so that other unit tests don't run into exception because the database was not released.
+		 * Shutdown the h2 database so that other unit tests don't run into exception because the database was not released.
 		 * This is not visible when running the tests within Eclipse environment (launcher) but it is when packaging
 		 * the project with maven.
 		 */

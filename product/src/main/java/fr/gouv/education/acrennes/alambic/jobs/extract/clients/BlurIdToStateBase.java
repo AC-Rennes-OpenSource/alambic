@@ -166,7 +166,7 @@ public class BlurIdToStateBase implements IToStateBase {
 	}
 
 	private String getHashedId(final JSONObject query) {
-		this.md.update(getSalt(query.has("processId") ? query.getString("processId") : null));
+		this.md.update(getSalt(getSeed(query)));
 		String hashedId = Base64.encodeBase64String(md.digest(query.getString("id").getBytes(StandardCharsets.UTF_8)));
 		this.md.reset();
 		return hashedId;
@@ -242,7 +242,7 @@ public class BlurIdToStateBase implements IToStateBase {
 
 		// build hashed signatures
 		for (String plainSignature: plainSignatures) {
-			this.md.update(getSalt(query.has("processId") ? query.getString("processId") : null));
+			this.md.update(getSalt(getSeed(query)));
 			String signature = Base64.encodeBase64String(md.digest(plainSignature.getBytes(StandardCharsets.UTF_8)));
 			if (!signatureList.contains(signature)) {
 				signatureList.add(signature);
@@ -305,6 +305,19 @@ public class BlurIdToStateBase implements IToStateBase {
 			return String.format("{\"root\":\"%s\",\"signatures\":['%s']}", this.root, String.join("','", this.signatures));
 		}
 
+	}
+
+	/**
+	 * Get the salt seed from the query object.
+	 * The seed deals with the "key" JSON key from the query object.
+	 * /!\ For backward compatibility reason, the "processId" key is used instead when the "key" JSON key is missing.
+	 */
+	private String getSeed(final JSONObject query) {
+		String seed = null;
+		String key = query.has("key") ? query.getString("key").trim() : null;
+		String processId = query.has("processId") ? query.getString("processId").trim() : null;
+		seed = StringUtils.isNotBlank(key) ? key : processId;
+		return seed;
 	}
 	
 	private void persist(List<String> signatures, String newBlurId) {
