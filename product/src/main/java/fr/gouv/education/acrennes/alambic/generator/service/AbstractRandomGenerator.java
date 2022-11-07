@@ -76,17 +76,14 @@ public abstract class AbstractRandomGenerator implements RandomGenerator {
 			}
 			innerProcessId = (StringUtils.isNotBlank((String) queryMap.get("processId")) ? (String) queryMap.get("processId") : processId);
 			capacityCacheKey = getCapacityCacheKey(queryMap, innerProcessId, scope);			
-			contentionToken = blurId.concat(getType(queryMap).toString());
+			contentionToken = getContentionToken(queryMap);
 			queryMap.put(Constants.RANDOM_GENERATOR_INNER_ITERATION, 1); // allow requested generator to handle increment when needed
 		} catch (IOException e) {
 			throw new AlambicException("Failed to get random entries (type : " + getType(queryMap) + "), error: " + e.getMessage());
 		}
 
 		/**
-		 * Synchronize the code block to avoid race condition ONLY when multiple threads request the same generator type and
-		 * pass-in parameter the same blur identifier. Otherwise, it is not worth locking.
-		 * The couple {generator type, blur identifier value} is the contention key.
-		 * This ensures that good performance (the synchronization mechanism pet peeve) are obtained even when a large number of thread are used.
+		 * Synchronize the code block to avoid race condition among threads
 		 */
 		WriteLock lock = RandomGeneratorService.getLock(contentionToken).writeLock();
 		lock.lock();
@@ -186,6 +183,20 @@ public abstract class AbstractRandomGenerator implements RandomGenerator {
 	public long getCapacity(final Map<String, Object> query) throws AlambicException {
 		return DEFAULT_RANDOM_GENERATOR_CAPACITY;
 	}
+
+	/**
+	 * Build a lock contention token to avoid race condition among threads requesting the random service.
+	 * Strategy :
+	 * 	ONLY when multiple threads request the same generator type and pass-in parameter the same capacity filter. Otherwise, it is not worth locking.
+	 * Hence, the couple {generator type, capacity filter} deals with the contention key. This ensures that good performance (the synchronization
+	 * mechanism pet peeve) are obtained even when a large number of threads are used.
+	 */
+	private String getContentionToken(Map<String, Object> queryMap) throws AlambicException {
+		String cf = getCapacityFilter(queryMap);
+		String type = getType(queryMap).toString();
+		String token =  String.format("%s@%s", type, (StringUtils.isNotBlank(cf) ? cf : "UNDEFINED"));
+		return token;
+	}
 	
 	private long getActualCapacity(final Map<String, Object> query, final String processId, final UNICITY_SCOPE scope) {
 		long count = 0;
@@ -212,8 +223,7 @@ public abstract class AbstractRandomGenerator implements RandomGenerator {
 						predicatlist.add(String.format("rae.capacityFilter = '%s'", capacityFilter));
 					}
 
-					Query emQuery = em.createQuery(String.format(BASE_QUERY, StringUtils.join(predicatlist, " AND ")));					
-					count = (Long) emQuery.getSingleResult();
+					count = (Long) executeQueryScalar(String.format(BASE_QUERY, StringUtils.join(predicatlist, " AND ")));
 					RandomGeneratorService.getCapacityCache().put(cacheKey, count);
 				}
 			}
@@ -227,20 +237,28 @@ public abstract class AbstractRandomGenerator implements RandomGenerator {
 
 	@SuppressWarnings("unchecked")
 	@Override
-	public boolean isAlreadyUsed(final Map<String, Object> query, final RandomEntity entity, final String processId, final UNICITY_SCOPE scope) throws AlambicException {
+	public boolean isAlreadyUsed(final Map<String, Object> queryMap, final RandomEntity entity, final String processId, final UNICITY_SCOPE scope) throws AlambicException {
 		boolean isUsed = true;
 		List<RandomEntity> results = Collections.emptyList();
 
-		if (RandomGenerator.UNICITY_SCOPE.PROCESS.equals(scope)) {
-			// Check the current entity was already used by this single process id
-			Query emQuery = em.createQuery("SELECT rae.id FROM RandomAuditEntity rae WHERE rae.processId = '" + processId + "' AND rae.type = '" + getType(query) + "' AND rae.hash = '" + entity.getHash() + "'");
-			emQuery.setMaxResults(1); // For performance constraint. Only interested in the boolean result : exists or not
-			results = emQuery.getResultList();
-		} else if (RandomGenerator.UNICITY_SCOPE.PROCESS_ALL.equals(scope)) {
-			// Check the current entity was already used by any process id
-			Query emQuery = em.createQuery("SELECT rae.id FROM RandomAuditEntity rae WHERE rae.type = '" + getType(query) + "' AND rae.hash = '" + entity.getHash() + "'");
-			emQuery.setMaxResults(1); // For performance constraint. Only interested in the boolean result : exists or not
-			results = emQuery.getResultList();
+		if (!RandomGenerator.UNICITY_SCOPE.NONE.equals(scope)) {
+			String query = "SELECT rae.id FROM RandomAuditEntity rae WHERE rae.type = '" + getType(queryMap) + "' AND rae.hash = '" + entity.getHash() + "'";
+			if (RandomGenerator.UNICITY_SCOPE.PROCESS.equals(scope)) {
+				// Check the current entity was already used by this single process id
+				query = query.concat(" AND rae.processId = '" + processId + "'");
+			} /*
+			 * else {
+			 *   RandomGenerator.UNICITY_SCOPE.PROCESS_ALL : whatever the process is
+			 * }
+			 */
+
+			String capacityFilter = getCapacityFilter(queryMap);
+			if (StringUtils.isNotBlank(capacityFilter)) {
+				// Focus on same query parameters (defined via capacity filter)
+				query = query.concat(" AND rae.capacityFilter = '" + capacityFilter + "'");
+			}
+
+			results = executeQueryList(query, 1); // For performance constraint. Only interested in the boolean result : exists or not
 		} /*
 		 * else {
 		 * RandomGenerator.UNICITY_SCOPE.NONE : no matter if already used
@@ -250,11 +268,10 @@ public abstract class AbstractRandomGenerator implements RandomGenerator {
 		if (0 == results.size()) {
 			isUsed = false;
 		}
-		
+
 		return isUsed;
 	}
 
-	@SuppressWarnings("unchecked")
 	private List<RandomEntity> getFormerEntities(final Map<String, Object> queryMap, final String processId, final UNICITY_SCOPE scope) throws AlambicException {
 		List<RandomEntity> formerEntities = new ArrayList<>();
 
@@ -271,12 +288,10 @@ public abstract class AbstractRandomGenerator implements RandomGenerator {
 			query = query.concat(" AND rae.capacityFilter = '" + capacityFilter + "'");
 		}
 
-		Query emQuery = em.createQuery(query);
-		List<RandomAuditEntity>  auditResultSet = emQuery.getResultList();
+		List<RandomAuditEntity>  auditResultSet = executeQueryList(query);
 		if (!auditResultSet.isEmpty()) {
 			for (RandomAuditEntity auditEntity : auditResultSet) {
-				emQuery = em.createQuery("SELECT entities FROM " + getPersistanceEntityType(queryMap) + " entities WHERE entities.hash = '" + auditEntity.getHash() + "'");
-				formerEntities.addAll(emQuery.getResultList());
+				formerEntities.addAll(executeQueryList(String.format("SELECT entities FROM %s entities WHERE entities.hash = '%s'", getPersistanceEntityType(queryMap), auditEntity.getHash())));
 			}
 		}
 
@@ -285,6 +300,50 @@ public abstract class AbstractRandomGenerator implements RandomGenerator {
 
 	protected long getRandomNumber(final long min, final long max) {
 		return (long) (Math.random() * ((max - min) + 1) + min);
+	}
+
+	private <T> List<T> executeQueryList(String sqlQuery) {
+		return executeQueryList(sqlQuery, 0);
+	}
+
+	@SuppressWarnings("unchecked")
+	private <T> List<T> executeQueryList(String sqlQuery, int limit) {
+		List<T> resultSet = null;
+		long stime=0, etime;
+
+		if (log.isDebugEnabled()) {
+			stime = System.currentTimeMillis();
+		}
+
+		Query emQuery = em.createQuery(sqlQuery);
+		if (0 < limit) {
+			emQuery.setMaxResults(limit);
+		}
+		resultSet = emQuery.getResultList();
+
+		if (log.isDebugEnabled()) {
+			etime = System.currentTimeMillis();
+			log.debug(String.format("Executed query (duration %s ms) : %s", (etime - stime), sqlQuery));
+		}
+		return resultSet;
+	}
+
+	private <T> Object executeQueryScalar(String sqlQuery) {
+		Object resultSet = null;
+		long stime=0, etime;
+
+		if (log.isDebugEnabled()) {
+			stime = System.currentTimeMillis();
+		}
+
+		Query emQuery = em.createQuery(sqlQuery);
+		resultSet = emQuery.getSingleResult();
+
+		if (log.isDebugEnabled()) {
+			etime = System.currentTimeMillis();
+			log.debug(String.format("Executed query (duration %s ms) : %s", (etime - stime), sqlQuery));
+		}
+		return resultSet;
 	}
 
 	@Override
