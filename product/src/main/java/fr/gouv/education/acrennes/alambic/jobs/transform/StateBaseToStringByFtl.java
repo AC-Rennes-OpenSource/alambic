@@ -85,7 +85,7 @@ public class StateBaseToStringByFtl extends AbstractDestination {
 		TemplateHashModel normalizationEnums;
 		try {
 			normalizationEnums = (TemplateHashModel) enumModels.get("fr.gouv.education.acrennes.alambic.freemarker.NormalizationPolicy");
-		} catch (TemplateModelException e1) {
+		} catch (final TemplateModelException e1) {
 			throw new AlambicException(e1);
 		}
 
