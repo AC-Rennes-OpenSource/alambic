@@ -211,7 +211,7 @@ public class GARHelper {
 
 		private final NATIONAL_PROFILE_IDENTIFIER profileId;
 
-		private TITLE_FUNCTION_MATCHING(final NATIONAL_PROFILE_IDENTIFIER value) {
+		TITLE_FUNCTION_MATCHING(final NATIONAL_PROFILE_IDENTIFIER value) {
 			this.profileId = value;
 		}
 
