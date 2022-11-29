@@ -541,9 +541,9 @@ public class Functions {
 
         try {
             final ObjectMapper mapper = new ObjectMapper();
-            final Map<String, Object> ctx = mapper.readValue(params, new TypeReference<Map<String, String>>() {
+            final Map<String, String> ctx = mapper.readValue(params, new TypeReference<Map<String, String>>() {
             });
-            final String templatePath = (String) ctx.get("path");
+            final String templatePath = ctx.get("path");
             final String templateDir = templatePath.substring(0, templatePath.lastIndexOf("/"));
             final String templateFile = templatePath.substring(templatePath.lastIndexOf("/") + 1);
             cfg.setDirectoryForTemplateLoading(new File(templateDir));
