@@ -23,6 +23,8 @@ import fr.gouv.education.acrennes.alambic.jobs.load.gar.binding1d.ObjectFactory;
 import fr.gouv.education.acrennes.alambic.jobs.load.gar.builder.exception.MissingAttributeException;
 import fr.gouv.education.acrennes.alambic.jobs.load.gar.persistence.PersonGroupeEntity;
 import org.apache.commons.lang.StringUtils;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.xml.sax.SAXException;
 
 import javax.persistence.EntityTransaction;
@@ -38,7 +40,9 @@ import java.util.stream.Collectors;
 
 public class GAR1DGroupeBuilder extends GAR1DBuilder {
 
+    private static final Log log = LogFactory.getLog(GAR1DGroupeBuilder.class);
     private final List<Map<String, List<String>>> structures;
+    private List<String> divCodes;
 
     public GAR1DGroupeBuilder(GARBuilderParameters parameters) {
         super(parameters);
@@ -79,7 +83,7 @@ public class GAR1DGroupeBuilder extends GAR1DBuilder {
 
     public List<GARGroupe> buildGroupes(Map<String, List<String>> entity) throws MissingAttributeException {
         List<GARGroupe> groupes = new ArrayList<>();
-        List<String> divCodes = new ArrayList<>();
+        divCodes = new ArrayList<>();
         String uai = getMandatoryAttribute(entity, "ENTStructureUAI");
         handleOptionalList(entity, "ENTStructureClasses", groupe -> {
             if (StringUtils.isNotBlank(groupe)) {
@@ -111,11 +115,15 @@ public class GAR1DGroupeBuilder extends GAR1DBuilder {
         transaction.commit();
 
         personGroupes.forEach(personGroupe -> {
-            GARPersonGroupe garPersonGroupe = factory.createGARPersonGroupe();
-            garPersonGroupe.setGARStructureUAI(personGroupe.getUai());
-            garPersonGroupe.setGARPersonIdentifiant(personGroupe.getPersonIdentifiant());
-            garPersonGroupe.setGARGroupeCode(personGroupe.getGroupeCode());
-            garPersonGroupes.add(garPersonGroupe);
+            if (divCodes.contains(personGroupe.getGroupeCode())) {
+                GARPersonGroupe garPersonGroupe = factory.createGARPersonGroupe();
+                garPersonGroupe.setGARStructureUAI(personGroupe.getUai());
+                garPersonGroupe.setGARPersonIdentifiant(personGroupe.getPersonIdentifiant());
+                garPersonGroupe.setGARGroupeCode(personGroupe.getGroupeCode());
+                garPersonGroupes.add(garPersonGroupe);
+            } else {
+                log.warn("Filtered groupCode element from entity (ENTPersonUid=" + personGroupe.getPersonIdentifiant() + ") since it references a code '" + personGroupe.getGroupeCode() + "' absent from the UAI '" + uai + "'");
+            }
         });
 
         return garPersonGroupes;

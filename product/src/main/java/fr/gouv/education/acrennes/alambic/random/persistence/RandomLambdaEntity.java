@@ -100,7 +100,7 @@ public class RandomLambdaEntity implements RandomEntity {
 
 	@Override
 	public String toString() {
-		return "{\"json_definition\":" + getJson() + "}";
+		return "{\"json_definition\":\"" + getJson() + "\"}";
 	}
 
 	@Override

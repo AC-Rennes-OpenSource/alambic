@@ -1,0 +1,14 @@
+<entry verifyIfExist="(uid=epoe)">
+    <dn>uid=epoe,ou=personnes,dc=ent-bretagne,dc=fr</dn>
+    <attributes>
+        <attr name="uid" modifyMode="ignore">
+            <value>id</value>
+        </attr>
+        <attr name="ENTFoo" modifyMode="replace">
+            <value>Foo</value>
+        </attr>
+        <attr name="ENTBar" modifyMode="replace">
+            <value>Bar</value>
+        </attr>
+    </attributes>
+</entry>

@@ -100,7 +100,7 @@ report() {
 
 	# Compute the report/log files unique process identifier
 	NORMALIZED_JOBS_LIST=$(echo ${JOBS_LIST} | sed -r 's#\W+#-#g')
-	NORMALIZED_INPUT_FILE=$(echo ${INPUT_FILE} | sed -r 's#(.*/)?([^/\.]+)(\..+)?#\2#')	
+	NORMALIZED_INPUT_FILE=$(echo ${INPUT_FILE} | sed -r 's#(.*/)?([^/\.]+)(\..+)?#\2#')
 	FILE_PROCESS_IDENTIFIER=$(echo "${PROCESS_IDENTIFIER}-${NORMALIZED_INPUT_FILE}-${NORMALIZED_JOBS_LIST}")
 
 	# Keep copy of the addon logs (and discards any null characters that could be inserted when the log file is modified via an inner process)
@@ -322,23 +322,23 @@ then
 		if [ "TRUE" = "${EXECUTE_ALL}" ]
 		then
 			logger "INFO" "Lancement de tous les jobs (fichier d'entrée: '${INPUT_FILE}')"
-			
+
 			if [ "" != "$CMD_PARAMS" ]
 			then
 				PARAMETERS="$(echo ${CMD_PARAMS} | sed -r 's/,/ /g')"
-				java ${JVM_ADDITIONAL_PARAMS} -jar ${EXECUTION_PATH}/bin/toutatice-tools-dataloader.jar --execution-path=${EXECUTION_PATH} --thread-count=${THREAD_POOL_SIZE} -j="$INPUT_FILE" -ea -p="$PARAMETERS"
+				java ${JVM_ADDITIONAL_PARAMS} -jar ${EXECUTION_PATH}/bin/alambic.jar --execution-path=${EXECUTION_PATH} --thread-count=${THREAD_POOL_SIZE} -j="$INPUT_FILE" -ea -p="$PARAMETERS"
 			else
-				java ${JVM_ADDITIONAL_PARAMS} -jar ${EXECUTION_PATH}/bin/toutatice-tools-dataloader.jar --execution-path=${EXECUTION_PATH} --thread-count=${THREAD_POOL_SIZE} -j="$INPUT_FILE" -ea
+				java ${JVM_ADDITIONAL_PARAMS} -jar ${EXECUTION_PATH}/bin/alambic.jar --execution-path=${EXECUTION_PATH} --thread-count=${THREAD_POOL_SIZE} -j="$INPUT_FILE" -ea
 			fi
 		else
 			logger "INFO" "Lancement des jobs '$JOBS_LIST' (fichier d'entrée: '${INPUT_FILE}')"
-			
+
 			if [ "" != "$CMD_PARAMS" ]
 			then
 				PARAMETERS="$(echo ${CMD_PARAMS} | sed -r 's/,/ /g')"
-				java ${JVM_ADDITIONAL_PARAMS} -jar ${EXECUTION_PATH}/bin/toutatice-tools-dataloader.jar --execution-path=${EXECUTION_PATH} --thread-count=${THREAD_POOL_SIZE} -j="$INPUT_FILE" -el="$JOBS_LIST" -p="$PARAMETERS"
+				java ${JVM_ADDITIONAL_PARAMS} -jar ${EXECUTION_PATH}/bin/alambic.jar --execution-path=${EXECUTION_PATH} --thread-count=${THREAD_POOL_SIZE} -j="$INPUT_FILE" -el="$JOBS_LIST" -p="$PARAMETERS"
 			else
-				java ${JVM_ADDITIONAL_PARAMS} -jar ${EXECUTION_PATH}/bin/toutatice-tools-dataloader.jar --execution-path=${EXECUTION_PATH} --thread-count=${THREAD_POOL_SIZE} -j="$INPUT_FILE" -el="$JOBS_LIST"
+				java ${JVM_ADDITIONAL_PARAMS} -jar ${EXECUTION_PATH}/bin/alambic.jar --execution-path=${EXECUTION_PATH} --thread-count=${THREAD_POOL_SIZE} -j="$INPUT_FILE" -el="$JOBS_LIST"
 			fi
 		fi
 
