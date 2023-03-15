@@ -81,6 +81,8 @@ public class SourceFactory {
 				source = new BaseXSource(context, sourceNode);
 			} else if ("blurIdGenerator".equals(sourceType)) {
 				source = new BlurIdSource(context, sourceNode);
+			} else if ("gecirBlurIdGenerator".equals(sourceType)) {
+				source = new GecirBlurIdSource(context, sourceNode);
 			} else if ("elastic".equals(sourceType)) {
 				source = new ElasticSource(context, sourceNode);
 			} else {
