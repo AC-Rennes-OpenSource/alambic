@@ -25,6 +25,7 @@
 				<include>mysql:mysql-connector-java</include>
 				<include>com.ibm.informix:jdbc</include>
 				<include>org.jolokia:jolokia-jvm</include>
+				<include>com.oracle.database.jdbc:ojdbc8</include>
 			</includes>
 			<outputFileNameMapping>${artifact.groupId}-${artifact.artifactId}.${artifact.extension}</outputFileNameMapping>
 			<excludes />
