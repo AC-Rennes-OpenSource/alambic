@@ -67,7 +67,7 @@ public class RandomUserGenerator extends AbstractRandomGenerator {
 
 	@Override
 	public String getCapacityFilter(final Map<String, Object> query) {
-		return rig.getQueriedGender(query).toString().toUpperCase();
+		return rig.getCapacityFilter(query);
 	}
 	
 	private RandomEntity join(final RandomEntity ... res) {

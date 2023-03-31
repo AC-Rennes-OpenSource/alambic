@@ -38,6 +38,7 @@ import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.*;
 import java.util.concurrent.locks.ReentrantReadWriteLock.WriteLock;
+import java.util.stream.Collectors;
 
 public class GecirBlurIdToStateBase implements IToStateBase {
 
@@ -113,16 +114,28 @@ public class GecirBlurIdToStateBase implements IToStateBase {
 					resultSet = emQuery.getResultList();
 				}
 
+				List<String> signaturesToPersist = signatures.getItems();
+
 				if (resultSet.isEmpty()) {
 					// First iteration ever to obtain a blur identifier for this query
 					String newBlurId = UUID.randomUUID().toString();
-					persist(signatures.getItems(), newBlurId);
 					blurIdMap.get(BLUR_ID).add(newBlurId);
 				} else {
 					// Retrieve back the former blur identifier obtained
+					Set<String> blurIdSet = resultSet.stream().map(RandomBlurIDEntity::getBlurid).collect(Collectors.toSet());
+					if (blurIdSet.size() > 1) {
+						log.warn("Several blurIds for signature set : " + String.join(",", blurIdSet));
+					}
 					String formerBlurId = resultSet.get(0).getBlurid();
 					blurIdMap.get(BLUR_ID).add(formerBlurId);
 					log.debug("retrieved back the former blur identifier '" + formerBlurId + "' for the request with attributes : " + jsonquery);
+					for (String signature:	resultSet.stream().map(RandomBlurIDEntity::getSignature).collect(
+							Collectors.toSet())) {
+						signaturesToPersist.remove(signature);
+					}
+				}
+				if (!signaturesToPersist.isEmpty()) {
+					persist(signaturesToPersist, blurIdMap.get("blurId").get(0));
 				}
 			} finally {
 				lock.unlock();

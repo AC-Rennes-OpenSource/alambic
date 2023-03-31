@@ -19,15 +19,9 @@ package fr.gouv.education.acrennes.alambic.jobs.extract.clients;
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.UUID;
+import java.util.*;
 import java.util.concurrent.locks.ReentrantReadWriteLock.WriteLock;
+import java.util.stream.Collectors;
 
 import javax.persistence.EntityManager;
 import javax.persistence.EntityTransaction;
@@ -94,10 +88,10 @@ public class BlurIdToStateBase implements IToStateBase {
 
 		BLUR_MODE blurMode = (query.has("blur_mode")) ? BLUR_MODE.valueOf((String) query.get("blur_mode")) : BLUR_MODE.NONE;
 		if (BLUR_MODE.HASHED_ID.equals(blurMode)) {
-			blurIdMap.put("blurId", Arrays.asList(getHashedId(query)));
+			blurIdMap.put("blurId", Collections.singletonList(getHashedId(query)));
 		} else if (BLUR_MODE.SIGNATURE.equals(blurMode)) {
 			List<RandomBlurIDEntity> resultSet = Collections.emptyList();
-			blurIdMap.put("blurId", new ArrayList<String>());
+			blurIdMap.put("blurId", new ArrayList<>());
 
 			// Build the list of signatures dealing with this query / entity
 			Signatures signatures = buildSignatures(query);
@@ -120,16 +114,28 @@ public class BlurIdToStateBase implements IToStateBase {
 					resultSet = emQuery.getResultList();
 				}
 
+				List<String> signaturesToPersist = signatures.getSignatures();
+
 				if (resultSet.isEmpty()) {
 					// First iteration ever to obtain a blur identifier for this query
 					String newBlurId = UUID.randomUUID().toString();
-					persist(signatures.getSignatures(), newBlurId);
 					blurIdMap.get("blurId").add(newBlurId);
 				} else {
 					// Retrieve back the former blur identifier obtained
+					Set<String> blurIdSet = resultSet.stream().map(RandomBlurIDEntity::getBlurid).collect(Collectors.toSet());
+					if (blurIdSet.size() > 1) {
+						log.warn("Several blurIds for signature set : " + String.join("", blurIdSet));
+					}
 					String formerBlurId = resultSet.get(0).getBlurid();
 					blurIdMap.get("blurId").add(formerBlurId);
 					log.debug("retrieved back the former blur identifier '" + formerBlurId + "' for the request with attributes : " + jsonquery);
+					for (String signature:	resultSet.stream().map(RandomBlurIDEntity::getSignature).collect(
+							Collectors.toSet())) {
+						signaturesToPersist.remove(signature);
+					}
+				}
+				if (!signaturesToPersist.isEmpty()) {
+					persist(signaturesToPersist, blurIdMap.get("blurId").get(0));
 				}
 			} finally {
 				lock.unlock();

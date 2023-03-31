@@ -70,11 +70,11 @@ public class Datasources {
 					SqlToStateBase sb = null;
 					if (pwd != null && login != null) {
 						sb = new SqlToStateBase(variables.resolvString(dataSource.getChildText("driver")),
-								variables.resolvString(dataSource.getChildText("uri")), login, pwd);
+								variables.resolvString(dataSource.getChildText("uri")), "NONE", login, pwd);
 					}
 					else {
 						sb = new SqlToStateBase(variables.resolvString(dataSource.getChildText("driver")),
-								variables.resolvString(dataSource.getChildText("uri")));
+								variables.resolvString(dataSource.getChildText("uri")), "NONE");
 					}
 					dataSourceList.put(dataSource.getAttributeValue("name"), sb);
 				}
