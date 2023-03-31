@@ -124,10 +124,10 @@ public class JobRunner implements CallableJob {
 					future.get(); // waiting for the job completion
 				}
 			} else {
-				final Source pagedSrc = getPagedSource(job);
-				if ((null == pagedSource) && (null != pagedSrc)) {
-					pagedSource = pagedSrc;
-					jobActivity.setProcessing("Handle paged source '" + pagedSrc.getName() + "'...");
+				final Element pagedResource = getPagedResource(job);
+				if ((null == pagedSource) && (null != pagedResource)) {
+					pagedSource = SourceFactory.getSource(context, pagedResource);
+					jobActivity.setProcessing("Handle paged source '" + pagedResource.getName() + "'...");
 					final Iterator<List<Map<String, List<String>>>> pageItr = pagedSource.getPageIterator();
 					int page = 1;
 					final List<Future<ActivityMBean>> futuresList = new ArrayList<>();
@@ -250,8 +250,8 @@ public class JobRunner implements CallableJob {
 		return isAsynchronous;
 	}
 
-	private Source getPagedSource(final Element job) throws AlambicException {
-		Source pagedSource = null;
+	private Element getPagedResource(final Element job) {
+		Element pagedResource = null;
 
 		// possible multiple resources
 		if (job.getChild("resources") != null) {
@@ -261,22 +261,22 @@ public class JobRunner implements CallableJob {
 			for (final Element resource : resourcesList) {
 				final String page = resource.getAttributeValue("page");
 				if (StringUtils.isNotBlank(page)) {
-					pagedSource = SourceFactory.getSource(context, resource);
+					pagedResource = resource;
 					break; // a single paged source is possible
 				}
 			}
 		}
 
 		// single source
-		if (null == pagedSource) {
+		if (null == pagedResource) {
 			final Element sourceElt = job.getChild("source");
 			final String page = (null != sourceElt) ? sourceElt.getAttributeValue("page") : "";
 			if (StringUtils.isNotBlank(page)) {
-				pagedSource = SourceFactory.getSource(context, sourceElt);
+				pagedResource = sourceElt;
 			}
 		}
 
-		return pagedSource;
+		return pagedResource;
 	}
 	
 	private boolean doRunJob(final Element job, final ActivityMBean activityBean) {

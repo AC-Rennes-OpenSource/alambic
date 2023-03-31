@@ -785,7 +785,7 @@ public class Functions {
         final String uri = v[1];
         final String query = v[2];
         String res = "-1";
-        final SqlToStateBase sb = new SqlToStateBase(driver, uri);
+        final SqlToStateBase sb = new SqlToStateBase(driver, uri, "NONE");
         try {
             sb.executeQuery(query);
             final int count = sb.getCountResults();

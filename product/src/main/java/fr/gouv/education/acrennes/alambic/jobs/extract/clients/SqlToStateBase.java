@@ -22,13 +22,10 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 import fr.gouv.education.acrennes.alambic.exception.AlambicException;
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
@@ -36,19 +33,45 @@ public class SqlToStateBase implements IToStateBase {
 
 	private static final Log log = LogFactory.getLog(SqlToStateBase.class);
 
+	private enum PaginationMethod {
+		ORACLE11G {
+			@Override
+			public String paginationQuery(String query, int offSet, int pageSize, int total) {
+				return String.format(
+						"SELECT * FROM (SELECT t.*, rownum AS num__ FROM (%s) t) WHERE num__ BETWEEN %d AND %d",
+						query,
+						offSet + 1,
+						Math.min(offSet + pageSize, total));
+			}
+		},
+		NONE {
+			@Override
+			public String paginationQuery(String query, int offSet, int pageSize, int total) throws AlambicException {
+				throw new AlambicException("Not implemented operation");
+			}
+		};
+
+		public abstract String paginationQuery(String query, int offSet, int pageSize, int total) throws AlambicException;
+	}
+
 	private List<Map<String, List<String>>> stateBase = new ArrayList<>();
 	private PreparedStatement pstmt;
 	private Connection conn;
 	private ResultSet rs;
+	private PaginationMethod paginationMethod;
 
-	public SqlToStateBase(final String driver, final String uri) throws SQLException, ClassNotFoundException {
+	public SqlToStateBase(final String driver, final String uri, final String paginationMethod) throws SQLException, ClassNotFoundException {
 		Class.forName(driver);
 		conn = DriverManager.getConnection(uri);
+		log.info("New connection " + conn.toString()); // TODO A virer
+		this.paginationMethod = PaginationMethod.valueOf(paginationMethod.toUpperCase());
 	}
 
-	public SqlToStateBase(final String driver, final String uri, final String user, final String password) throws SQLException, ClassNotFoundException {
+	public SqlToStateBase(final String driver, final String uri, final String paginationMethod, final String user, final String password) throws SQLException, ClassNotFoundException {
 		Class.forName(driver);
 		conn = DriverManager.getConnection(uri, user, password);
+		log.info("New connection " + conn.toString()); // TODO A virer
+		this.paginationMethod = PaginationMethod.valueOf(paginationMethod.toUpperCase());
 	}
 
 	@Override
@@ -99,7 +122,9 @@ public class SqlToStateBase implements IToStateBase {
 	public void close() {
 		if (null != conn) {
 			try {
+				log.info("Closing connection " + conn.toString()); //TODO A virer
 				conn.close();
+				log.info("Connection closed"); //TODO A virer
 			} catch (SQLException e) {
 				log.error("Failed to close the SQL client, error:" + e.getMessage(), e);
 			} finally {
@@ -121,7 +146,59 @@ public class SqlToStateBase implements IToStateBase {
 	@Override
 	public Iterator<List<Map<String, List<String>>>> getPageIterator(final String query, final String scope, final int pageSize, final String sortBy, final String orderBy)
 			throws AlambicException {
-		throw new AlambicException("Not implemented operation");
+		return new SQLResultsPageIterator(query, pageSize, paginationMethod);
+	}
+
+	public class SQLResultsPageIterator implements Iterator<List<Map<String, List<String>>>> {
+		private final Log log = LogFactory.getLog(SQLResultsPageIterator.class);
+
+		private List<Map<String, List<String>>> entries;
+		private int pageSize;
+		private int offset;
+		private int total;
+		private PaginationMethod paginationMethod;
+		private String query;
+
+		public SQLResultsPageIterator(final String query, final int pageSize, final PaginationMethod paginationMethod) throws AlambicException {
+			this.pageSize = pageSize;
+			this.entries = Collections.emptyList();
+			this.offset = 0;
+			this.paginationMethod = paginationMethod;
+			this.query = query;
+
+			String countQuery = String.format("SELECT COUNT(*) AS COUNT FROM (%s)", query);
+
+			executeQuery(countQuery);
+			this.entries = getStateBase();
+			if (!this.entries.isEmpty()) {
+				String countString = this.entries.get(0).get("COUNT").get(0);
+				if (StringUtils.isNotBlank(countString)) {
+					this.total = Integer.parseInt(countString);
+				} else {
+					throw new AlambicException("Failed to instanciate the SQL source page iterator. Blank count while getting the resultset total size (query is '" + countQuery + "')");
+				}
+			} else {
+				throw new AlambicException("Failed to instanciate the SQL source page iterator. Empty result while getting the resultset total size (query is '" + countQuery + "')");
+			}
+		}
+
+		@Override
+		public boolean hasNext() {
+			return (this.offset <= this.total);
+		}
+
+		@Override
+		public List<Map<String, List<String>>> next() {
+			entries.clear();
+			try {
+				executeQuery(paginationMethod.paginationQuery(query, offset, pageSize, total));
+				entries = getStateBase();
+				offset += pageSize;
+				return entries;
+			} catch (AlambicException e) {
+				throw new RuntimeException(e);
+			}
+		}
 	}
 
 }

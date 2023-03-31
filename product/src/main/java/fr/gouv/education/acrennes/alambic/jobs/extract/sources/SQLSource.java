@@ -25,9 +25,15 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.jdom2.Element;
 
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+
 public class SQLSource extends AbstractSource {
 
 	private static final Log log = LogFactory.getLog(SQLSource.class);
+
+	private int pageSize;
 
 	public SQLSource(final CallableContext context, final Element sourceNode) throws AlambicException {
 		super(context, sourceNode);
@@ -67,15 +73,35 @@ public class SQLSource extends AbstractSource {
 			query = context.resolveString(query);
 		}
 
+		String page = sourceNode.getAttributeValue("page");
+		if (StringUtils.isNotBlank(page)) {
+			this.pageSize = Integer.parseInt(context.resolveString(page));
+		} else {
+			this.pageSize = 0;
+		}
+
+		String paginationMethod = sourceNode.getAttributeValue("paginationMethod");
+		if (StringUtils.isNotBlank(paginationMethod)) {
+			paginationMethod = context.resolveString(paginationMethod);
+		} else {
+			paginationMethod = "NONE";
+		}
+
 		try {
 			if (login != null && pwd != null) {
-				setClient(new SqlToStateBase(driver, uri, login, pwd));
+				setClient(new SqlToStateBase(driver, uri, paginationMethod, login, pwd));
 			} else {
-				setClient(new SqlToStateBase(driver, uri));
+				setClient(new SqlToStateBase(driver, uri, paginationMethod));
 			}
 		} catch (Exception e) {
 			log.error("Failed to instanciate the SQL client, error:" + e.getMessage());
+			e.printStackTrace();
 		}
+	}
+
+	@Override
+	public Iterator<List<Map<String, List<String>>>> getPageIterator() throws AlambicException {
+		return getClient().getPageIterator(this.query, null, this.pageSize, null, null);
 	}
 
 }
