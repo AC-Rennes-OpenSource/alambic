@@ -44,6 +44,12 @@ public class SqlToStateBase implements IToStateBase {
 						Math.min(offSet + pageSize, total));
 			}
 		},
+		OFFSET {
+			@Override
+			public String paginationQuery(String query, int offSet, int pageSize, int total) throws AlambicException {
+				return String.format("SELECT * FROM (%s) LIMIT %d OFFSET %d", query, pageSize, offSet);
+			}
+		},
 		NONE {
 			@Override
 			public String paginationQuery(String query, int offSet, int pageSize, int total) throws AlambicException {
@@ -63,14 +69,12 @@ public class SqlToStateBase implements IToStateBase {
 	public SqlToStateBase(final String driver, final String uri, final String paginationMethod) throws SQLException, ClassNotFoundException {
 		Class.forName(driver);
 		conn = DriverManager.getConnection(uri);
-		log.info("New connection " + conn.toString()); // TODO A virer
 		this.paginationMethod = PaginationMethod.valueOf(paginationMethod.toUpperCase());
 	}
 
 	public SqlToStateBase(final String driver, final String uri, final String paginationMethod, final String user, final String password) throws SQLException, ClassNotFoundException {
 		Class.forName(driver);
 		conn = DriverManager.getConnection(uri, user, password);
-		log.info("New connection " + conn.toString()); // TODO A virer
 		this.paginationMethod = PaginationMethod.valueOf(paginationMethod.toUpperCase());
 	}
 
@@ -122,9 +126,7 @@ public class SqlToStateBase implements IToStateBase {
 	public void close() {
 		if (null != conn) {
 			try {
-				log.info("Closing connection " + conn.toString()); //TODO A virer
 				conn.close();
-				log.info("Connection closed"); //TODO A virer
 			} catch (SQLException e) {
 				log.error("Failed to close the SQL client, error:" + e.getMessage(), e);
 			} finally {

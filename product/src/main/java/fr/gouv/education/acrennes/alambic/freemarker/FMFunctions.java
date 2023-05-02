@@ -58,6 +58,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.json.simple.JSONObject;
 import org.json.simple.JSONArray;
+import org.json.simple.JSONValue;
 import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
 import org.nuxeo.ecm.automation.client.model.PropertyMap;
@@ -438,6 +439,10 @@ public class FMFunctions {
 			throw new AlambicException("Error file parsing the JSON file '" + filepath + "', error: " + e.getMessage());
 		}
 		return obj;
+	}
+
+	public String getJSONStringFrom(Object object) {
+		return JSONValue.toJSONString(object);
 	}
 	
 	public NodeModel getNodeModel(final String filepath) {
