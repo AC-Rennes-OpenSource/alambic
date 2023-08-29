@@ -149,13 +149,15 @@ public class WSToStateBase implements IToStateBase {
             
             try (CloseableHttpResponse response = this.httpClient.execute(request)) {
             	if (wsapi.isSuccessful(response)) {
-            		String body = IOUtils.toString(response.getEntity().getContent(), Charsets.UTF_8);
-            		if (StringUtils.isNotBlank(body)) {
-            			Map<String, List<String>> item = new HashMap<>();
-            			item.put("item", Collections.singletonList(body));
-            			stateBase.add(item);
-            		}
-            	} else {
+                    if (response.getEntity() != null && response.getEntity().getContent() != null) {
+                        String body = IOUtils.toString(response.getEntity().getContent(), Charsets.UTF_8);
+                        if (StringUtils.isNotBlank(body)) {
+                            Map<String, List<String>> item = new HashMap<>();
+                            item.put("item", Collections.singletonList(body));
+                            stateBase.add(item);
+                        }
+                    }
+                } else {
             		LOG.error(String.format("Réponse en erreur sur la requête '%s' (codes attendus : '%s'), réponse reçue : code=%d, phrase=%s",
             				wsapi,
             				wsapi.getSuccessResponseCodes(),
