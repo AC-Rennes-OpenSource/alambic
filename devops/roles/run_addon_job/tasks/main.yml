@@ -41,7 +41,7 @@
       state: absent
 
   - name: Run the job {{ job_name | default('all') }} (file is {{ job_file_name | default('jobs.xml') }}, wait for up {{ job_timeout | default(3600) }} sec, poll every {{ job_poll_period | default(0) }} sec)
-    shell: ./runner.sh -v -f "{{ job_file_name | default('jobs.xml') }}" -j "{{ job_name | default('all') }}" -p "{{ job_parameters | default('') }}" > runner.log
+    shell: ./runner.sh -v -f "{{ job_file_name | default('jobs.xml') }}" -j "{{ job_name | default('all') }}" -p "{{ job_parameters | default('') }}" > runner.log 2>&1
     args:
       chdir: "{{ ansible_env.HOME }}/opt/etl/addons/{{ addon_name}}/jobs/"
     async: "{{ job_timeout | default(3600) }}"
@@ -49,7 +49,7 @@
     when: "'False' == (debug_mode | default('False'))"
 
   - name: Run the job {{ job_name | default('all') }} in debug mode (file is {{ job_file_name | default('jobs.xml') }}, wait for up {{ job_timeout | default(3600) }} sec, poll every {{ job_poll_period | default(0) }} sec)
-    shell: ./runner.sh -f "{{ job_file_name | default('jobs.xml') }}" -j "{{ job_name | default('all') }}" -p "{{ job_parameters | default('') }}" -D "{{ ALAMBIC_DEBUG_JVM_VARS }}" > runner.log
+    shell: ./runner.sh -f "{{ job_file_name | default('jobs.xml') }}" -j "{{ job_name | default('all') }}" -p "{{ job_parameters | default('') }}" -D "{{ ALAMBIC_DEBUG_JVM_VARS }}" > runner.log 2>&1
     args:
       chdir: "{{ ansible_env.HOME }}/opt/etl/addons/{{ addon_name}}/jobs/"
     async: "{{ job_timeout | default(3600) }}"

@@ -103,10 +103,12 @@ report() {
 	NORMALIZED_INPUT_FILE=$(echo ${INPUT_FILE} | sed -r 's#(.*/)?([^/\.]+)(\..+)?#\2#')
 	FILE_PROCESS_IDENTIFIER=$(echo "${PROCESS_IDENTIFIER}-${NORMALIZED_INPUT_FILE}-${NORMALIZED_JOBS_LIST}")
 
-	# Keep copy of the addon logs (and discards any null characters that could be inserted when the log file is modified via an inner process)
-	cp runner.log "${ALAMBIC_LOG_DIR}${ADDON_NAME}/alambic-${FILE_PROCESS_IDENTIFIER}.log"
-	sed -i 's/[^[:print:]\t]//g' "${ALAMBIC_LOG_DIR}${ADDON_NAME}/alambic-${FILE_PROCESS_IDENTIFIER}.log"
+	# BACKUP RUNNER LOG FILE
+	BACKUP_RUNNER_LOG_FILE="${ALAMBIC_LOG_DIR}${ADDON_NAME}/alambic-${FILE_PROCESS_IDENTIFIER}.log"
 
+	# Keep backup of the addon's runner logs
+	cp runner.log ${BACKUP_RUNNER_LOG_FILE}
+	
 	# Build output report (HTML format)
 	REPORT_FILE="${ALAMBIC_LOG_DIR}${ADDON_NAME}/alambic-${FILE_PROCESS_IDENTIFIER}-report.html"
 	logger "INFO" "Build the report file '${REPORT_FILE}'"
@@ -118,18 +120,18 @@ report() {
 	ADDON_VERSION=$(grep "addon.version=" ../addon.properties | sed -r 's#.+=(.+)#\1#')
 
 	# extract the change logs from output ETL tool's log
-	CHANGELOGS_CREATE=$(grep -c -E ".+ INFO .+(Creation)" runner.log)
-	CHANGELOGS_UPDATE=$(grep -c -E ".+ INFO .+(Modification|Execute the Nuxeo chain)" runner.log)
-	CHANGELOGS_DELETE=$(grep -c -E ".+ INFO .+(Suppression|Effacement)" runner.log)
-	CHANGELOGS_NOTIFY=$(grep -c -E ".+ INFO .+(Notification)" runner.log)
+	CHANGELOGS_CREATE=$(grep -c -E ".+ INFO .+(Creation)" ${BACKUP_RUNNER_LOG_FILE})
+	CHANGELOGS_UPDATE=$(grep -c -E ".+ INFO .+(Modification|Execute the Nuxeo chain)" ${BACKUP_RUNNER_LOG_FILE})
+	CHANGELOGS_DELETE=$(grep -c -E ".+ INFO .+(Suppression|Effacement)" ${BACKUP_RUNNER_LOG_FILE})
+	CHANGELOGS_NOTIFY=$(grep -c -E ".+ INFO .+(Notification)" ${BACKUP_RUNNER_LOG_FILE})
 	CHANGELOGS_COUNT=$(( ${CHANGELOGS_CREATE} + ${CHANGELOGS_UPDATE} + ${CHANGELOGS_DELETE} + ${CHANGELOGS_NOTIFY} ))
 
 	# extract the warning logs from output ETL tool's log
-	WARNINGS_COUNT=$(grep -c -E "( WARN )" runner.log)
-
+	WARNINGS_COUNT=$(grep -c -E "( WARN )" ${BACKUP_RUNNER_LOG_FILE})
+	
 	# extract the error logs from output ETL tool's log
-	ERRORS_COUNT=$(grep -c -E "(ERROR)" runner.log)
-
+	ERRORS_COUNT=$(grep -c -E "(ERROR)" ${BACKUP_RUNNER_LOG_FILE})
+	
 	if [ $WARNINGS_COUNT -gt 0 ]
 	then
 		SCRIPT_STATUS="avec des warnings"
@@ -160,13 +162,14 @@ report() {
 	sed -i "s#@WARNINGS_COUNT#${WARNINGS_COUNT}#g" "${REPORT_FILE}"
 	sed -i "s#@ERRORS_COUNT#${ERRORS_COUNT}#g" "${REPORT_FILE}"
 	sed -i "s#@SCRIPT_DURATION#${SCRIPT_DURATION}#g" "${REPORT_FILE}"
-	sed -i "s#@LOGS_LOCATION#$(hostname):${ALAMBIC_LOG_DIR}${ADDON_NAME}/alambic-${FILE_PROCESS_IDENTIFIER}.log#g" "${REPORT_FILE}"
+	sed -i "s#@LOGS_LOCATION#$(hostname):${BACKUP_RUNNER_LOG_FILE}#g" "${REPORT_FILE}"
 	sed -i "s#@ALAMBIC_VERSION#${ALAMBIC_VERSION}#g" "${REPORT_FILE}"
 	sed -i "s#@ADDON_VERSION#${ADDON_VERSION}#g" "${REPORT_FILE}"
 
 	# Update the audit (CSV format)
 	AUDIT_FILE="${ALAMBIC_LOG_DIR}${ADDON_NAME}/alambic-${ADDON_NAME}-audit.csv"
 	logger "INFO" "Update the audit file '${AUDIT_FILE}'"
+	
 	# Build / append the addon's audit log
 	if [ ! -e ${AUDIT_FILE} ]
 	then
@@ -184,7 +187,7 @@ report() {
 				if [ $ERRORS_COUNT -gt 0 ]
 				then
 					echo "Here is a sample of the error logs :" > runner-email.txt
-					grep -m 10 -E "(ERROR)" runner.log >> runner-email.txt
+					grep -m 10 -E "(ERROR|\s+at .+)" ${BACKUP_RUNNER_LOG_FILE} >> runner-email.txt
 				fi
 
 				if [ $WARNINGS_COUNT -gt 0 ]
@@ -196,7 +199,7 @@ report() {
 						echo " " >> runner-email.txt
 						echo "Here is a sample of the warning logs :" >> runner-email.txt
 					fi
-					grep -m 10 -E "( WARN )" runner.log >> runner-email.txt
+					grep -m 10 -E "( WARN )" ${BACKUP_RUNNER_LOG_FILE} >> runner-email.txt
 				fi
 
 				mail -r "noreply@ac-rennes.fr" -s "[NOTIFICATION ALAMBIC - ${ALAMBIC_TARGET_ENVIRONMENT}] Addon ${ADDON_NAME} exécuté ${SCRIPT_STATUS}" "${NOTIFICATION_MAILING_LIST}" < runner-email.txt
@@ -233,6 +236,7 @@ finally() {
 #---------------------------------------------
 # Controls
 #---------------------------------------------
+{
 if [ $# -ge 1 ]
 then
 	# parse the command options
@@ -311,9 +315,6 @@ then
 	#---------------------------------------------
 	if [ -s "$INPUT_FILE" ]
 	then
-		# Flush the runner log (important when one script calls runner.sh several times)
-		> runner.log
-
 		if [ $VERBOSE -eq 2 ]
 		then
 			CMD_PARAMS="${CMD_PARAMS},debug_mode"
@@ -357,4 +358,5 @@ else
 	usage
 	finally 1
 fi
+} > runner.log
 finally 0
