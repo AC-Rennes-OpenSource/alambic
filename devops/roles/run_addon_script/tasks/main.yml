@@ -35,12 +35,17 @@
       regexp: '(ADDON_NAME=")[^"]*(")'
       replace: '\1{{ addon_name }}\2'
 
-  - name: Clean the runner log file
+  - name: Remove the runner log file
     file:
       path: "{{ ansible_env.HOME }}/opt/etl/addons/{{ addon_name}}/scripts/runner.log"
       state: absent
+  
+  - name: Create new empty runner log file
+    file:
+      path: "{{ ansible_env.HOME }}/opt/etl/addons/{{ addon_name}}/scripts/runner.log"
+      state: touch
       
-  - name: Clean the script log file
+  - name: Remove the script log file
     file:
       path: "{{ ansible_env.HOME }}/opt/etl/addons/{{ addon_name}}/scripts/{{ script_file_name | default('script.sh') }}.log"
       state: absent
