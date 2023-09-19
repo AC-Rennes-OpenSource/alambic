@@ -23,19 +23,16 @@
     import_tasks: install_version.yml
     vars:
       repositoryUrl: "{{ maven_snapshot_repository }}"
-    static: no
     when: "'SNAPSHOT' in version"
 
   - name: Install a release version
     import_tasks: install_version.yml
     vars:
       repositoryUrl: "{{ maven_release_repository }}"
-    static: no
     when: "'SNAPSHOT' not in version and tag_check.stat.exists is defined and tag_check.stat.exists == False"
 
   - name: Configure the version
     import_tasks: configure_version.yml
-    static: no
 
   - name: List former versions
     find:
