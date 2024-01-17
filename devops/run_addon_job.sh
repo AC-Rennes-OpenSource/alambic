@@ -179,7 +179,7 @@ if [ ! -d "${ALAMBIC_HOME_ADDONS}/${ALAMBIC_ADDON_NAME}/output" ]
 then
     logger "INFO" "Create the addon's output directory since it doesn't exist"
     mkdir ${ALAMBIC_HOME_ADDONS}/${ALAMBIC_ADDON_NAME}/output
-if
+fi
 
 if [ true == ${CLEAN_OUTPUT_DIRECTORY} ]
 then
@@ -187,7 +187,7 @@ then
     rm -rf ${ALAMBIC_HOME_ADDONS}/${ALAMBIC_ADDON_NAME}/output/*
 else
     logger "INFO" "Keep the addon output directory"
-if
+fi
 
 logger "INFO" "Prepare the runner instance"
 cp -f ${ALAMBIC_HOME_PRODUCT}/runner.sh ${ALAMBIC_HOME_ADDONS}/${ALAMBIC_ADDON_NAME}/jobs/runner.sh
@@ -210,7 +210,7 @@ then
 else
     logger "INFO" "Run the script ${ALAMBIC_HOME_ADDONS}/${ALAMBIC_ADDON_NAME}/jobs/${ALAMBIC_ADDON_JOB_FILE_NAME}"
     ./runner.sh -v -f "${ALAMBIC_ADDON_JOB_FILE_NAME}" -j "${ALAMBIC_ADDON_JOB_NAME}" -p "${JOB_PARAMETERS}" > runner.log 2>&1
-if
+fi
     environment: "{{ addon_env }}"
 
 finally 0
