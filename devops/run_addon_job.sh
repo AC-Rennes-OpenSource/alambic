@@ -211,6 +211,5 @@ else
     logger "INFO" "Run the script ${ALAMBIC_HOME_ADDONS}/${ALAMBIC_ADDON_NAME}/jobs/${ALAMBIC_ADDON_JOB_FILE_NAME}"
     ./runner.sh -v -f "${ALAMBIC_ADDON_JOB_FILE_NAME}" -j "${ALAMBIC_ADDON_JOB_NAME}" -p "${JOB_PARAMETERS}" > runner.log 2>&1
 fi
-    environment: "{{ addon_env }}"
 
 finally 0

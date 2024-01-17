@@ -201,6 +201,5 @@ else
     logger "INFO" "Run the script ${ALAMBIC_HOME_ADDONS}/${ALAMBIC_ADDON_NAME}/scripts/${ALAMBIC_ADDON_SCRIPT_FILE_NAME}"
     ./${ALAMBIC_ADDON_SCRIPT_FILE_NAME} "${SCRIPT_PARAMETERS}" > ${ALAMBIC_ADDON_SCRIPT_FILE_NAME}.log 2>&1
 fi
-    environment: "{{ addon_env }}"
 
 finally 0
