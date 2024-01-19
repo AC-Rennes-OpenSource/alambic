@@ -25,6 +25,10 @@
 # - ALAMBIC_LOG_AGE : how many days the log files will be kept within the Alambic log directory. Usualy set to 7 days.
 # - ALAMBIC_TARGET_ENVIRONMENT : specifies the current execution environment context (development, qualification, staging, production...).
 #----------------------------------------------------------------------------
+ALAMBIC_HOME="@globals.alambic_home@"
+ALAMBIC_LOG_DIR="@globals.alambic_log_dir@"
+ALAMBIC_LOG_AGE="@globals.alambic_log_age@"
+ALAMBIC_TARGET_ENVIRONMENT="@globals.alambic_target_environement@"
 
 #----------------------------------------------------------------------------
 # Execution variables
@@ -66,7 +70,7 @@ finally() {
 
 before_start() {
     IS_ERROR_STATUS=false
-
+    
     if [[ ! "${VERBOSE}" =~ ^(0|1|2)$ ]]
     then
         logger "ERROR" "Invalid argument: '-v' must fit one of the values [0,1,2]"
@@ -156,6 +160,15 @@ fi
 # Check the command options and variables
 #----------------------------------------------------------------------------
 before_start
+
+echo "ALAMBIC_HOME=${ALAMBIC_HOME}"
+echo "ALAMBIC_LOG_DIR=${ALAMBIC_LOG_DIR}"
+echo "ALAMBIC_LOG_AGE=${ALAMBIC_LOG_AGE}"
+echo "ALAMBIC_TARGET_ENVIRONMENT=${ALAMBIC_TARGET_ENVIRONMENT}"
+echo "ALAMBIC_ADDON_NAME=${ALAMBIC_ADDON_NAME}"
+echo "ALAMBIC_ADDON_SCRIPT_FILE_NAME=${ALAMBIC_ADDON_SCRIPT_FILE_NAME}"
+echo "CLEAN_OUTPUT_DIRECTORY=${CLEAN_OUTPUT_DIRECTORY}"
+echo "SCRIPT_PARAMETERS=${SCRIPT_PARAMETERS}"
 
 #----------------------------------------------------------------------------
 # Prepare the runner instance and execute

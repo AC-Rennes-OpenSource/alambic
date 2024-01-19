@@ -26,6 +26,10 @@
 # - ALAMBIC_TARGET_ENVIRONMENT : specifies the current execution environment context (development, qualification, staging, production...).
 # - ALAMBIC_DEBUG_JVM_VARS : specifies the JVM execution variables to set to enable the debug mode. As default : -Xdebug -Xrunjdwp:transport=dt_socket,address=8787,server=y,suspend=y
 #----------------------------------------------------------------------------
+ALAMBIC_HOME="@globals.alambic_home@"
+ALAMBIC_LOG_DIR="@globals.alambic_log_dir@"
+ALAMBIC_LOG_AGE="@globals.alambic_log_age@"
+ALAMBIC_TARGET_ENVIRONMENT="@globals.alambic_target_environement@"
 
 #----------------------------------------------------------------------------
 # Execution variables
@@ -170,6 +174,16 @@ fi
 # Check the command options and variables
 #----------------------------------------------------------------------------
 before_start
+
+echo "ALAMBIC_HOME=${ALAMBIC_HOME}"
+echo "ALAMBIC_LOG_DIR=${ALAMBIC_LOG_DIR}"
+echo "ALAMBIC_LOG_AGE=${ALAMBIC_LOG_AGE}"
+echo "ALAMBIC_TARGET_ENVIRONMENT=${ALAMBIC_TARGET_ENVIRONMENT}"
+echo "ALAMBIC_ADDON_NAME=${ALAMBIC_ADDON_NAME}"
+echo "ALAMBIC_ADDON_JOB_FILE_NAME=${ALAMBIC_ADDON_JOB_FILE_NAME}"
+echo "ALAMBIC_ADDON_JOB_NAME=${ALAMBIC_ADDON_JOB_NAME}"
+echo "CLEAN_OUTPUT_DIRECTORY=${CLEAN_OUTPUT_DIRECTORY}"
+echo "JOB_PARAMETERS=${JOB_PARAMETERS}"
 
 #----------------------------------------------------------------------------
 # Prepare the runner instance and execute
