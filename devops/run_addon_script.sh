@@ -67,7 +67,7 @@ finally() {
 before_start() {
     IS_ERROR_STATUS=false
 
-    if [[ "${VERBOSE}" =~ ^(0|1|2)$ ]]
+    if [[ ! "${VERBOSE}" =~ ^(0|1|2)$ ]]
     then
         logger "ERROR" "Invalid argument: '-v' must fit one of the values [0,1,2]"
         IS_ERROR_STATUS=true
