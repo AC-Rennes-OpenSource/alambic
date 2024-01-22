@@ -25,10 +25,10 @@
 # - ALAMBIC_LOG_AGE : how many days the log files will be kept within the Alambic log directory. Usualy set to 7 days.
 # - ALAMBIC_TARGET_ENVIRONMENT : specifies the current execution environment context (development, qualification, staging, production...).
 #----------------------------------------------------------------------------
-ALAMBIC_HOME="@globals.alambic_home@"
-ALAMBIC_LOG_DIR="@globals.alambic_log_dir@"
-ALAMBIC_LOG_AGE="@globals.alambic_log_age@"
-ALAMBIC_TARGET_ENVIRONMENT="@globals.alambic_target_environement@"
+export ALAMBIC_HOME="@globals.alambic_home@"
+export ALAMBIC_LOG_DIR="@globals.alambic_log_dir@"
+export ALAMBIC_LOG_AGE="@globals.alambic_log_age@"
+export ALAMBIC_TARGET_ENVIRONMENT="@globals.alambic_target_environement@"
 
 #----------------------------------------------------------------------------
 # Execution variables
@@ -65,6 +65,10 @@ usage() {
 
 finally() {
     logger "INFO" "End of treatment"
+    unset ALAMBIC_HOME
+    unset ALAMBIC_LOG_DIR
+    unset ALAMBIC_LOG_AGE
+    unset ALAMBIC_TARGET_ENVIRONMENT
     exit $1
 }
 
