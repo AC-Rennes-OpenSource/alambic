@@ -156,10 +156,16 @@ install_version() {
     fi
     
     logger "INFO" "Extraction du livrable '${DOWNLOAD_URL}'"
-    unzip -d "${ALAMBIC_HOME}/opt/etl/tags/${ETL_VERSION}" "${ALAMBIC_HOME}/opt/etl/alambic-product-${ETL_VERSION}.zip"
-    mv ${ALAMBIC_HOME}/opt/etl/tags/${ETL_VERSION}/scripting/* ${ALAMBIC_HOME}/opt/etl/tags/${ETL_VERSION}
-    rm -rf ${ALAMBIC_HOME}/opt/etl/tags/${ETL_VERSION}/scripting
-
+    if [[ -f "${ALAMBIC_HOME}/opt/etl/alambic-product-${ETL_VERSION}.zip" ]]
+    then
+        unzip -d "${ALAMBIC_HOME}/opt/etl/tags/${ETL_VERSION}" "${ALAMBIC_HOME}/opt/etl/alambic-product-${ETL_VERSION}.zip"
+        mv ${ALAMBIC_HOME}/opt/etl/tags/${ETL_VERSION}/scripting/* ${ALAMBIC_HOME}/opt/etl/tags/${ETL_VERSION}
+        rm -rf ${ALAMBIC_HOME}/opt/etl/tags/${ETL_VERSION}/scripting
+    else
+        logger "ERROR" "Erreur pendant le téléchargement du livrable '${DOWNLOAD_URL}'"
+        finally 1
+    fi
+    
     logger "INFO" "Positionnement des droits"
     for item in `ls ${ALAMBIC_HOME}/opt/etl/tags/${ETL_VERSION}/*.sh`
     do
@@ -167,7 +173,7 @@ install_version() {
     done
 
     logger "INFO" "Supprimer l'archive de livrable"
-#   rm -f "${ALAMBIC_HOME}/opt/etl/alambic-product-${ETL_VERSION}.zip"
+    rm -f "${ALAMBIC_HOME}/opt/etl/alambic-product-${ETL_VERSION}.zip"
 
     logger "INFO" "Positionnement du lien symbolique pour désigner la version active '${ETL_VERSION}'"
     ln -s "${ALAMBIC_HOME}/opt/etl/tags/${ETL_VERSION}" "${ALAMBIC_HOME}/opt/etl/active"
@@ -233,10 +239,6 @@ echo "ALAMBIC_HOME=${ALAMBIC_HOME}"
 echo "ALAMBIC_LOG_DIR=${ALAMBIC_LOG_DIR}"
 echo "ALAMBIC_LOG_AGE=${ALAMBIC_LOG_AGE}"
 echo "ALAMBIC_TARGET_ENVIRONMENT=${ALAMBIC_TARGET_ENVIRONMENT}"
-echo "ALAMBIC_ADDON_NAME=${ALAMBIC_ADDON_NAME}"
-echo "ALAMBIC_ADDON_SCRIPT_FILE_NAME=${ALAMBIC_ADDON_SCRIPT_FILE_NAME}"
-echo "CLEAN_OUTPUT_DIRECTORY=${CLEAN_OUTPUT_DIRECTORY}"
-echo "SCRIPT_PARAMETERS=${SCRIPT_PARAMETERS}"
 
 #----------------------------------------------------------------------------
 # Run install
