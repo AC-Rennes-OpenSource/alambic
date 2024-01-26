@@ -42,7 +42,6 @@ export ALAMBIC_TARGET_ENVIRONMENT="@globals.alambic_target_environement@"
 #----------------------------------------------------------------------------
 VERBOSE=2
 ETL_VERBOSE=""
-ETL_VERSION=""
 DOWNLOAD_URL=""
 DO_FORCE_INSTALL=false
 
@@ -150,16 +149,16 @@ install_version() {
     
     mkdir -p "${ALAMBIC_HOME}/opt/etl/tags/${ETL_VERSION}"
 
-    if [[ ! -f "${ALAMBIC_HOME}/opt/etl/alambic-product-${ETL_VERSION}.zip" ]]
+    if [[ ! -f "${ALAMBIC_HOME}/alambic-product-${ETL_VERSION}.zip" ]]
     then
         logger "INFO" "Téléchargement du livrable '${DOWNLOAD_URL}'"
-        wget -q -P "${ALAMBIC_HOME}/opt/etl" "${DOWNLOAD_URL}"
+        wget -q -P "${ALAMBIC_HOME}" "${DOWNLOAD_URL}"
     fi
     
     logger "INFO" "Extraction du livrable '${DOWNLOAD_URL}'"
-    if [[ -f "${ALAMBIC_HOME}/opt/etl/alambic-product-${ETL_VERSION}.zip" ]]
+    if [[ -f "${ALAMBIC_HOME}/alambic-product-${ETL_VERSION}.zip" ]]
     then
-        unzip -d "${ALAMBIC_HOME}/opt/etl/tags/${ETL_VERSION}" "${ALAMBIC_HOME}/opt/etl/alambic-product-${ETL_VERSION}.zip"
+        unzip -d "${ALAMBIC_HOME}/opt/etl/tags/${ETL_VERSION}" "${ALAMBIC_HOME}/alambic-product-${ETL_VERSION}.zip"
         mv ${ALAMBIC_HOME}/opt/etl/tags/${ETL_VERSION}/scripting/* ${ALAMBIC_HOME}/opt/etl/tags/${ETL_VERSION}
         rm -rf ${ALAMBIC_HOME}/opt/etl/tags/${ETL_VERSION}/scripting
     else
@@ -174,7 +173,7 @@ install_version() {
     done
 
     logger "INFO" "Supprimer l'archive de livrable"
-    rm -f "${ALAMBIC_HOME}/opt/etl/alambic-product-${ETL_VERSION}.zip"
+    rm -f "${ALAMBIC_HOME}/alambic-product-${ETL_VERSION}.zip"
 
     logger "INFO" "Positionnement du lien symbolique pour désigner la version active '${ETL_VERSION}'"
     ln -s "${ALAMBIC_HOME}/opt/etl/tags/${ETL_VERSION}" "${ALAMBIC_HOME}/opt/etl/active"

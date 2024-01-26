@@ -51,6 +51,7 @@ ALAMBIC_ADDON_NAME=""
 ALAMBIC_ADDON_JOB_FILE_NAME="jobs.xml"
 ALAMBIC_ADDON_JOB_NAME="all"
 JOB_PARAMETERS=""
+ALAMBIC_DEBUG_JVM_VARS=""
 DEFAULT_DEBUG_JVM_PARAMS="-Xdebug -Xrunjdwp:transport=dt_socket,address=8787,server=y,suspend=y"
 
 #----------------------------------------------------------------------------
@@ -79,7 +80,7 @@ finally() {
 before_start() {
     IS_ERROR_STATUS=false
 
-    if [[ "${VERBOSE}" =~ ^(0|1|2)$ ]]
+    if [[ ! "${VERBOSE}" =~ ^(0|1|2)$ ]]
     then
         logger "ERROR" "Invalid argument: '-v' must fit one of the values [0,1,2]"
         IS_ERROR_STATUS=true
@@ -134,7 +135,7 @@ before_start() {
 if [ $# -ge 1 ]
 then
     # parse the command options
-    while getopts "dv:n:cf:p:D:" opt
+    while getopts "dv:n:cf:j:p:D:" opt
     do
     case $opt in
         d)
@@ -158,12 +159,17 @@ then
             ALAMBIC_ADDON_JOB_FILE_NAME=$OPTARG
             ;;
         j)
-            # Alambic addon job file name to execute
+            # Alambic addon job name to execute
             ALAMBIC_ADDON_JOB_NAME=$OPTARG
             ;;
         p)
             # Alambic addon job's parameters
             JOB_PARAMETERS=$OPTARG
+            ;;
+        D)
+            # Set the debug JVM parameters
+            ALAMBIC_DEBUG_JVM_VARS=$OPTARG
+            DEBUG_MODE=true
             ;;
         \?)
             logger "ERROR" "Invalid argument: -$OPTARG is not supported" >&2

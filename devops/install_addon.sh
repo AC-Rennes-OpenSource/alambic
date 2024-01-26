@@ -141,16 +141,16 @@ install_version() {
 
     mkdir -p "${ALAMBIC_HOME}/opt/etl/addons/${ETL_ADDON_NAME}-${ETL_ADDON_VERSION}"
     
-    if [[ ! -f "${ALAMBIC_HOME}/opt/etl/${ETL_ADDON_NAME}-${ETL_ADDON_VERSION}.zip" ]]
+    if [[ ! -f "${ALAMBIC_HOME}/${ETL_ADDON_NAME}-${ETL_ADDON_VERSION}.zip" ]]
     then
         logger "INFO" "Téléchargement du livrable '${DOWNLOAD_URL}'"
-        wget -q -P "${ALAMBIC_HOME}/opt/etl" "${DOWNLOAD_URL}"
+        wget -q -P "${ALAMBIC_HOME}" "${DOWNLOAD_URL}"
     fi
     
     logger "INFO" "Extraction du livrable '${DOWNLOAD_URL}'"
-    if [[ -f "${ALAMBIC_HOME}/opt/etl/${ETL_ADDON_NAME}-${ETL_ADDON_VERSION}.zip" ]]
+    if [[ -f "${ALAMBIC_HOME}/${ETL_ADDON_NAME}-${ETL_ADDON_VERSION}.zip" ]]
     then
-        unzip -d "${ALAMBIC_HOME}/opt/etl/addons/${ETL_ADDON_NAME}-${ETL_ADDON_VERSION}" "${ALAMBIC_HOME}/opt/etl/${ETL_ADDON_NAME}-${ETL_ADDON_VERSION}.zip"
+        unzip -d "${ALAMBIC_HOME}/opt/etl/addons/${ETL_ADDON_NAME}-${ETL_ADDON_VERSION}" "${ALAMBIC_HOME}/${ETL_ADDON_NAME}-${ETL_ADDON_VERSION}.zip"
     else
         logger "ERROR" "Erreur pendant le téléchargement du livrable '${DOWNLOAD_URL}'"
         finally 1
@@ -170,7 +170,7 @@ install_version() {
     echo "addon.version=${ETL_ADDON_VERSION}" >> "${ALAMBIC_HOME}/opt/etl/addons/${ETL_ADDON_NAME}-${ETL_ADDON_VERSION}/addon.properties"
 
     logger "INFO" "Supprimer l'archive de livrable"
-    rm -f "${ALAMBIC_HOME}/opt/etl/${ETL_ADDON_NAME}-${ETL_ADDON_VERSION}.zip"
+    rm -f "${ALAMBIC_HOME}/${ETL_ADDON_NAME}-${ETL_ADDON_VERSION}.zip"
     rm -rf "${ALAMBIC_HOME}/opt/etl/addons/${ETL_ADDON_NAME}-${ETL_ADDON_VERSION}/devops"
 }
 
