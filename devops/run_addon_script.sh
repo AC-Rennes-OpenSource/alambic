@@ -60,7 +60,7 @@ logger() {
 }
 
 usage() {
-    echo "Usage: \"$0 -n <The Alambic addon's name> [-f <the script file to execute, as default 'script.sh'> -p <the script's parameters> -c <clean the addon's output directory, as default : false> -v <set verbose level [0=error only, 1=info+error, 2=all], as default : 0> -d <enable the debug mode>]\""
+    echo "Usage: \"$0 -n <The Alambic addon's name> [-f <the script file to execute, as default 'script.sh'> -p <the script's parameters> -c <true: clean the addon's output directory, as default: false> -v <set verbose level [0=error only, 1=info+error, 2=all], as default: 0> -d <true: enable the debug mode, as defult: false>]\""
 }
 
 finally() {
@@ -124,12 +124,12 @@ before_start() {
 if [ $# -ge 1 ]
 then
     # parse the command options
-    while getopts "dv:n:cf:p:" opt
+    while getopts "d:v:n:c:f:p:" opt
     do
     case $opt in
         d)
             # enable debug mode
-            DEBUG_MODE=true
+            DEBUG_MODE=$OPTARG
             ;;
         v)
             # enable verbose logs
@@ -141,7 +141,7 @@ then
             ;;
         c)
             # enable debug mode
-            CLEAN_OUTPUT_DIRECTORY=true
+            CLEAN_OUTPUT_DIRECTORY=$OPTARG
             ;;
         f)
             # Alambic addon script file name to execute
