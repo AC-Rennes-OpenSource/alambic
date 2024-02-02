@@ -169,7 +169,6 @@ then
         D)
             # Set the debug JVM parameters
             ALAMBIC_DEBUG_JVM_VARS=$OPTARG
-            DEBUG_MODE=true
             ;;
         \?)
             logger "ERROR" "Invalid argument: -$OPTARG is not supported" >&2
