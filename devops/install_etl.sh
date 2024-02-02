@@ -141,6 +141,7 @@ before_start() {
 
 install_version() {
     ACTIVE_LINK=$(ls -l ${ALAMBIC_HOME}/opt/etl/active 2>/dev/null | sed -r 's#.+active[^/]+'${ALAMBIC_HOME}'/opt/etl/tags/([^/]+).*#\1#')
+    echo "ACTIVE_LINK IS : ${ACTIVE_LINK}"
     if [[ "${ACTIVE_LINK}" == "${ETL_VERSION}" ]]
     then
         logger "INFO" "La version '${ETL_VERSION}' est déjà installée"
