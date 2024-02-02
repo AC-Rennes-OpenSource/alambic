@@ -48,10 +48,6 @@ DOWNLOAD_URL=""
 DO_FORCE_INSTALL=false
 
 #----------------------------------------------------------------------------
-# TODO : to set into Rundeck config
-#----------------------------------------------------------------------------
-
-#----------------------------------------------------------------------------
 # functions
 #----------------------------------------------------------------------------
 logger() {
@@ -62,7 +58,7 @@ logger() {
 }
 
 usage() {
-    echo "Usage: \"$0 -a <The Alambic's addon name (e.g. artifactid)> -v <The Alambic's addon version to install> -u <the URL to download the addon version archive> [-x <do force install>]\""
+    echo "Usage: \"$0 -a <The Alambic's addon name (e.g. artifactid)> -v <The Alambic's addon version to install> -u <the URL to download the addon version archive> [-x <true: do force install, as default: false>]\""
 }
 
 finally() {
@@ -180,7 +176,7 @@ install_version() {
 if [ $# -ge 1 ]
 then
     # parse the command options
-    while getopts "xv:u:a:" opt
+    while getopts "x:v:u:a:" opt
     do
     case $opt in
         a)
@@ -193,7 +189,7 @@ then
             DOWNLOAD_URL=$OPTARG
             ;;
         x)
-            DO_FORCE_INSTALL=true
+            DO_FORCE_INSTALL=$OPTARG
             ;;
         \?)
             logger "ERROR" "Invalid argument: -$OPTARG is not supported" >&2
