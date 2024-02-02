@@ -70,7 +70,7 @@ logger() {
 }
 
 usage() {
-    echo "Usage: \"$0 -v <The Alambic version to install> -u <the URL to download the version archive> [-x <do force install>]\""
+    echo "Usage: \"$0 -v <The Alambic version to install> -u <the URL to download the version archive> [-x <true: do force install, as default: false>]\""
 }
 
 finally() {
@@ -209,7 +209,7 @@ configure_version() {
 if [ $# -ge 1 ]
 then
     # parse the command options
-    while getopts "xv:u:" opt
+    while getopts "x:v:u:" opt
     do
     case $opt in
         v)
@@ -219,7 +219,7 @@ then
             DOWNLOAD_URL=$OPTARG
             ;;
         x)
-            DO_FORCE_INSTALL=true
+            DO_FORCE_INSTALL=$OPTARG
             ;;
         \?)
             logger "ERROR" "Invalid argument: -$OPTARG is not supported" >&2
