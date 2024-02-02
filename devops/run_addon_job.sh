@@ -65,7 +65,7 @@ logger() {
 }
 
 usage() {
-    echo "Usage: \"$0 -n <The Alambic addon's name> [-f <the file that defines the job, as default 'jobs.xml'> -j <the name of the job to execute, as default 'all'> -p <the job's parameters> -c <clean the addon's output directory, as default : false> -v <set verbose level [0=error only, 1=info+error, 2=all], as default : 0> -d <enable the debug mode>]\""
+    echo "Usage: \"$0 -n <The Alambic addon's name> [-f <the file that defines the job, as default 'jobs.xml'> -j <the name of the job to execute, as default 'all'> -p <the job's parameters> -c <true:clean the addon's output directory, as default : false> -v <set verbose level [0=error only, 1=info+error, 2=all], as default : 0> -d <enable the debug mode>]\""
 }
 
 finally() {
@@ -135,7 +135,7 @@ before_start() {
 if [ $# -ge 1 ]
 then
     # parse the command options
-    while getopts "dv:n:cf:j:p:D:" opt
+    while getopts "dv:n:c:f:j:p:D:" opt
     do
     case $opt in
         d)
@@ -152,7 +152,7 @@ then
             ;;
         c)
             # enable debug mode
-            CLEAN_OUTPUT_DIRECTORY=true
+            CLEAN_OUTPUT_DIRECTORY=$OPTARG
             ;;
         f)
             # Alambic addon job file name to execute
