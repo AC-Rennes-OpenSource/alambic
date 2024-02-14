@@ -288,7 +288,7 @@ configure_version
 logger "INFO" "Installation des credentials"
 install_credentials
  
-for item in `find ${ALAMBIC_HOME}/opt/etl/tags/ -maxdepth 1 -type d | grep -v -E "(.*tags/$|${ETL_VERSION})"`
+for item in `find ${ALAMBIC_HOME}/opt/etl/tags/ -maxdepth 1 -type d | grep -v -E "(.*tags/$|${ETL_VERSION}$)"`
 do
     logger "INFO" "Suppression de la version précédente d'ETL '${item}"
     rm -rf "${item}";

@@ -159,6 +159,7 @@ install_version() {
     done
 
     logger "INFO" "Positionnement du lien symbolique pour désigner la version active '${ETL_ADDON_VERSION}'"
+    rm -rf "${ALAMBIC_HOME}/opt/etl/addons/${ETL_ADDON_NAME}"
     ln -s "${ALAMBIC_HOME}/opt/etl/addons/${ETL_ADDON_NAME}-${ETL_ADDON_VERSION}" "${ALAMBIC_HOME}/opt/etl/addons/${ETL_ADDON_NAME}"
     chmod 775 "${ALAMBIC_HOME}/opt/etl/addons/${ETL_ADDON_NAME}"
 
@@ -228,7 +229,7 @@ fi
 logger "INFO" "Installation de la version '${ETL_ADDON_VERSION}' du addon ETL '${ETL_ADDON_NAME}' si nécessaire"
 install_version
  
-for item in `find ${ALAMBIC_HOME}/opt/etl/addons/ -maxdepth 1 -type d -iname "*${ETL_ADDON_NAME}*" | grep -v -E "(.*addons/$|${ETL_ADDON_NAME}-${ETL_ADDON_VERSION})"`
+for item in `find ${ALAMBIC_HOME}/opt/etl/addons/ -maxdepth 1 -type d -iname "*${ETL_ADDON_NAME}*" | grep -v -E "(.*addons/$|${ETL_ADDON_NAME}-${ETL_ADDON_VERSION}$)"`
 do
     logger "INFO" "Suppression de la version précédente du addon d'ETL '${item}"
     rm -rf "${item}";
