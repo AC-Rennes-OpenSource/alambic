@@ -143,7 +143,7 @@ install_version() {
 
     if [[ ! -f "${ALAMBIC_HOME}/alambic-product-${ETL_VERSION}.zip" ]]
     then
-        NEXUS_DOWNLOAD_URL=$(echo "${ALAMBIC_NEXUS_ARTIFACT_URL}" | sed -r "s#@VERSION@#${ETL_VERSION}#")
+        NEXUS_DOWNLOAD_URL=$(echo "${ALAMBIC_NEXUS_ARTIFACT_URL}" | sed -r "s/#VERSION#/${ETL_VERSION}/g")
         if [[ "${ETL_VERSION}" =~ .*SNAPSHOT.* ]]
         then
             NEXUS_DOWNLOAD_URL=$(echo "${NEXUS_DOWNLOAD_URL}" | sed -r "s#maven-releases-aca-rennes#maven-snapshots-aca-rennes#")
@@ -170,9 +170,10 @@ install_version() {
     done
 
     logger "INFO" "Supprimer l'archive de livrable"
-    #rm -f "${ALAMBIC_HOME}/alambic-product-${ETL_VERSION}.zip"
+    rm -f "${ALAMBIC_HOME}/alambic-product-${ETL_VERSION}.zip"
 
     logger "INFO" "Positionnement du lien symbolique pour désigner la version active '${ETL_VERSION}'"
+    rm -f "${ALAMBIC_HOME}/opt/etl/active"
     ln -s "${ALAMBIC_HOME}/opt/etl/tags/${ETL_VERSION}" "${ALAMBIC_HOME}/opt/etl/active"
 
     logger "INFO" "Installation du fichier de versionning"
@@ -199,7 +200,7 @@ install_credentials() {
     if [ ! -s "${ALAMBIC_HOME}/opt/etl/tags/${ETL_VERSION}/conf/variables.xml" ]
     then
         GITLAB_DOWNLOAD_URL=$(echo "${ALAMBIC_GITLAB_CREDENTIALS_URL}" | sed "s/#CREDENTIAL_FILE#/variables.xml/")
-        GITLAB_DOWNLOAD_URL=$(echo "${GITLAB_DOWNLOAD_URL}" | sed "s/#CREDENTIAL_VERSION#/${ALAMBIC_GITLAB_CREDENTIALS_VERSION}/")
+        GITLAB_DOWNLOAD_URL=$(echo "${GITLAB_DOWNLOAD_URL}" | sed "s/#CREDENTIAL_VERSION#/${ALAMBIC_GITLAB_CREDENTIALS_VERSION}/g")
         wget --quiet -O "${ALAMBIC_HOME}/opt/etl/tags/${ETL_VERSION}/conf/variables.xml" --header "Private-Token: @option.alambic.gitlab.pat@" ${GITLAB_DOWNLOAD_URL}
         if [ ! 0 -eq $? ]
         then
@@ -213,7 +214,7 @@ install_credentials() {
     if [ ! -s "${ALAMBIC_HOME}/opt/etl/tags/${ETL_VERSION}/conf/alambic.keystore" ]
     then
         GITLAB_DOWNLOAD_URL=$(echo "${ALAMBIC_GITLAB_CREDENTIALS_URL}" | sed "s/#CREDENTIAL_FILE#/alambic.keystore/")
-        GITLAB_DOWNLOAD_URL=$(echo "${GITLAB_DOWNLOAD_URL}" | sed "s/#CREDENTIAL_VERSION#/${ALAMBIC_GITLAB_CREDENTIALS_VERSION}/")
+        GITLAB_DOWNLOAD_URL=$(echo "${GITLAB_DOWNLOAD_URL}" | sed "s/#CREDENTIAL_VERSION#/${ALAMBIC_GITLAB_CREDENTIALS_VERSION}/g")
         wget --quiet -O "${ALAMBIC_HOME}/opt/etl/tags/${ETL_VERSION}/conf/alambic.keystore" --header 'Private-Token: @option.alambic.gitlab.pat@' ${GITLAB_DOWNLOAD_URL}
         if [ ! 0 -eq $? ]
         then
@@ -235,7 +236,6 @@ then
     do
     case $opt in
         v)
-	    echo ">>> ETL_VERSION=$OPTARG"
             ETL_VERSION=$OPTARG
             ;;
         x)
