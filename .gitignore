@@ -208,4 +208,5 @@ product/.*
 product/target
 
 .vscode/
+*.versionsBackup
 # End of https://www.gitignore.io/api/java,linux,eclipse,intellij
