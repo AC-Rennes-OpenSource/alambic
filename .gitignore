@@ -207,4 +207,5 @@ hs_err_pid*
 product/.*
 product/target
 
+.vscode/
 # End of https://www.gitignore.io/api/java,linux,eclipse,intellij

@@ -28,7 +28,7 @@
 export ALAMBIC_HOME="@globals.alambic_home@"
 export ALAMBIC_LOG_DIR="@globals.alambic_log_dir@"
 export ALAMBIC_LOG_AGE="@globals.alambic_log_age@"
-export ALAMBIC_TARGET_ENVIRONMENT="@globals.alambic_target_environement@"
+export ALAMBIC_TARGET_ENVIRONMENT="@globals.alambic_target_environment@"
 
 #----------------------------------------------------------------------------
 # Execution variables
@@ -215,6 +215,7 @@ echo "ALAMBIC_TARGET_ENVIRONMENT=${ALAMBIC_TARGET_ENVIRONMENT}"
 #----------------------------------------------------------------------------
 logger "INFO" "Démarrage de l'installation"
 logger "INFO" "Création de l'arborescence de déploiement"
+
 mkdir -p "${ALAMBIC_HOME}/opt/etl/addons"
 
 if [[ -d "${ALAMBIC_HOME}/opt/etl/addons/${ETL_ADDON_NAME}-${ETL_ADDON_VERSION}" ]] && ([[ "${ETL_ADDON_VERSION}" =~ .*SNAPSHOT.* ]] || [[ true == ${DO_FORCE_INSTALL} ]])

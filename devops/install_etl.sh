@@ -28,7 +28,7 @@
 export ALAMBIC_HOME="@globals.alambic_home@"
 export ALAMBIC_LOG_DIR="@globals.alambic_log_dir@"
 export ALAMBIC_LOG_AGE="@globals.alambic_log_age@"
-export ALAMBIC_TARGET_ENVIRONMENT="@globals.alambic_target_environement@"
+export ALAMBIC_TARGET_ENVIRONMENT="@globals.alambic_target_environment@"
 
 #----------------------------------------------------------------------------
 # Execution variables
@@ -41,23 +41,21 @@ export ALAMBIC_TARGET_ENVIRONMENT="@globals.alambic_target_environement@"
 # - SCRIPT_PARAMETERS : optional - the scipt's parameters, none as default.
 #----------------------------------------------------------------------------
 VERBOSE=2
-ETL_VERBOSE=""
-DOWNLOAD_URL=""
+ETL_VERSION=""
 DO_FORCE_INSTALL=false
 
-#----------------------------------------------------------------------------
-# TODO : to set into Rundeck config
-#----------------------------------------------------------------------------
-ALAMBIC_INVENTORY_PATH="/home/rundeck/etl-alambic/inventories/development"
-ALAMBIC_CONFIG_MULTITHREADING_POOL_SIZE=20
-ALAMBIC_CONFIG_PERSISTENCE_UNIT="TEST_PERSISTENCE_UNIT"
-ALAMBIC_CONFIG_JDBC_DRIVER="org.h2.Driver"
-ALAMBIC_CONFIG_JDBC_URL="jdbc:h2:mem:test"
-ALAMBIC_CONFIG_JDBC_USER="sa"
-ALAMBIC_CONFIG_JDBC_PASSWORD="sa"
-ALAMBIC_CONFIG_SECURITY_KEYSTORE_ALIAS="alambic-ks-alias"
-ALAMBIC_CONFIG_SECURITY_KEYSTORE_PASSWORD="alambic-ks-password"
-ALAMBIC_CONFIG_SECURITY_KEYSTORE_ALIAS_PASSWORD="alambic-ks-password-alias"
+ALAMBIC_CONFIG_MULTITHREADING_POOL_SIZE=@option.alambic.thread.poolsize@
+ALAMBIC_CONFIG_PERSISTENCE_UNIT="@option.alambic.persistence.unit.name@"
+ALAMBIC_CONFIG_JDBC_DRIVER="@option.alambic.jdbc.driver@"
+ALAMBIC_CONFIG_JDBC_URL="@option.alambic.jdbc.url@"
+ALAMBIC_CONFIG_JDBC_USER="@option.alambic.jdbc.user@"
+ALAMBIC_CONFIG_JDBC_PASSWORD="@option.alambic.jdbc.password@"
+ALAMBIC_CONFIG_SECURITY_KEYSTORE_ALIAS="@option.alambic.security.keystore.alias@"
+ALAMBIC_CONFIG_SECURITY_KEYSTORE_PASSWORD="@option.alambic.security.keystore.password@"
+ALAMBIC_CONFIG_SECURITY_KEYSTORE_ALIAS_PASSWORD="@option.alambic.security.keystore.alias.password@"
+ALAMBIC_GITLAB_CREDENTIALS_URL="@option.alambic.credentials.url@"
+ALAMBIC_NEXUS_ARTIFACT_URL="@option.alambic.artefact.url@"
+ALAMBIC_GITLAB_CREDENTIALS_VERSION=""
 
 #----------------------------------------------------------------------------
 # functions
@@ -70,7 +68,7 @@ logger() {
 }
 
 usage() {
-    echo "Usage: \"$0 -v <The Alambic version to install> -u <the URL to download the version archive> [-x <true: do force install, as default: false>]\""
+    echo "Usage: \"$0 -v <The version of the Alambic's product> -s <The version of the Alambic's credential files> [-x <true: do force install, as default: false>]\""
 }
 
 finally() {
@@ -96,15 +94,9 @@ before_start() {
         IS_ERROR_STATUS=true
     fi
 
-    if [ -z "${DOWNLOAD_URL}" ]
+    if [ -z "${ALAMBIC_GITLAB_CREDENTIALS_VERSION}" ]
     then
-        logger "ERROR" "Invalid argument: '-u' must be set but is empty"
-        IS_ERROR_STATUS=true
-    fi
-
-    if [ -z "${ALAMBIC_INVENTORY_PATH}" ]
-    then
-        logger "ERROR" "The environment variable 'ALAMBIC_INVENTORY_PATH' must be set but is empty"
+        logger "ERROR" "Invalid argument: '-s' must be set but is empty"
         IS_ERROR_STATUS=true
     fi
 
@@ -151,18 +143,23 @@ install_version() {
 
     if [[ ! -f "${ALAMBIC_HOME}/alambic-product-${ETL_VERSION}.zip" ]]
     then
-        logger "INFO" "Téléchargement du livrable '${DOWNLOAD_URL}'"
-        wget -q -P "${ALAMBIC_HOME}" "${DOWNLOAD_URL}"
+        NEXUS_DOWNLOAD_URL=$(echo "${ALAMBIC_NEXUS_ARTIFACT_URL}" | sed -r "s#@VERSION@#${ETL_VERSION}#")
+        if [[ "${ETL_VERSION}" =~ .*SNAPSHOT.* ]]
+        then
+            NEXUS_DOWNLOAD_URL=$(echo "${NEXUS_DOWNLOAD_URL}" | sed -r "s#maven-releases-aca-rennes#maven-snapshots-aca-rennes#")
+        fi
+        logger "INFO" "Téléchargement du livrable '${NEXUS_DOWNLOAD_URL}'"
+        wget -q -P "${ALAMBIC_HOME}" "${NEXUS_DOWNLOAD_URL}"
     fi
     
-    logger "INFO" "Extraction du livrable '${DOWNLOAD_URL}'"
+    logger "INFO" "Extraction du livrable '${ALAMBIC_HOME}/alambic-product-${ETL_VERSION}.zip'"
     if [[ -f "${ALAMBIC_HOME}/alambic-product-${ETL_VERSION}.zip" ]]
     then
         unzip -d "${ALAMBIC_HOME}/opt/etl/tags/${ETL_VERSION}" "${ALAMBIC_HOME}/alambic-product-${ETL_VERSION}.zip"
         mv ${ALAMBIC_HOME}/opt/etl/tags/${ETL_VERSION}/scripting/* ${ALAMBIC_HOME}/opt/etl/tags/${ETL_VERSION}
         rm -rf ${ALAMBIC_HOME}/opt/etl/tags/${ETL_VERSION}/scripting
     else
-        logger "ERROR" "Erreur pendant le téléchargement du livrable '${DOWNLOAD_URL}'"
+        logger "ERROR" "Erreur pendant le téléchargement du livrable '${NEXUS_DOWNLOAD_URL}'"
         finally 1
     fi
     
@@ -173,21 +170,16 @@ install_version() {
     done
 
     logger "INFO" "Supprimer l'archive de livrable"
-    rm -f "${ALAMBIC_HOME}/alambic-product-${ETL_VERSION}.zip"
+    #rm -f "${ALAMBIC_HOME}/alambic-product-${ETL_VERSION}.zip"
 
     logger "INFO" "Positionnement du lien symbolique pour désigner la version active '${ETL_VERSION}'"
     ln -s "${ALAMBIC_HOME}/opt/etl/tags/${ETL_VERSION}" "${ALAMBIC_HOME}/opt/etl/active"
-
-    logger "INFO" "Installation du fichier keystore et des variables"
-    cp "${ALAMBIC_INVENTORY_PATH}/conf/alambic.keystore" "${ALAMBIC_HOME}/opt/etl/tags/${ETL_VERSION}/conf/"
-    cp "${ALAMBIC_INVENTORY_PATH}/conf/variables.xml" "${ALAMBIC_HOME}/opt/etl/tags/${ETL_VERSION}/conf/"
 
     logger "INFO" "Installation du fichier de versionning"
     echo "alambic.version=${ETL_VERSION}" > "${ALAMBIC_HOME}/opt/etl/tags/${ETL_VERSION}/alambic.properties"
 }
 
 configure_version() {
-    logger "INFO" "Configuration de la version d'ETL"
     sed -r -i 's#repository.variables=(.+)#repository.variables='${ALAMBIC_HOME}'/opt/etl/tags/'${ETL_VERSION}'/conf/variables.xml#' "${ALAMBIC_HOME}/opt/etl/active/conf/config.properties"
     sed -r -i 's#repository.security.properties=(.+)#repository.security.properties='${ALAMBIC_HOME}'/opt/etl/tags/'${ETL_VERSION}'/conf/security.properties#' "${ALAMBIC_HOME}/opt/etl/active/conf/config.properties"
     sed -r -i 's#multithreading.pool.size=(.+)#multithreading.pool.size='${ALAMBIC_CONFIG_MULTITHREADING_POOL_SIZE}'#' "${ALAMBIC_HOME}/opt/etl/active/conf/config.properties"
@@ -203,23 +195,54 @@ configure_version() {
     sed -r -i 's#repository.keystore.password.'${ALAMBIC_CONFIG_SECURITY_KEYSTORE_ALIAS}'=(.*)#repository.keystore.password.'${ALAMBIC_CONFIG_SECURITY_KEYSTORE_ALIAS}'='${ALAMBIC_CONFIG_SECURITY_KEYSTORE_ALIAS_PASSWORD}'#' "${ALAMBIC_HOME}/opt/etl/active/conf/security.properties"
 }
 
+install_credentials() {
+    if [ ! -s "${ALAMBIC_HOME}/opt/etl/tags/${ETL_VERSION}/conf/variables.xml" ]
+    then
+        GITLAB_DOWNLOAD_URL=$(echo "${ALAMBIC_GITLAB_CREDENTIALS_URL}" | sed "s/#CREDENTIAL_FILE#/variables.xml/")
+        GITLAB_DOWNLOAD_URL=$(echo "${GITLAB_DOWNLOAD_URL}" | sed "s/#CREDENTIAL_VERSION#/${ALAMBIC_GITLAB_CREDENTIALS_VERSION}/")
+        wget --quiet -O "${ALAMBIC_HOME}/opt/etl/tags/${ETL_VERSION}/conf/variables.xml" --header "Private-Token: @option.alambic.gitlab.pat@" ${GITLAB_DOWNLOAD_URL}
+        if [ ! 0 -eq $? ]
+        then
+            logger "ERROR" "Echec lors de la récupération de la version ${ALAMBIC_GITLAB_CREDENTIALS_VERSION} du fichier 'variables.xml'"
+            finally 1
+        fi
+    else
+        logger "INFO" "Le fichier '${ALAMBIC_HOME}/opt/etl/tags/${ETL_VERSION}/conf/variables.xml' est déjà présent"
+    fi
+    
+    if [ ! -s "${ALAMBIC_HOME}/opt/etl/tags/${ETL_VERSION}/conf/alambic.keystore" ]
+    then
+        GITLAB_DOWNLOAD_URL=$(echo "${ALAMBIC_GITLAB_CREDENTIALS_URL}" | sed "s/#CREDENTIAL_FILE#/alambic.keystore/")
+        GITLAB_DOWNLOAD_URL=$(echo "${GITLAB_DOWNLOAD_URL}" | sed "s/#CREDENTIAL_VERSION#/${ALAMBIC_GITLAB_CREDENTIALS_VERSION}/")
+        wget --quiet -O "${ALAMBIC_HOME}/opt/etl/tags/${ETL_VERSION}/conf/alambic.keystore" --header 'Private-Token: @option.alambic.gitlab.pat@' ${GITLAB_DOWNLOAD_URL}
+        if [ ! 0 -eq $? ]
+        then
+            logger "ERROR" "Echec lors de la récupération de la version ${ALAMBIC_GITLAB_CREDENTIALS_VERSION} du fichier 'alambic.keystore'"
+            finally 1
+        fi
+    else
+        logger "INFO" "Le fichier '${ALAMBIC_HOME}/opt/etl/tags/${ETL_VERSION}/conf/alambic.keystore' est déjà présent"
+    fi
+}
+
 #----------------------------------------------------------------------------
 # Get the command options
 #----------------------------------------------------------------------------
 if [ $# -ge 1 ]
 then
     # parse the command options
-    while getopts "x:v:u:" opt
+    while getopts "x:v:s:" opt
     do
     case $opt in
         v)
+	    echo ">>> ETL_VERSION=$OPTARG"
             ETL_VERSION=$OPTARG
-            ;;
-        u)
-            DOWNLOAD_URL=$OPTARG
             ;;
         x)
             DO_FORCE_INSTALL=$OPTARG
+            ;;
+        s)
+            ALAMBIC_GITLAB_CREDENTIALS_VERSION=$OPTARG
             ;;
         \?)
             logger "ERROR" "Invalid argument: -$OPTARG is not supported" >&2
@@ -256,11 +279,14 @@ then
     rm -f ${ALAMBIC_HOME}/opt/etl/active
 fi
 
-logger "INFO" "Installation de la version d'ETL '${ETL_VERSION}' si nécessaire"
+logger "INFO" "Installation de la version d'ETL '${ETL_VERSION}'"
 install_version
 
-logger "INFO" "Configuration la version d'ETL"
+logger "INFO" "Configuration de la version d'ETL"
 configure_version
+
+logger "INFO" "Installation des credentials"
+install_credentials
  
 for item in `find ${ALAMBIC_HOME}/opt/etl/tags/ -maxdepth 1 -type d | grep -v -E "(.*tags/$|${ETL_VERSION})"`
 do

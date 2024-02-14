@@ -28,7 +28,7 @@
 export ALAMBIC_HOME="@globals.alambic_home@"
 export ALAMBIC_LOG_DIR="@globals.alambic_log_dir@"
 export ALAMBIC_LOG_AGE="@globals.alambic_log_age@"
-export ALAMBIC_TARGET_ENVIRONMENT="@globals.alambic_target_environement@"
+export ALAMBIC_TARGET_ENVIRONMENT="@globals.alambic_target_environment@"
 
 #----------------------------------------------------------------------------
 # Execution variables
@@ -60,7 +60,7 @@ logger() {
 }
 
 usage() {
-    echo "Usage: \"$0 -n <The Alambic addon's name> [-f <the script file to execute, as default 'script.sh'> -p <the script's parameters> -c <true: clean the addon's output directory, as default: false> -v <set verbose level [0=error only, 1=info+error, 2=all], as default: 0> -d <true: enable the debug mode, as defult: false>]\""
+    echo "Usage: \"$0 -n <The Alambic addon's name> [-f <the script file to execute, as default 'script.sh'> -p <the script's parameters> -c <true : clean the addon's output directory, as default : false> -v <set verbose level [0=error only, 1=info+error, 2=all], as default : 0> -d <true : enable the debug mode, as default : false>]\""
 }
 
 finally() {
@@ -174,6 +174,7 @@ echo "ALAMBIC_TARGET_ENVIRONMENT=${ALAMBIC_TARGET_ENVIRONMENT}"
 echo "ALAMBIC_ADDON_NAME=${ALAMBIC_ADDON_NAME}"
 echo "ALAMBIC_ADDON_SCRIPT_FILE_NAME=${ALAMBIC_ADDON_SCRIPT_FILE_NAME}"
 echo "CLEAN_OUTPUT_DIRECTORY=${CLEAN_OUTPUT_DIRECTORY}"
+echo "DEBUG_MODE=${DEBUG_MODE}"
 echo "SCRIPT_PARAMETERS=${SCRIPT_PARAMETERS}"
 
 #----------------------------------------------------------------------------
