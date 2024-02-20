@@ -21,6 +21,7 @@
 	<dependencySets>
 		<dependencySet>
 			<includes>
+				<include>javax.xml.bind:jaxb-api</include>
 				<include>com.ibm.db2.jcc:db2jcc4</include>
 				<include>mysql:mysql-connector-java</include>
 				<include>com.ibm.informix:jdbc</include>

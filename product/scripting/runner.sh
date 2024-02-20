@@ -33,10 +33,8 @@ JVM_ADDITIONAL_PARAMS="-Xms512m -Xmx2g -XX:+HeapDumpOnOutOfMemoryError -Dfile.en
 DEFAULT_DEBUG_JVM_PARAMS="-Xdebug -Xrunjdwp:transport=dt_socket,address=8787,server=y,suspend=y"
 # JMX optional additional JVM parameters (so that a tool like JVisualVM is used for deep application profiling - not Jolokia WEB end-point)
 DEFAULT_JMX_JVM_PARAMS="-Dcom.sun.management.jmxremote -Dcom.sun.management.jmxremote.port=9010 -Dcom.sun.management.jmxremote.local.only=false -Dcom.sun.management.jmxremote.authenticate=false -Dcom.sun.management.jmxremote.ssl=false"
-# Name of the currently executed addon (is set via the Ansible calling script)
+# Name of the currently executed addon
 ADDON_NAME=""
-# PROCESS IDENTIFIER
-PROCESS_IDENTIFIER="${ADDON_NAME}-$(date +'%Y%m%dT%H%M%S-%N')"
 # Max age of the addon logs
 ADDON_LOG_AGE=${ALAMBIC_LOG_AGE}
 # START/ENDING SCRIPT TIME (epoch reference)
@@ -56,7 +54,7 @@ logger() {
 }
 
 usage() {
-	echo "Usage: \"$0 -f <jobs xml file> [-j (jobs list. ':' character as separator) -a (to execute all jobs) -s (supervision, a notification is done according to the threshold specified by -t parameter) -t (defines the notification threshold - values: NONE, INFO, WARNING, ERROR - ERROR as default) -m (mailing list - as default is set by the environment variable 'ALAMBIC_NOTIFICATION_EMAIL_LIST') -p (optional arguments for ETL execution) -c (the thread pool size. As default, use the configuration file's definition) -v (verbose) -d (debug) -D (debug with specific jvm parameters)]\""
+	echo "Usage: \"$0 -n <the addon name> -f <jobs xml file> [-j (jobs list. ':' character as separator) -a (to execute all jobs) -s (supervision, a notification is done according to the threshold specified by -t parameter) -t (defines the notification threshold - values: NONE, INFO, WARNING, ERROR - ERROR as default) -m (mailing list - as default is set by the environment variable 'ALAMBIC_NOTIFICATION_EMAIL_LIST') -p (optional arguments for ETL execution) -c (the thread pool size. As default, use the configuration file's definition) -v (verbose) -d (debug) -D (debug with specific jvm parameters)]\""
 }
 
 setNotificationThreshold() {
@@ -237,10 +235,10 @@ finally() {
 # Controls
 #---------------------------------------------
 {
-if [ $# -ge 1 ]
+if [ $# -ge 2 ]
 then
 	# parse the command options
-	while getopts ":f:j:l:t:m:p:avdxD:c:s" opt
+	while getopts ":f:j:l:t:m:p:avdxD:c:sn:" opt
 	do
 		case $opt in
 			f)
@@ -302,8 +300,21 @@ then
 				# set the thread pool size
 				THREAD_POOL_SIZE=$OPTARG
 				;;
+			n)
+				# get the addon name defining the job to execute
+				ADDON_NAME=$OPTARG
+				if [ -z $ADDON_NAME ]
+				then
+					logger "ERROR" "Invalid argument: '-n' must be set but is empty "
+					usage
+					finally 1
+				fi
+
+				# PROCESS IDENTIFIER
+				PROCESS_IDENTIFIER="${ADDON_NAME}-$(date +'%Y%m%dT%H%M%S-%N')"
+				;;
 			\?)
-				logger "ERROR" "Invalid argument: -$OPTARG" >&2
+				logger "ERROR" "Invalid argument: -$OPTARG is not supported" >&2
 				usage
 				finally 1
 				;;
