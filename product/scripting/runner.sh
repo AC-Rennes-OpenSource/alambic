@@ -28,7 +28,7 @@ NOTIFICATION_THRESHOLD=${NOTIFICATION_THRESHOLD_ERROR}
 NOTIFICATION_MAILING_LIST="${ALAMBIC_NOTIFICATION_EMAIL_LIST}"
 CMD_PARAMS=""
 # Heap sizing & Jolokia permanent additional JVM parameters
-JVM_ADDITIONAL_PARAMS="-Xms512m -Xmx2g -XX:+HeapDumpOnOutOfMemoryError -Dfile.encoding=UTF-8 -Dcom.sun.jndi.ldap.connect.pool.timeout=60000 -Dlog4j.configurationFile=${EXECUTION_PATH}/conf/log4j2.xml -XX:+UseConcMarkSweepGC -javaagent:${EXECUTION_PATH}/lib/org.jolokia-jolokia-jvm.jar=port=8778,host=0.0.0.0"
+JVM_ADDITIONAL_PARAMS="-Xms512m -Xmx2g -XX:+HeapDumpOnOutOfMemoryError -Dfile.encoding=UTF-8 -Dcom.sun.jndi.ldap.connect.pool.timeout=60000 -Dlog4j.configurationFile=${EXECUTION_PATH}/conf/log4j2.xml -javaagent:${EXECUTION_PATH}/lib/org.jolokia-jolokia-jvm.jar=port=8778,host=0.0.0.0"
 # Debug optional additional JVM parameters
 DEFAULT_DEBUG_JVM_PARAMS="-Xdebug -Xrunjdwp:transport=dt_socket,address=8787,server=y,suspend=y"
 # JMX optional additional JVM parameters (so that a tool like JVisualVM is used for deep application profiling - not Jolokia WEB end-point)
