@@ -25,10 +25,10 @@
 # - ALAMBIC_LOG_AGE : how many days the log files will be kept within the Alambic log directory. Usualy set to 7 days.
 # - ALAMBIC_TARGET_ENVIRONMENT : specifies the current execution environment context (development, qualification, staging, production...).
 #----------------------------------------------------------------------------
-export ALAMBIC_HOME="@globals.alambic_home@"
-export ALAMBIC_LOG_DIR="@globals.alambic_log_dir@"
-export ALAMBIC_LOG_AGE="@globals.alambic_log_age@"
-export ALAMBIC_TARGET_ENVIRONMENT="@globals.alambic_target_environment@"
+export ALAMBIC_HOME="@node.alambic_home@"
+export ALAMBIC_LOG_DIR="@node.alambic_log_dir@"
+export ALAMBIC_LOG_AGE="@node.alambic_log_age@"
+export ALAMBIC_TARGET_ENVIRONMENT="@node.alambic_target_environment@"
 
 #----------------------------------------------------------------------------
 # Execution variables
@@ -149,7 +149,7 @@ install_version() {
             NEXUS_DOWNLOAD_URL=$(echo "${NEXUS_DOWNLOAD_URL}" | sed -r "s#maven-releases-aca-rennes#maven-snapshots-aca-rennes#")
         fi
         logger "INFO" "Téléchargement du livrable '${NEXUS_DOWNLOAD_URL}'"
-        wget -q -P "${ALAMBIC_HOME}" "${NEXUS_DOWNLOAD_URL}"
+        wget -q -P "${ALAMBIC_HOME}" -O "alambic-product-${ETL_VERSION}.zip" "${NEXUS_DOWNLOAD_URL}"
     fi
     
     logger "INFO" "Extraction du livrable '${ALAMBIC_HOME}/alambic-product-${ETL_VERSION}.zip'"
