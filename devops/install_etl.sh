@@ -149,7 +149,7 @@ install_version() {
             NEXUS_DOWNLOAD_URL=$(echo "${NEXUS_DOWNLOAD_URL}" | sed -r "s#maven-releases-aca-rennes#maven-snapshots-aca-rennes#")
         fi
         logger "INFO" "Téléchargement du livrable '${NEXUS_DOWNLOAD_URL}'"
-        wget -q -P "${ALAMBIC_HOME}" "${NEXUS_DOWNLOAD_URL}"
+        wget -q -P "${ALAMBIC_HOME}" -O "alambic-product-${ETL_VERSION}.zip" "${NEXUS_DOWNLOAD_URL}"
     fi
     
     logger "INFO" "Extraction du livrable '${ALAMBIC_HOME}/alambic-product-${ETL_VERSION}.zip'"
