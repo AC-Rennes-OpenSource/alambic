@@ -140,7 +140,7 @@ install_version() {
     if [[ ! -f "${ALAMBIC_HOME}/${ETL_ADDON_NAME}-${ETL_ADDON_VERSION}.zip" ]]
     then
         logger "INFO" "Téléchargement du livrable '${DOWNLOAD_URL}'"
-        wget -q -P "${ALAMBIC_HOME}" "${DOWNLOAD_URL}"
+        wget -q -P "${ALAMBIC_HOME}" -O "${ETL_ADDON_NAME}-${ETL_ADDON_VERSION}.zip" "${DOWNLOAD_URL}"
     fi
     
     logger "INFO" "Extraction du livrable '${DOWNLOAD_URL}'"
