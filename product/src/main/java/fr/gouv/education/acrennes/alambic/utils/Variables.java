@@ -19,17 +19,23 @@ package fr.gouv.education.acrennes.alambic.utils;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Properties;
 
-import fr.gouv.education.acrennes.alambic.exception.AlambicException;
-import fr.gouv.education.acrennes.alambic.security.CipherHelper;
 import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.jdom2.Element;
+
+import fr.gouv.education.acrennes.alambic.exception.AlambicException;
+import fr.gouv.education.acrennes.alambic.jobs.CallableContext;
+import fr.gouv.education.acrennes.alambic.security.CipherHelper;
 
 public class Variables {
 
@@ -66,6 +72,11 @@ public class Variables {
 				log.error("Error while deciphering value : " + e.getMessage());
 				log.error("Variables encrypted with alias " + alias + " will not be loaded");
 			}
+		}
+		
+		// Set the variable dealing with the engine keystore path
+		if (null != keystoreProperties && StringUtils.isNotBlank(keystoreProperties.getProperty("repository.keystore"))) {
+			tableVars.put(CallableContext.KEYSTORE_PATH, keystoreProperties.getProperty("repository.keystore"));
 		}
 	}
 
