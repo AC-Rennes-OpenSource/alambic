@@ -16,7 +16,9 @@
  ******************************************************************************/
 package fr.gouv.education.acrennes.alambic.jobs.extract.sources;
 
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
+import java.util.Base64;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -26,6 +28,7 @@ import javax.ws.rs.HttpMethod;
 import fr.gouv.education.acrennes.alambic.exception.AlambicException;
 import fr.gouv.education.acrennes.alambic.jobs.CallableContext;
 import fr.gouv.education.acrennes.alambic.jobs.extract.clients.WSToStateBase;
+import fr.gouv.education.acrennes.alambic.utils.JwtUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -64,31 +67,20 @@ public class WebServiceSource extends AbstractSource{
 		}
 		
 		// Get proxy configuration
-		String proxy_host = null;
-		String proxy_port = null;
+		String proxyHost = null;
+		String proxyPort = null;
 		Element proxyElt = sourceNode.getChild("proxy");
 		if (null != proxyElt) {
-			proxy_host = context.resolveString(proxyElt.getChildText("host"));
-			proxy_port = context.resolveString(proxyElt.getChildText("port"));
-			LOG.debug("proxy=" + proxy_host + ":" + proxy_port);
+			proxyHost = context.resolveString(proxyElt.getChildText("host"));
+			proxyPort = context.resolveString(proxyElt.getChildText("port"));
+			LOG.debug("proxy=" + proxyHost + ":" + proxyPort);
 		} else {
 			LOG.debug("Pas de configuration de proxy");
 		}
 
 		// Get authentication configuration
-		String auth_login = null;
-		String auth_password = null;
-		XPathFactory xpf = XPathFactory.instance();
-		XPathExpression<Element> xpath = xpf.compile(".//authentication/credentials", Filters.element());
-		List<Element> credentialsElts = xpath.evaluate(sourceNode);
-		if (null != credentialsElts && !credentialsElts.isEmpty()) {
-			auth_login = context.resolveString(credentialsElts.get(0).getChildText("login"));
-			auth_password = context.resolveString(credentialsElts.get(0).getChildText("password"));
-			LOG.debug("authentification.credentials.login=" + auth_login);
-		} else {
-			LOG.debug("Pas d'authentification configurée");
-		}
-		
+		String authHeader = authentication(sourceNode);
+
 		// Get the query
 		query = context.resolveString(sourceNode.getChildText("query")); // might be empty
 		
@@ -98,8 +90,8 @@ public class WebServiceSource extends AbstractSource{
 
 		// Get the API success codes list
 		List<Integer> successResponseCodes = new ArrayList<>();
-		xpf = XPathFactory.instance();
-		xpath = xpf.compile("./response_codes/code[@type=\"success\"]", Filters.element());
+		XPathFactory xpf = XPathFactory.instance();
+		XPathExpression<Element> xpath = xpf.compile("./response_codes/code[@type=\"success\"]", Filters.element());
 		List<Element> successCodes = xpath.evaluate(sourceNode);
 		if (null != successCodes && !successCodes.isEmpty()) {
 			for (Element code : successCodes) {
@@ -110,15 +102,49 @@ public class WebServiceSource extends AbstractSource{
 		}
 
 		// Get the request headers
-		Map<String, String> headers_map = new HashMap<>();
+		Map<String, String> headersMap = new HashMap<>();
 		Element headersElts = sourceNode.getChild("headers");
-		if (null != headersElts && 0 < headersElts.getChildren().size()) {
+		if (null != headersElts && !headersElts.getChildren().isEmpty()) {
 			for (Element headerElt : headersElts.getChildren()) {
-				headers_map.put(headerElt.getAttributeValue("name"), headerElt.getText());
+				headersMap.put(headerElt.getAttributeValue("name"), headerElt.getText());
 			}
 		}
 
-		setClient(new WSToStateBase(uri, method, headers_map, proxy_host, proxy_port, timeout, null, auth_login, auth_password, successResponseCodes));
+		setClient(new WSToStateBase(uri, method, headersMap, proxyHost, proxyPort, timeout, authHeader, successResponseCodes));
+	}
+
+	private String authentication(Element sourceNode) throws AlambicException {
+
+		XPathFactory xpf = XPathFactory.instance();
+		XPathExpression<Element> xpathCredentials = xpf.compile(".//authentication/credentials", Filters.element());
+		List<Element> credentialsElts = xpathCredentials.evaluate(sourceNode); //basic
+		XPathExpression<Element> xpathJwt = xpf.compile(".//authentication/jwt", Filters.element());
+		List<Element> jwtElts = xpathJwt.evaluate(sourceNode); // jwt
+		if (null != credentialsElts && !credentialsElts.isEmpty()) {
+			String authLogin = context.resolveString(credentialsElts.get(0).getChildText("login"));
+			String authPassword = context.resolveString(credentialsElts.get(0).getChildText("password"));
+			if (StringUtils.isNotBlank(authLogin) && StringUtils.isNotBlank(authPassword)) {
+				byte[] encodedAuth = Base64.getEncoder().encode(String.format("%s:%s", authLogin, authPassword).getBytes(
+						StandardCharsets.ISO_8859_1));
+				LOG.debug("authentification.credentials.login=" + authLogin);
+				return "Basic ".concat(new String(encodedAuth));
+			}
+		} else if (null != jwtElts && !jwtElts.isEmpty()) {
+			String kid = context.resolveString(jwtElts.get(0).getChildText("kid"));
+			String secret = context.resolveString(jwtElts.get(0).getChildText("secret"));
+			String customExpirationTime = context.resolveString(jwtElts.get(0).getChildText("expirationTime"));
+			int expirationTime;
+			try {
+				expirationTime = Integer.parseInt(customExpirationTime);
+			} catch (NumberFormatException e) {
+				expirationTime = 60;
+			}
+			if (StringUtils.isNotBlank(kid) && StringUtils.isNotBlank(secret)) {
+				LOG.debug("authentication.jwt.kid=" + kid);
+				return JwtUtils.createTokenFrom(kid, secret, expirationTime);
+			}
+		} // else no authentication
+		return null;
 	}
 
 }

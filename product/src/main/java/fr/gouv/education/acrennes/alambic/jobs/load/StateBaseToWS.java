@@ -16,12 +16,12 @@
  ******************************************************************************/
 package fr.gouv.education.acrennes.alambic.jobs.load;
 
-import java.io.IOException;
-import java.nio.charset.StandardCharsets;
-import java.util.Base64;
-import java.util.List;
-
+import fr.gouv.education.acrennes.alambic.api.WebServiceApi;
 import fr.gouv.education.acrennes.alambic.exception.AlambicException;
+import fr.gouv.education.acrennes.alambic.jobs.CallableContext;
+import fr.gouv.education.acrennes.alambic.monitoring.ActivityMBean;
+import fr.gouv.education.acrennes.alambic.monitoring.ActivityTrafficLight;
+import fr.gouv.education.acrennes.alambic.utils.JwtUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -42,17 +42,16 @@ import org.jdom2.xpath.XPathExpression;
 import org.jdom2.xpath.XPathFactory;
 import org.xml.sax.InputSource;
 
-import fr.gouv.education.acrennes.alambic.api.WebServiceApi;
-import fr.gouv.education.acrennes.alambic.jobs.CallableContext;
-import fr.gouv.education.acrennes.alambic.monitoring.ActivityMBean;
-import fr.gouv.education.acrennes.alambic.monitoring.ActivityTrafficLight;
+import java.io.IOException;
+import java.nio.charset.StandardCharsets;
+import java.util.Base64;
+import java.util.List;
 
 public class StateBaseToWS extends AbstractDestination {
 
 	private static final Log log = LogFactory.getLog(StateBaseToWS.class);
-	private static int DEFAULT_TIME_OUT = 5_000; // 5 seconds
 
-	private Element pivot = null;
+    private Element pivot = null;
 	private CloseableHttpClient httpClient;
 	private String authHeader;
 
@@ -73,23 +72,15 @@ public class StateBaseToWS extends AbstractDestination {
 			throw new AlambicException("le pivot n'est pas precisé");
 		}
 		
-		// Get authentication (basic supported only)
-		XPathFactory xpf = XPathFactory.instance();
-		XPathExpression<Element> xpath = xpf.compile(".//authentication/credentials", Filters.element());
-		List<Element> credentialsElts = xpath.evaluate(destinationNode);
-		if (null != credentialsElts && !credentialsElts.isEmpty()) {
-			String auth_login = context.resolveString(credentialsElts.get(0).getChildText("login"));
-			String auth_password = context.resolveString(credentialsElts.get(0).getChildText("password"));
-			if (StringUtils.isNotBlank(auth_login) && StringUtils.isNotBlank(auth_password)) {
-				byte[] encodedAuth = Base64.getEncoder().encode(String.format("%s:%s", auth_login, auth_password).getBytes(StandardCharsets.ISO_8859_1));
-				this.authHeader = "Basic ".concat(new String(encodedAuth));
-				log.debug("Authentification activée sur le connecteur web service");
-			}
-		} // else, no authentication
-		
+		// Get authentication (JWT and basic supported only)
+		configureAuthentication(context, destinationNode);
+
 		// Get the connection timeout
 		String timeoutAttrValue = context.resolveString(destinationNode.getAttributeValue("connectionTimeout"));
-		int timeout = (StringUtils.isNotBlank(timeoutAttrValue)) ? Integer.parseInt(timeoutAttrValue) : DEFAULT_TIME_OUT;
+        // 5 seconds
+        int defaultTimeOut = 5_000;
+        int timeout = (StringUtils.isNotBlank(timeoutAttrValue)) ? Integer.parseInt(timeoutAttrValue) :
+                defaultTimeOut;
 
 		// Get proxy configuration
 		String proxyHostAttrValue = context.resolveString(destinationNode.getAttributeValue("proxyHost"));
@@ -109,6 +100,37 @@ public class StateBaseToWS extends AbstractDestination {
 				.useSystemProperties()
 				.setDefaultRequestConfig(requestConfig.build())
 				.build();
+	}
+
+	private void configureAuthentication(CallableContext context, Element destinationNode) throws AlambicException {
+		XPathFactory xpf = XPathFactory.instance();
+		XPathExpression<Element> xpathCredentials = xpf.compile(".//authentication/credentials", Filters.element());
+		List<Element> credentialsElts = xpathCredentials.evaluate(destinationNode); //basic
+		XPathExpression<Element> xpathJwt = xpf.compile(".//authentication/jwt", Filters.element());
+		List<Element> jwtElts = xpathJwt.evaluate(destinationNode); // jwt
+		if (null != credentialsElts && !credentialsElts.isEmpty()) {
+			String authLogin = context.resolveString(credentialsElts.get(0).getChildText("login"));
+			String authPassword = context.resolveString(credentialsElts.get(0).getChildText("password"));
+			if (StringUtils.isNotBlank(authLogin) && StringUtils.isNotBlank(authPassword)) {
+				byte[] encodedAuth = Base64.getEncoder().encode(String.format("%s:%s", authLogin, authPassword).getBytes(StandardCharsets.ISO_8859_1));
+				this.authHeader = "Basic ".concat(new String(encodedAuth));
+				log.debug("Authentification Basic activée sur le connecteur web service");
+			}
+		} else if (null != jwtElts && !jwtElts.isEmpty()) {
+			String kid = context.resolveString(jwtElts.get(0).getChildText("kid"));
+			String secret = context.resolveString(jwtElts.get(0).getChildText("secret"));
+			String customExpirationTime = context.resolveString(jwtElts.get(0).getChildText("expirationTime"));
+			int expirationTime;
+			try {
+				expirationTime = Integer.parseInt(customExpirationTime);
+			} catch (NumberFormatException e) {
+				expirationTime = 60;
+			}
+			if (StringUtils.isNotBlank(kid) && StringUtils.isNotBlank(secret)) {
+				this.authHeader = JwtUtils.createTokenFrom(kid, secret, expirationTime);
+				log.debug("Authentification JWT activée sur le connecteur web service");
+			}
+		} // else, no authentication
 	}
 
 	@Override

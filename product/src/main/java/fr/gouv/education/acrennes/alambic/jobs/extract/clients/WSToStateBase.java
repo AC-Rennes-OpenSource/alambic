@@ -58,25 +58,19 @@ public class WSToStateBase implements IToStateBase {
     }
 
     private List<Map<String, List<String>>> stateBase = new ArrayList<>();
-    private List<Integer> successResponseCodes;
+    private final List<Integer> successResponseCodes;
     private CloseableHttpClient httpClient;
-    private String authHeader;
-    private String url;
-    private String method;
-    private Map<String, String> headers;
+    private final String authHeader;
+    private final String url;
+    private final String method;
+    private final Map<String, String> headers;
 
-    public WSToStateBase(final String url, final String method, final Map<String, String> headers, final String proxy_host, final String proxy_port, final String connection_timeout, final String auth_scheme, final String auth_login, final String auth_password, List<Integer> successResponseCodes) {
+    public WSToStateBase(final String url, final String method, final Map<String, String> headers, final String proxy_host, final String proxy_port, final String connection_timeout, final String authHeader, List<Integer> successResponseCodes) {
         this.url = url;
         this.method = method;
         this.headers = headers;
         this.successResponseCodes = successResponseCodes;
-
-        // Get authentication (basic supported only)
-        if (StringUtils.isNotBlank(auth_login) && StringUtils.isNotBlank(auth_password)) {
-            byte[] encodedAuth = Base64.getEncoder().encode(String.format("%s:%s", auth_login, auth_password).getBytes(StandardCharsets.ISO_8859_1));
-            this.authHeader = "Basic ".concat(new String(encodedAuth));
-            LOG.debug("Authentification activée sur le connecteur web service");
-        } // else, no authentication
+        this.authHeader = authHeader;
 
         // Configure & instantiate the http connector
         Builder requestConfig = RequestConfig.custom();

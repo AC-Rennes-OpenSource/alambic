@@ -108,11 +108,12 @@ To request a remote web service API.
   <uri>{the HTTP REST API base URL (e.g. http://localhost:8778/api/v1/)}</uri>
   <method>{the HTTP request method (e.g. GET, POST, PUT, PATCH, DELETE...). As default, the GET method is used.}</method>
   <response_codes>
-    <code type="success">{the HTTP response code that will be considered as successful. Use multiple XML element <code> to define multiple success codes. As default, the HTTP response code 200 is used to define whether an API run successfully}</code>
+    <code type="success">{the HTTP response code that will be considered as successful}</code>
+	  <!-- Use multiple XML element <code> to define multiple success codes. As default, the HTTP response code 200 is used to define whether an API run successfully -->
 	...
   </response_codes>
   <headers>
-    <header name="{the header name (e.g. to specify the payload 'Content-Type')}">{the header value (e.g. 'application/json')}<header>
+    <header name="{the header name (e.g. to specify the payload 'Content-Type')}">{the header value (e.g. 'application/json')}</header>
     ...
   </headers>
   <query>{the API query with respect of a specific format and grammar (see the subsequent 'TO NOTICE')}</query>
@@ -139,6 +140,21 @@ To request a remote web service API.
 >   "payload": "<the API payload data (for requiring methods as POST, PUT...)>"
 > }
 > ``` 
+> - the *authentication* element can fit one of two possible grammars, depending on which type of authentication is needed :
+>   - For Basic authentication :
+>   ```xml
+>	  <credentials>
+>       <login>{the user login to authenticate to the remote API}</login>
+>       <password>{the user password to authenticate to the remote API}</password>
+>   </credentials>
+>   ```
+>   - For Bearer token (jwt) authentication :
+>   ```xml
+>	  <jwt>
+>       <kid>{the kid to authenticate the application}</kid>
+>       <secret>{the associated shared secret}</secret>
+>   </jwt>
+>   ```
 
 **Example :** GET request to the API : http://the.digitallibrary.com/api/v1/books/_search?category='Thriller'&price=10.0
 ```xml
@@ -150,7 +166,7 @@ To request a remote web service API.
     <code type="success">404</code>
   </response_codes>
   <headers>
-    <header name="Content-Type">application/json<header>
+    <header name="Content-Type">application/json</header>
   </headers>
   <query>{"api": "books/_search", "parameters": "category='Thriller'&amp;price=10.0"}</query>
   <proxy/>
@@ -172,7 +188,7 @@ To request a remote web service API.
     <code type="success">201</code>
   </response_codes>
   <headers>
-    <header name="Content-Type">application/json<header>
+    <header name="Content-Type">application/json</header>
   </headers>
   <query>{"api":"books/_add", "payload": {"title":"The green monster","author":"Jhon.Doe","category":"Thriller","price":12.5}}</query>
   <proxy/>
@@ -613,7 +629,7 @@ To cipher a file.
     </key>
   </keystore>
   <input>../output/plain-data.txt</input>
-  <output>../output/ciphered-data.cip<output>
+  <output>../output/ciphered-data.cip</output>
 </destination>
 ```
 
@@ -666,7 +682,8 @@ To request a web service to update (CUD) resources.
 >       <header name="{the header name (e.g. to specify the payload 'Content-Type')}">{the header value (e.g. 'application/json')}</header>
 >     </headers>
 >     <response_codes>
->       <code type="success">{the HTTP response code that will be considered as successful. Use multiple XML element <code> to define multiple success codes. As default, the HTTP response code 200 is used to define whether an API run successfully}</code>
+>       <code type="success">{the HTTP response code that will be considered as successful}</code>
+> 		 <!-- Use multiple XML element <code> to define multiple success codes. As default, the HTTP response code 200 is used to define whether an API run successfully -->
 >       ...
 >     </response_codes>
 >     <payload>{the API specific payload}</payload>
@@ -676,6 +693,21 @@ To request a web service to update (CUD) resources.
 >   </api>
 > </restConnector>
 > ```
+> - the *authentication* element can fit one of two possible grammars, depending on which type of authentication is needed :
+>   - For Basic authentication :
+>   ```xml
+>   <credentials>
+>     <login>{the user login to authenticate to the remote API}</login>
+>     <password>{the user password to authenticate to the remote API}</password>
+>   </credentials>
+>   ```
+> - For Bearer token (jwt) authentication :
+>   ```xml
+>   <jwt>
+>     <kid>{the kid to authenticate the application}</kid>
+>     <secret>{the associated shared secret}</secret>
+>   </jwt>
+>   ```
 
 **Example :** intermediate file to modify aliases from an Elastic cluster
 ```xml
