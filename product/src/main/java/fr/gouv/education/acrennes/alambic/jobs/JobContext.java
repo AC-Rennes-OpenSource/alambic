@@ -59,16 +59,19 @@ public class JobContext implements CallableContext {
 			log.error("Target environnement variable is not set '" + TARGET_ENVIRONMENT + "'");
 		}
 
-		// Set the variable dealing with the engine keystore
-		String keystorePath = System.getenv(KEYSTORE_PATH);
-		if (StringUtils.isNotBlank(keystorePath)) {
-			this.variables.put(KEYSTORE_PATH, keystorePath);
-		} else {
-			keystorePath = executionPath.concat(DEFAULT_KEYSTORE_RELATIVE_PATH);
-			log.info("Set the default keystore path : " + keystorePath);
-			this.variables.put(KEYSTORE_PATH, keystorePath);
+		// Set the variable dealing with the engine keystore path if not already set
+		String keystorePath = this.variables.getHashMap().get(KEYSTORE_PATH);
+		if (StringUtils.isBlank(keystorePath)) {
+			keystorePath = System.getenv(KEYSTORE_PATH);
+			if (StringUtils.isNotBlank(keystorePath)) {
+				this.variables.put(KEYSTORE_PATH, keystorePath);
+			} else {
+				keystorePath = executionPath.concat(DEFAULT_KEYSTORE_RELATIVE_PATH);
+				this.variables.put(KEYSTORE_PATH, keystorePath);
+			}
 		}
-
+		log.info("Set the keystore path : " + keystorePath);
+			
 		// Set the variables dealing with configured database credentials
 		if (null != configuration && 0 < configuration.size()) {
 			this.variables.put(ETL_JDBC_DRIVER, (String) configuration.get(ETL_CFG_JDBC_DRIVER));

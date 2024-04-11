@@ -41,7 +41,6 @@ export ALAMBIC_TARGET_ENVIRONMENT="@node.alambic_target_environment@"
 # - SCRIPT_PARAMETERS : optional - the scipt's parameters, none as default.
 #----------------------------------------------------------------------------
 VERBOSE=2
-ETL_VERBOSE=""
 ETL_ADDON_VERSION=""
 ETL_ADDON_NAME=""
 DOWNLOAD_URL=""
