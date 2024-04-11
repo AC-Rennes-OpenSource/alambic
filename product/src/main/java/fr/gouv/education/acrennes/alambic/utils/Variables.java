@@ -25,6 +25,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Properties;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.collections.CollectionUtils;
@@ -42,7 +44,7 @@ public class Variables {
 	protected static final Log log = LogFactory.getLog(Variables.class);
 
 	private static final String VARIABLE_DELIMITER = "%";
-	private static final String VARIABLE_PATTERN = "(?s).*(" + VARIABLE_DELIMITER + ".+" + VARIABLE_DELIMITER + "){1,}.*";
+	private static final String VARIABLE_PATTERN = "(?=" + VARIABLE_DELIMITER + "([^%]+)" + VARIABLE_DELIMITER + ")";
 	private static final String SECURITY_PROPERTY_NAME = "repository.security.properties";
 	private Map<String, String> tableVars = new HashMap<>();
 
@@ -151,34 +153,45 @@ public class Variables {
 
 	public String resolvString(String sR, List<String> history) throws AlambicException {
 		if (StringUtils.isNotBlank(sR)) {
-			if (sR.matches(VARIABLE_PATTERN)) {
-				for (final Entry<String, String> entry : tableVars.entrySet()) {
-					// Dans le cas ou la valeur contient des valeurs séparées par le délimiteur de variable
-					if (sR.contains(VARIABLE_DELIMITER + entry.getKey() + VARIABLE_DELIMITER)) {
-						sR = sR.replace(VARIABLE_DELIMITER + entry.getKey() + VARIABLE_DELIMITER, entry.getValue());
-						if (sR.matches(VARIABLE_PATTERN)) {
-							// use case: variables that references variables
-							if (!history.contains(sR)) {
-								history.add(sR);
-								sR = resolvString(sR, history);
-							} else {
-								throw new AlambicException("Infinite recursive loop detected while resolving the variable '" + history.get(0) + "' (resolution history is '" + String.join(",", history)+ "')");
-							}
-						}
-						break;
-					}
+			List<String> matches = allMatches(sR);
+			for (String match : matches) {
+				if (tableVars.containsKey(match)) {
+					return replaceVar(sR, history, match, tableVars.get(match));
+				} else if (System.getenv().containsKey(match)) {
+					return replaceVar(sR, history, match, System.getenv(match));
 				}
 			}
 
 			// Effacement des paramètres non valorisés
-			if (sR.matches("(.*(%[p|i|c]([0-9])*%).*)+")) {
-				sR = sR.replaceAll("(%[p|i|c]([0-9])*%)+", "");
+			if (sR.matches(".*" + VARIABLE_DELIMITER + "[pic](\\d)*" + VARIABLE_DELIMITER + ".*")) {
+				sR = sR.replaceAll(VARIABLE_DELIMITER + "[pic](\\d)*" + VARIABLE_DELIMITER, "");
 			}
 		} else {
 			sR = "";
 		}
 
 		return sR.trim();
+	}
+
+	private String replaceVar(String sR, List<String> history, String varToReplace, String varValue)
+			throws AlambicException {
+		String replaced = sR.replaceAll(VARIABLE_DELIMITER + varToReplace + VARIABLE_DELIMITER, varValue);
+		if (!history.contains(replaced)) {
+			history.add(replaced);
+			return resolvString(replaced, history);
+		} else {
+			throw new AlambicException("Infinite recursive loop detected while resolving the variable '" + history.get(0) + "' (resolution history is '" + String.join(",", history)+ "')");
+		}
+	}
+
+	// Finds all potential variables from a String
+	private List<String> allMatches(String input) {
+		List<String> result = new ArrayList<>();
+		Matcher variableMatcher = Pattern.compile(VARIABLE_PATTERN).matcher(input);
+		while (variableMatcher.find()) {
+			result.add(variableMatcher.group(1));
+		}
+		return result;
 	}
 
 	public void put(final String key, final String value) {
