@@ -23,7 +23,7 @@ public class VariablesWithEnvTest {
 
     @Before
     public void setUp() {
-        env.put("env_var_1", "testVar1");
+        env.put("env_var_1", "testVar$1");
         env.put("env_var_2", "testVar2");
         PowerMockito.mockStatic(System.class);
 
@@ -38,5 +38,13 @@ public class VariablesWithEnvTest {
         variables.put("env_var_1", "varTest1");
         String resolvString = variables.resolvString("1 : %env_var_%VAL%%, 2 : %env_var_2%");
         Assert.assertEquals("1 : varTest1, 2 : testVar2", resolvString);
+    }
+
+    @Test
+    public void testReplaceWithSpecialChar() throws AlambicException {
+        final Variables variables = new Variables();
+        variables.put("VAL", "1");
+        String resolvString = variables.resolvString("1 : %env_var_%VAL%%, 2 : %env_var_2%");
+        Assert.assertEquals("1 : testVar$1, 2 : testVar2", resolvString);
     }
 }
