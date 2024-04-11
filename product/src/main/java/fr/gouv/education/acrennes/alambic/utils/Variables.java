@@ -175,7 +175,7 @@ public class Variables {
 
 	private String replaceVar(String sR, List<String> history, String varToReplace, String varValue)
 			throws AlambicException {
-		String replaced = sR.replaceAll(VARIABLE_DELIMITER + varToReplace + VARIABLE_DELIMITER, varValue);
+		String replaced = sR.replaceAll(VARIABLE_DELIMITER + varToReplace + VARIABLE_DELIMITER, Matcher.quoteReplacement(varValue));
 		if (!history.contains(replaced)) {
 			history.add(replaced);
 			return resolvString(replaced, history);

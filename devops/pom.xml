@@ -6,7 +6,7 @@
 	<parent>
 		<groupId>alambic</groupId>
 		<artifactId>alambic-parent</artifactId>
-		<version>2.0.5-RC02</version>
+		<version>2.0.5-RC03-SNAPSHOT</version>
 	</parent>
 
 	<groupId>alambic.devops</groupId>
