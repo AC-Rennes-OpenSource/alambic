@@ -123,9 +123,9 @@ public class GARHelper {
 	public String getPersonEntityBlurId(Map<String, List<String>> entity) {
 		String blurId = entity.toString();
 		
-		List<String> attribute = entity.get("ENTPersonUid");
+		List<String> attribute = entity.get("elenid");
 		if (null != attribute && StringUtils.isNotBlank(attribute.get(0))) {
-			blurId = String.format("(ENTPersonUid=%s)", attribute.get(0));
+			blurId = String.format("(elenid=%s)", attribute.get(0));
 		} else {
 			attribute = entity.get("ENTPersonJointure");
 			if (null != attribute && StringUtils.isNotBlank(attribute.get(0))) {
