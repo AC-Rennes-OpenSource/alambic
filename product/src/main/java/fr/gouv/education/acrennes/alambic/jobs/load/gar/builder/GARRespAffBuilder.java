@@ -76,7 +76,7 @@ public class GARRespAffBuilder implements GARTypeBuilder {
 		XPathFactory xpf = XPathFactory.newInstance();
 		this.xpath = xpf.newXPath();
 		this.xsdFile = parameters.getXsdFile();
-		this.pattern = Pattern.compile("cn=(\\d+\\w)_GARRespAff,.+", Pattern.CASE_INSENSITIVE);
+		this.pattern = Pattern.compile("cn=(\\d+\\w)_GARRespAff(Deleg)?,.+", Pattern.CASE_INSENSITIVE);
 		// Get the list of involved responsibles
 		this.responsables = parameters.getResources().get("Entries").getEntries();
 		// Get the list of involved structures
