@@ -40,7 +40,7 @@
 			<property name="javax.persistence.jdbc.password" value="sa" />
 			<property name="eclipselink.ddl-generation" value="drop-and-create-tables" />
 			<property name="eclipselink.ddl-generation.output-mode" value="database" />
-			<property name="eclipselink.logging.level" value="FINE" />
+			<property name="eclipselink.logging.level" value="OFF" />
 			<property name="eclipselink.logging.parameters" value="true"/>
 		</properties>
 	</persistence-unit>
