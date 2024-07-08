@@ -17,11 +17,8 @@
 package fr.gouv.education.acrennes.alambic.jobs.load.gar.builder;
 
 import java.text.DateFormat;
-import java.text.Normalizer;
-import java.text.Normalizer.Form;
 import java.text.SimpleDateFormat;
 import java.util.Date;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -34,12 +31,10 @@ public class GARHelper {
 	private static final Log log = LogFactory.getLog(GARHelper.class);
 	private static GARHelper instance;
 	private DateFormat dateFormatter;
-	private Map<String, String> cacheSourceSI;
 	
 	// Singleton
 	private GARHelper() {
 		this.dateFormatter = new SimpleDateFormat("yyyyMMdd_HHmmss");
-		this.cacheSourceSI = new HashMap<String, String>();
 	}
 	
 	public static GARHelper getInstance() {
@@ -148,23 +143,7 @@ public class GARHelper {
 	}
 
 	public String getIndexationAlias(String sourceSI, INDEXATION_OBJECT_TYPE objectType) {
-		// Build the cache entry key
-		String key = Normalizer.normalize(sourceSI.concat(objectType.toString()), Form.NFD).replaceAll("[^\\p{ASCII}]", "")
-				.trim()
-				.toLowerCase();
-		
-		if (!this.cacheSourceSI.containsKey(key)) {
-			if (sourceSI.matches("(?i:.*AGRI.*)")) {
-				if (objectType.equals(INDEXATION_OBJECT_TYPE.MEF)) {
-					this.cacheSourceSI.put(key, "agri_alias_mefeducnat");
-				} else if (objectType.equals(INDEXATION_OBJECT_TYPE.Matiere)) {
-					this.cacheSourceSI.put(key, "agri_alias_matiereeducnat");
-				}
-			} else {
-				this.cacheSourceSI.put(key, objectType.getDefaultAlias());
-			}
-		}
-		return this.cacheSourceSI.get(key);
+		return objectType.getDefaultAlias();
 	}
 
 	public enum TITLE_FUNCTION_MATCHING {
