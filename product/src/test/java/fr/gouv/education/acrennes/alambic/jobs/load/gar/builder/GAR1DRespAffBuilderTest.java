@@ -53,6 +53,7 @@ public class GAR1DRespAffBuilderTest extends GAR1DBuilderTestUtils {
                 null,
                 100,
                 "1",
+                "014",
                 "",
                 "",
                 null,

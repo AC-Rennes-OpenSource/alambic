@@ -80,6 +80,7 @@ public class GAREnseignantBuilder implements GARTypeBuilder {
 	private final String output;
 	private final String xsdFile;
 	private final String version;
+	private final String territoryCode;
 	private final ActivityMBean jobActivity;
 	private final EntityManager em;
 	private final Map<String, Document> exportFiles;
@@ -93,6 +94,7 @@ public class GAREnseignantBuilder implements GARTypeBuilder {
 		this.jobActivity = parameters.getJobActivity();
 		this.maxNodesCount = parameters.getMaxNodesCount();
 		this.version = parameters.getVersion();
+		this.territoryCode = parameters.getTerritoryCode();
 		this.output = parameters.getOutput();
 		this.em = parameters.getEm();
 		this.exportFiles = parameters.getExportFiles();
@@ -197,7 +199,7 @@ public class GAREnseignantBuilder implements GARTypeBuilder {
 							 * (Since it has been observed teachers' Toutatice accounts referencing invalid codes (AAF meaning) )
 							 */
 							String code = GARHelper.getInstance().extractCodeGroup(value, 1);
-							if (isMEFCodeValid(ENTPersonSourceSI, code)) {
+							if (GARHelper.getInstance().isCodeValid(this.aafSource, ENTPersonSourceSI, this.territoryCode, GARHelper.INDEXATION_OBJECT_TYPE.MEF, code)) {
 								// register for persistence
 								if (!mapEnseignements.containsKey(uai)) {
 									mapEnseignements.put(uai, new ArrayList<>());
@@ -245,7 +247,7 @@ public class GAREnseignantBuilder implements GARTypeBuilder {
 							 * (Since it has been observed teachers' Toutatice accounts referencing invalid codes (AAF meaning) )
 							 */
 							String code = GARHelper.getInstance().extractCodeGroup(value, 2);
-							if (isMatiereCodeValid(ENTPersonSourceSI, code)) {
+							if (GARHelper.getInstance().isCodeValid(this.aafSource, ENTPersonSourceSI, this.territoryCode, GARHelper.INDEXATION_OBJECT_TYPE.Matiere, code)) {
 								// register for persistence
 								if (!mapEnseignements.containsKey(uai)) {
 									mapEnseignements.put(uai, new ArrayList<>());
@@ -288,7 +290,7 @@ public class GAREnseignantBuilder implements GARTypeBuilder {
 							 * (Since it has been observed teachers' Toutatice accounts referencing invalid codes (AAF meaning) )
 							 */
 							String code = GARHelper.getInstance().extractCodeGroup(value, 2);
-							if (isMatiereCodeValid(ENTPersonSourceSI, code)) {
+							if (GARHelper.getInstance().isCodeValid(this.aafSource, ENTPersonSourceSI, this.territoryCode, GARHelper.INDEXATION_OBJECT_TYPE.Matiere, code)) {
 								// register for persistence
 								if (!mapEnseignements.containsKey(uai)) {
 									mapEnseignements.put(uai, new ArrayList<>());
@@ -580,52 +582,6 @@ public class GAREnseignantBuilder implements GARTypeBuilder {
 		} else {
 			throw new MissingAttributeException("Skipping entity '" + GARHelper.getInstance().getPersonEntityBlurId(entity) + "' as it has no attribute '" + attributeName + "' (mandatory)");
 		}
-	}
-
-	private boolean isMatiereCodeValid(final String sourceSI, final String code) throws AlambicException {
-		boolean isValid = false;
-		
-		try {
-			// query AAF's index
-			String query = String.format("{\"api\":\"/%s/_search\",\"parameters\":\"q=identifiant:%s\"}", GARHelper.getInstance().getIndexationAlias(sourceSI, GARHelper.INDEXATION_OBJECT_TYPE.Matiere), code);
-			List<Map<String, List<String>>> resultSet = this.aafSource.query(query);
-			
-			// perform controls
-			if (CollectionUtils.isNotEmpty(resultSet)) {
-				Map<String, List<String>> item = resultSet.get(0); // a single item is expected
-				JSONObject jsonResultSet = new JSONObject(item.get("item").get(0));
-				if (1 == jsonResultSet.getJSONObject("hits").getInt("total")) {
-					isValid = true;
-				}
-			}
-		} catch (Exception e) {
-			throw new AlambicException(e.getMessage());
-		}
-
-		return isValid;
-	}
-
-	private boolean isMEFCodeValid(final String sourceSI, final String code) throws AlambicException {
-		boolean isValid = false;
-		
-		try {
-			// query AAF's index
-			String query = String.format("{\"api\":\"/%s/_search\",\"parameters\":\"q=identifiant:%s\"}", GARHelper.getInstance().getIndexationAlias(sourceSI, GARHelper.INDEXATION_OBJECT_TYPE.MEF), code);
-			List<Map<String, List<String>>> resultSet = this.aafSource.query(query);
-			
-			// perform controls
-			if (CollectionUtils.isNotEmpty(resultSet)) {
-				Map<String, List<String>> item = resultSet.get(0); // a single item is expected
-				JSONObject jsonResultSet = new JSONObject(item.get("item").get(0));
-				if (1 == jsonResultSet.getJSONObject("hits").getInt("total")) {
-					isValid = true;
-				}
-			}
-		} catch (Exception e) {
-			throw new AlambicException(e.getMessage());
-		}
-
-		return isValid;
 	}
 
 	private class GAREnseignantWriter {

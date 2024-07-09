@@ -44,6 +44,7 @@ public class StateBaseToGAR extends AbstractDestination {
 
 	private static final Log log = LogFactory.getLog(StateBaseToGAR.class);
 	private static final int MAX_XML_NODES_COUNT = 10000;
+	private static final String DEFAULT_TERRITORY_CODE = "014";
 
 	private final String garType;
 	private final String garLevel;
@@ -80,6 +81,7 @@ public class StateBaseToGAR extends AbstractDestination {
 	private GARBuilderParameters getParameters() throws AlambicException {
 		return new GARBuilderParameters(context, resources, page, jobActivity, MAX_XML_NODES_COUNT,
 				context.resolveString(job.getAttributeValue("GARVersion")),
+				context.resolveString(job.getAttributeValue("GARTerritoryCode", DEFAULT_TERRITORY_CODE)),
 				context.resolvePath(job.getChildText("output")),
 				context.resolvePath(job.getChildText("xsd")),
 				em,

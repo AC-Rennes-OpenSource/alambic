@@ -35,8 +35,6 @@ import javax.xml.transform.stream.StreamSource;
 import javax.xml.validation.Schema;
 import javax.xml.validation.SchemaFactory;
 
-import fr.gouv.education.acrennes.alambic.jobs.load.gar.persistence.EnseignementEntity;
-import fr.gouv.education.acrennes.alambic.jobs.load.gar.persistence.StaffEntity;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -50,6 +48,8 @@ import fr.gouv.education.acrennes.alambic.jobs.load.gar.binding2d.GAREtab;
 import fr.gouv.education.acrennes.alambic.jobs.load.gar.binding2d.GARMEF;
 import fr.gouv.education.acrennes.alambic.jobs.load.gar.binding2d.GARMatiere;
 import fr.gouv.education.acrennes.alambic.jobs.load.gar.binding2d.ObjectFactory;
+import fr.gouv.education.acrennes.alambic.jobs.load.gar.persistence.EnseignementEntity;
+import fr.gouv.education.acrennes.alambic.jobs.load.gar.persistence.StaffEntity;
 import fr.gouv.education.acrennes.alambic.monitoring.ActivityMBean;
 import fr.gouv.education.acrennes.alambic.monitoring.ActivityTrafficLight;
 
@@ -61,6 +61,7 @@ public class GAREtablissementBuilder implements GARTypeBuilder {
 	private final String output;
 	private final String xsdFile;
 	private final String version;
+	private final String territoryCode;	
 	private final ActivityMBean jobActivity;
 	private final EntityManager em;
 	private final List<Map<String, List<String>>> structures;
@@ -71,6 +72,7 @@ public class GAREtablissementBuilder implements GARTypeBuilder {
 		this.jobActivity = parameters.getJobActivity();
 		this.maxNodesCount = parameters.getMaxNodesCount();
 		this.version = parameters.getVersion();
+		this.territoryCode = parameters.getTerritoryCode();		
 		this.output = parameters.getOutput();
 		this.em = parameters.getEm();
 		this.xsdFile = parameters.getXsdFile();
@@ -233,7 +235,7 @@ public class GAREtablissementBuilder implements GARTypeBuilder {
 
 		try {
 			// query AAF's index
-			String query = String.format("{\"api\":\"/%s/_search\",\"parameters\":\"q=identifiant:%s\"}", GARHelper.getInstance().getIndexationAlias(sourceSI, GARHelper.INDEXATION_OBJECT_TYPE.Matiere), code);
+			String query = String.format("{\"api\":\"/%s/_search\",\"parameters\":\"q=identifiant:%s\"}", GARHelper.getInstance().getIndexationAlias(sourceSI, this.territoryCode, GARHelper.INDEXATION_OBJECT_TYPE.Matiere), code);
 			List<Map<String, List<String>>> resultSet = this.aafSource.query(query);
 			
 			// perform controls
@@ -257,7 +259,7 @@ public class GAREtablissementBuilder implements GARTypeBuilder {
 
 		try {
 			// query AAF's index
-			String query = String.format("{\"api\":\"/%s/_search\",\"parameters\":\"q=identifiant:%s\"}", GARHelper.getInstance().getIndexationAlias(sourceSI, GARHelper.INDEXATION_OBJECT_TYPE.MEF), code);
+			String query = String.format("{\"api\":\"/%s/_search\",\"parameters\":\"q=identifiant:%s\"}", GARHelper.getInstance().getIndexationAlias(sourceSI, this.territoryCode, GARHelper.INDEXATION_OBJECT_TYPE.MEF), code);
 			List<Map<String, List<String>>> resultSet = this.aafSource.query(query);
 			
 			// perform controls
