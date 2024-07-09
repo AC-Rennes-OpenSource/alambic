@@ -17,24 +17,34 @@
 package fr.gouv.education.acrennes.alambic.jobs.load.gar.builder;
 
 import java.text.DateFormat;
+import java.text.Normalizer;
+import java.text.Normalizer.Form;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.json.JSONObject;
+
+import fr.gouv.education.acrennes.alambic.exception.AlambicException;
+import fr.gouv.education.acrennes.alambic.jobs.extract.sources.Source;
 
 public class GARHelper {
 
 	private static final Log log = LogFactory.getLog(GARHelper.class);
 	private static GARHelper instance;
 	private DateFormat dateFormatter;
+	private Map<String, String> cacheSourceSI;
 	
 	// Singleton
 	private GARHelper() {
 		this.dateFormatter = new SimpleDateFormat("yyyyMMdd_HHmmss");
+		this.cacheSourceSI = new HashMap<String, String>();
 	}
 	
 	public static GARHelper getInstance() {
@@ -142,8 +152,43 @@ public class GARHelper {
 		return blurId;
 	}
 
-	public String getIndexationAlias(String sourceSI, INDEXATION_OBJECT_TYPE objectType) {
-		return objectType.getDefaultAlias();
+	public boolean isCodeValid(final Source dataSource, final String sourceSI, final String territoryCode, final INDEXATION_OBJECT_TYPE objectType, final String code) throws AlambicException {
+		boolean isValid = false;
+		
+		try {
+			// query AAF's index
+			String query = String.format("{\"api\":\"/%s/_search\",\"parameters\":\"q=identifiant:%s\"}", this.getIndexationAlias(sourceSI, territoryCode, objectType), code);
+			List<Map<String, List<String>>> resultSet = dataSource.query(query);
+			
+			// perform controls
+			if (CollectionUtils.isNotEmpty(resultSet)) {
+				Map<String, List<String>> item = resultSet.get(0); // a single item is expected
+				JSONObject jsonResultSet = new JSONObject(item.get("item").get(0));
+				if (1 == jsonResultSet.getJSONObject("hits").getInt("total")) {
+					isValid = true;
+				}
+			}
+		} catch (Exception e) {
+			throw new AlambicException(e.getMessage());
+		}
+
+		return isValid;
+	}
+
+	public String getIndexationAlias(String sourceSI, String territoryCode, INDEXATION_OBJECT_TYPE objectType) {
+		// Build the cache entry key
+		String key = Normalizer.normalize(sourceSI.concat(objectType.toString()).concat(territoryCode), Form.NFD).replaceAll("[^\\p{ASCII}]", "")
+				.trim()
+				.toLowerCase();
+		
+		if (!this.cacheSourceSI.containsKey(key)) {
+			if (sourceSI.matches("(?i:.*AGRI.*)")) {
+				this.cacheSourceSI.put(key, objectType.getDefaultAlias().replace("aaf_", "agri_").concat("_" + territoryCode));
+			} else {
+				this.cacheSourceSI.put(key, objectType.getDefaultAlias().concat("_" + territoryCode));
+			}
+		}
+		return this.cacheSourceSI.get(key);
 	}
 
 	public enum TITLE_FUNCTION_MATCHING {
@@ -224,6 +269,9 @@ public class GARHelper {
 
 	public enum INDEXATION_OBJECT_TYPE {
 
+		Eleve("aaf_alias_eleve"),
+		PersEducNat("aaf_alias_perseducnat"),
+		EtabEducNat("aaf_alias_etabeducnat"),
 		MEF("aaf_alias_mefeducnat"),
 		Matiere("aaf_alias_mateducnat");
 		

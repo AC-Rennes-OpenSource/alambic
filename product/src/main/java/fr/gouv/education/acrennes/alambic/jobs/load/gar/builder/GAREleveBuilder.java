@@ -46,18 +46,14 @@ import javax.xml.xpath.XPathConstants;
 import javax.xml.xpath.XPathExpressionException;
 import javax.xml.xpath.XPathFactory;
 
-import fr.gouv.education.acrennes.alambic.exception.AlambicException;
-import fr.gouv.education.acrennes.alambic.jobs.load.gar.persistence.EnseignementEntity;
-import fr.gouv.education.acrennes.alambic.jobs.load.gar.persistence.StaffEntity;
-import fr.gouv.education.acrennes.alambic.jobs.load.gar.persistence.StaffEntityPK;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.json.JSONObject;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.xml.sax.SAXException;
 
+import fr.gouv.education.acrennes.alambic.exception.AlambicException;
 import fr.gouv.education.acrennes.alambic.jobs.extract.sources.Source;
 import fr.gouv.education.acrennes.alambic.jobs.load.gar.binding2d.GARENTEleve;
 import fr.gouv.education.acrennes.alambic.jobs.load.gar.binding2d.GAREleve;
@@ -65,6 +61,9 @@ import fr.gouv.education.acrennes.alambic.jobs.load.gar.binding2d.GAREleveEnseig
 import fr.gouv.education.acrennes.alambic.jobs.load.gar.binding2d.GARPersonMEF;
 import fr.gouv.education.acrennes.alambic.jobs.load.gar.binding2d.GARPersonProfils;
 import fr.gouv.education.acrennes.alambic.jobs.load.gar.binding2d.ObjectFactory;
+import fr.gouv.education.acrennes.alambic.jobs.load.gar.persistence.EnseignementEntity;
+import fr.gouv.education.acrennes.alambic.jobs.load.gar.persistence.StaffEntity;
+import fr.gouv.education.acrennes.alambic.jobs.load.gar.persistence.StaffEntityPK;
 import fr.gouv.education.acrennes.alambic.monitoring.ActivityMBean;
 import fr.gouv.education.acrennes.alambic.monitoring.ActivityTrafficLight;
 
@@ -77,6 +76,7 @@ public class GAREleveBuilder implements GARTypeBuilder {
 	private final String output;
 	private final String xsdFile;
 	private final String version;
+	private final String territoryCode;
 	private final ActivityMBean jobActivity;
 	private final EntityManager em;
 	private final Map<String, Document> exportFiles;
@@ -90,6 +90,7 @@ public class GAREleveBuilder implements GARTypeBuilder {
 		this.jobActivity = parameters.getJobActivity();
 		this.maxNodesCount = parameters.getMaxNodesCount();
 		this.version = parameters.getVersion();
+		this.territoryCode = parameters.getTerritoryCode();
 		this.output = parameters.getOutput();
 		this.em = parameters.getEm();
 		this.exportFiles = parameters.getExportFiles();
@@ -385,7 +386,7 @@ public class GAREleveBuilder implements GARTypeBuilder {
 							/* Control the code is valid indeed
 							 * (Since it has been observed teachers' Toutatice accounts referencing invalid codes (AAF meaning) ) 
 							 */
-							if (isMEFCodeValid(ENTPersonSourceSI, value)) {
+							if (GARHelper.getInstance().isCodeValid(this.aafSource, ENTPersonSourceSI, this.territoryCode, GARHelper.INDEXATION_OBJECT_TYPE.MEF, value)) {
 								GARPersonMEF pmef = factory.createGARPersonMEF();
 								pmef.setGARStructureUAI(ENTPersonStructRattach);
 								pmef.setGARMEFCode(value);
@@ -420,13 +421,13 @@ public class GAREleveBuilder implements GARTypeBuilder {
 				 */
 				codes.clear();
 				attribute = entity.get("ENTEleveCodeEnseignements");
-				if (null != attribute && 0 < attribute.size()) {
+				if (null != attribute && !attribute.isEmpty()) {
 					for (String value : attribute) {
 						if (StringUtils.isNotBlank(value) && !codes.contains(value)) {
 							/* Control the code is valid indeed
 							 * (Since it has been observed teachers' Toutatice accounts referencing invalid codes (AAF meaning) ) 
 							 */
-							if (isMatiereCodeValid(ENTPersonSourceSI, value)) {
+							if (GARHelper.getInstance().isCodeValid(this.aafSource, ENTPersonSourceSI, this.territoryCode, GARHelper.INDEXATION_OBJECT_TYPE.Matiere, value)) {
 								GAREleveEnseignement eens = factory.createGAREleveEnseignement();
 								eens.setGARMatiereCode(value);
 								eens.setGARPersonIdentifiant(ENTPersonIdentifiant);
@@ -556,52 +557,6 @@ public class GAREleveBuilder implements GARTypeBuilder {
 			log.error("Failed to execute the GAR loader, error: " + (StringUtils.isNotBlank(e.getMessage()) ? e.getMessage() : e.getCause()));
 		}
 
-	}
-
-	private boolean isMatiereCodeValid(final String sourceSI, final String code) throws AlambicException {
-		boolean isValid = false;
-
-		try {
-			// query AAF's index
-			String query = String.format("{\"api\":\"/%s/_search\",\"parameters\":\"q=identifiant:%s\"}", GARHelper.getInstance().getIndexationAlias(sourceSI, GARHelper.INDEXATION_OBJECT_TYPE.Matiere), code);
-			List<Map<String, List<String>>> resultSet = this.aafSource.query(query);
-			
-			// perform controls
-			if (null != resultSet && 0 < resultSet.size()) {
-				Map<String, List<String>> item = resultSet.get(0); // a single item is expected
-				JSONObject jsonResultSet = new JSONObject(item.get("item").get(0));
-				if (1 == jsonResultSet.getJSONObject("hits").getInt("total")) {
-					isValid = true;
-				}
-			}
-		} catch (Exception e) {
-			throw new AlambicException(e.getMessage());
-		}
-
-		return isValid;
-	}
-
-	private boolean isMEFCodeValid(final String sourceSI, final String code) throws AlambicException {
-		boolean isValid = false;
-				
-		try {
-			// query AAF's index
-			String query = String.format("{\"api\":\"/%s/_search\",\"parameters\":\"q=identifiant:%s\"}", GARHelper.getInstance().getIndexationAlias(sourceSI, GARHelper.INDEXATION_OBJECT_TYPE.MEF), code);
-			List<Map<String, List<String>>> resultSet = this.aafSource.query(query);
-			
-			// perform controls
-			if (null != resultSet && 0 < resultSet.size()) {
-				Map<String, List<String>> item = resultSet.get(0); // a single item is expected
-				JSONObject jsonResultSet = new JSONObject(item.get("item").get(0));
-				if (1 == jsonResultSet.getJSONObject("hits").getInt("total")) {
-					isValid = true;
-				}
-			}
-		} catch (Exception e) {
-			throw new AlambicException(e.getMessage());
-		}
-
-		return isValid;
 	}
 	
 	private class GAREleveWriter {
