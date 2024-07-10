@@ -194,8 +194,8 @@ public class GAREtablissementBuilder implements GARTypeBuilder {
 								garMEF.setGARMEFSTAT11(mefinfo.get("MEFSTAT11")); // can be null since optional
 								writer.add(garMEF);
 							} else {
-								jobActivity.setTrafficLight(ActivityTrafficLight.RED);
-								log.error("Failed to get the 'MEF' information (at least the mandatory label is unknown) associated to the code '" + enseignement.getCode() + "' (Type=" + person.getType() + ", ENTPersonUid=" + person.getPrimaryKey().getUuid() + ", UAI=" + ENTStructureUAI + ")");								
+								jobActivity.setTrafficLight(ActivityTrafficLight.ORANGE);
+								log.warn("Failed to get the 'MEF' information (at least the mandatory label is unknown) associated to the code '" + enseignement.getCode() + "' (Type=" + person.getType() + ", ENTPersonUid=" + person.getPrimaryKey().getUuid() + ", UAI=" + ENTStructureUAI + ")");								
 								continue;  // skip this 'MEF' code since its label cannot be resolved from AAF
 							}
 						} else if ((EnseignementEntity.ENSEIGNEMENT_TYPE.CLASSE_MATIERE.equals(enseignement.getType())
@@ -212,8 +212,8 @@ public class GAREtablissementBuilder implements GARTypeBuilder {
 								garMatiere.setGARMatiereLibelle(libelle);
 								writer.add(garMatiere);
 							} else {
-								jobActivity.setTrafficLight(ActivityTrafficLight.RED);
-								log.error("Failed to get the 'Matiere' label associated to the code '" + enseignement.getCode() + "' (Type=" + person.getType() + ", ENTPersonUid=" + person.getPrimaryKey().getUuid() + ", UAI=" + ENTStructureUAI + ")");								
+								jobActivity.setTrafficLight(ActivityTrafficLight.ORANGE);
+								log.warn("Failed to get the 'Matiere' label associated to the code '" + enseignement.getCode() + "' (Type=" + person.getType() + ", ENTPersonUid=" + person.getPrimaryKey().getUuid() + ", UAI=" + ENTStructureUAI + ")");								
 								continue;  // skip this 'matière' code since its label cannot be resolved from AAF
 							}
 						}
