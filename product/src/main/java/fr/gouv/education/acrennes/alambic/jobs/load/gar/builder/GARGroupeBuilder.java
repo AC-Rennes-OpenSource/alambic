@@ -101,8 +101,8 @@ public class GARGroupeBuilder implements GARTypeBuilder {
 				if (null != attribute && 0 < attribute.size() && StringUtils.isNotBlank(attribute.get(0))) {
 					ENTStructureUAI = attribute.get(0).toUpperCase();
 				} else {
-					jobActivity.setTrafficLight(ActivityTrafficLight.RED);
-					log.error("Skipping entity '" + GARHelper.getInstance().getStructEntityBlurId(entity) + "' as it has no attribute 'ENTStructureUAI' (mandatory)");
+					jobActivity.setTrafficLight(ActivityTrafficLight.ORANGE);
+					log.warn("Skipping entity '" + GARHelper.getInstance().getStructEntityBlurId(entity) + "' as it has no attribute 'ENTStructureUAI' (mandatory)");
 					continue; // skip this entry as a missing mandatory field won't allow XML production
 				}
 				

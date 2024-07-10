@@ -46,21 +46,15 @@ import javax.xml.xpath.XPathConstants;
 import javax.xml.xpath.XPathExpressionException;
 import javax.xml.xpath.XPathFactory;
 
-import fr.gouv.education.acrennes.alambic.exception.AlambicException;
-import fr.gouv.education.acrennes.alambic.jobs.load.gar.builder.exception.MissingAttributeException;
-import fr.gouv.education.acrennes.alambic.jobs.load.gar.persistence.EnseignementEntity;
-import fr.gouv.education.acrennes.alambic.jobs.load.gar.persistence.StaffEntity;
-import fr.gouv.education.acrennes.alambic.jobs.load.gar.persistence.StaffEntityPK;
-
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.json.JSONObject;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.xml.sax.SAXException;
 
+import fr.gouv.education.acrennes.alambic.exception.AlambicException;
 import fr.gouv.education.acrennes.alambic.jobs.extract.sources.Source;
 import fr.gouv.education.acrennes.alambic.jobs.load.gar.binding2d.GARENTEnseignant;
 import fr.gouv.education.acrennes.alambic.jobs.load.gar.binding2d.GAREnsDisciplinesPostes;
@@ -68,6 +62,10 @@ import fr.gouv.education.acrennes.alambic.jobs.load.gar.binding2d.GAREnseignant;
 import fr.gouv.education.acrennes.alambic.jobs.load.gar.binding2d.GARPersonMEF;
 import fr.gouv.education.acrennes.alambic.jobs.load.gar.binding2d.GARPersonProfils;
 import fr.gouv.education.acrennes.alambic.jobs.load.gar.binding2d.ObjectFactory;
+import fr.gouv.education.acrennes.alambic.jobs.load.gar.builder.exception.MissingAttributeException;
+import fr.gouv.education.acrennes.alambic.jobs.load.gar.persistence.EnseignementEntity;
+import fr.gouv.education.acrennes.alambic.jobs.load.gar.persistence.StaffEntity;
+import fr.gouv.education.acrennes.alambic.jobs.load.gar.persistence.StaffEntityPK;
 import fr.gouv.education.acrennes.alambic.monitoring.ActivityMBean;
 import fr.gouv.education.acrennes.alambic.monitoring.ActivityTrafficLight;
 

@@ -118,8 +118,8 @@ public class GARRespAffBuilder implements GARTypeBuilder {
 							continue;
 						}
 					} else {
-						jobActivity.setTrafficLight(ActivityTrafficLight.RED);
-						log.error("Skipping entity '" + GARHelper.getInstance().getPersonEntityBlurId(entity) + "' as it has no attribute 'ENTPersonJointure' (mandatory)");
+						jobActivity.setTrafficLight(ActivityTrafficLight.ORANGE);
+						log.warn("Skipping entity '" + GARHelper.getInstance().getPersonEntityBlurId(entity) + "' as it has no attribute 'ENTPersonJointure' (mandatory)");
 						continue; // skip this entity as a missing mandatory field won't allow XML production
 					}
 				}
@@ -186,8 +186,8 @@ public class GARRespAffBuilder implements GARTypeBuilder {
 					}
 				}
 				if (garRespAff.getGARPersonMail().isEmpty()) {
-					jobActivity.setTrafficLight(ActivityTrafficLight.RED);
-					log.error("Skipping entity '" + GARHelper.getInstance().getPersonEntityBlurId(entity) + "' as it has no attribute 'mail' (mandatory)");
+					jobActivity.setTrafficLight(ActivityTrafficLight.ORANGE);
+					log.warn("Skipping entity '" + GARHelper.getInstance().getPersonEntityBlurId(entity) + "' as it has no attribute 'mail' (mandatory)");
 					continue; // skip this entry as a missing mandatory field won't allow XML production
 				}
 
@@ -209,15 +209,15 @@ public class GARRespAffBuilder implements GARTypeBuilder {
 						}
 					}
 				} else {
-					jobActivity.setTrafficLight(ActivityTrafficLight.RED);
-					log.error("Skipping entity '" + GARHelper.getInstance().getPersonEntityBlurId(entity) + "' as it has no attribute 'ENTPersonProfils' (mandatory)");
+					jobActivity.setTrafficLight(ActivityTrafficLight.ORANGE);
+					log.warn("Skipping entity '" + GARHelper.getInstance().getPersonEntityBlurId(entity) + "' as it has no attribute 'ENTPersonProfils' (mandatory)");
 					continue; // skip this entry as a missing mandatory field won't allow XML production
 				}
 				
 				// Verify the mandatory field is present despite the involved structure filtering
 				if (null == garRespAff.getGARRespAffEtab() || 0 == garRespAff.getGARRespAffEtab().size()) {
-					jobActivity.setTrafficLight(ActivityTrafficLight.RED);
-					log.error("Skipping entity '" + GARHelper.getInstance().getPersonEntityBlurId(entity) + "' as it might not have profile 'GARRespAff' (mandatory)");
+					jobActivity.setTrafficLight(ActivityTrafficLight.ORANGE);
+					log.warn("Skipping entity '" + GARHelper.getInstance().getPersonEntityBlurId(entity) + "' as it might not have profile 'GARRespAff' (mandatory)");
 					continue; // skip this entry as a missing mandatory field won't allow XML production					
 				}
 
