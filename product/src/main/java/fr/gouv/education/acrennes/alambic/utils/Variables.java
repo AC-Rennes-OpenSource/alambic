@@ -26,7 +26,6 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.jdom2.Element;
 
-import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.util.*;
@@ -105,7 +104,7 @@ public class Variables {
         // Chargement des propriétés de chiffrement
         Properties keystoreProperties = new Properties();
         if (Config.getProperty(SECURITY_PROPERTY_NAME) != null) {
-            try (FileInputStream securityPropertiesStream = new FileInputStream(new File(Config.getProperty(SECURITY_PROPERTY_NAME)))) {
+            try (FileInputStream securityPropertiesStream = new FileInputStream(Config.getProperty(SECURITY_PROPERTY_NAME))) {
                 keystoreProperties.load(securityPropertiesStream);
             } catch (IOException e) {
                 log.error("Error while loading security properties file : " + e.getMessage());
@@ -142,7 +141,7 @@ public class Variables {
     }
 
     public String resolvString(String sR) throws AlambicException {
-        List<String> history = new ArrayList<String>();
+        List<String> history = new ArrayList<>();
         history.add(sR);
         return resolvString(sR, history);
     }

@@ -45,7 +45,7 @@ public class FSToStateBase implements IToStateBase {
         stateBase = new ArrayList<>();
         if (StringUtils.isNotBlank(jsonquery)) {
             try {
-                Map<String, Object> query = new ObjectMapper().readValue(jsonquery, new TypeReference<Map<String, Object>>() {
+                Map<String, Object> query = new ObjectMapper().readValue(jsonquery, new TypeReference<>() {
                 });
                 String rootpath = (String) query.get("rootPath");
                 String filterRegex = (String) query.get("filterRegex");
@@ -58,7 +58,7 @@ public class FSToStateBase implements IToStateBase {
                 if (root.isDirectory()) {
                     File[] list = root.listFiles(fileFilter);
                     for (File file : list) {
-                        Map<String, List<String>> map = new HashMap<String, List<String>>();
+                        Map<String, List<String>> map = new HashMap<>();
                         map.put("name", List.of(file.getName()));
                         map.put("path", List.of(file.getPath()));
                         map.put("size", List.of(Long.toString(file.length())));
@@ -104,7 +104,7 @@ public class FSToStateBase implements IToStateBase {
         stateBase.clear();
     }
 
-    public final class FilenameRegExFilter implements FilenameFilter {
+    public static final class FilenameRegExFilter implements FilenameFilter {
         private final String regex;
 
         public FilenameRegExFilter(final String regex) {
@@ -162,7 +162,7 @@ public class FSToStateBase implements IToStateBase {
 
         @Override
         public List<Map<String, List<String>>> next() {
-            List<Map<String, List<String>>> subEntriesList = entries.subList(offset, (((offset + pageSize) < total) ? (offset + pageSize) : total));
+            List<Map<String, List<String>>> subEntriesList = entries.subList(offset, (Math.min((offset + pageSize), total)));
             offset += pageSize;
             return subEntriesList;
         }

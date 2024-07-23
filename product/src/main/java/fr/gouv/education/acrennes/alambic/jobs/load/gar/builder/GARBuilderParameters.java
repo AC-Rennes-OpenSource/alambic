@@ -24,76 +24,7 @@ import org.w3c.dom.Document;
 import javax.persistence.EntityManager;
 import java.util.Map;
 
-public class GARBuilderParameters {
-    private final CallableContext context;
-    private final Map<String, Source> resources;
-    private final int page;
-    private final ActivityMBean jobActivity;
-    private final int maxNodesCount;
-    private final String version;
-    private final String territoryCode;
-    private final String output;
-    private final String xsdFile;
-    private final EntityManager em;
-    private final Map<String, Document> exportFiles;
-
-    public GARBuilderParameters(CallableContext context, Map<String, Source> resources, int page, ActivityMBean jobActivity, int maxNodesCount,
-                                String version, String territoryCode, String output, String xsdFile, EntityManager em,
-                                Map<String, Document> exportFiles) {
-        this.context = context;
-        this.resources = resources;
-        this.page = page;
-        this.jobActivity = jobActivity;
-        this.maxNodesCount = maxNodesCount;
-        this.version = version;
-        this.territoryCode = territoryCode;
-        this.output = output;
-        this.xsdFile = xsdFile;
-        this.em = em;
-        this.exportFiles = exportFiles;
-    }
-
-    public CallableContext getContext() {
-        return context;
-    }
-
-    public Map<String, Source> getResources() {
-        return resources;
-    }
-
-    public int getPage() {
-        return page;
-    }
-
-    public ActivityMBean getJobActivity() {
-        return jobActivity;
-    }
-
-    public int getMaxNodesCount() {
-        return maxNodesCount;
-    }
-
-    public String getVersion() {
-        return version;
-    }
-
-    public String getTerritoryCode() {
-        return territoryCode;
-    }
-
-    public String getOutput() {
-        return output;
-    }
-
-    public String getXsdFile() {
-        return xsdFile;
-    }
-
-    public EntityManager getEm() {
-        return em;
-    }
-
-    public Map<String, Document> getExportFiles() {
-        return exportFiles;
-    }
+public record GARBuilderParameters(CallableContext context, Map<String, Source> resources, int page, ActivityMBean jobActivity, int maxNodesCount,
+                                   String version, String territoryCode, String output, String xsdFile, EntityManager em,
+                                   Map<String, Document> exportFiles) {
 }

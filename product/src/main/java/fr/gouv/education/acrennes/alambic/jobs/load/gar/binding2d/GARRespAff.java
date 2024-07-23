@@ -200,7 +200,7 @@ public class GARRespAff {
      */
     public List<String> getGARPersonMail() {
         if (garPersonMail == null) {
-            garPersonMail = new ArrayList<String>();
+            garPersonMail = new ArrayList<>();
         }
         return this.garPersonMail;
     }
@@ -229,7 +229,7 @@ public class GARRespAff {
      */
     public List<String> getGARRespAffEtab() {
         if (garRespAffEtab == null) {
-            garRespAffEtab = new ArrayList<String>();
+            garRespAffEtab = new ArrayList<>();
         }
         return this.garRespAffEtab;
     }

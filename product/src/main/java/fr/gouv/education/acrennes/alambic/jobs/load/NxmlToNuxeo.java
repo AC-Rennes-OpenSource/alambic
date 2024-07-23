@@ -134,7 +134,7 @@ public class NxmlToNuxeo extends AbstractDestination {
             try {
                 org.jdom2.Document inputFileXMLDocument = JobHelper.parse(this.inputFile);
                 List<Element> rset = JobHelper.evaluateExpressionForElements(inputFileXMLDocument, "/*/documents/document");
-                if (rset.size() != 0) {
+                if (!rset.isEmpty()) {
                     this.isAnythingToDo = IsAnythingToDoStatus.YES;
                 }
             } catch (AlambicException e) {
@@ -160,7 +160,7 @@ public class NxmlToNuxeo extends AbstractDestination {
                 request.set("overwrite", acp.getOverwrite());
                 request.set("break", acp.getBlock());
 
-                final List<String> entries = new ArrayList<String>();
+                final List<String> entries = new ArrayList<>();
 
                 for (final ACE ace : acl.getAceList()) {
                     entries.add(String.format(ACE_FORMAT, ace.getPrincipal(), ace.getPermission(), ace.getGranted()));
@@ -196,7 +196,7 @@ public class NxmlToNuxeo extends AbstractDestination {
             for (final Element facetElement : lstFacetElem) {
                 final String valueFacet = facetElement.getAttributeValue("name");
                 propertyListFacets.add(valueFacet);
-                if (facets.length() != 0) {
+                if (!facets.isEmpty()) {
                     facets.append(",");
                 }
                 facets.append(valueFacet);
@@ -339,12 +339,12 @@ public class NxmlToNuxeo extends AbstractDestination {
             for (final Element value : values) {
                 final String vval = getValueValue(value, mode);
                 if (null != vval) {
-                    result.append((result.length() == 0) ? vval : "," + vval);
+                    result.append((result.isEmpty()) ? vval : "," + vval);
                 }
             }
         }
 
-        return ((null != result) && ((result.length() > 0) || "force".equals(mode))) ? result.toString() : null;
+        return ((null != result) && ((!result.isEmpty()) || "force".equals(mode))) ? result.toString() : null;
     }
 
     private String getValueValue(final Element value, final String mode) throws Exception {

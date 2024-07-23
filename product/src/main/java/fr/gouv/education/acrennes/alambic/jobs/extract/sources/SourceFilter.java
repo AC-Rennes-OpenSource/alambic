@@ -37,7 +37,7 @@ public class SourceFilter {
     }
 
     public SourceFilter(String... patterns) {
-        setFilters(new HashMap<String, String>());
+        setFilters(new HashMap<>());
         for (String pattern : patterns) {
             if (StringUtils.isNotBlank(pattern)) {
                 String[] tokens = pattern.split("=");

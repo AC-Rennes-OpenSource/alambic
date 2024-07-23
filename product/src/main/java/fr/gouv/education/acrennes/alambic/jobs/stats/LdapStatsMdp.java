@@ -76,11 +76,7 @@ public class LdapStatsMdp extends LdapExtraction {
             String mdpDef = "{SHA}" + EncodeUtils.fonctionBase64Sha1(valDef);
 
             return !mdp.equals(mdpDef);
-        } catch (UnsupportedEncodingException e) {
-            log.error(e.getMessage());
-        } catch (NoSuchAlgorithmException e) {
-            log.error(e.getMessage());
-        } catch (NamingException e) {
+        } catch (UnsupportedEncodingException | NoSuchAlgorithmException | NamingException e) {
             log.error(e.getMessage());
         }
         return false;

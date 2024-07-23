@@ -88,24 +88,22 @@ public class StateBaseToFile extends AbstractDestination {
     public int executeCsvExportation() throws IOException {
         final String delimiter = ";";
         final String endOfLine = "\n";
-        final Iterator<Map<String, List<String>>> i = extGeneric.iterator();
-        while (i.hasNext()) {
+        for (Map<String, List<String>> stringListMap : extGeneric) {
             // activity monitoring
             jobActivity.setProgress(((count + 1) * 100) / extGeneric.size());
             jobActivity.setProcessing("processing entry " + (count + 1) + "/" + extGeneric.size());
 
-            String s = "";
-            final Map<String, List<String>> h = i.next();
-            final Iterator<List<String>> j = h.values().iterator();
+            StringBuilder s = new StringBuilder();
+            final Iterator<List<String>> j = stringListMap.values().iterator();
             while (j.hasNext()) {
                 final String subString = j.next().get(0);
                 if (j.hasNext()) {
-                    s = s + subString + delimiter;
+                    s.append(subString).append(delimiter);
                 } else {
-                    s = s + subString + endOfLine;
+                    s.append(subString).append(endOfLine);
                 }
             }
-            fw.write(s);
+            fw.write(s.toString());
             count++;
         }
         fw.close();
@@ -118,8 +116,7 @@ public class StateBaseToFile extends AbstractDestination {
             fw.write(stringFormat.replace("%", "") + "\n");
 
             // fill content
-            final Iterator<Map<String, List<String>>> i = extGeneric.iterator();
-            while (i.hasNext()) {
+            for (Map<String, List<String>> stringListMap : extGeneric) {
                 // activity monitoring
                 jobActivity.setProgress(((count + 1) * 100) / extGeneric.size());
                 jobActivity.setProcessing("processing entry " + (count + 1) + "/" + extGeneric.size());
@@ -127,7 +124,7 @@ public class StateBaseToFile extends AbstractDestination {
                 // remplacement des variables à partir d'une MAP
                 // Chargement de la liste de variables
                 reloadVariablesList();
-                this.variables.loadFromExtraction(i.next());
+                this.variables.loadFromExtraction(stringListMap);
                 // variables.executeFunctions();
                 String s = this.variables.resolvString(stringFormat);
                 s = Functions.getInstance().executeAllFunctions(s);
@@ -146,8 +143,7 @@ public class StateBaseToFile extends AbstractDestination {
 
     public int executeFormatedExportationV2(final String stringFormat) throws IOException {
         if (StringUtils.isNotBlank(stringFormat)) {
-            final CSVWriter csvw = new CSVWriter(fw, CsvToStateBase.DEFAULT_SEPARATOR);
-            try {
+            try (CSVWriter csvw = new CSVWriter(fw, CsvToStateBase.DEFAULT_SEPARATOR)) {
                 // Header
                 final String[] header = stringFormat.replaceAll("%", "").split(";");
                 csvw.writeNext(header);
@@ -165,8 +161,6 @@ public class StateBaseToFile extends AbstractDestination {
                     csvw.writeNext(line);
                     count++;
                 }
-            } finally {
-                csvw.close();
             }
         }
         fw.close();
@@ -174,8 +168,7 @@ public class StateBaseToFile extends AbstractDestination {
     }
 
     public int executeXmlExportation(final String stringFormat) throws IOException, AlambicException {
-        final Iterator<Map<String, List<String>>> i = extGeneric.iterator();
-        while (i.hasNext()) {
+        for (Map<String, List<String>> stringListMap : extGeneric) {
             // activity monitoring
             jobActivity.setProgress(((count + 1) * 100) / extGeneric.size());
             jobActivity.setProcessing("processing entry " + (count + 1) + "/" + extGeneric.size());
@@ -183,7 +176,7 @@ public class StateBaseToFile extends AbstractDestination {
             // remplacement des variables � partir d'une MAP
             // Chargement de la liste de variables
             final Variables svp = new Variables();
-            svp.loadFromExtraction(i.next());
+            svp.loadFromExtraction(stringListMap);
             svp.executeFunctions();
             final String s = svp.resolvString(stringFormat);
             // Execution des fonctions

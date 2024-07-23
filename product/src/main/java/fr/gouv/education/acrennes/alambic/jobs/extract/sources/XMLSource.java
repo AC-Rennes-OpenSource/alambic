@@ -49,7 +49,7 @@ public class XMLSource extends AbstractSource {
         setClient(new XMLClient(xml));
     }
 
-    private class XMLClient implements IToStateBase {
+    private static class XMLClient implements IToStateBase {
 
         private final String xml;
         private List<Map<String, List<String>>> stateBase = new ArrayList<>();
@@ -66,8 +66,8 @@ public class XMLSource extends AbstractSource {
         @Override
         public void executeQuery(final String query, final String scope) {
             stateBase = new ArrayList<>();
-            Map<String, List<String>> h = new HashMap<String, List<String>>();
-            List<String> l = new ArrayList<String>();
+            Map<String, List<String>> h = new HashMap<>();
+            List<String> l = new ArrayList<>();
             l.add(this.xml);
             h.put("xml", l);
             this.stateBase.add(h);

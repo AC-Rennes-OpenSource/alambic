@@ -66,7 +66,7 @@ public abstract class AbstractRandomGenerator implements RandomGenerator {
         String contentionToken;
 
         try {
-            queryMap = mapper.readValue(query, new TypeReference<Map<String, Object>>() {
+            queryMap = mapper.readValue(query, new TypeReference<>() {
             });
             String blurId = (String) queryMap.get("blurid");
             if (StringUtils.isBlank(blurId)) {
@@ -234,7 +234,6 @@ public abstract class AbstractRandomGenerator implements RandomGenerator {
         return capacity;
     }
 
-    @SuppressWarnings("unchecked")
     @Override
     public boolean isAlreadyUsed(final Map<String, Object> queryMap, final RandomEntity entity, final String processId, final UNICITY_SCOPE scope)
             throws AlambicException {
@@ -267,7 +266,7 @@ public abstract class AbstractRandomGenerator implements RandomGenerator {
          * }
          */
 
-        if (0 == results.size()) {
+        if (results.isEmpty()) {
             isUsed = false;
         }
 

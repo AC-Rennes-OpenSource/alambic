@@ -51,7 +51,7 @@ public class ACL {
     }
 
     public List<ACE> getAceList() {
-        List<ACE> lace = new ArrayList<ACE>();
+        List<ACE> lace = new ArrayList<>();
         for (Element aceElement : aclElement.getChildren()) {
             lace.add(new ACE(aceElement));
         }

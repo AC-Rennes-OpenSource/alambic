@@ -92,7 +92,7 @@ public class GARENTEleve {
      */
     public List<GAREleve> getGAREleve() {
         if (garEleve == null) {
-            garEleve = new ArrayList<GAREleve>();
+            garEleve = new ArrayList<>();
         }
         return this.garEleve;
     }
@@ -121,7 +121,7 @@ public class GARENTEleve {
      */
     public List<GARPersonMEF> getGARPersonMEF() {
         if (garPersonMEF == null) {
-            garPersonMEF = new ArrayList<GARPersonMEF>();
+            garPersonMEF = new ArrayList<>();
         }
         return this.garPersonMEF;
     }
@@ -150,7 +150,7 @@ public class GARENTEleve {
      */
     public List<GAREleveEnseignement> getGAREleveEnseignement() {
         if (garEleveEnseignement == null) {
-            garEleveEnseignement = new ArrayList<GAREleveEnseignement>();
+            garEleveEnseignement = new ArrayList<>();
         }
         return this.garEleveEnseignement;
     }

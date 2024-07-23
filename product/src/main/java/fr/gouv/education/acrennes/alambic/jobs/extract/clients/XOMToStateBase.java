@@ -61,7 +61,7 @@ public class XOMToStateBase implements IToStateBase {
             log.debug("Found " + nodes.size() + " results");
             for (int i = 0; i < nodes.size(); i++) {
                 Element elt = (Element) nodes.get(i);
-                Map<String, List<String>> item = new HashMap<String, List<String>>();
+                Map<String, List<String>> item = new HashMap<>();
                 item.put("name", Collections.singletonList(elt.getLocalName()));
                 item.put("value", Collections.singletonList(elt.getValue()));
                 item.put("xml", List.of(elt.toXML()));

@@ -72,7 +72,7 @@ public class GARENTGroupe {
      */
     public List<GARGroupe> getGARGroupe() {
         if (garGroupe == null) {
-            garGroupe = new ArrayList<GARGroupe>();
+            garGroupe = new ArrayList<>();
         }
         return this.garGroupe;
     }
@@ -101,7 +101,7 @@ public class GARENTGroupe {
      */
     public List<GARPersonGroupe> getGARPersonGroupe() {
         if (garPersonGroupe == null) {
-            garPersonGroupe = new ArrayList<GARPersonGroupe>();
+            garPersonGroupe = new ArrayList<>();
         }
         return this.garPersonGroupe;
     }

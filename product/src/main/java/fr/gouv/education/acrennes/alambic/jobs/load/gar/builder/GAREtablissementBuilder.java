@@ -62,16 +62,16 @@ public class GAREtablissementBuilder implements GARTypeBuilder {
     private final Source aafSource;
 
     public GAREtablissementBuilder(GARBuilderParameters parameters) {
-        this.page = parameters.getPage();
-        this.jobActivity = parameters.getJobActivity();
-        this.maxNodesCount = parameters.getMaxNodesCount();
-        this.version = parameters.getVersion();
-        this.territoryCode = parameters.getTerritoryCode();
-        this.output = parameters.getOutput();
-        this.em = parameters.getEm();
-        this.xsdFile = parameters.getXsdFile();
-        this.structures = parameters.getResources().get("Entries").getEntries(); // Get the list of involved structures
-        this.aafSource = parameters.getResources().get("AAF");
+        this.page = parameters.page();
+        this.jobActivity = parameters.jobActivity();
+        this.maxNodesCount = parameters.maxNodesCount();
+        this.version = parameters.version();
+        this.territoryCode = parameters.territoryCode();
+        this.output = parameters.output();
+        this.em = parameters.em();
+        this.xsdFile = parameters.xsdFile();
+        this.structures = parameters.resources().get("Entries").getEntries(); // Get the list of involved structures
+        this.aafSource = parameters.resources().get("AAF");
     }
 
     @Override
@@ -95,7 +95,7 @@ public class GAREtablissementBuilder implements GARTypeBuilder {
                  * GARStructureUAI
                  */
                 List<String> attribute = entity.get("ENTStructureUAI");
-                if (null != attribute && 0 < attribute.size() && StringUtils.isNotBlank(attribute.get(0))) {
+                if (null != attribute && !attribute.isEmpty() && StringUtils.isNotBlank(attribute.get(0))) {
                     ENTStructureUAI = attribute.get(0).toUpperCase();
                     garEtab.setGARStructureUAI(ENTStructureUAI);
                 } else {
@@ -109,7 +109,7 @@ public class GAREtablissementBuilder implements GARTypeBuilder {
                  * GARStructureNomCourant
                  */
                 attribute = entity.get("ENTDisplayName");
-                if (null != attribute && 0 < attribute.size() && StringUtils.isNotBlank(attribute.get(0))) {
+                if (null != attribute && !attribute.isEmpty() && StringUtils.isNotBlank(attribute.get(0))) {
                     garEtab.setGARStructureNomCourant(attribute.get(0));
                 } else {
                     jobActivity.setTrafficLight(ActivityTrafficLight.ORANGE);
@@ -122,7 +122,7 @@ public class GAREtablissementBuilder implements GARTypeBuilder {
                  * GAREtablissementStructRattachFctl
                  */
                 attribute = entity.get("ENTEtablissementStructRattachFctl");
-                if (null != attribute && 0 < attribute.size() && StringUtils.isNotBlank(attribute.get(0))) {
+                if (null != attribute && !attribute.isEmpty() && StringUtils.isNotBlank(attribute.get(0))) {
                     garEtab.setGAREtablissementStructRattachFctl(attribute.get(0));
                 } else {
                     log.debug("Entity '" + GARHelper.getInstance().getStructEntityBlurId(entity) + "' has no attribute " +
@@ -133,7 +133,7 @@ public class GAREtablissementBuilder implements GARTypeBuilder {
                  * GARStructureContrat
                  */
                 attribute = entity.get("ENTEtablissementContrat");
-                if (null != attribute && 0 < attribute.size() && StringUtils.isNotBlank(attribute.get(0))) {
+                if (null != attribute && !attribute.isEmpty() && StringUtils.isNotBlank(attribute.get(0))) {
                     garEtab.setGARStructureContrat(GARHelper.getInstance().getSDETCompliantContractValue(attribute.get(0)));
                 } else {
                     log.debug("Entity '" + GARHelper.getInstance().getStructEntityBlurId(entity) + "' has no attribute 'ENTEtablissementContrat'");
@@ -143,7 +143,7 @@ public class GAREtablissementBuilder implements GARTypeBuilder {
                  * GARStructureTelephone
                  */
                 attribute = entity.get("telephoneNumber");
-                if (null != attribute && 0 < attribute.size() && StringUtils.isNotBlank(attribute.get(0))) {
+                if (null != attribute && !attribute.isEmpty() && StringUtils.isNotBlank(attribute.get(0))) {
                     garEtab.setGARStructureTelephone(attribute.get(0));
                 } else {
                     log.debug("Entity '" + GARHelper.getInstance().getStructEntityBlurId(entity) + "' has no attribute 'telephoneNumber");
@@ -239,7 +239,7 @@ public class GAREtablissementBuilder implements GARTypeBuilder {
             List<Map<String, List<String>>> resultSet = this.aafSource.query(query);
 
             // perform controls
-            if (null != resultSet && 0 < resultSet.size()) {
+            if (null != resultSet && !resultSet.isEmpty()) {
                 Map<String, List<String>> item = resultSet.get(0); // a single item is expected
                 JSONObject jsonResultSet = new JSONObject(item.get("item").get(0));
                 if (0 < jsonResultSet.getJSONObject("hits").getInt("total")) {
@@ -264,7 +264,7 @@ public class GAREtablissementBuilder implements GARTypeBuilder {
             List<Map<String, List<String>>> resultSet = this.aafSource.query(query);
 
             // perform controls
-            if (null != resultSet && 0 < resultSet.size()) {
+            if (null != resultSet && !resultSet.isEmpty()) {
                 Map<String, List<String>> item = resultSet.get(0); // a single item is expected
                 JSONObject jsonResultSet = new JSONObject(item.get("item").get(0));
                 if (0 < jsonResultSet.getJSONObject("hits").getInt("total")) {

@@ -53,8 +53,8 @@ public class GAR1DEleveBuilder extends GAR1DIdentiteBuilder {
 
     public GAR1DEleveBuilder(GARBuilderParameters parameters) {
         super(parameters);
-        students = parameters.getResources().get("Entries").getEntries();
-        exportFiles = parameters.getExportFiles();
+        students = parameters.resources().get("Entries").getEntries();
+        exportFiles = parameters.exportFiles();
     }
 
     private void resetVariables() {

@@ -36,12 +36,12 @@ public class NoneSource extends AbstractSource {
         setClient(new NoneClient());
     }
 
-    private class NoneClient implements IToStateBase {
+    private static class NoneClient implements IToStateBase {
 
         private final List<Map<String, List<String>>> resultat;
 
         public NoneClient() {
-            resultat = new ArrayList<Map<String, List<String>>>();
+            resultat = new ArrayList<>();
         }
 
         @Override
@@ -51,8 +51,8 @@ public class NoneSource extends AbstractSource {
 
         @Override
         public void executeQuery(final String query, final String scope) {
-            Map<String, List<String>> h = new HashMap<String, List<String>>();
-            List<String> l = new ArrayList<String>();
+            Map<String, List<String>> h = new HashMap<>();
+            List<String> l = new ArrayList<>();
             l.add("hop");
             h.put("none", l);
             resultat.add(h);

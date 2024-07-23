@@ -27,7 +27,10 @@ import org.apache.commons.logging.LogFactory;
 import javax.persistence.EntityManager;
 import javax.persistence.FlushModeType;
 import java.io.IOException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
@@ -68,48 +71,21 @@ public class RandomGeneratorService {
     }
 
     private RandomGenerator getRandomGeneratorSingleInstance(final GENERATOR_TYPE type) throws AlambicException {
-        RandomGenerator generator = null;
-
-        switch (type) {
-            case USER:
-                generator = new RandomUserGenerator(getEntityManager());
-                break;
-            case DATE:
-                generator = new RandomDateGenerator(getEntityManager());
-                break;
-            case PASSWORD:
-                generator = new RandomPasswordGenerator(getEntityManager());
-                break;
-            case UID:
-                generator = new RandomUidGenerator(getEntityManager());
-                break;
-            case UUID:
-                generator = new RandomUUidGenerator(getEntityManager());
-                break;
-            case INTEGER:
-                generator = new RandomIntegerGenerator(getEntityManager());
-                break;
-            case UNIK:
-                generator = new UnikGenerator(getEntityManager());
-                break;
-            case MAIL:
-                generator = new RandomMailGenerator(getEntityManager());
-                break;
-            case UAI:
-                generator = new RandomUAIGenerator(getEntityManager());
-                break;
-            case IMAGE:
-                generator = new RandomImageGenerator(getEntityManager());
-                break;
-            case IDENTITY:
-                generator = new RandomIdentityGenerator(getEntityManager());
-                break;
-            case ADDRESS:
-                generator = new RandomAddressGenerator(getEntityManager());
-                break;
-            default:
-                throw new AlambicException("Not supported yet random generator type : '" + type + "'");
-        }
+        RandomGenerator generator = switch (type) {
+            case USER -> new RandomUserGenerator(getEntityManager());
+            case DATE -> new RandomDateGenerator(getEntityManager());
+            case PASSWORD -> new RandomPasswordGenerator(getEntityManager());
+            case UID -> new RandomUidGenerator(getEntityManager());
+            case UUID -> new RandomUUidGenerator(getEntityManager());
+            case INTEGER -> new RandomIntegerGenerator(getEntityManager());
+            case UNIK -> new UnikGenerator(getEntityManager());
+            case MAIL -> new RandomMailGenerator(getEntityManager());
+            case UAI -> new RandomUAIGenerator(getEntityManager());
+            case IMAGE -> new RandomImageGenerator(getEntityManager());
+            case IDENTITY -> new RandomIdentityGenerator(getEntityManager());
+            case ADDRESS -> new RandomAddressGenerator(getEntityManager());
+            default -> throw new AlambicException("Not supported yet random generator type : '" + type + "'");
+        };
 
         return generator;
     }
@@ -151,9 +127,7 @@ public class RandomGeneratorService {
         } else if (value instanceof Map) {
             @SuppressWarnings("unchecked")
             Map<String, Object> mapValue = (Map<String, Object>) value;
-            Iterator<String> keysItr = mapValue.keySet().iterator();
-            while (keysItr.hasNext()) {
-                String innerKey = keysItr.next();
+            for (String innerKey : mapValue.keySet()) {
                 addKeyValuePair(key.concat("_" + innerKey), mapValue.get(innerKey), map);
             }
         } else {
@@ -190,15 +164,13 @@ public class RandomGeneratorService {
     }
 
     public static Map<String, List<String>> toStateBaseEntry(final RandomEntity entry) {
-        Map<String, List<String>> sbeMap = new HashMap<String, List<String>>();
+        Map<String, List<String>> sbeMap = new HashMap<>();
 
         Map<String, Object> entityMap;
         try {
-            entityMap = new ObjectMapper().readValue(entry.getJson(), new TypeReference<Map<String, Object>>() {
+            entityMap = new ObjectMapper().readValue(entry.getJson(), new TypeReference<>() {
             });
-            Iterator<String> keysItr = entityMap.keySet().iterator();
-            while (keysItr.hasNext()) {
-                String key = keysItr.next();
+            for (String key : entityMap.keySet()) {
                 addKeyValuePair(key, entityMap.get(key), sbeMap);
             }
         } catch (IOException e) {
@@ -212,12 +184,12 @@ public class RandomGeneratorService {
         getInstance().closeInstance();
     }
 
-    private class LockRegister {
+    private static class LockRegister {
         private final List<Long> contention_list;
         private final ReentrantReadWriteLock lock;
 
         public LockRegister() {
-            this.contention_list = new ArrayList<Long>();
+            this.contention_list = new ArrayList<>();
             this.lock = new ReentrantReadWriteLock();
         }
 

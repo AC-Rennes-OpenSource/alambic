@@ -78,7 +78,7 @@ public class Activity implements ActivityMBean {
             for (ActivityMBean innerActivity : this.innerActivitiesList) {
                 p += innerActivity.getProgress();
             }
-            p = p / ((this.innerJobsCount > this.innerActivitiesList.size()) ? this.innerJobsCount : this.innerActivitiesList.size());
+            p = p / (Math.max(this.innerJobsCount, this.innerActivitiesList.size()));
         }
         return p;
     }
@@ -144,7 +144,7 @@ public class Activity implements ActivityMBean {
     @Override
     public void registerInnerActivity(final ActivityMBean innerActivity) {
         if (Collections.EMPTY_LIST == this.innerActivitiesList) {
-            this.innerActivitiesList = new ArrayList<ActivityMBean>();
+            this.innerActivitiesList = new ArrayList<>();
         }
         innerActivitiesList.add(innerActivity);
     }
@@ -239,7 +239,7 @@ public class Activity implements ActivityMBean {
     @Override
     public void addError(Exception e) {
         if (Collections.EMPTY_LIST == this.errors) {
-            this.errors = new ArrayList<Exception>();
+            this.errors = new ArrayList<>();
         }
 
         this.errors.add(e);
@@ -247,7 +247,7 @@ public class Activity implements ActivityMBean {
 
     @Override
     public List<Exception> getErrors() {
-        List<Exception> job_errors = new ArrayList<Exception>(this.errors);
+        List<Exception> job_errors = new ArrayList<>(this.errors);
         if (!this.innerActivitiesList.isEmpty()) {
             for (ActivityMBean innerActivity : this.innerActivitiesList) {
                 job_errors.addAll(innerActivity.getErrors());
@@ -265,10 +265,10 @@ public class Activity implements ActivityMBean {
             if (getErrors().isEmpty()) {
                 json_report = String.format("{\"report\":{\"status\":\"success\",\"activity\":%s}}", this);
             } else {
-                String reasons = (this.getErrors().isEmpty()) ? "" : String.join(",", this.getErrors().stream()
+                String reasons = (this.getErrors().isEmpty()) ? "" : this.getErrors().stream()
                         .filter(e -> StringUtils.isNotBlank(e.getMessage()))
                         .map(e -> "\"" + JSONObject.escape(e.getMessage()) + "\"")
-                        .collect(Collectors.toList()));
+                        .collect(Collectors.joining(","));
                 json_report = String.format("{\"report\":{\"status\":\"error\",\"reasons\":[%s],\"activity\":%s}}", reasons, this);
             }
             ReportUnmarshaller unmarshaller = new ReportUnmarshaller();

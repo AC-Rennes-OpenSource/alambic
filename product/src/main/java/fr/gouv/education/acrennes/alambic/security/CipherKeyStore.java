@@ -22,7 +22,6 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
-import java.io.File;
 import java.io.FileInputStream;
 import java.security.Key;
 import java.security.KeyStore;
@@ -55,7 +54,7 @@ public class CipherKeyStore {
 
     public CipherKeyStore(final String path, final KEYSTORE_TYPE type, final String ksPwd) throws AlambicException {
         try {
-            is = new FileInputStream(new File(path));
+            is = new FileInputStream(path);
             this.ksPwd = ksPwd;
             if (KEYSTORE_TYPE.JCEKS.equals(type)) {
                 keystore = KeyStore.getInstance("JCEKS");

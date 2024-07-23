@@ -112,7 +112,7 @@ public class GAREnsDisciplinesPostes {
      */
     public List<String> getGAREnsDisciplinePosteCode() {
         if (garEnsDisciplinePosteCode == null) {
-            garEnsDisciplinePosteCode = new ArrayList<String>();
+            garEnsDisciplinePosteCode = new ArrayList<>();
         }
         return this.garEnsDisciplinePosteCode;
     }

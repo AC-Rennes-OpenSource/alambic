@@ -28,7 +28,6 @@ public class PropertyListAdapter extends WrappingTemplateModel implements Templa
         this.propertyList = propertyList;
     }
 
-    @SuppressWarnings("rawtypes")
     @Override
     public Object getAdaptedObject(Class hint) {
         return this.propertyList;

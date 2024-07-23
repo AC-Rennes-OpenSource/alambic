@@ -100,9 +100,7 @@ public class NxqlToStateBase implements IToStateBase {
 
     public List<Map<String, List<String>>> getStateBase(final Documents documents) {
         results = new ArrayList<>();
-        final Iterator<Document> itr = documents.iterator();
-        while (itr.hasNext()) {
-            final Document document = itr.next();
+        for (Document document : documents) {
             final Map<String, List<String>> item = new HashMap<>();
             item.put("UUID", Collections.singletonList(document.getId()));
             item.put("PATH", Collections.singletonList(document.getPath()));
@@ -214,16 +212,14 @@ public class NxqlToStateBase implements IToStateBase {
                 if (useElasticSearch) {
                     request = session.newRequest("Document.QueryES");
                     request.set("X-NXDocumentProperties", schemas);
-                    request.set("pageSize", pageSize);
-                    request.set("currentPageIndex", offset);
                 } else {
                     request = session.newRequest("Document.Query");
                     request.setHeader("X-NXDocumentProperties", schemas);
                     request.set("sortBy", sortBy);
                     request.set("sortOrder", orderBy);
-                    request.set("pageSize", pageSize);
-                    request.set("currentPageIndex", offset);
                 }
+                request.set("pageSize", pageSize);
+                request.set("currentPageIndex", offset);
                 request.set("query", query);
                 entries = getStateBase((Documents) request.execute());
                 offset++;

@@ -34,7 +34,7 @@ public class ForeachElement {
     }
 
     public List<String> getValues() {
-        List<String> res = new ArrayList<String>();
+        List<String> res = new ArrayList<>();
         String statebaseName = foreachStateBaseElement.getAttributeValue("name");
         List<Map<String, List<String>>> liste = stateBaseList.get(statebaseName);
         for (Map<String, List<String>> map : liste) {

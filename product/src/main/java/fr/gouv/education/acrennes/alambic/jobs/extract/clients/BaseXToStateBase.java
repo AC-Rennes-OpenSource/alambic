@@ -135,7 +135,7 @@ public class BaseXToStateBase implements IToStateBase {
                 if (response.getStatusLine().getStatusCode() == 200) {
                     String body = IOUtils.toString(response.getEntity().getContent(), Charsets.UTF_8);
                     if (StringUtils.isNotBlank(body)) {
-                        Map<String, List<String>> item = new HashMap<String, List<String>>();
+                        Map<String, List<String>> item = new HashMap<>();
                         item.put("item", List.of(body));
                         statebase.add(item);
                     }

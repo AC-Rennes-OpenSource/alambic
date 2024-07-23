@@ -31,7 +31,7 @@ import java.util.Hashtable;
 public class LdapExtraction {
     private static final Log log = LogFactory.getLog(LdapExtraction.class);
 
-    private final Hashtable<String, String> confLdap = new Hashtable<String, String>(5);
+    private final Hashtable<String, String> confLdap = new Hashtable<>(5);
     private final SearchControls contraintes = new SearchControls();
     protected DirContext ctx = null;
     protected NamingEnumeration<SearchResult> searchRes;

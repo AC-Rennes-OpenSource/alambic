@@ -36,7 +36,6 @@ import java.io.FileNotFoundException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
 
 public class GAR1DGroupeBuilder extends GAR1DBuilder {
 
@@ -46,7 +45,7 @@ public class GAR1DGroupeBuilder extends GAR1DBuilder {
 
     public GAR1DGroupeBuilder(GARBuilderParameters parameters) {
         super(parameters);
-        structures = parameters.getResources().get("Entries").getEntries();
+        structures = parameters.resources().get("Entries").getEntries();
     }
 
     @Override
@@ -72,7 +71,7 @@ public class GAR1DGroupeBuilder extends GAR1DBuilder {
         // Writing only groups that have associated persons
         List<GARGroupe> filteredGroupes = groupes.stream()
                 .filter(garGroupe -> personGroupes.stream().map(GARPersonGroupe::getGARGroupeCode).anyMatch(garGroupe.getGARGroupeCode()::equals))
-                .collect(Collectors.toList());
+                .toList();
         for (GARGroupe groupe : filteredGroupes) {
             writer.add(groupe);
         }

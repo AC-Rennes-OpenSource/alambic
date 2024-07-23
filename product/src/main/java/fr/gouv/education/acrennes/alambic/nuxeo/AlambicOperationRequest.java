@@ -36,7 +36,7 @@ public class AlambicOperationRequest extends DefaultOperationRequest {
         OperationDocumentation operation = getOperation();
         if (operation.getUrl().matches("fr.gouv.education.acrennes.alambic.*")) {
             String clazz = operation.getUrl();
-            AlambicOperation runner = (AlambicOperation) Class.forName(clazz).newInstance();
+            AlambicOperation runner = (AlambicOperation) Class.forName(clazz).getDeclaredConstructor().newInstance();
             obj = runner.execute(this);
         } else {
             obj = super.execute();

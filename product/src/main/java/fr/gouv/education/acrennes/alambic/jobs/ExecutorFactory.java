@@ -58,7 +58,7 @@ public class ExecutorFactory {
     public static void initialize(Properties properties) throws AlambicException {
         String size = properties.getProperty(THREAD_POOL_SIZE, DEFAULT_THREAD_POOL_SIZE);
         if (null == instance) {
-            instance = new ExecutorFactory(Integer.valueOf(size));
+            instance = new ExecutorFactory(Integer.parseInt(size));
         } else {
             throw new AlambicException("ExecutorFactory is already instanciated!");
         }

@@ -171,7 +171,7 @@ public class ObjectFactory {
      */
     @XmlElementDecl(namespace = "http://data.education.fr/ns/gar/1d", name = "GAR-ENT-Etab")
     public JAXBElement<GARENTEtab> createGARENTEtab(GARENTEtab value) {
-        return new JAXBElement<GARENTEtab>(_GARENTEtab_QNAME, GARENTEtab.class, null, value);
+        return new JAXBElement<>(_GARENTEtab_QNAME, GARENTEtab.class, null, value);
     }
 
     /**
@@ -180,7 +180,7 @@ public class ObjectFactory {
      */
     @XmlElementDecl(namespace = "http://data.education.fr/ns/gar/1d", name = "GAR-ENT-Eleve")
     public JAXBElement<GARENTEleve> createGARENTEleve(GARENTEleve value) {
-        return new JAXBElement<GARENTEleve>(_GARENTEleve_QNAME, GARENTEleve.class, null, value);
+        return new JAXBElement<>(_GARENTEleve_QNAME, GARENTEleve.class, null, value);
     }
 
     /**
@@ -189,7 +189,7 @@ public class ObjectFactory {
      */
     @XmlElementDecl(namespace = "http://data.education.fr/ns/gar/1d", name = "GAR-ENT-Groupe")
     public JAXBElement<GARENTGroupe> createGARENTGroupe(GARENTGroupe value) {
-        return new JAXBElement<GARENTGroupe>(_GARENTGroupe_QNAME, GARENTGroupe.class, null, value);
+        return new JAXBElement<>(_GARENTGroupe_QNAME, GARENTGroupe.class, null, value);
     }
 
     /**
@@ -198,7 +198,7 @@ public class ObjectFactory {
      */
     @XmlElementDecl(namespace = "http://data.education.fr/ns/gar/1d", name = "GAR-ENT-Enseignant")
     public JAXBElement<GARENTEnseignant> createGARENTEnseignant(GARENTEnseignant value) {
-        return new JAXBElement<GARENTEnseignant>(_GARENTEnseignant_QNAME, GARENTEnseignant.class, null, value);
+        return new JAXBElement<>(_GARENTEnseignant_QNAME, GARENTEnseignant.class, null, value);
     }
 
     /**
@@ -207,7 +207,7 @@ public class ObjectFactory {
      */
     @XmlElementDecl(namespace = "http://data.education.fr/ns/gar/1d", name = "GAR-ENT-RespAff")
     public JAXBElement<GARENTRespAff> createGARENTRespAff(GARENTRespAff value) {
-        return new JAXBElement<GARENTRespAff>(_GARENTRespAff_QNAME, GARENTRespAff.class, null, value);
+        return new JAXBElement<>(_GARENTRespAff_QNAME, GARENTRespAff.class, null, value);
     }
 
 }

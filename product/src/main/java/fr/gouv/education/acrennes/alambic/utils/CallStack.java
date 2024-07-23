@@ -32,7 +32,7 @@ public class CallStack {
     public CallStack(final String id) {
         setId(id);
         stack = new ArrayList<>();
-        ctx = new HashMap<String, String>();
+        ctx = new HashMap<>();
     }
 
     public String getId() {
@@ -104,14 +104,14 @@ public class CallStack {
     }
 
     private String callStackToString() {
-        String str = "";
+        StringBuilder str = new StringBuilder();
         if (!getStack().isEmpty()) {
             for (CallStack item : getStack()) {
-                str = str + item + ",";
+                str.append(item).append(",");
             }
-            str = str.replaceAll(",$", "");
+            str = new StringBuilder(str.toString().replaceAll(",$", ""));
         }
-        return str;
+        return str.toString();
     }
 
 }

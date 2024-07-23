@@ -94,7 +94,7 @@ public class XmlToEmail extends AbstractDestination {
         Element attmts = job.getChild("attachments");
         if (null != attmts) {
             List<Element> includes = attmts.getChildren("include");
-            if (null != includes && 0 < includes.size()) {
+            if (null != includes && !includes.isEmpty()) {
                 attachments = new ArrayList<>();
                 attachments.addAll(includes);
             }
@@ -146,7 +146,7 @@ public class XmlToEmail extends AbstractDestination {
 
                 // content
                 Element content = messageNode.getChild("content");
-                if (null != attachments && 0 < attachments.size()) {
+                if (null != attachments && !attachments.isEmpty()) {
                     MimeMultipart multipart = new MimeMultipart("related");
 
                     // Add the email content

@@ -54,8 +54,8 @@ import static org.eclipse.persistence.config.PersistenceUnitProperties.*;
 public class APIAlambic implements IAPIAlambic {
 
     private static final class AlambicVariables {
-        static String ALAMBIC_ADDONPATH = "ALAMBIC_ADDONPATH";
-        static String ALAMBIC_ADDON_OUTPUTPATH = "ALAMBIC_ADDON_OUTPUTPATH";
+        static final String ALAMBIC_ADDONPATH = "ALAMBIC_ADDONPATH";
+        static final String ALAMBIC_ADDON_OUTPUTPATH = "ALAMBIC_ADDON_OUTPUTPATH";
 
         private AlambicVariables() {
             throw new AssertionError("Classe utilitaire, ne pas instancier");
@@ -113,7 +113,7 @@ public class APIAlambic implements IAPIAlambic {
         properties.load(new FileInputStream(executionPath.concat(CONFIG_FILE)));
 
         // Override the thread count configuration according to the count passed-in parameter (if not 0)
-        if (StringUtils.isNotBlank(threadCount) && Integer.valueOf(threadCount) > 0) {
+        if (StringUtils.isNotBlank(threadCount) && Integer.parseInt(threadCount) > 0) {
             properties.setProperty(ExecutorFactory.THREAD_POOL_SIZE, threadCount);
         }
 

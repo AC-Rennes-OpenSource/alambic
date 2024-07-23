@@ -81,7 +81,7 @@ public class CsvToStateBase implements IToStateBase {
 
                 String[] nextLine;
                 while ((nextLine = reader.readNext()) != null) {
-                    Map<String, List<String>> node = new HashMap<String, List<String>>();
+                    Map<String, List<String>> node = new HashMap<>();
                     for (int j = 0; j < header.length; j++) {
                         String key = header[j];
                         String value = nextLine[j];
@@ -161,7 +161,7 @@ public class CsvToStateBase implements IToStateBase {
 
         @Override
         public List<Map<String, List<String>>> next() {
-            List<Map<String, List<String>>> subEntriesList = entries.subList(offset, (((offset + pageSize) < total) ? (offset + pageSize) : total));
+            List<Map<String, List<String>>> subEntriesList = entries.subList(offset, (Math.min((offset + pageSize), total)));
             offset += pageSize;
             return subEntriesList;
         }

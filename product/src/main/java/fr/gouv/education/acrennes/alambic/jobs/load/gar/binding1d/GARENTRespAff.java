@@ -68,7 +68,7 @@ public class GARENTRespAff {
      */
     public List<GARRespAff> getGARRespAff() {
         if (garRespAff == null) {
-            garRespAff = new ArrayList<GARRespAff>();
+            garRespAff = new ArrayList<>();
         }
         return this.garRespAff;
     }

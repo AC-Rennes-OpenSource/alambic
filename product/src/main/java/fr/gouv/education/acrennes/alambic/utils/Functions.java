@@ -179,9 +179,7 @@ public class Functions {
         if ("sql.count".equalsIgnoreCase(fonction)) {
             try {
                 return fonctionSqlCount(param);
-            } catch (final SQLException e) {
-                LOG.error("Fonction fonctionSqlCount : ", e);
-            } catch (final ClassNotFoundException e) {
+            } catch (final SQLException | ClassNotFoundException e) {
                 LOG.error("Fonction fonctionSqlCount : ", e);
             }
         }
@@ -392,7 +390,7 @@ public class Functions {
                         final CallStack ifc = (!callStack.getStack().isEmpty()) ? callStack.getStack().get(0) : null;
                         if ((null != ifc) && StringUtils.isBlank(unicityMatcher.group(1))) {
                             // Ask the inner function to give a new candidate value
-                            final String newCandidate = searchFunctions(ifc.getFulltext(), new HashMap<String, String>(), callStack);
+                            final String newCandidate = searchFunctions(ifc.getFulltext(), new HashMap<>(), callStack);
                             uniqueValue = unicity(searchString.replace(uniqueValue, newCandidate), callStack);
                         } else {
                             // No inner function was used to build the candidate value: compute the new unique value via an
@@ -423,7 +421,7 @@ public class Functions {
                                     String newCandidate = String.valueOf(i);
                                     if (null != ifc) {
                                         // Ask the inner function to give a new candidate value
-                                        newCandidate = searchFunctions(ifc.getFulltext(), new HashMap<String, String>(), callStack);
+                                        newCandidate = searchFunctions(ifc.getFulltext(), new HashMap<>(), callStack);
                                     }
                                     // Compute new candidate value
                                     uniqueValue = valuePattern.replace("*", newCandidate);
@@ -525,7 +523,7 @@ public class Functions {
 
         try {
             final ObjectMapper mapper = new ObjectMapper();
-            final Map<String, String> ctx = mapper.readValue(params, new TypeReference<Map<String, String>>() {
+            final Map<String, String> ctx = mapper.readValue(params, new TypeReference<>() {
             });
             final String templatePath = ctx.get("path");
             final String templateDir = templatePath.substring(0, templatePath.lastIndexOf("/"));
@@ -537,9 +535,7 @@ public class Functions {
             cfg.getTemplate(templateFile).process(ctx, out);
             out.flush();
             templatedContent = outputStream.toString();
-        } catch (final IOException e) {
-            LOG.error("Exception :", e);
-        } catch (final TemplateException e) {
+        } catch (final IOException | TemplateException e) {
             LOG.error("Exception :", e);
         }
 
@@ -551,7 +547,7 @@ public class Functions {
         if (!callStack.getCtx().containsKey("index")) {
             callStack.getCtx().put("index", params);
         } else {
-            value = String.valueOf(Integer.valueOf(callStack.getCtx().get("index")) + 1);
+            value = String.valueOf(Integer.parseInt(callStack.getCtx().get("index")) + 1);
             callStack.getCtx().put("index", value);
         }
         return value;
@@ -562,8 +558,8 @@ public class Functions {
         if (!callStack.getCtx().containsKey("index")) {
             callStack.getCtx().put("index", params);
         } else {
-            final Integer valueInt = Integer.valueOf(callStack.getCtx().get("index")) - 1;
-            value = String.valueOf((0 > valueInt) ? 0 : valueInt);
+            final int valueInt = Integer.parseInt(callStack.getCtx().get("index")) - 1;
+            value = String.valueOf(Math.max(0, valueInt));
             callStack.getCtx().put("index", value);
         }
         return value;
@@ -588,7 +584,7 @@ public class Functions {
 
         try {
             // Verify the parameters fit the pattern
-            final Map<String, Object> queryMap = mapper.readValue(params, new TypeReference<Map<String, Object>>() {
+            final Map<String, Object> queryMap = mapper.readValue(params, new TypeReference<>() {
             });
             if ((null != (queryMap.get("length")))
                 && (null != queryMap.get("symbols"))
@@ -608,7 +604,7 @@ public class Functions {
                             RandomGenerator.UNICITY_SCOPE.valueOf((String) queryMap.get("scope")));
                     if ((null != passwordEntities) && !passwordEntities.isEmpty()) {
                         final String entityJson = passwordEntities.get(0).getJson();
-                        final Map<String, Object> entityMap = new ObjectMapper().readValue(entityJson, new TypeReference<Map<String, Object>>() {
+                        final Map<String, Object> entityMap = new ObjectMapper().readValue(entityJson, new TypeReference<>() {
                         });
                         password = (String) entityMap.get("password");
                     } else {
@@ -654,7 +650,7 @@ public class Functions {
 
         String result = "";
         try {
-            final Map<String, Object> paramsMap = new ObjectMapper().readValue(params, new TypeReference<Map<String, Object>>() {
+            final Map<String, Object> paramsMap = new ObjectMapper().readValue(params, new TypeReference<>() {
             });
             if ((null != paramsMap)
                 && StringUtils.isNotBlank((String) paramsMap.get("format"))
@@ -806,8 +802,8 @@ public class Functions {
     private String fonctionFormatSqlIn(final String param) {
         final String[] values = param.split(";");
         String res = "";
-        for (int i = 0; i < values.length; i++) {
-            res = res + "'%s',".replaceAll("%s", values[i]);
+        for (final String value : values) {
+            res = res + "'%s',".replaceAll("%s", value);
         }
         return res.replaceAll(",$", "");
     }
@@ -835,12 +831,11 @@ public class Functions {
         if (param.contains("||")) {
             final String pattern = param.substring(0, param.indexOf("||"));
             final String[] values = param.substring(param.indexOf("||") + 2).split(";");
-            String res = "";
-            for (int i = 0; i < values.length; i++) {
-                res = res + pattern.replaceAll("%s", values[i]);
-
+            StringBuilder res = new StringBuilder();
+            for (final String value : values) {
+                res.append(pattern.replaceAll("%s", value));
             }
-            return res.replaceAll(",$", "");
+            return res.toString().replaceAll(",$", "");
         } else {
             return param;
         }
@@ -996,7 +991,7 @@ public class Functions {
     }
 
     public String generateSalt(final String params) {
-        Integer saltLength = Integer.valueOf(StringUtils.isNotBlank(params) ? params.trim() : String.valueOf(Constants.DEFAULT_SALT_LENGTH));
+        int saltLength = Integer.parseInt(StringUtils.isNotBlank(params) ? params.trim() : String.valueOf(Constants.DEFAULT_SALT_LENGTH));
         SecureRandom random = new SecureRandom();
         byte[] salt = new byte[saltLength];
         random.nextBytes(salt);

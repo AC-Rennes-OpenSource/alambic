@@ -114,7 +114,7 @@ public class StateBaseToLdapDelete extends AbstractDestination {
                 jobActivity.setProcessing("processing entry " + (count + 1) + "/" + stateBase.size());
 
                 /* build RDN of entity to delete */
-                if ((null != item.get(rdnAttributeName)) && (0 < item.get(rdnAttributeName).size())) {
+                if ((null != item.get(rdnAttributeName)) && (!item.get(rdnAttributeName).isEmpty())) {
                     String rdn = (item.get(rdnAttributeName)).get(0);
                     if (StringUtils.isNotBlank(rdn)) {
                         rdn = String.format(rdnAttributeName.concat("=%s"), rdn);

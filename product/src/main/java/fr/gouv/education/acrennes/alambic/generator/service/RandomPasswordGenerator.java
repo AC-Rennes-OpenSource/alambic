@@ -40,7 +40,7 @@ public class RandomPasswordGenerator extends AbstractRandomGenerator {
     private static final Map<String, String[]> DICTIONARY;
 
     static {
-        DICTIONARY = new HashMap<String, String[]>();
+        DICTIONARY = new HashMap<>();
         DICTIONARY.put("LETTER_MAJ", SYMBOLS_LETTER_M);
         DICTIONARY.put("LETTER_MIN", SYMBOLS_LETTER_m);
         DICTIONARY.put("DIGIT", SYMBOLS_DIGIT);
@@ -60,7 +60,7 @@ public class RandomPasswordGenerator extends AbstractRandomGenerator {
 
         // Build the random password
         int pwssdLength = (int) query.get("length");
-        StringBuffer pwssd = new StringBuffer();
+        StringBuilder pwssd = new StringBuilder();
         for (int i = 0; i < pwssdLength; i++) {
             long randomSymbolIndex = getRandomNumber(0, dico.size() - 1);
             String randomSymbolName = dico.get((int) randomSymbolIndex);
@@ -89,9 +89,9 @@ public class RandomPasswordGenerator extends AbstractRandomGenerator {
 
         // Get the longest symbol dictionary
         int len = 0;
-        for (int i = 0; i < dico.size(); i++) {
-            String[] symbolCharacters = DICTIONARY.get(dico.get(i));
-            len = (len < symbolCharacters.length ? symbolCharacters.length : len);
+        for (String s : dico) {
+            String[] symbolCharacters = DICTIONARY.get(s);
+            len = (Math.max(len, symbolCharacters.length));
         }
 
         /*
@@ -109,13 +109,7 @@ public class RandomPasswordGenerator extends AbstractRandomGenerator {
 
         // Get the dictionary according to the parameters
         List<String> dico = getQueryDictionary(query);
-        Collections.sort(dico, new Comparator<String>() {
-
-            @Override
-            public int compare(final String o1, final String o2) {
-                return o1.toLowerCase().compareTo(o2.toLowerCase());
-            }
-        });
+        dico.sort(Comparator.comparing(String::toLowerCase));
 
         return String.format(filter, query.get("length"), StringUtils.join(dico, ","));
     }

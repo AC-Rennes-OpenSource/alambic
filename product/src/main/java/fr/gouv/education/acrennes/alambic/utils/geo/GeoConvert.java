@@ -47,22 +47,16 @@ public class GeoConvert {
      * @return par défaut {@link #getLambert93ToWgs84()}
      */
     public CoordinateOperation getOperationFromCodeDepartement(String codeDepartement) {
-        switch (codeDepartement) {
-            case "971":
-            case "972":
+        return switch (codeDepartement) {
+            case "971", "972" ->
                 // Martinique et Guadeloupe :
-                return guadeloupeToWgs84;
-            case "973":
-                return guyaneToWgs84;
-            case "974":
-                return rgr92ToWgs84;
-            case "975":
-                return stPierreEtMiquelonToWgs84;
-            case "976":
-                return mayotteToWgs84;
-            default:
-                return lambert93ToWgs84;
-        }
+                    guadeloupeToWgs84;
+            case "973" -> guyaneToWgs84;
+            case "974" -> rgr92ToWgs84;
+            case "975" -> stPierreEtMiquelonToWgs84;
+            case "976" -> mayotteToWgs84;
+            default -> lambert93ToWgs84;
+        };
     }
 
     public GeoConvert() {

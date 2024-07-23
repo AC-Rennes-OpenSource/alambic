@@ -180,7 +180,7 @@ public class GARGroupe {
      */
     public List<String> getGARGroupeDivAppartenance() {
         if (garGroupeDivAppartenance == null) {
-            garGroupeDivAppartenance = new ArrayList<String>();
+            garGroupeDivAppartenance = new ArrayList<>();
         }
         return this.garGroupeDivAppartenance;
     }

@@ -35,7 +35,6 @@ public class PropertyMapAdapter extends WrappingTemplateModel implements
         this.propertyMap = propertyMap;
     }
 
-    @SuppressWarnings("rawtypes")
     @Override
     public Object getAdaptedObject(final Class hint) {
         return propertyMap;

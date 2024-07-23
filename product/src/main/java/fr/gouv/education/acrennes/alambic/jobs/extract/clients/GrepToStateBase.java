@@ -59,16 +59,14 @@ public class GrepToStateBase implements IToStateBase {
     @Override
     public void executeQuery(final String regex, final String scope) {
         stateBase = new ArrayList<>();
-        LineIterator li = null;
         int resultIndex = 1;
 
         if (StringUtils.isNotBlank(regex)) {
-            try {
-                li = FileUtils.lineIterator(file, "UTF-8");
+            try (final LineIterator li = FileUtils.lineIterator(file, "UTF-8")) {
                 while (li.hasNext()) {
                     String line = li.nextLine();
                     if (line.matches(regex)) {
-                        Map<String, List<String>> item = new HashMap<String, List<String>>();
+                        Map<String, List<String>> item = new HashMap<>();
                         item.put(String.valueOf(resultIndex++), List.of(line));
                         stateBase.add(item);
                         log.debug("Found XML element: " + item);
@@ -76,10 +74,6 @@ public class GrepToStateBase implements IToStateBase {
                 }
             } catch (IOException e) {
                 log.error("Failed to execute query '" + regex + "' on file '" + file.getAbsolutePath() + "'");
-            } finally {
-                if (null != li) {
-                    LineIterator.closeQuietly(li);
-                }
             }
         }
     }

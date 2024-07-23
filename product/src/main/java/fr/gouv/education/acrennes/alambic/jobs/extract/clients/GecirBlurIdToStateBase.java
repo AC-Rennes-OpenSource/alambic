@@ -137,7 +137,7 @@ public class GecirBlurIdToStateBase implements IToStateBase {
                     }
                 }
                 if (!signaturesToPersist.isEmpty()) {
-                    persist(signaturesToPersist, blurIdMap.get("blurId").get(0));
+                    persist(signaturesToPersist, blurIdMap.get(BLUR_ID).get(0));
                 }
             } finally {
                 lock.unlock();

@@ -43,7 +43,7 @@ public class GARHelper {
     // Singleton
     private GARHelper() {
         this.dateFormatter = new SimpleDateFormat("yyyyMMdd_HHmmss");
-        this.cacheSourceSI = new HashMap<String, String>();
+        this.cacheSourceSI = new HashMap<>();
     }
 
     public static GARHelper getInstance() {

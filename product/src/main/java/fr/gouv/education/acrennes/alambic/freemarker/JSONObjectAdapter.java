@@ -34,7 +34,6 @@ public class JSONObjectAdapter extends WrappingTemplateModel implements Template
         this.jsonObj = jsonObj;
     }
 
-    @SuppressWarnings("rawtypes")
     @Override
     public Object getAdaptedObject(Class hint) {
         return this.jsonObj;

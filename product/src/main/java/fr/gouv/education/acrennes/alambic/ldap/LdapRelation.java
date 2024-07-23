@@ -38,7 +38,7 @@ public class LdapRelation {
     public final static int IGNORE = 0;
 
     private DirContext ctx = null;
-    private List<String> listDn = new ArrayList<String>();
+    private List<String> listDn = new ArrayList<>();
     private int updateMode = 0;
     private String attribute = "memberOf";
     private String value = "";

@@ -96,7 +96,7 @@ public class GAREnsSpecialitesPostes {
      */
     public List<String> getGAREnsSpecialitePosteCode() {
         if (garEnsSpecialitePosteCode == null) {
-            garEnsSpecialitePosteCode = new ArrayList<String>();
+            garEnsSpecialitePosteCode = new ArrayList<>();
         }
         return this.garEnsSpecialitePosteCode;
     }

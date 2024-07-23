@@ -49,7 +49,7 @@ public class StateBaseToStringByFtl extends AbstractDestination {
     private final String tplDir;
     private final String tplFile;
     private String outputFile;
-    private final Map<String, Object> root = new HashMap<String, Object>();
+    private final Map<String, Object> root = new HashMap<>();
 
     public StateBaseToStringByFtl(final CallableContext context, final Element job, final ActivityMBean jobActivity) throws AlambicException {
         super(context, job, jobActivity);

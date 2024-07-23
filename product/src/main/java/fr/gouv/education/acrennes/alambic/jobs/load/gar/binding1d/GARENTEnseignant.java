@@ -72,7 +72,7 @@ public class GARENTEnseignant {
      */
     public List<GAREnseignant> getGAREnseignant() {
         if (garEnseignant == null) {
-            garEnseignant = new ArrayList<GAREnseignant>();
+            garEnseignant = new ArrayList<>();
         }
         return this.garEnseignant;
     }
@@ -101,7 +101,7 @@ public class GARENTEnseignant {
      */
     public List<GARPersonMEFSTAT4> getGARPersonMEFSTAT4() {
         if (garPersonMEFSTAT4 == null) {
-            garPersonMEFSTAT4 = new ArrayList<GARPersonMEFSTAT4>();
+            garPersonMEFSTAT4 = new ArrayList<>();
         }
         return this.garPersonMEFSTAT4;
     }

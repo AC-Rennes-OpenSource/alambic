@@ -137,7 +137,7 @@ public abstract class AbstractSource implements Source, Iterable<Map<String, Lis
 
     @Override
     public List<Map<String, List<String>>> getEntries(final boolean distinct, final String orderby, final SourceFilter filter) {
-        ArrayList<Map<String, List<String>>> filteredResource = new ArrayList<Map<String, List<String>>>();
+        ArrayList<Map<String, List<String>>> filteredResource = new ArrayList<>();
         for (Map<String, List<String>> item : entries) {
             if (null == filter || filter.accept(item)) {
                 ResourceEntryMap rem = new ResourceEntryMap(item, filter);
@@ -148,7 +148,7 @@ public abstract class AbstractSource implements Source, Iterable<Map<String, Lis
         }
 
         if (StringUtils.isNotBlank(orderby)) {
-            Collections.sort(filteredResource, new EntrySorter(orderby));
+            filteredResource.sort(new EntrySorter(orderby));
         }
 
         return filteredResource;
@@ -179,8 +179,8 @@ public abstract class AbstractSource implements Source, Iterable<Map<String, Lis
 
     abstract public void initialize(Element sourceNode) throws AlambicException;
 
-    private class EntrySorter implements Comparator<Map<String, List<String>>> {
-        String orderby;
+    private static class EntrySorter implements Comparator<Map<String, List<String>>> {
+        final String orderby;
 
         public EntrySorter(final String orderby) {
             this.orderby = orderby;
@@ -196,7 +196,7 @@ public abstract class AbstractSource implements Source, Iterable<Map<String, Lis
 
     }
 
-    private class ResourceEntryMap extends HashMap<String, List<String>> {
+    private static class ResourceEntryMap extends HashMap<String, List<String>> {
         private static final long serialVersionUID = 1L;
         private SourceFilter filter;
 
@@ -220,9 +220,9 @@ public abstract class AbstractSource implements Source, Iterable<Map<String, Lis
             ResourceEntryMap remo = (ResourceEntryMap) o;
             if (remo.size() == size()) {
                 if (null != remo.getFilter()) {
-                    Set<java.util.Map.Entry<String, List<String>>> subEntrySet = new HashSet<java.util.Map.Entry<String, List<String>>>();
+                    Set<java.util.Map.Entry<String, List<String>>> subEntrySet = new HashSet<>();
                     for (String key : getFilter().getFilters().keySet()) {
-                        subEntrySet.add(new SimpleEntry<String, List<String>>(key, get(key)));
+                        subEntrySet.add(new SimpleEntry<>(key, get(key)));
                     }
                     status = remo.entrySet().containsAll(subEntrySet);
                 } else {

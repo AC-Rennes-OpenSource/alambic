@@ -45,7 +45,7 @@ public abstract class GAR1DIdentiteBuilder extends GAR1DBuilder {
     protected GAR1DIdentiteBuilder(GARBuilderParameters parameters) {
         super(parameters);
         memberStructuresList = new ArrayList<>();
-        parameters.getResources().get("Structures").getEntries().stream().map(structure -> structure.get("ENTStructureUAI")).forEach(entStructureUAI -> {
+        parameters.resources().get("Structures").getEntries().stream().map(structure -> structure.get("ENTStructureUAI")).forEach(entStructureUAI -> {
             if (null != entStructureUAI && 1 == entStructureUAI.size()) {
                 memberStructuresList.add(entStructureUAI.get(0).toUpperCase());
             }

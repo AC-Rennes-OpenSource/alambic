@@ -41,24 +41,24 @@ public class Alambic {
         boolean executeAllJobs = false;
 
         // Traitement des arguments
-        for (int i = 0; i < args.length; i++) {
-            System.out.println("Arguments = " + args[i]);
-            final String arg = args[i].toLowerCase();
+        for (final String s : args) {
+            System.out.println("Arguments = " + s);
+            final String arg = s.toLowerCase();
 
             // Chemin d'exécution
             if (arg.startsWith("--execution-path") || arg.startsWith("--ep")) {
-                executionPath = args[i].substring(args[i].indexOf("=") + 1).trim();
+                executionPath = s.substring(s.indexOf("=") + 1).trim();
             }
             // Liste des tâches
             else if (arg.startsWith("--execute-list") || arg.startsWith("-el")) {
-                final String jobsListParameter = args[i].substring(args[i].indexOf("=") + 1).trim();
+                final String jobsListParameter = s.substring(s.indexOf("=") + 1).trim();
                 if (StringUtils.isNotBlank(jobsListParameter)) {
                     listeTaches.addAll(Arrays.asList(jobsListParameter.split("[ :]")));
                 }
             }
             // Nom du fichier de définition du(es) job(s)
             else if (arg.startsWith("--jobs-repository") || arg.startsWith("-j")) {
-                jobFileName = args[i].substring(args[i].indexOf("=") + 1).trim();
+                jobFileName = s.substring(s.indexOf("=") + 1).trim();
             }
             // Booléen pour indiquer qu'il faut exécuter l'ensemble des jobs d'un fichier
             else if (arg.startsWith("--execute-all") || arg.startsWith("-ea")) {
@@ -67,11 +67,11 @@ public class Alambic {
             }
             // Nombre de threads à utiliser (prévaut sur le fichier de configuration)
             else if (arg.startsWith("--thread-count") || arg.startsWith("-tc")) {
-                threadCount = args[i].substring(args[i].indexOf("=") + 1).trim();
+                threadCount = s.substring(s.indexOf("=") + 1).trim();
             }
             // Paramètres passés au(x) job(s)
             else if (arg.startsWith("--params") || arg.startsWith("-p")) {
-                final String p = args[i].substring(args[i].indexOf("=") + 1).trim();
+                final String p = s.substring(s.indexOf("=") + 1).trim();
                 if (StringUtils.isNotBlank(p)) {
                     System.out.println("Paramètres = " + p);
                     jobParameters = new HashMap<>();
@@ -132,11 +132,15 @@ public class Alambic {
     }
 
     private static void help() {
-        System.out.println("-j  (--jobs-repository) pour préciser le nom du fichier de jobs. Ex : -j=job-users.xml" +
-                           "\n-ea (--execute-all) pour lancer tous les jobs du fichier" +
-                           "\n-el (--execute-list) pour lancer un liste de job. Ex : -el=job1:job2:job4" +
-                           "\n-p  (--params) pour passer charger des valeurs dans la liste des variables. Ex : -p=\"oadam arupin mallain5 " +
-                           "ssimenel\"");
+        System.out.println("""
+                -j  (--jobs-repository) pour préciser le nom du fichier de jobs. Ex : -j=job-users.xml\
+
+                -ea (--execute-all) pour lancer tous les jobs du fichier\
+
+                -el (--execute-list) pour lancer un liste de job. Ex : -el=job1:job2:job4\
+
+                -p  (--params) pour passer charger des valeurs dans la liste des variables. Ex : -p="oadam arupin mallain5 \
+                ssimenel\"""");
     }
 
 }

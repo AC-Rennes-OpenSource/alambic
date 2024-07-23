@@ -297,10 +297,8 @@ public class JobRunner implements CallableJob {
 
     private void executeSubJobTemplateList(final List<Element> executeList) throws AlambicException {
         int index = 0;
-        final Iterator<Element> i = executeList.iterator();
-        while (i.hasNext()) {
+        for (Element node : executeList) {
             index++;
-            final Element node = i.next();
 
             // Récupération de l'attribut parameters
             final Attribute attrParameters = node.getAttribute("parameters");
@@ -384,7 +382,7 @@ public class JobRunner implements CallableJob {
 
     public static int fromBase26(final String number) {
         int s = 0;
-        if ((number != null) && (number.length() > 0)) {
+        if ((number != null) && (!number.isEmpty())) {
             s = (number.charAt(0) - 'a');
             for (int i = 1; i < number.length(); i++) {
                 s *= 26;
@@ -396,14 +394,14 @@ public class JobRunner implements CallableJob {
 
     public static String toBase26(int number) {
         number = Math.abs(number);
-        String converted = "";
+        StringBuilder converted = new StringBuilder();
         do {
             final int remainder = number % 26;
-            converted = (char) (remainder + 'a') + converted;
+            converted.insert(0, (char) (remainder + 'a'));
             number = (number - remainder) / 26;
         } while (number > 0);
 
-        return converted;
+        return converted.toString();
     }
 
 }

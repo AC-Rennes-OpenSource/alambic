@@ -49,13 +49,13 @@ public abstract class GAR1DBuilder implements GARTypeBuilder {
     protected GAR1DENTWriter writer;
 
     protected GAR1DBuilder(GARBuilderParameters parameters) {
-        this.page = parameters.getPage();
-        this.jobActivity = parameters.getJobActivity();
-        this.maxNodesCount = parameters.getMaxNodesCount();
-        this.version = parameters.getVersion();
-        this.output = parameters.getOutput();
-        this.em = parameters.getEm();
-        this.xsdFile = parameters.getXsdFile();
+        this.page = parameters.page();
+        this.jobActivity = parameters.jobActivity();
+        this.maxNodesCount = parameters.maxNodesCount();
+        this.version = parameters.version();
+        this.output = parameters.output();
+        this.em = parameters.em();
+        this.xsdFile = parameters.xsdFile();
         factory = new ObjectFactory();
     }
 

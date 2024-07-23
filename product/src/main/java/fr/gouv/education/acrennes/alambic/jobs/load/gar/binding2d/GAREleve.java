@@ -88,7 +88,7 @@ public class GAREleve
      */
     public List<String> getGARPersonEtab() {
         if (garPersonEtab == null) {
-            garPersonEtab = new ArrayList<String>();
+            garPersonEtab = new ArrayList<>();
         }
         return this.garPersonEtab;
     }

@@ -121,7 +121,7 @@ public class AutomationChainRunner extends AbstractDestination {
                     jobActivity.setProgress((index * 100) / chains.size());
                     jobActivity.setProcessing("processing entry " + index++ + "/" + chains.size());
 
-                    final String documentId = ((null != currentResult.get("id")) && (0 < currentResult.get("id").size()))
+                    final String documentId = ((null != currentResult.get("id")) && (!currentResult.get("id").isEmpty()))
                                               ? currentResult.get("id").get(0)
                                               : null;
                     runChain(documentId, chain);
@@ -156,7 +156,7 @@ public class AutomationChainRunner extends AbstractDestination {
 
         log.info("Execute the Nuxeo chain '" + chainId + "' on document with id '" + documentId + "'");
         Object output = documentId;
-        final Map<String, Object> ctx = new HashMap<String, Object>();
+        final Map<String, Object> ctx = new HashMap<>();
         for (final Element operation : chain.getChildren("operation")) {
             output = runOperation(output, operation, ctx);
         }

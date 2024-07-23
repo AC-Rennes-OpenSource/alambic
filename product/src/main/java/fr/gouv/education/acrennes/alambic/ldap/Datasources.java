@@ -27,7 +27,7 @@ import java.util.List;
 import java.util.Map;
 
 public class Datasources {
-    private final Map<String, Object> dataSourceList = new HashMap<String, Object>();
+    private final Map<String, Object> dataSourceList = new HashMap<>();
     private Variables variables = null;
     private Element xmlNode = null;
 

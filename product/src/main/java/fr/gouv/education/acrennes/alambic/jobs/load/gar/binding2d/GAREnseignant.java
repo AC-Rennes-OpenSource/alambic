@@ -96,7 +96,7 @@ public class GAREnseignant
      */
     public List<String> getGARPersonEtab() {
         if (garPersonEtab == null) {
-            garPersonEtab = new ArrayList<String>();
+            garPersonEtab = new ArrayList<>();
         }
         return this.garPersonEtab;
     }
@@ -149,7 +149,7 @@ public class GAREnseignant
      */
     public List<GAREnsDisciplinesPostes> getGAREnsDisciplinesPostes() {
         if (garEnsDisciplinesPostes == null) {
-            garEnsDisciplinesPostes = new ArrayList<GAREnsDisciplinesPostes>();
+            garEnsDisciplinesPostes = new ArrayList<>();
         }
         return this.garEnsDisciplinesPostes;
     }
@@ -178,7 +178,7 @@ public class GAREnseignant
      */
     public List<String> getGARPersonMail() {
         if (garPersonMail == null) {
-            garPersonMail = new ArrayList<String>();
+            garPersonMail = new ArrayList<>();
         }
         return this.garPersonMail;
     }

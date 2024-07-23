@@ -29,7 +29,7 @@ import java.util.Properties;
 public class JobContext implements CallableContext {
 
     private static final Log log = LogFactory.getLog(JobContext.class);
-    private static final Float DEFAULT_LEGACY_VERSION = new Float(1.0);
+    private static final Float DEFAULT_LEGACY_VERSION = 1.0f;
 
     private Variables variables;
     private String executionPath = "./";
@@ -74,7 +74,7 @@ public class JobContext implements CallableContext {
         log.info("Set the keystore path : " + keystorePath);
 
         // Set the variables dealing with configured database credentials
-        if (null != configuration && 0 < configuration.size()) {
+        if (null != configuration && !configuration.isEmpty()) {
             this.variables.put(ETL_JDBC_DRIVER, (String) configuration.get(ETL_CFG_JDBC_DRIVER));
             this.variables.put(ETL_JDBC_URL, (String) configuration.get(ETL_CFG_JDBC_URL));
             this.variables.put(ETL_JDBC_LOGIN, (String) configuration.get(ETL_CFG_JDBC_LOGIN));
@@ -91,7 +91,7 @@ public class JobContext implements CallableContext {
         if (null != this.jobsDocument) {
             Attribute versAttr = JobHelper.getVersion(this.jobsDocument);
             if (null != versAttr && StringUtils.isNotBlank(versAttr.getValue().trim())) {
-                version = new Float(versAttr.getValue().trim());
+                version = Float.parseFloat(versAttr.getValue().trim());
             }
         }
 

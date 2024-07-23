@@ -53,7 +53,7 @@ public class StateBaseToFileByFtl extends AbstractDestination {
     private final String tplFile;
     private String outputFile;
     private final boolean classicMode;
-    Map<String, Object> root = new HashMap<>();
+    final Map<String, Object> root = new HashMap<>();
 
     public StateBaseToFileByFtl(final CallableContext context, final Element job, final ActivityMBean jobActivity) throws AlambicException {
         super(context, job, jobActivity);

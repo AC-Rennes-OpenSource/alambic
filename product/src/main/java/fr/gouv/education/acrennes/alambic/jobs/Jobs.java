@@ -51,7 +51,7 @@ public class Jobs {
     }
 
     public List<Future<ActivityMBean>> executeAllJobs(final String runId) throws AlambicException {
-        final List<Future<ActivityMBean>> list = new ArrayList<Future<ActivityMBean>>();
+        final List<Future<ActivityMBean>> list = new ArrayList<>();
         List<Element> jobsList = JobHelper.getJobs(this.ctxt.getJobDocument());
         for (final Element job : jobsList) {
             list.add(executeJob(ctxt, job, runId));

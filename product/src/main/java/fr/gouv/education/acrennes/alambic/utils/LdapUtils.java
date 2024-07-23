@@ -59,7 +59,7 @@ public class LdapUtils {
             throws NamingException, UnsupportedEncodingException {
         NamingEnumeration<?> leftValue = leftAttr.getAll();
         try {
-            List<String> delta = new ArrayList<String>();
+            List<String> delta = new ArrayList<>();
             boolean test = true;
             while (leftValue.hasMore()) {
                 String stringLeftValue = Functions.getInstance().valueToString(leftValue.next());

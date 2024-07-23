@@ -96,7 +96,7 @@ public class GARENTGroupe {
      */
     public List<GARGroupe> getGARGroupe() {
         if (garGroupe == null) {
-            garGroupe = new ArrayList<GARGroupe>();
+            garGroupe = new ArrayList<>();
         }
         return this.garGroupe;
     }
@@ -125,7 +125,7 @@ public class GARENTGroupe {
      */
     public List<GARPersonGroupe> getGARPersonGroupe() {
         if (garPersonGroupe == null) {
-            garPersonGroupe = new ArrayList<GARPersonGroupe>();
+            garPersonGroupe = new ArrayList<>();
         }
         return this.garPersonGroupe;
     }
@@ -154,7 +154,7 @@ public class GARENTGroupe {
      */
     public List<GAREnsGroupeMatiere> getGAREnsGroupeMatiere() {
         if (garEnsGroupeMatiere == null) {
-            garEnsGroupeMatiere = new ArrayList<GAREnsGroupeMatiere>();
+            garEnsGroupeMatiere = new ArrayList<>();
         }
         return this.garEnsGroupeMatiere;
     }
@@ -183,7 +183,7 @@ public class GARENTGroupe {
      */
     public List<GAREnsClasseMatiere> getGAREnsClasseMatiere() {
         if (garEnsClasseMatiere == null) {
-            garEnsClasseMatiere = new ArrayList<GAREnsClasseMatiere>();
+            garEnsClasseMatiere = new ArrayList<>();
         }
         return this.garEnsClasseMatiere;
     }

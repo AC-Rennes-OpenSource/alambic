@@ -42,7 +42,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.function.Function;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
@@ -76,7 +75,7 @@ public class WebServiceApi {
         // Set the request headers
         Map<String, String> headers_map = new HashMap<>();
         Element headersElts = node.getChild("headers");
-        if (null != headersElts && 0 < headersElts.getChildren().size()) {
+        if (null != headersElts && !headersElts.getChildren().isEmpty()) {
             for (Element headerElt : headersElts.getChildren()) {
                 headers_map.put(headerElt.getAttributeValue("name"), headerElt.getText());
             }
@@ -120,25 +119,16 @@ public class WebServiceApi {
         this.successResponseCodes = successResponseCodes;
 
         // Instantiate the request according to the method
-        switch (method) {
-            case HttpMethod.GET:
-                request = new HttpGet(uri);
-                break;
-            case HttpMethod.PUT:
-                request = new HttpPut(uri);
-                break;
-            case HttpMethod.POST:
-                request = new HttpPost(uri);
-                break;
-            case HttpMethod.DELETE:
-                request = new HttpDelete(uri);
-                break;
-            default:
-                throw new AlambicException("Méthode HTTP non supportée '" + method + "'");
-        }
+        request = switch (method) {
+            case HttpMethod.GET -> new HttpGet(uri);
+            case HttpMethod.PUT -> new HttpPut(uri);
+            case HttpMethod.POST -> new HttpPost(uri);
+            case HttpMethod.DELETE -> new HttpDelete(uri);
+            default -> throw new AlambicException("Méthode HTTP non supportée '" + method + "'");
+        };
 
         // Set the request headers
-        if (null != headers && 0 < headers.size()) {
+        if (null != headers && !headers.isEmpty()) {
             for (String header : headers.keySet()) {
                 request.addHeader(header, headers.get(header));
             }
@@ -157,13 +147,9 @@ public class WebServiceApi {
     }
 
     public String getSuccessResponseCodes() {
-        return String.join(",",
-                this.successResponseCodes.stream().map(new Function<Integer, String>() {
-                    @Override
-                    public String apply(Integer t) {
-                        return String.valueOf(t);
-                    }
-                }).collect(Collectors.toList()));
+        return this.successResponseCodes.stream()
+                .map(String::valueOf)
+                .collect(Collectors.joining(","));
     }
 
     public boolean isSuccessful(HttpResponse response) {

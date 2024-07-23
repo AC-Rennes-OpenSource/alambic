@@ -65,21 +65,21 @@ public class GARRespAffBuilder implements GARTypeBuilder {
     private final List<String> memberStructuresList;
 
     public GARRespAffBuilder(GARBuilderParameters parameters) {
-        this.page = parameters.getPage();
-        this.jobActivity = parameters.getJobActivity();
-        this.maxNodesCount = parameters.getMaxNodesCount();
-        this.version = parameters.getVersion();
-        this.output = parameters.getOutput();
-        this.exportFiles = parameters.getExportFiles();
+        this.page = parameters.page();
+        this.jobActivity = parameters.jobActivity();
+        this.maxNodesCount = parameters.maxNodesCount();
+        this.version = parameters.version();
+        this.output = parameters.output();
+        this.exportFiles = parameters.exportFiles();
         XPathFactory xpf = XPathFactory.newInstance();
         this.xpath = xpf.newXPath();
-        this.xsdFile = parameters.getXsdFile();
+        this.xsdFile = parameters.xsdFile();
         this.pattern = Pattern.compile("cn=(\\d+\\w)_GARRespAff(Deleg)?,.+", Pattern.CASE_INSENSITIVE);
         // Get the list of involved responsibles
-        this.responsables = parameters.getResources().get("Entries").getEntries();
+        this.responsables = parameters.resources().get("Entries").getEntries();
         // Get the list of involved structures
-        Source structuresSource = parameters.getResources().get("Structures");
-        this.memberStructuresList = new ArrayList<String>();
+        Source structuresSource = parameters.resources().get("Structures");
+        this.memberStructuresList = new ArrayList<>();
         List<Map<String, List<String>>> structures = structuresSource.getEntries();
         structures.forEach(structure -> {
             if (null != structure.get("ENTStructureUAI") && 1 == structure.get("ENTStructureUAI").size()) {
@@ -108,7 +108,7 @@ public class GARRespAffBuilder implements GARTypeBuilder {
                  */
                 if (null != this.exportFiles.get("restrictionList")) {
                     attribute = entity.get("ENTPersonJointure");
-                    if (null != attribute && 0 < attribute.size() && StringUtils.isNotBlank(attribute.get(0))) {
+                    if (null != attribute && !attribute.isEmpty() && StringUtils.isNotBlank(attribute.get(0))) {
                         Element root = exportFiles.get("restrictionList").getDocumentElement();
                         String matchingEntry = (String) xpath.evaluate("//id[.='" + attribute.get(0) + "']", root, XPathConstants.STRING);
                         if (StringUtils.isBlank(matchingEntry)) {
@@ -131,7 +131,7 @@ public class GARRespAffBuilder implements GARTypeBuilder {
                  * GARPersonIdentifiant
                  */
                 attribute = entity.get("ENTPersonUid");
-                if (null != attribute && 0 < attribute.size() && StringUtils.isNotBlank(attribute.get(0))) {
+                if (null != attribute && !attribute.isEmpty() && StringUtils.isNotBlank(attribute.get(0))) {
                     ENTPersonIdentifiant = attribute.get(0);
                     garRespAff.setGARPersonIdentifiant(ENTPersonIdentifiant);
                 } else {
@@ -145,7 +145,7 @@ public class GARRespAffBuilder implements GARTypeBuilder {
                  * GARPersonNom
                  */
                 attribute = entity.get("sn");
-                if (null != attribute && 0 < attribute.size() && StringUtils.isNotBlank(attribute.get(0))) {
+                if (null != attribute && !attribute.isEmpty() && StringUtils.isNotBlank(attribute.get(0))) {
                     garRespAff.setGARPersonNom(attribute.get(0));
                 } else {
                     jobActivity.setTrafficLight(ActivityTrafficLight.ORANGE);
@@ -158,7 +158,7 @@ public class GARRespAffBuilder implements GARTypeBuilder {
                  * GARPersonPrenom
                  */
                 attribute = entity.get("givenName");
-                if (null != attribute && 0 < attribute.size() && StringUtils.isNotBlank(attribute.get(0))) {
+                if (null != attribute && !attribute.isEmpty() && StringUtils.isNotBlank(attribute.get(0))) {
                     garRespAff.setGARPersonPrenom(attribute.get(0));
                 } else {
                     jobActivity.setTrafficLight(ActivityTrafficLight.ORANGE);
@@ -171,7 +171,7 @@ public class GARRespAffBuilder implements GARTypeBuilder {
                  * GARPersonCivilite
                  */
                 attribute = entity.get("personalTitle");
-                if (null != attribute && 0 < attribute.size() && StringUtils.isNotBlank(attribute.get(0))) {
+                if (null != attribute && !attribute.isEmpty() && StringUtils.isNotBlank(attribute.get(0))) {
                     garRespAff.setGARPersonCivilite(GARHelper.getInstance().getSDETCompliantTitleValue(attribute.get(0)));
                 } else {
                     log.debug("Entity '" + GARHelper.getInstance().getPersonEntityBlurId(entity) + "' has no attribute 'personalTitle'");
@@ -181,7 +181,7 @@ public class GARRespAffBuilder implements GARTypeBuilder {
                  * GARPersonMail
                  */
                 attribute = entity.get("mail");
-                if (null != attribute && 0 < attribute.size()) {
+                if (null != attribute && !attribute.isEmpty()) {
                     for (String mail : attribute) {
                         if (StringUtils.isNotBlank(mail)) {
                             garRespAff.getGARPersonMail().add(mail);
@@ -199,7 +199,7 @@ public class GARRespAffBuilder implements GARTypeBuilder {
                  * GARRespAffEtab
                  */
                 attribute = entity.get("ENTPersonProfils");
-                if (null != attribute && 0 < attribute.size()) {
+                if (null != attribute && !attribute.isEmpty()) {
                     for (String profil : attribute) {
                         Matcher matcher = this.pattern.matcher(profil);
                         if (matcher.matches()) {
@@ -221,7 +221,7 @@ public class GARRespAffBuilder implements GARTypeBuilder {
                 }
 
                 // Verify the mandatory field is present despite the involved structure filtering
-                if (null == garRespAff.getGARRespAffEtab() || 0 == garRespAff.getGARRespAffEtab().size()) {
+                if (null == garRespAff.getGARRespAffEtab() || garRespAff.getGARRespAffEtab().isEmpty()) {
                     jobActivity.setTrafficLight(ActivityTrafficLight.ORANGE);
                     log.warn("Skipping entity '" + GARHelper.getInstance().getPersonEntityBlurId(entity) + "' as it might not have profile " +
                              "'GARRespAff' (mandatory)");

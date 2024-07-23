@@ -268,7 +268,7 @@ public class BlurIdToStateBase implements IToStateBase {
     private byte[] getSalt(String seed) {
         if (this.salt == null || 0 == this.salt.length) {
             if (StringUtils.isNotBlank(seed)) {
-                StringBuffer sb = new StringBuffer(seed);
+                StringBuilder sb = new StringBuilder(seed);
                 int i = 0;
                 while (sb.length() < Constants.DEFAULT_SALT_LENGTH) {
                     sb.append(sb.substring(i, i + 1));
@@ -282,7 +282,7 @@ public class BlurIdToStateBase implements IToStateBase {
         return this.salt;
     }
 
-    private class Signatures {
+    private static class Signatures {
         private final String root;
         private final List<String> signatures;
 

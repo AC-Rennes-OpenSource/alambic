@@ -88,7 +88,7 @@ public class GARENTEnseignant {
      */
     public List<GAREnseignant> getGAREnseignant() {
         if (garEnseignant == null) {
-            garEnseignant = new ArrayList<GAREnseignant>();
+            garEnseignant = new ArrayList<>();
         }
         return this.garEnseignant;
     }
@@ -117,7 +117,7 @@ public class GARENTEnseignant {
      */
     public List<GARPersonMEF> getGARPersonMEF() {
         if (garPersonMEF == null) {
-            garPersonMEF = new ArrayList<GARPersonMEF>();
+            garPersonMEF = new ArrayList<>();
         }
         return this.garPersonMEF;
     }

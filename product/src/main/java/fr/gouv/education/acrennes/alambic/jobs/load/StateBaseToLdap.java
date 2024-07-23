@@ -56,7 +56,7 @@ public class StateBaseToLdap extends AbstractDestination {
     private DirContext ctx;
     private String fichierPivot;
 
-    public Variables variables = new Variables();
+    public final Variables variables = new Variables();
 
     public StateBaseToLdap(final CallableContext context, final Element destinationNode, final ActivityMBean jobActivity) throws AlambicException {
         super(context, destinationNode, jobActivity);
@@ -187,7 +187,7 @@ public class StateBaseToLdap extends AbstractDestination {
             try {
                 org.jdom2.Document inputFileXMLDocument = JobHelper.parse(this.fichierPivot);
                 List<Element> rset = JobHelper.evaluateExpressionForElements(inputFileXMLDocument, "/*/entries/entry");
-                if (rset.size() != 0) {
+                if (!rset.isEmpty()) {
                     this.isAnythingToDo = IsAnythingToDoStatus.YES;
                 }
             } catch (AlambicException e) {

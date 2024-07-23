@@ -35,7 +35,7 @@ public class GAR1DEtablissementBuilder extends GAR1DBuilder {
 
     public GAR1DEtablissementBuilder(GARBuilderParameters parameters) {
         super(parameters);
-        structures = parameters.getResources().get("Entries").getEntries();
+        structures = parameters.resources().get("Entries").getEntries();
     }
 
     @Override

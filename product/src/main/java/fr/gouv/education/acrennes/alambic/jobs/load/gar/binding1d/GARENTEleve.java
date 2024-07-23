@@ -72,7 +72,7 @@ public class GARENTEleve {
      */
     public List<GAREleve> getGAREleve() {
         if (garEleve == null) {
-            garEleve = new ArrayList<GAREleve>();
+            garEleve = new ArrayList<>();
         }
         return this.garEleve;
     }
@@ -101,7 +101,7 @@ public class GARENTEleve {
      */
     public List<GARPersonMEFSTAT4> getGARPersonMEFSTAT4() {
         if (garPersonMEFSTAT4 == null) {
-            garPersonMEFSTAT4 = new ArrayList<GARPersonMEFSTAT4>();
+            garPersonMEFSTAT4 = new ArrayList<>();
         }
         return this.garPersonMEFSTAT4;
     }

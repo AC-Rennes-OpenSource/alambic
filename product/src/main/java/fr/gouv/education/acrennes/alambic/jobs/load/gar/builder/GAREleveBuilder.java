@@ -74,21 +74,21 @@ public class GAREleveBuilder implements GARTypeBuilder {
     private final Source aafSource;
 
     public GAREleveBuilder(GARBuilderParameters parameters) {
-        this.page = parameters.getPage();
-        this.jobActivity = parameters.getJobActivity();
-        this.maxNodesCount = parameters.getMaxNodesCount();
-        this.version = parameters.getVersion();
-        this.territoryCode = parameters.getTerritoryCode();
-        this.output = parameters.getOutput();
-        this.em = parameters.getEm();
-        this.exportFiles = parameters.getExportFiles();
+        this.page = parameters.page();
+        this.jobActivity = parameters.jobActivity();
+        this.maxNodesCount = parameters.maxNodesCount();
+        this.version = parameters.version();
+        this.territoryCode = parameters.territoryCode();
+        this.output = parameters.output();
+        this.em = parameters.em();
+        this.exportFiles = parameters.exportFiles();
         XPathFactory xpf = XPathFactory.newInstance();
         this.xpath = xpf.newXPath();
-        this.xsdFile = parameters.getXsdFile();
-        this.students = parameters.getResources().get("Entries").getEntries(); // Get the list of involved students
-        Source structuresSource = parameters.getResources().get("Structures"); // Get the list of involved structures
-        this.aafSource = parameters.getResources().get("AAF");
-        this.memberStructuresList = new ArrayList<String>();
+        this.xsdFile = parameters.xsdFile();
+        this.students = parameters.resources().get("Entries").getEntries(); // Get the list of involved students
+        Source structuresSource = parameters.resources().get("Structures"); // Get the list of involved structures
+        this.aafSource = parameters.resources().get("AAF");
+        this.memberStructuresList = new ArrayList<>();
         List<Map<String, List<String>>> structures = structuresSource.getEntries();
         structures.forEach(structure -> {
             if (null != structure.get("ENTStructureUAI") && 1 == structure.get("ENTStructureUAI").size()) {
@@ -103,9 +103,9 @@ public class GAREleveBuilder implements GARTypeBuilder {
             List<String> attribute;
             ObjectFactory factory = new ObjectFactory();
             GAREleveWriter writer = new GAREleveWriter(factory, version, page, maxNodesCount);
-            List<String> codes = new ArrayList<String>();
-            List<String> functionsCodes = new ArrayList<String>();
-            List<String> divsNGrps = new ArrayList<String>();
+            List<String> codes = new ArrayList<>();
+            List<String> functionsCodes = new ArrayList<>();
+            List<String> divsNGrps = new ArrayList<>();
 
             // Iterate over students
             for (int index = 0; index < this.students.size(); index++) {
@@ -121,7 +121,7 @@ public class GAREleveBuilder implements GARTypeBuilder {
                  */
                 if (null != this.exportFiles.get("restrictionList")) {
                     attribute = entity.get("ENTPersonJointure");
-                    if (null != attribute && 0 < attribute.size() && StringUtils.isNotBlank(attribute.get(0))) {
+                    if (null != attribute && !attribute.isEmpty() && StringUtils.isNotBlank(attribute.get(0))) {
                         Element root = exportFiles.get("restrictionList").getDocumentElement();
                         String matchingEntry = (String) xpath.evaluate("//id[.='" + attribute.get(0) + "']", root, XPathConstants.STRING);
                         if (StringUtils.isBlank(matchingEntry)) {
@@ -141,13 +141,13 @@ public class GAREleveBuilder implements GARTypeBuilder {
                 String ENTPersonStructRattach = null;
                 String ENTPersonIdentifiant = null;
                 String ENTPersonSourceSI = null;
-                Map<String, List<EnseignementEntity>> mapEnseignements = new HashMap<String, List<EnseignementEntity>>();
+                Map<String, List<EnseignementEntity>> mapEnseignements = new HashMap<>();
 
                 /*
                  * Determine the source SI
                  */
                 attribute = entity.get("ENTPersonSourceSI");
-                if (null != attribute && 0 < attribute.size() && StringUtils.isNotBlank(attribute.get(0))) {
+                if (null != attribute && !attribute.isEmpty() && StringUtils.isNotBlank(attribute.get(0))) {
                     ENTPersonSourceSI = attribute.get(0);
                 } else {
                     jobActivity.setTrafficLight(ActivityTrafficLight.ORANGE);
@@ -160,7 +160,7 @@ public class GAREleveBuilder implements GARTypeBuilder {
                  * GARPersonIdentifiant
                  */
                 attribute = entity.get("ENTPersonUid");
-                if (null != attribute && 0 < attribute.size() && StringUtils.isNotBlank(attribute.get(0))) {
+                if (null != attribute && !attribute.isEmpty() && StringUtils.isNotBlank(attribute.get(0))) {
                     ENTPersonIdentifiant = attribute.get(0);
                     garEleve.setGARPersonIdentifiant(ENTPersonIdentifiant);
                 } else {
@@ -179,7 +179,7 @@ public class GAREleveBuilder implements GARTypeBuilder {
                  * GARPersonCivilite
                  */
                 attribute = entity.get("ENTPersonSexe");
-                if (null != attribute && 0 < attribute.size() && StringUtils.isNotBlank(attribute.get(0))) {
+                if (null != attribute && !attribute.isEmpty() && StringUtils.isNotBlank(attribute.get(0))) {
                     garEleve.setGARPersonCivilite(("1".equals(attribute.get(0))) ? "M." : "Mme");
                 } else {
                     log.debug("Entity '" + GARHelper.getInstance().getPersonEntityBlurId(entity) + "' has no attribute 'ENTPersonSexe'");
@@ -189,7 +189,7 @@ public class GAREleveBuilder implements GARTypeBuilder {
                  * GARPersonStructRattach
                  */
                 attribute = entity.get("ENTPersonStructRattach");
-                if (null != attribute && 0 < attribute.size() && StringUtils.isNotBlank(attribute.get(0))) {
+                if (null != attribute && !attribute.isEmpty() && StringUtils.isNotBlank(attribute.get(0))) {
                     /* To notice : set empty UAI if it doesn't belong to the involved structures list.
                      */
                     String uai = attribute.get(0).toUpperCase();
@@ -206,7 +206,7 @@ public class GAREleveBuilder implements GARTypeBuilder {
                  * GARPersonDateNaissance
                  */
                 attribute = entity.get("ENTPersonDateNaissance");
-                if (null != attribute && 0 < attribute.size() && StringUtils.isNotBlank(attribute.get(0))) {
+                if (null != attribute && !attribute.isEmpty() && StringUtils.isNotBlank(attribute.get(0))) {
                     try {
                         DateFormat dateFormat = new SimpleDateFormat("dd/MM/yyyy");
                         Date date = dateFormat.parse(attribute.get(0));
@@ -227,7 +227,7 @@ public class GAREleveBuilder implements GARTypeBuilder {
                  * GARPersonNom
                  */
                 attribute = entity.get("sn");
-                if (null != attribute && 0 < attribute.size() && StringUtils.isNotBlank(attribute.get(0))) {
+                if (null != attribute && !attribute.isEmpty() && StringUtils.isNotBlank(attribute.get(0))) {
                     garEleve.setGARPersonNom(attribute.get(0));
                 } else {
                     jobActivity.setTrafficLight(ActivityTrafficLight.ORANGE);
@@ -240,7 +240,7 @@ public class GAREleveBuilder implements GARTypeBuilder {
                  * GARPersonPrenom
                  */
                 attribute = entity.get("givenName");
-                if (null != attribute && 0 < attribute.size() && StringUtils.isNotBlank(attribute.get(0))) {
+                if (null != attribute && !attribute.isEmpty() && StringUtils.isNotBlank(attribute.get(0))) {
                     garEleve.setGARPersonPrenom(attribute.get(0));
                     garEleve.getGARPersonAutresPrenoms().add(attribute.get(0)); // le prénom usuel doit figurer parmi les "autres" prénoms
                 } else {
@@ -254,7 +254,7 @@ public class GAREleveBuilder implements GARTypeBuilder {
                  * GARPersonAutresPrenoms
                  */
                 attribute = entity.get("ENTPersonAutresPrenoms");
-                if (null != attribute && 0 < attribute.size()) {
+                if (null != attribute && !attribute.isEmpty()) {
                     for (String value : attribute) {
                         if (StringUtils.isNotBlank(value) && !garEleve.getGARPersonAutresPrenoms().contains(value)) {
                             garEleve.getGARPersonAutresPrenoms().add(value);
@@ -271,7 +271,7 @@ public class GAREleveBuilder implements GARTypeBuilder {
                  * GARPersonNomPatro
                  */
                 attribute = entity.get("ENTPersonNomPatro");
-                if (null != attribute && 0 < attribute.size() && StringUtils.isNotBlank(attribute.get(0))) {
+                if (null != attribute && !attribute.isEmpty() && StringUtils.isNotBlank(attribute.get(0))) {
                     garEleve.setGARPersonNomPatro(attribute.get(0));
                 } else {
                     log.debug("Entity '" + GARHelper.getInstance().getPersonEntityBlurId(entity) + "' has no attribute 'ENTPersonNomPatro'");
@@ -293,7 +293,7 @@ public class GAREleveBuilder implements GARTypeBuilder {
                 if (null != entity.get("ENTEleveGroupes")) {
                     divsNGrps.addAll(entity.get("ENTEleveGroupes"));
                 }
-                if (0 < divsNGrps.size()) {
+                if (!divsNGrps.isEmpty()) {
                     functionsCodes.clear();
                     for (String value : divsNGrps) {
                         if (StringUtils.isNotBlank(value)) {
@@ -370,7 +370,7 @@ public class GAREleveBuilder implements GARTypeBuilder {
                  * Contrôler que les attributs obligatoires GARPersonEtab & GARPersonProfil sont présents.
                  * (pourraient être absents du fait du filtrage réalisé sur les structures pilotes)
                  */
-                if (0 == garEleve.getGARPersonEtab().size() || 0 == garEleve.getGARPersonProfils().size()) {
+                if (garEleve.getGARPersonEtab().isEmpty() || garEleve.getGARPersonProfils().isEmpty()) {
                     // skip this entity as a missing mandatory field won't allow XML production
                     jobActivity.setTrafficLight(ActivityTrafficLight.ORANGE);
                     log.warn("Skipping entity '" + GARHelper.getInstance().getPersonEntityBlurId(entity) + "' as it has either no attribute " +
@@ -385,7 +385,7 @@ public class GAREleveBuilder implements GARTypeBuilder {
                  */
                 codes.clear();
                 attribute = entity.get("ENTEleveMEF");
-                if (null != attribute && 0 < attribute.size()) {
+                if (null != attribute && !attribute.isEmpty()) {
                     for (String value : attribute) {
                         if (StringUtils.isNotBlank(value) && !codes.contains(value)) {
                             /* Control the code is valid indeed
@@ -401,7 +401,7 @@ public class GAREleveBuilder implements GARTypeBuilder {
 
                                 // register for persistence
                                 if (!mapEnseignements.containsKey(ENTPersonStructRattach)) {
-                                    mapEnseignements.put(ENTPersonStructRattach, new ArrayList<EnseignementEntity>());
+                                    mapEnseignements.put(ENTPersonStructRattach, new ArrayList<>());
                                 }
 
                                 List<EnseignementEntity> enseignements = mapEnseignements.get(ENTPersonStructRattach);
@@ -445,7 +445,7 @@ public class GAREleveBuilder implements GARTypeBuilder {
 
                                 // register for persistence
                                 if (!mapEnseignements.containsKey(ENTPersonStructRattach)) {
-                                    mapEnseignements.put(ENTPersonStructRattach, new ArrayList<EnseignementEntity>());
+                                    mapEnseignements.put(ENTPersonStructRattach, new ArrayList<>());
                                 }
 
                                 List<EnseignementEntity> enseignements = mapEnseignements.get(ENTPersonStructRattach);
@@ -474,7 +474,7 @@ public class GAREleveBuilder implements GARTypeBuilder {
                  * structures so that groups data is made easier to fill later.
                  */
                 attribute = entity.get("ENTEleveClasses");
-                if (null != attribute && 0 < attribute.size()) {
+                if (null != attribute && !attribute.isEmpty()) {
                     for (String value : attribute) {
                         if (StringUtils.isNotBlank(value) && GAR_ELE_CLASS_GROUP_VALIDITY_PATTERN.matcher(value).matches()) {
                             String uai = GARHelper.getInstance().extractCodeGroup(value, 0).toUpperCase();
@@ -487,7 +487,7 @@ public class GAREleveBuilder implements GARTypeBuilder {
 
                                     // register for persistence
                                     if (!mapEnseignements.containsKey(uai)) {
-                                        mapEnseignements.put(uai, new ArrayList<EnseignementEntity>());
+                                        mapEnseignements.put(uai, new ArrayList<>());
                                     }
 
                                     List<EnseignementEntity> enseignements = mapEnseignements.get(uai);
@@ -519,7 +519,7 @@ public class GAREleveBuilder implements GARTypeBuilder {
                  * structures so that groups data is made easier to fill later.
                  */
                 attribute = entity.get("ENTEleveGroupes");
-                if (null != attribute && 0 < attribute.size()) {
+                if (null != attribute && !attribute.isEmpty()) {
                     for (String value : attribute) {
                         if (StringUtils.isNotBlank(value) && GAR_ELE_CLASS_GROUP_VALIDITY_PATTERN.matcher(value).matches()) {
                             String uai = GARHelper.getInstance().extractCodeGroup(value, 0).toUpperCase();
@@ -532,7 +532,7 @@ public class GAREleveBuilder implements GARTypeBuilder {
 
                                     // register for persistence
                                     if (!mapEnseignements.containsKey(uai)) {
-                                        mapEnseignements.put(uai, new ArrayList<EnseignementEntity>());
+                                        mapEnseignements.put(uai, new ArrayList<>());
                                     }
 
                                     List<EnseignementEntity> enseignements = mapEnseignements.get(uai);

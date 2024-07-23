@@ -51,8 +51,8 @@ public class GAR1DEnseignantBuilder extends GAR1DIdentiteBuilder {
 
     public GAR1DEnseignantBuilder(GARBuilderParameters parameters) {
         super(parameters);
-        teachers = parameters.getResources().get("Entries").getEntries();
-        exportFiles = parameters.getExportFiles();
+        teachers = parameters.resources().get("Entries").getEntries();
+        exportFiles = parameters.exportFiles();
     }
 
     private void resetVariables() {

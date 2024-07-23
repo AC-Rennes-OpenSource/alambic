@@ -86,7 +86,7 @@ public class LdapToStateBase implements IToStateBase {
                             Attribute curAttr = listAttrs.next();
                             String attrName = curAttr.getID();
                             NamingEnumeration<?> values = curAttr.getAll();
-                            List<String> attrValues = new ArrayList<String>();
+                            List<String> attrValues = new ArrayList<>();
                             try {
                                 while (values.hasMore()) {
                                     String value = Functions.getInstance().valueToString(values.next());
@@ -277,8 +277,8 @@ public class LdapToStateBase implements IToStateBase {
                 return;
             }
 
-            for (int j = 0; j < controls.length; j++) {
-                if (controls[j] instanceof final VirtualListViewResponseControl vlv) {
+            for (final Control control : controls) {
+                if (control instanceof final VirtualListViewResponseControl vlv) {
                     if (vlv.getResultCode() == 0) {
                         total = vlv.getListSize();
                         offset += pageSize;

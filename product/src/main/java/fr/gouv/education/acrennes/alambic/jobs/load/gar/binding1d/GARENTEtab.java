@@ -68,7 +68,7 @@ public class GARENTEtab {
      */
     public List<GAREtab> getGAREtab() {
         if (garEtab == null) {
-            garEtab = new ArrayList<GAREtab>();
+            garEtab = new ArrayList<>();
         }
         return this.garEtab;
     }

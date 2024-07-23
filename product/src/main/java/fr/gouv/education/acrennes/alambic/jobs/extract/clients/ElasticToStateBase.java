@@ -162,7 +162,7 @@ public class ElasticToStateBase implements IToStateBase {
                 if (wsapi.isSuccessful(response)) {
                     String body = IOUtils.toString(response.getEntity().getContent(), Charsets.UTF_8);
                     if (StringUtils.isNotBlank(body)) {
-                        Map<String, List<String>> item = new HashMap<String, List<String>>();
+                        Map<String, List<String>> item = new HashMap<>();
                         item.put("item", Collections.singletonList(body));
                         statebase.add(item);
                     }

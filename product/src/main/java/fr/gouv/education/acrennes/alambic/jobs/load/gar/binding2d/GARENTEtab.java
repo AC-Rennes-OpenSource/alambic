@@ -92,7 +92,7 @@ public class GARENTEtab {
      */
     public List<GAREtab> getGAREtab() {
         if (garEtab == null) {
-            garEtab = new ArrayList<GAREtab>();
+            garEtab = new ArrayList<>();
         }
         return this.garEtab;
     }
@@ -121,7 +121,7 @@ public class GARENTEtab {
      */
     public List<GARMEF> getGARMEF() {
         if (garmef == null) {
-            garmef = new ArrayList<GARMEF>();
+            garmef = new ArrayList<>();
         }
         return this.garmef;
     }
@@ -150,7 +150,7 @@ public class GARENTEtab {
      */
     public List<GARMatiere> getGARMatiere() {
         if (garMatiere == null) {
-            garMatiere = new ArrayList<GARMatiere>();
+            garMatiere = new ArrayList<>();
         }
         return this.garMatiere;
     }

@@ -53,13 +53,13 @@ public class GAR1DRespAffBuilder extends GAR1DBuilder {
     public GAR1DRespAffBuilder(GARBuilderParameters parameters) {
         super(parameters);
         pattern = Pattern.compile("cn=(\\d+\\w)_GAR1dRespAff(Deleg)?,.+", Pattern.CASE_INSENSITIVE);
-        exportFiles = parameters.getExportFiles();
+        exportFiles = parameters.exportFiles();
         XPathFactory xpf = XPathFactory.newInstance();
         xpath = xpf.newXPath();
-        responsables = parameters.getResources().get("Entries").getEntries();
+        responsables = parameters.resources().get("Entries").getEntries();
         memberStructuresList = new ArrayList<>();
         // Chaque structure possédant un unique UAI est ajoutée à la liste
-        parameters.getResources().get("Structures").getEntries().stream()
+        parameters.resources().get("Structures").getEntries().stream()
                 .map(structure -> structure.get("ENTStructureUAI"))
                 .filter(listUAI -> listUAI != null && listUAI.size() == 1)
                 .map(list -> list.get(0).toUpperCase())

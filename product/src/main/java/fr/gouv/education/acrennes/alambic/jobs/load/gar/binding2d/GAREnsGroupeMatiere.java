@@ -168,7 +168,7 @@ public class GAREnsGroupeMatiere {
      */
     public List<String> getGARMatiereCode() {
         if (garMatiereCode == null) {
-            garMatiereCode = new ArrayList<String>();
+            garMatiereCode = new ArrayList<>();
         }
         return this.garMatiereCode;
     }

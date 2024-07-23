@@ -124,19 +124,11 @@ public class RandomIdentityGenerator extends AbstractRandomGenerator {
 
     @Override
     public long getCapacity(final Map<String, Object> query) throws AlambicException {
-        long capacity = 0;
-
-        switch (getQueriedGender(query)) {
-            case MALE:
-                capacity = maleFirstNameCount * lastNameCount;
-                break;
-            case FEMALE:
-                capacity = femaleFirstNameCount * lastNameCount;
-                break;
-            case RANDOM:
-                capacity = Math.min(maleFirstNameCount, femaleFirstNameCount) * lastNameCount;
-                break;
-        }
+        long capacity = switch (getQueriedGender(query)) {
+            case MALE -> maleFirstNameCount * lastNameCount;
+            case FEMALE -> femaleFirstNameCount * lastNameCount;
+            case RANDOM -> Math.min(maleFirstNameCount, femaleFirstNameCount) * lastNameCount;
+        };
 
         return capacity;
     }

@@ -141,7 +141,7 @@ public class GARIdentite {
      */
     public List<GARPersonProfils> getGARPersonProfils() {
         if (garPersonProfils == null) {
-            garPersonProfils = new ArrayList<GARPersonProfils>();
+            garPersonProfils = new ArrayList<>();
         }
         return this.garPersonProfils;
     }
@@ -266,7 +266,7 @@ public class GARIdentite {
      */
     public List<String> getGARPersonAutresPrenoms() {
         if (garPersonAutresPrenoms == null) {
-            garPersonAutresPrenoms = new ArrayList<String>();
+            garPersonAutresPrenoms = new ArrayList<>();
         }
         return this.garPersonAutresPrenoms;
     }

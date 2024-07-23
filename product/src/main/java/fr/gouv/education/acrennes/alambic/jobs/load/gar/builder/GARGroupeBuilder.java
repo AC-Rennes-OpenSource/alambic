@@ -46,7 +46,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.function.Consumer;
 import java.util.function.Predicate;
-import java.util.stream.Collectors;
 
 public class GARGroupeBuilder implements GARTypeBuilder {
     private static final Log log = LogFactory.getLog(GARGroupeBuilder.class);
@@ -61,15 +60,15 @@ public class GARGroupeBuilder implements GARTypeBuilder {
     private final List<Map<String, List<String>>> structures;
 
     public GARGroupeBuilder(GARBuilderParameters parameters) {
-        this.page = parameters.getPage();
-        this.jobActivity = parameters.getJobActivity();
-        this.maxNodesCount = parameters.getMaxNodesCount();
-        this.version = parameters.getVersion();
-        this.output = parameters.getOutput();
-        this.em = parameters.getEm();
-        this.xsdFile = parameters.getXsdFile();
+        this.page = parameters.page();
+        this.jobActivity = parameters.jobActivity();
+        this.maxNodesCount = parameters.maxNodesCount();
+        this.version = parameters.version();
+        this.output = parameters.output();
+        this.em = parameters.em();
+        this.xsdFile = parameters.xsdFile();
         // Get the list of involved groups
-        this.structures = parameters.getResources().get("Entries").getEntries();
+        this.structures = parameters.resources().get("Entries").getEntries();
     }
 
     @Override
@@ -91,7 +90,7 @@ public class GARGroupeBuilder implements GARTypeBuilder {
                  * GARStructureUAI
                  */
                 List<String> attribute = entity.get("ENTStructureUAI");
-                if (null != attribute && 0 < attribute.size() && StringUtils.isNotBlank(attribute.get(0))) {
+                if (null != attribute && !attribute.isEmpty() && StringUtils.isNotBlank(attribute.get(0))) {
                     ENTStructureUAI = attribute.get(0).toUpperCase();
                 } else {
                     jobActivity.setTrafficLight(ActivityTrafficLight.ORANGE);
@@ -103,10 +102,10 @@ public class GARGroupeBuilder implements GARTypeBuilder {
                 /*
                  * GARGroupe (DIVISION - classe) : GARGroupeCode / GARGroupeLibelle / GARGroupeStatut
                  */
-                List<String> listStructDivCodes = new ArrayList<String>();
+                List<String> listStructDivCodes = new ArrayList<>();
                 List<GARGroupe> listGarGroupes = new ArrayList<>();
                 attribute = entity.get("ENTStructureClasses");
-                if (null != attribute && 0 < attribute.size()) {
+                if (null != attribute && !attribute.isEmpty()) {
                     for (String groupe : attribute) {
                         if (StringUtils.isNotBlank(groupe)) {
                             String code = GARHelper.getInstance().extractCodeGroup(groupe, 0);
@@ -131,10 +130,10 @@ public class GARGroupeBuilder implements GARTypeBuilder {
                 /*
                  * GARGroupe (GROUPE) : GARGroupeCode / GARGroupeLibelle / GARGroupeStatut / GARGroupeDivAppartenance
                  */
-                List<String> listStructConflictingCodes = new ArrayList<String>(); // will contain the problematic group/division code (refer to GAR Support : https://support.gar.education.fr/servicedesk/customer/portal/1/GSN1-1098)
-                List<String> listStructGrpCodes = new ArrayList<String>();
+                List<String> listStructConflictingCodes = new ArrayList<>(); // will contain the problematic group/division code (refer to GAR Support : https://support.gar.education.fr/servicedesk/customer/portal/1/GSN1-1098)
+                List<String> listStructGrpCodes = new ArrayList<>();
                 attribute = entity.get("ENTStructureGroupes");
-                if (null != attribute && 0 < attribute.size()) {
+                if (null != attribute && !attribute.isEmpty()) {
                     for (String groupe : attribute) {
                         if (StringUtils.isNotBlank(groupe)) {
                             String code = GARHelper.getInstance().extractCodeGroup(groupe, 0);
@@ -187,27 +186,22 @@ public class GARGroupeBuilder implements GARTypeBuilder {
                 listGarGroupes.removeIf(groupe -> listStructConflictingCodes.contains(groupe.getGARGroupeCode()));
 
                 // Update groups list to remove references both to the conflicting and missing divisions
-                Predicate<String> isGroupeCodeNotRelevant = new Predicate<String>() {
+                Predicate<String> isGroupeCodeNotRelevant = code -> {
+                    boolean isNotRelevant = false;
 
-                    @Override
-                    public boolean test(String code) {
-                        boolean isNotRelevant = false;
-
-                        if (listStructConflictingCodes.contains(code)) {
-                            isNotRelevant = true;
-                            jobActivity.setTrafficLight(ActivityTrafficLight.ORANGE);
-                            log.warn("Remove the reference to the division with code '" + code + "' from the structure " + ENTStructureUAI + " " +
-                                     "since it belongs to the conflicting group vs division codes list");
-                        } else if (!listStructDivCodes.contains(code)) {
-                            isNotRelevant = true;
-                            jobActivity.setTrafficLight(ActivityTrafficLight.ORANGE);
-                            log.warn("Remove the reference to the division with code '" + code + "' since this division doesn't belong to the " +
-                                     "structure" + ENTStructureUAI);
-                        }
-
-                        return isNotRelevant;
+                    if (listStructConflictingCodes.contains(code)) {
+                        isNotRelevant = true;
+                        jobActivity.setTrafficLight(ActivityTrafficLight.ORANGE);
+                        log.warn("Remove the reference to the division with code '" + code + "' from the structure " + ENTStructureUAI + " " +
+                                 "since it belongs to the conflicting group vs division codes list");
+                    } else if (!listStructDivCodes.contains(code)) {
+                        isNotRelevant = true;
+                        jobActivity.setTrafficLight(ActivityTrafficLight.ORANGE);
+                        log.warn("Remove the reference to the division with code '" + code + "' since this division doesn't belong to the " +
+                                 "structure" + ENTStructureUAI);
                     }
 
+                    return isNotRelevant;
                 };
                 listGarGroupes.stream()
                         // filter groups referencing at least one division
@@ -218,14 +212,14 @@ public class GARGroupeBuilder implements GARTypeBuilder {
                 // Extract the list of the structure's valid groups codes
                 List<String> validStructGrpCodesList = listGarGroupes.stream()
                         .filter(groupe -> "GROUPE".equals(groupe.getGARGroupeStatut()))
-                        .map(groupe -> groupe.getGARGroupeCode())
-                        .collect(Collectors.toList());
+                        .map(GARGroupe::getGARGroupeCode)
+                        .toList();
 
                 // Extract the list of the structure's valid divisions codes
                 List<String> validStructDivCodesList = listGarGroupes.stream()
                         .filter(groupe -> "DIVISION".equals(groupe.getGARGroupeStatut()))
-                        .map(groupe -> groupe.getGARGroupeCode())
-                        .collect(Collectors.toList());
+                        .map(GARGroupe::getGARGroupeCode)
+                        .toList();
 
                 // Initialize the list of not empty groups and divisions
                 List<String> notEmptyGrpDivCodes = new ArrayList<>();
@@ -244,8 +238,8 @@ public class GARGroupeBuilder implements GARTypeBuilder {
                 List<StaffEntity> enseignants = emQuery.getResultList();
                 transaction.commit();
 
-                Map<String, GAREnsGroupeMatiere> listTeacherGrp = new HashMap<String, GAREnsGroupeMatiere>();
-                Map<String, GAREnsClasseMatiere> listTeacherDiv = new HashMap<String, GAREnsClasseMatiere>();
+                Map<String, GAREnsGroupeMatiere> listTeacherGrp = new HashMap<>();
+                Map<String, GAREnsClasseMatiere> listTeacherDiv = new HashMap<>();
 
                 // For each teacher
                 for (StaffEntity enseignant : enseignants) {
@@ -381,30 +375,26 @@ public class GARGroupeBuilder implements GARTypeBuilder {
                  * - discard the groups and divisions having no members,
                  * - do not discard divisions having no members but being referenced by a group of options
                  */
-                Consumer<GARGroupe> writeNotEmptyGroupsConsumer = new Consumer<GARGroupe>() {
-
-                    @Override
-                    public void accept(GARGroupe groupe) {
-                        long countOfRefByGrps = 0;
-                        if ("DIVISION".equals(groupe.getGARGroupeStatut())) {
-                            countOfRefByGrps = listGarGroupes.stream()
-                                    .filter(grp -> "GROUPE".equals(grp.getGARGroupeStatut()))
-                                    .filter(grp -> grp.getGARGroupeDivAppartenance().contains(groupe.getGARGroupeCode()))
-                                    .count();
+                Consumer<GARGroupe> writeNotEmptyGroupsConsumer = groupe -> {
+                    long countOfRefByGrps = 0;
+                    if ("DIVISION".equals(groupe.getGARGroupeStatut())) {
+                        countOfRefByGrps = listGarGroupes.stream()
+                                .filter(grp -> "GROUPE".equals(grp.getGARGroupeStatut()))
+                                .filter(grp -> grp.getGARGroupeDivAppartenance().contains(groupe.getGARGroupeCode()))
+                                .count();
+                    }
+                    if (notEmptyGrpDivCodes.contains(groupe.getGARGroupeCode()) || ("DIVISION".equals(groupe.getGARGroupeStatut()) && countOfRefByGrps > 0)) {
+                        try {
+                            // Flush relevant GAR groups (GROUPE & DIVISION)
+                            writer.add(groupe);
+                        } catch (FileNotFoundException | JAXBException e) {
+                            jobActivity.setTrafficLight(ActivityTrafficLight.RED);
+                            log.error("Failed to execute the GAR loader, error: " + (StringUtils.isNotBlank(e.getMessage())
+                                                                                     ? e.getMessage()
+                                                                                     : e.getCause()));
                         }
-                        if (notEmptyGrpDivCodes.contains(groupe.getGARGroupeCode()) || ("DIVISION".equals(groupe.getGARGroupeStatut()) && countOfRefByGrps > 0)) {
-                            try {
-                                // Flush relevant GAR groups (GROUPE & DIVISION)
-                                writer.add(groupe);
-                            } catch (FileNotFoundException | JAXBException e) {
-                                jobActivity.setTrafficLight(ActivityTrafficLight.RED);
-                                log.error("Failed to execute the GAR loader, error: " + (StringUtils.isNotBlank(e.getMessage())
-                                                                                         ? e.getMessage()
-                                                                                         : e.getCause()));
-                            }
-                        } else {
-                            log.info("The GARGroupe (code=" + groupe.getGARGroupeCode() + ", label='" + groupe.getGARGroupeLibelle() + "', status=" + groupe.getGARGroupeStatut() + ", UAI=" + groupe.getGARStructureUAI() + ") is filtered since it has no member (and is not referenced by any group)");
-                        }
+                    } else {
+                        log.info("The GARGroupe (code=" + groupe.getGARGroupeCode() + ", label='" + groupe.getGARGroupeLibelle() + "', status=" + groupe.getGARGroupeStatut() + ", UAI=" + groupe.getGARStructureUAI() + ") is filtered since it has no member (and is not referenced by any group)");
                     }
                 };
                 listGarGroupes.forEach(writeNotEmptyGroupsConsumer);

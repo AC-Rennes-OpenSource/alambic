@@ -76,21 +76,21 @@ public class GAREnseignantBuilder implements GARTypeBuilder {
     private final Source aafSource;
 
     public GAREnseignantBuilder(GARBuilderParameters parameters) {
-        this.page = parameters.getPage();
-        this.jobActivity = parameters.getJobActivity();
-        this.maxNodesCount = parameters.getMaxNodesCount();
-        this.version = parameters.getVersion();
-        this.territoryCode = parameters.getTerritoryCode();
-        this.output = parameters.getOutput();
-        this.em = parameters.getEm();
-        this.exportFiles = parameters.getExportFiles();
+        this.page = parameters.page();
+        this.jobActivity = parameters.jobActivity();
+        this.maxNodesCount = parameters.maxNodesCount();
+        this.version = parameters.version();
+        this.territoryCode = parameters.territoryCode();
+        this.output = parameters.output();
+        this.em = parameters.em();
+        this.exportFiles = parameters.exportFiles();
         XPathFactory xpf = XPathFactory.newInstance();
         this.xpath = xpf.newXPath();
-        this.xsdFile = parameters.getXsdFile();
-        this.teachers = parameters.getResources().get("Entries").getEntries(); // Get the list of involved teachers
-        Source structuresSource = parameters.getResources().get("Structures"); // Get the list of involved structures
-        this.aafSource = parameters.getResources().get("AAF");
-        this.memberStructuresList = new ArrayList<String>();
+        this.xsdFile = parameters.xsdFile();
+        this.teachers = parameters.resources().get("Entries").getEntries(); // Get the list of involved teachers
+        Source structuresSource = parameters.resources().get("Structures"); // Get the list of involved structures
+        this.aafSource = parameters.resources().get("AAF");
+        this.memberStructuresList = new ArrayList<>();
         List<Map<String, List<String>>> structures = structuresSource.getEntries();
         structures.forEach(structure -> {
             if (null != structure.get("ENTStructureUAI") && 1 == structure.get("ENTStructureUAI").size()) {

@@ -76,8 +76,8 @@ public class FMFunctions {
     public FMFunctions() {
         parser = new JSONParser();
         randomGenerator = new Random();
-        cachedResources = new HashMap<String, List<Map<String, List<String>>>>();
-        cache = new ConcurrentHashMap<String, List<Object>>();
+        cachedResources = new HashMap<>();
+        cache = new ConcurrentHashMap<>();
         Config.CurrentCharacterReferenceEncodingBehaviour = CUSTOM_CHARACTER_REFERENCE_ENCODING_BEHAVIOUR;
         Config.IsApostropheEncoded = false;
     }
@@ -91,11 +91,7 @@ public class FMFunctions {
     (XML special characters are excluded)
      */
     public static final CharacterReferenceEncodingBehaviour CUSTOM_CHARACTER_REFERENCE_ENCODING_BEHAVIOUR =
-            new CharacterReferenceEncodingBehaviour() {
-                public boolean isEncoded(final char ch, final boolean insideAttributeValue) {
-                    return ch > 127 && CharacterEntityReference.getName(ch) != null && !Arrays.stream(XML_SPECIAL_CHARACTERS).anyMatch(x -> x.equals(ch));
-                }
-            };
+            (ch, insideAttributeValue) -> ch > 127 && CharacterEntityReference.getName(ch) != null && !Arrays.stream(XML_SPECIAL_CHARACTERS).anyMatch(x -> x.equals(ch));
 
     public int getRandomNumber(final int min, final int max) {
         int randomNum = randomGenerator.nextInt((max - min) + 1) + min;
@@ -108,7 +104,7 @@ public class FMFunctions {
 
         if (resources.containsKey(resourceName)) {
             filteredResource = getCachedResource(resources, resourceName, filter, false, null);
-            if (null != filteredResource && 0 < filteredResource.size()) {
+            if (null != filteredResource && !filteredResource.isEmpty()) {
                 int randomIndex = getRandomNumber(0, filteredResource.size() - 1);
                 entry = filteredResource.get(randomIndex);
             }
@@ -154,7 +150,7 @@ public class FMFunctions {
             filteredResource = getCachedResource(resources, resourceName, (null != filters && 0 < filters.length)
                                                                           ? new SourceFilter(filters)
                                                                           : null, distinct, orderby);
-            if (null == filteredResource || 0 == filteredResource.size()) {
+            if (null == filteredResource || filteredResource.isEmpty()) {
                 log.info("Aucune entrée de trouvée pour la ressource '" + resourceName + "' (filtre='" + Arrays.toString(filters) + "')");
             }
         } else {
@@ -167,7 +163,7 @@ public class FMFunctions {
     public List<Map<String, List<String>>> getRandmonEntries(final int min, final int max, final Map<String, Source> resources,
                                                              final String resourceName,
                                                              final String... filters) {
-        List<Map<String, List<String>>> entries = new ArrayList<Map<String, List<String>>>();
+        List<Map<String, List<String>>> entries = new ArrayList<>();
 
         int count = getRandomNumber(min, max);
         for (int i = 0; i < count; i++) {
@@ -190,7 +186,7 @@ public class FMFunctions {
 
         String[] dictionariesList = dictionaries.split(DICTIONARY_SEPARATOR);
         if (0 < dictionariesList.length) {
-            vocabularyEntry = new ArrayList<String>();
+            vocabularyEntry = new ArrayList<>();
             int randomEntryDepth = getRandomNumber(1, dictionariesList.length);
             for (int i = 0; i < randomEntryDepth; i++) {
                 String dictionaryName = dictionariesList[i];
@@ -209,7 +205,7 @@ public class FMFunctions {
     }
 
     public List<String> getRandomVocabularyEntries(final int min, final int max, final Map<String, Source> resources, final String dictionaries) {
-        List<String> vocabularyEntries = new ArrayList<String>();
+        List<String> vocabularyEntries = new ArrayList<>();
 
         int count = getRandomNumber(min, max);
         for (int i = 0; i < count; i++) {
@@ -314,7 +310,7 @@ public class FMFunctions {
                         Pattern capturePattern = Pattern.compile("\\$(\\d+)");
                         Matcher captureMatcher = capturePattern.matcher(rule[1]);
                         while (captureMatcher.find()) {
-                            Integer index = Integer.valueOf(captureMatcher.group(1));
+                            int index = Integer.parseInt(captureMatcher.group(1));
                             dst = dst.replaceAll("\\" + captureMatcher.group(0), matcher.group(index));
                         }
                         str = str.replaceAll(matcher.group(0), dst);
@@ -480,7 +476,7 @@ public class FMFunctions {
         StringBuilder out = new StringBuilder(); // Used to hold the output.
         char current; // Used to reference the current character.
 
-        if ((in == null) || ("".equals(in))) {
+        if ((in == null) || (in.isEmpty())) {
             return "";
         }
         for (int i = 0; i < in.length(); i++) {
@@ -537,7 +533,7 @@ public class FMFunctions {
     }
 
     public List<Object> getCacheList(final String key) {
-        this.cache.putIfAbsent(key, new ArrayList<Object>());
+        this.cache.putIfAbsent(key, new ArrayList<>());
         return this.cache.get(key);
     }
 
@@ -559,12 +555,12 @@ public class FMFunctions {
     }
 
     public boolean addToCacheList(final String key, final Object value) {
-        this.cache.putIfAbsent(key, new ArrayList<Object>());
+        this.cache.putIfAbsent(key, new ArrayList<>());
         return this.cache.get(key).add(value);
     }
 
     public boolean addToCacheList(final String key, final List<Object> values) {
-        this.cache.putIfAbsent(key, new ArrayList<Object>());
+        this.cache.putIfAbsent(key, new ArrayList<>());
         return this.cache.get(key).addAll(values);
     }
 

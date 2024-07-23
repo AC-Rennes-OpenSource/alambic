@@ -39,7 +39,7 @@ import java.util.Map;
 
 public class Entry {
 
-    private final class ModifyMode {
+    private static final class ModifyMode {
         /**
          * Ignore les valeurs existantes et les remplace par les valeurs fournies.
          */
@@ -522,7 +522,7 @@ public class Entry {
         // Traitement des attributs en relation4
         for (final Element pAttr : entry.getChild(ATTRIBUTES).getChildren()) {
             final String relation = pAttr.getAttributeValue(RELATION);
-            final boolean hasRelation = (relation != null) && !"".equals(relation);
+            final boolean hasRelation = (relation != null) && !relation.isEmpty();
             // Teste si l'attribut est défini comme modifiable dans le pivot
             if (hasRelation) {
                 // Cas ou l'attribut contient une relation avec une autre entrée (member - memberOf)
