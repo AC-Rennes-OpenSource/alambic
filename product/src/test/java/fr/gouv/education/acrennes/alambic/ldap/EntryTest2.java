@@ -16,23 +16,7 @@
  ******************************************************************************/
 package fr.gouv.education.acrennes.alambic.ldap;
 
-import static org.mockito.Mockito.verify;
-
-import java.io.InputStream;
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
-
-import javax.naming.NamingEnumeration;
-import javax.naming.directory.Attribute;
-import javax.naming.directory.Attributes;
-import javax.naming.directory.BasicAttribute;
-import javax.naming.directory.BasicAttributes;
-import javax.naming.directory.DirContext;
-import javax.naming.directory.InitialDirContext;
-import javax.naming.directory.SearchControls;
-import javax.naming.directory.SearchResult;
-
+import fr.gouv.education.acrennes.alambic.utils.Variables;
 import org.apache.commons.lang.StringUtils;
 import org.apache.directory.shared.ldap.message.ArrayNamingEnumeration;
 import org.jdom2.Element;
@@ -45,13 +29,23 @@ import org.junit.runner.RunWith;
 import org.mockito.Matchers;
 import org.mockito.internal.verification.VerificationModeFactory;
 import org.powermock.api.mockito.PowerMockito;
+import org.powermock.core.classloader.annotations.PowerMockIgnore;
 import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.modules.junit4.PowerMockRunner;
 
-import fr.gouv.education.acrennes.alambic.utils.Variables;
+import javax.naming.NamingEnumeration;
+import javax.naming.directory.*;
+import java.io.InputStream;
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
+
+import static org.mockito.ArgumentMatchers.nullable;
+import static org.mockito.Mockito.verify;
 
 @RunWith(PowerMockRunner.class)
-@PrepareForTest({Entry.class})
+@PrepareForTest({ Entry.class })
+@PowerMockIgnore("javax.management.*")
 public class EntryTest2 {
 
     private InitialDirContext mockedDirContext;
@@ -117,13 +111,13 @@ public class EntryTest2 {
         }
 
         PowerMockito.when(mockedDirContext.getNameInNamespace())
-        	.thenReturn("dc=ent-bretagne,dc=fr")
-        	.thenReturn("cn=profil-lambda,ou=profils,ou=groupes,dc=ent-bretagne,dc=fr")
-        	.thenReturn("cn=profil-lambda,ou=profils,ou=groupes,dc=ent-bretagne,dc=fr")
-        	.thenReturn("dc=ent-bretagne,dc=fr");
+                .thenReturn("dc=ent-bretagne,dc=fr")
+                .thenReturn("cn=profil-lambda,ou=profils,ou=groupes,dc=ent-bretagne,dc=fr")
+                .thenReturn("cn=profil-lambda,ou=profils,ou=groupes,dc=ent-bretagne,dc=fr")
+                .thenReturn("dc=ent-bretagne,dc=fr");
 
-        PowerMockito.when(mockedDirContext.lookup(Matchers.anyString()))
-        	.thenReturn(mockedDirContext);
+        PowerMockito.when(mockedDirContext.lookup(nullable(String.class)))
+                .thenReturn(mockedDirContext);
 
         return new Entry(mockedPivotEntry, mockedDirContext, null, variables, null, null);
     }
@@ -133,51 +127,55 @@ public class EntryTest2 {
      **/
     @Test
     public void test25() throws Exception {
-    	final Entry mockedPivotEntry = buildFromPivot("dc=ent-bretagne,dc=fr", "data/entry/pivot25.xml");
+        final Entry mockedPivotEntry = buildFromPivot("dc=ent-bretagne,dc=fr", "data/entry/pivot25.xml");
 
-    	String existingEntryInLDAP = "{" +
-    			"\"dn\": \"cn=profil-lambda,ou=profils,ou=groupes,dc=ent-bretagne,dc=fr\"," +
-    			"\"objectClass\": [\"top\", \"groupOfNames\", \"ENTProfil\"]," +
-    			"\"cn\": \"profil-lambda\"," +
-    			"\"description\": \"Un profil quelconque\"," +
-    			"\"ENTDisplayName\": \"Un profil quelconque\"," +
-    			"\"ENTProfilPeuplement:\": \"implicite\"," +
-    			"\"member\": [\"uid=gbizet,ou=personnes,dc=ent-bretagne,dc=fr\", \"uid=cs-saens,ou=personnes,dc=ent-bretagne,dc=fr\", \"uid=cdebussy,ou=personnes,dc=ent-bretagne,dc=fr\"]" +
-    			"}";
+        String existingEntryInLDAP = "{" +
+                                     "\"dn\": \"cn=profil-lambda,ou=profils,ou=groupes,dc=ent-bretagne,dc=fr\"," +
+                                     "\"objectClass\": [\"top\", \"groupOfNames\", \"ENTProfil\"]," +
+                                     "\"cn\": \"profil-lambda\"," +
+                                     "\"description\": \"Un profil quelconque\"," +
+                                     "\"ENTDisplayName\": \"Un profil quelconque\"," +
+                                     "\"ENTProfilPeuplement:\": \"implicite\"," +
+                                     "\"member\": [\"uid=gbizet,ou=personnes,dc=ent-bretagne,dc=fr\", \"uid=cs-saens,ou=personnes,dc=ent-bretagne," +
+                                     "dc=fr\", \"uid=cdebussy,ou=personnes,dc=ent-bretagne,dc=fr\"]" +
+                                     "}";
 
-    	String searchMembersResults = "{" +
-    			"\"dn\": \"uid=cs-saens,ou=personnes,dc=ent-bretagne,dc=fr\"," +
-    			"\"objectClass\": [\"top\", \"person\", \"organizationalPerson\", \"inetOrgPerson\", \"ENTPerson\", \"ENTAuxEnseignant\"]," +
-    			"\"cn\": \"Camille Saint-Saëns\"," +
-    			"\"sn\": \"Saint-Saëns\"," +
-    			"\"givenName\": \"Camille\"," +
-    			"\"ENTPersonDateNaissance\": \"09/10/1835\"," +
-    			"\"ENTPersonProfils\": [\"cn=alpha,ou=profils,ou=groupes,dc=ent-bretagne,dc=fr\", \"cn=beta,ou=profils,ou=groupes,dc=ent-bretagne,dc=fr\"]," +
-    			"\"ENTPersonFonctions:\": [\"0350063D$ADF\"]" +
-    			"}";
+        String searchMembersResults = "{" +
+                                      "\"dn\": \"uid=cs-saens,ou=personnes,dc=ent-bretagne,dc=fr\"," +
+                                      "\"objectClass\": [\"top\", \"person\", \"organizationalPerson\", \"inetOrgPerson\", \"ENTPerson\", " +
+                                      "\"ENTAuxEnseignant\"]," +
+                                      "\"cn\": \"Camille Saint-Saëns\"," +
+                                      "\"sn\": \"Saint-Saëns\"," +
+                                      "\"givenName\": \"Camille\"," +
+                                      "\"ENTPersonDateNaissance\": \"09/10/1835\"," +
+                                      "\"ENTPersonProfils\": [\"cn=alpha,ou=profils,ou=groupes,dc=ent-bretagne,dc=fr\", \"cn=beta,ou=profils," +
+                                      "ou=groupes,dc=ent-bretagne,dc=fr\"]," +
+                                      "\"ENTPersonFonctions:\": [\"0350063D$ADF\"]" +
+                                      "}";
 
-    	PowerMockito.when(mockedDirContext.search(
-    			Matchers.anyString(),
-    			Matchers.anyString(),
-    			Matchers.any(SearchControls.class)
-    			))
-	    	.thenReturn(buildResultSet("dn=cn=profil-lambda,ou=profils,ou=groupes,dc=ent-bretagne,dc=fr", new String[]{existingEntryInLDAP}))
-	    	.thenReturn(buildResultSet("uid=cs-saens,ou=personnes,dc=ent-bretagne,dc=fr", new String[]{searchMembersResults}));
+        PowerMockito.when(mockedDirContext.search(
+                        nullable(String.class),
+                        nullable(String.class),
+                        nullable(SearchControls.class)
+                ))
+                .thenReturn(buildResultSet("dn=cn=profil-lambda,ou=profils,ou=groupes,dc=ent-bretagne,dc=fr", new String[] { existingEntryInLDAP }))
+                .thenReturn(buildResultSet("uid=cs-saens,ou=personnes,dc=ent-bretagne,dc=fr", new String[] { searchMembersResults }));
 
-    	PowerMockito.when(mockedDirContext.getAttributes(Matchers.matches("")))
-	    	.thenReturn(buildAttributes(existingEntryInLDAP))
-	    	.thenReturn(buildAttributes(existingEntryInLDAP))
-	    	.thenReturn(buildAttributes(searchMembersResults));
+        PowerMockito.when(mockedDirContext.getAttributes(Matchers.matches("")))
+                .thenReturn(buildAttributes(existingEntryInLDAP))
+                .thenReturn(buildAttributes(existingEntryInLDAP))
+                .thenReturn(buildAttributes(searchMembersResults));
 
-    	mockedPivotEntry.update();
+        mockedPivotEntry.update();
 
-    	verify(mockedDirContext, VerificationModeFactory.times(2)).modifyAttributes("", 
-    			DirContext.REPLACE_ATTRIBUTE, 
-    			buildAttributes("{\"ENTPersonProfils\": [\"cn=alpha,ou=profils,ou=groupes,dc=ent-bretagne,dc=fr\", \"cn=beta,ou=profils,ou=groupes,dc=ent-bretagne,dc=fr\"]}"));
+        verify(mockedDirContext, VerificationModeFactory.times(2)).modifyAttributes("",
+                DirContext.REPLACE_ATTRIBUTE,
+                buildAttributes("{\"ENTPersonProfils\": [\"cn=alpha,ou=profils,ou=groupes,dc=ent-bretagne,dc=fr\", \"cn=beta,ou=profils,ou=groupes," +
+                                "dc=ent-bretagne,dc=fr\"]}"));
 
-    	verify(mockedDirContext, VerificationModeFactory.times(1)).modifyAttributes("", 
-    			DirContext.REPLACE_ATTRIBUTE, 
-    			buildAttributes("{\"member\": [\"uid=cs-saens,ou=personnes,dc=ent-bretagne,dc=fr\"]}"));
+        verify(mockedDirContext, VerificationModeFactory.times(1)).modifyAttributes("",
+                DirContext.REPLACE_ATTRIBUTE,
+                buildAttributes("{\"member\": [\"uid=cs-saens,ou=personnes,dc=ent-bretagne,dc=fr\"]}"));
     }
 
 }

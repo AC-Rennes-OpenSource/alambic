@@ -14,6 +14,8 @@ import org.powermock.modules.junit4.PowerMockRunner;
 import java.util.HashMap;
 import java.util.Map;
 
+import static org.mockito.ArgumentMatchers.nullable;
+
 @RunWith(PowerMockRunner.class)
 @PrepareForTest(Variables.class)
 @PowerMockIgnore("javax.management.*")
@@ -28,7 +30,7 @@ public class VariablesWithEnvTest {
         PowerMockito.mockStatic(System.class);
 
         PowerMockito.when(System.getenv()).thenReturn(env);
-        PowerMockito.when(System.getenv(Matchers.anyString())).thenAnswer(invocationOnMock -> env.get(invocationOnMock.getArgumentAt(0, String.class)));
+        PowerMockito.when(System.getenv(nullable(String.class))).thenAnswer(invocationOnMock -> env.get(invocationOnMock.getArgument(0, String.class)));
     }
 
     @Test

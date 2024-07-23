@@ -16,9 +16,6 @@
  ******************************************************************************/
 package fr.gouv.education.acrennes.alambic.random.service;
 
-import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.anyInt;
-import static org.mockito.Matchers.anyString;
 
 import java.io.File;
 import java.net.URL;
@@ -44,6 +41,8 @@ import fr.gouv.education.acrennes.alambic.generator.service.RandomGeneratorServi
 import fr.gouv.education.acrennes.alambic.generator.service.RandomImageGenerator;
 import fr.gouv.education.acrennes.alambic.persistence.EntityManagerHelper;
 import fr.gouv.education.acrennes.alambic.random.persistence.RandomEntity;
+
+import static org.mockito.ArgumentMatchers.*;
 
 @RunWith(PowerMockRunner.class)
 @PrepareForTest({RandomImageGenerator.class, FileUtils.class, Files.class})

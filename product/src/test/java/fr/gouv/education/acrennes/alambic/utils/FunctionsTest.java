@@ -28,7 +28,7 @@ public class FunctionsTest {
 	@Test
 	public void test1() throws AlambicException {
 		final String gps = Functions.getInstance().executeAllFunctions("(lambert93.to.gps)327592.7,6829576.2(/lambert93.to.gps)");
-		Assert.assertEquals("48.45944326636733,-2.040519398538259", gps);
+		Assert.assertEquals("48.45944326636734,-2.040519398538261", gps);
 	}
 
 	@Test

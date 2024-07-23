@@ -43,6 +43,8 @@ import org.powermock.modules.junit4.PowerMockRunner;
 import fr.gouv.education.acrennes.alambic.exception.AlambicException;
 import fr.gouv.education.acrennes.alambic.utils.Functions;
 
+import static org.mockito.ArgumentMatchers.nullable;
+
 @RunWith(PowerMockRunner.class)
 @PrepareForTest({ Functions.class, UUID.class })
 public class FunctionsTest {
@@ -82,7 +84,7 @@ public class FunctionsTest {
 	@Test
 	public void test1() {
 		try {
-			PowerMockito.when(mockedDirContext.search(Matchers.anyString(), Matchers.anyString(), Matchers.any(SearchControls.class))).
+			PowerMockito.when(mockedDirContext.search(nullable(String.class), nullable(String.class), nullable(SearchControls.class))).
 					thenReturn(getResultSet(new String[] { "mail=gabriel.faure@ac-rennes.fr" }));
 
 			final String value = Functions.getInstance().executeAllFunctions("(UNICITY)ldap://ldap-pp.in.ac-rennes.fr:389/ou=personnes,dc=ent-bretagne,dc=fr??sub?(mail=gabriel.faure*@ac-rennes.fr)(/UNICITY)");
@@ -97,7 +99,7 @@ public class FunctionsTest {
 	@Test
 	public void test2() {
 		try {
-			PowerMockito.when(mockedDirContext.search(Matchers.anyString(), Matchers.anyString(), Matchers.any(SearchControls.class))).
+			PowerMockito.when(mockedDirContext.search(nullable(String.class), nullable(String.class), nullable(SearchControls.class))).
 					thenReturn(getResultSet(new String[] { "mail=gabriel.faure@ac-rennes.fr", "mail=gabriel.faure1@ac-rennes.fr" }));
 
 			final String value = Functions.getInstance().executeAllFunctions("(UNICITY)ldap://ldap-pp.in.ac-rennes.fr:389/ou=personnes,dc=ent-bretagne,dc=fr??sub?(mail=gabriel.faure*@ac-rennes.fr)(/UNICITY)");
@@ -112,7 +114,7 @@ public class FunctionsTest {
 	@Test
 	public void test3() {
 		try {
-			PowerMockito.when(mockedDirContext.search(Matchers.anyString(), Matchers.anyString(), Matchers.any(SearchControls.class))).
+			PowerMockito.when(mockedDirContext.search(nullable(String.class), nullable(String.class), nullable(SearchControls.class))).
 					thenReturn(getResultSet(new String[] { "mail=gabriel.faure@ac-rennes.fr,gabriel.faure1@ac-rennes.fr" }));
 
 			final String value = Functions.getInstance().executeAllFunctions("(UNICITY)ldap://ldap-pp.in.ac-rennes.fr:389/ou=personnes,dc=ent-bretagne,dc=fr??sub?(mail=gabriel.faure*@ac-rennes.fr)(/UNICITY)");
@@ -127,7 +129,7 @@ public class FunctionsTest {
 	@Test
 	public void test4() {
 		try {
-			PowerMockito.when(mockedDirContext.search(Matchers.anyString(), Matchers.anyString(), Matchers.any(SearchControls.class))).
+			PowerMockito.when(mockedDirContext.search(nullable(String.class), nullable(String.class), nullable(SearchControls.class))).
 					thenReturn(getResultSet(new String[] { "mail=gabriel.faure1@ac-rennes.fr", "mail=gabriel.faure3@ac-rennes.fr" }));
 
 			final String value = Functions.getInstance().executeAllFunctions("(UNICITY)ldap://ldap-pp.in.ac-rennes.fr:389/ou=personnes,dc=ent-bretagne,dc=fr??sub?(mail=gabriel.faure*@ac-rennes.fr)(/UNICITY)");
@@ -142,7 +144,7 @@ public class FunctionsTest {
 	@Test
 	public void test5() {
 		try {
-			PowerMockito.when(mockedDirContext.search(Matchers.anyString(), Matchers.anyString(), Matchers.any(SearchControls.class))).
+			PowerMockito.when(mockedDirContext.search(nullable(String.class), nullable(String.class), nullable(SearchControls.class))).
 					thenReturn(getResultSet(new String[] { "mail=gabriel.faure@ac-rennes.fr", "mail=gabriel.faure2@ac-rennes.fr", "mail=gabriel.faure3@ac-rennes.fr" }));
 
 			final String value = Functions.getInstance().executeAllFunctions("(UNICITY)ldap://ldap-pp.in.ac-rennes.fr:389/ou=personnes,dc=ent-bretagne,dc=fr??sub?(mail=gabriel.faure*@ac-rennes.fr)(/UNICITY)");
@@ -157,7 +159,7 @@ public class FunctionsTest {
 	@Test
 	public void test6() {
 		try {
-			PowerMockito.when(mockedDirContext.search(Matchers.anyString(), Matchers.anyString(), Matchers.any(SearchControls.class))).
+			PowerMockito.when(mockedDirContext.search(nullable(String.class), nullable(String.class), nullable(SearchControls.class))).
 					thenReturn(getResultSet(new String[] { "mail=gabriel.faure@ac-rennes.fr", "mail=gabriel.faure1@ac-rennes.fr", "mail=gabriel.faure2@ac-rennes.fr" }));
 
 			final String value = Functions.getInstance().executeAllFunctions("(UNICITY)ldap://ldap-pp.in.ac-rennes.fr:389/ou=personnes,dc=ent-bretagne,dc=fr??sub?(mail=gabriel.faure*@ac-rennes.fr)(/UNICITY)");
@@ -172,7 +174,7 @@ public class FunctionsTest {
 	@Test
 	public void test7() {
 		try {
-			PowerMockito.when(mockedDirContext.search(Matchers.anyString(), Matchers.anyString(), Matchers.any(SearchControls.class))).
+			PowerMockito.when(mockedDirContext.search(nullable(String.class), nullable(String.class), nullable(SearchControls.class))).
 					thenReturn(getResultSet(new String[] {}));
 
 			final String value = Functions.getInstance().executeAllFunctions("(UNICITY)ldap://ldap-pp.in.ac-rennes.fr:389/ou=personnes,dc=ent-bretagne,dc=fr??sub?(mail=gabriel.faure*@ac-rennes.fr)(/UNICITY)");
@@ -187,7 +189,7 @@ public class FunctionsTest {
 	@Test
 	public void test8() {
 		try {
-			PowerMockito.when(mockedDirContext.search(Matchers.anyString(), Matchers.anyString(), Matchers.any(SearchControls.class))).
+			PowerMockito.when(mockedDirContext.search(nullable(String.class), nullable(String.class), nullable(SearchControls.class))).
 					thenReturn(getResultSet(new String[] { "mail=gabriel.faure@ac-rennes.fr", "mail=gabriel.faure1@ac-rennes.fr", "mail=gabriel.faure2@ac-rennes.fr" }));
 
 			final String value = Functions.getInstance().executeAllFunctions("(UNICITY)ldap://ldap-pp.in.ac-rennes.fr:389/ou=personnes,dc=ent-bretagne,dc=fr??sub?(&(objectClass=ENTPerson)(mail=gabriel.faure*@ac-rennes.fr))(/UNICITY)");
@@ -202,7 +204,7 @@ public class FunctionsTest {
 	@Test
 	public void test9() {
 		try {
-			PowerMockito.when(mockedDirContext.search(Matchers.anyString(), Matchers.anyString(), Matchers.any(SearchControls.class))).
+			PowerMockito.when(mockedDirContext.search(nullable(String.class), nullable(String.class), nullable(SearchControls.class))).
 					thenReturn(getResultSet(new String[] { "mail=gabriel.faure@ac-rennes.fr", "mail=gabriel.faure1@ac-rennes.fr", "mail=gabriel.faure2@ac-rennes.fr" }));
 
 			final String value = Functions.getInstance().executeAllFunctions("(UNICITY)ldap://ldap-pp.in.ac-rennes.fr:389/ou=personnes,dc=ent-bretagne,dc=fr??sub?(&(mail=gabriel.faure*@ac-rennes.fr)(objectClass=ENTPerson))(/UNICITY)");
@@ -217,7 +219,7 @@ public class FunctionsTest {
 	@Test
 	public void test10() {
 		try {
-			PowerMockito.when(mockedDirContext.search(Matchers.anyString(), Matchers.anyString(), Matchers.any(SearchControls.class))).
+			PowerMockito.when(mockedDirContext.search(nullable(String.class), nullable(String.class), nullable(SearchControls.class))).
 					thenReturn(getResultSet(new String[] { "mail=gabriel.faure@ac-rennes.fr", "mail=gabriel.faure1@ac-rennes.fr", "mail=gabriel.faure2@ac-rennes.fr" }));
 
 			final String value = Functions.getInstance().executeAllFunctions("(UNICITY)ldap://ldap-pp.in.ac-rennes.fr:389/ou=personnes,dc=ent-bretagne,dc=fr?(&(mail=gabriel.faure*@ac-rennes.fr)(objectClass=ENTPerson))(/UNICITY)");
@@ -232,7 +234,7 @@ public class FunctionsTest {
 	@Test
 	public void test11() {
 		try {
-			PowerMockito.when(mockedDirContext.search(Matchers.anyString(), Matchers.anyString(), Matchers.any(SearchControls.class))).
+			PowerMockito.when(mockedDirContext.search(nullable(String.class), nullable(String.class), nullable(SearchControls.class))).
 					thenReturn(getResultSet(new String[] { "mail=maria-teresa.cancelinha@ac-rennes.fr", "mailEquivalentAddress=maria-teresa.cancelinha1@ac-rennes.fr" }));
 
 			final String value = Functions.getInstance().executeAllFunctions("(UNICITY)ldap://ldap.ac-rennes.fr:389/ou=ac-rennes,ou=education,o=gouv,c=fr??sub?(|(mail=maria-teresa.cancelinha*@ac-rennes.fr)(mailEquivalentAddress=maria-teresa.cancelinha*@ac-rennes.fr)))(/UNICITY)");
@@ -247,7 +249,7 @@ public class FunctionsTest {
 	@Test
 	public void test12() {
 		try {
-			PowerMockito.when(mockedDirContext.search(Matchers.anyString(), Matchers.anyString(), Matchers.any(SearchControls.class))).
+			PowerMockito.when(mockedDirContext.search(nullable(String.class), nullable(String.class), nullable(SearchControls.class))).
 					thenReturn(getResultSet(new String[] { "mail=maria-teresa.cancelinha@ac-rennes.fr,maria-teresa.cancelinha2@ac-rennes.fr", "mailEquivalentAddress=maria-teresa.cancelinha1@ac-rennes.fr" }));
 
 			final String value = Functions.getInstance().executeAllFunctions("(UNICITY)ldap://ldap.ac-rennes.fr:389/ou=ac-rennes,ou=education,o=gouv,c=fr??sub?(|(mail=maria-teresa.cancelinha*@ac-rennes.fr)(mailEquivalentAddress=maria-teresa.cancelinha*@ac-rennes.fr)))(/UNICITY)");
@@ -262,7 +264,7 @@ public class FunctionsTest {
 	@Test
 	public void test13() {
 		try {
-			PowerMockito.when(mockedDirContext.search(Matchers.anyString(), Matchers.anyString(), Matchers.any(SearchControls.class))).
+			PowerMockito.when(mockedDirContext.search(nullable(String.class), nullable(String.class), nullable(SearchControls.class))).
 					thenReturn(getResultSet(new String[] { "mail=maria-teresa.cancelinha@ac-rennes.fr,maria-teresa.cancelinha2@ac-rennes.fr;mailEquivalentAddress=maria-teresa.cancelinha3@ac-rennes.fr",
 							"mail=maria-teresa.cancelinha1@ac-rennes.fr;mailEquivalentAddress=maria-teresa.cancelinha4@ac-rennes.fr" }));
 
@@ -278,7 +280,7 @@ public class FunctionsTest {
 	@Test
 	public void test14() {
 		try {
-			PowerMockito.when(mockedDirContext.search(Matchers.anyString(), Matchers.anyString(), Matchers.any(SearchControls.class))).
+			PowerMockito.when(mockedDirContext.search(nullable(String.class), nullable(String.class), nullable(SearchControls.class))).
 					thenReturn(getResultSet(new String[] { "mail=gabriel.faure@ac-rennes.fr" }));
 
 			final String value = Functions.getInstance().executeAllFunctions("(UNICITY)ldap://ldap-pp.in.ac-rennes.fr:389/ou=personnes,dc=ent-bretagne,dc=fr??sub?(mail=gabriel.faure*@ac-rennes.fr)(/UNICITY)");
@@ -293,7 +295,7 @@ public class FunctionsTest {
 	@Test
 	public void test15() {
 		try {
-			PowerMockito.when(mockedDirContext.search(Matchers.anyString(), Matchers.anyString(), Matchers.any(SearchControls.class))).
+			PowerMockito.when(mockedDirContext.search(nullable(String.class), nullable(String.class), nullable(SearchControls.class))).
 					thenReturn(getResultSet(new String[] { "mail=gabriel.faure@ac-rennes.fr" }));
 
 			final String value = Functions.getInstance().executeAllFunctions("(UNICITY)ldap://ldap-pp.in.ac-rennes.fr:389/ou=personnes,dc=ent-bretagne,dc=fr??sub?(mail=gabriel.faure*@ac-rennes.fr)(/UNICITY)");
@@ -313,7 +315,7 @@ public class FunctionsTest {
 			PowerMockito.mockStatic(UUID.class);
 			PowerMockito.when(UUID.randomUUID()).thenReturn(mockedUUID1).thenReturn(mockedUUID2).thenReturn(mockedUUID3);
 
-			PowerMockito.when(mockedDirContext.search(Matchers.anyString(), Matchers.anyString(), Matchers.any(SearchControls.class))).
+			PowerMockito.when(mockedDirContext.search(nullable(String.class), nullable(String.class), nullable(SearchControls.class))).
 					thenReturn(getResultSet(new String[] { "ENTPersonUid=" + mockedUUID1.toString() })).
 					thenReturn(getResultSet(new String[] { "ENTPersonUid=" + mockedUUID2.toString() })).
 					thenReturn(null);
@@ -330,7 +332,7 @@ public class FunctionsTest {
 	@Test
 	public void test17() {
 		try {
-			PowerMockito.when(mockedDirContext.search(Matchers.anyString(), Matchers.anyString(), Matchers.any(SearchControls.class))).
+			PowerMockito.when(mockedDirContext.search(nullable(String.class), nullable(String.class), nullable(SearchControls.class))).
 					thenReturn(getResultSet(new String[] { "employeeNumber=14V0000001EXT", "employeeNumber=14V0000002EXT", "employeeNumber=14V0000003EXT" }));
 
 			final String value = Functions.getInstance().executeAllFunctions("(UNICITY)candidate=\"(STRINGFORMAT)pattern=%07d;values=(INCREMENT)1(/INCREMENT);types=Integer(/STRINGFORMAT)\"|search=ldap://ldap-pp.in.ac-rennes.fr:389/ou=personnes,dc=ent-bretagne,dc=fr??sub?(employeeNumber=14V*EXT)(/UNICITY)");
@@ -345,7 +347,7 @@ public class FunctionsTest {
 	@Test
 	public void test18() {
 		try {
-			PowerMockito.when(mockedDirContext.search(Matchers.anyString(), Matchers.anyString(), Matchers.any(SearchControls.class))).
+			PowerMockito.when(mockedDirContext.search(nullable(String.class), nullable(String.class), nullable(SearchControls.class))).
 					thenReturn(getResultSet(new String[] { "employeeNumber=14V0000001EXT", "employeeNumber=14V0000002EXT" }));
 
 			final String value = Functions.getInstance().executeAllFunctions("(UNICITY)candidate=\"(STRINGFORMAT)pattern=%07d;values=(INCREMENT)1(/INCREMENT);types=Integer(/STRINGFORMAT)\",login=\"cn=TechnicalPrincipal\",password=\"TopSecret\"|search=ldap://ldap-pp.in.ac-rennes.fr:389/ou=personnes,dc=ent-bretagne,dc=fr??sub?(&amp;(fonctm=EXTACA)(employeeNumber=14V*EXT))(/UNICITY)");
@@ -359,7 +361,7 @@ public class FunctionsTest {
 	/* test use case: check behaviour on LDAP exception */
 	@Test(expected= AlambicException.class)
 	public void test19() throws NamingException, AlambicException {
-		PowerMockito.when(mockedDirContext.search(Matchers.anyString(), Matchers.anyString(), Matchers.any(SearchControls.class))).thenThrow(new NamingException());
+		PowerMockito.when(mockedDirContext.search(nullable(String.class), nullable(String.class), nullable(SearchControls.class))).thenThrow(new NamingException());
 
 		Functions.getInstance().executeAllFunctions("(UNICITY)candidate=\"(STRINGFORMAT)pattern=%07d;values=(INCREMENT)1(/INCREMENT);types=Integer(/STRINGFORMAT)\",login=\"cn=TechnicalPrincipal\",password=\"TopSecret\"|search=ldap://ldap-pp.in.ac-rennes.fr:389/ou=personnes,dc=ent-bretagne,dc=fr??sub?(&amp;(fonctm=EXTACA)(employeeNumber=14V*EXT))(/UNICITY)");
 	}

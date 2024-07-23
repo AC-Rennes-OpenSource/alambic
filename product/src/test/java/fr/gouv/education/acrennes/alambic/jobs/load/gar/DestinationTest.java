@@ -17,6 +17,7 @@
 package fr.gouv.education.acrennes.alambic.jobs.load.gar;
 
 import static org.junit.Assert.assertTrue;
+import static org.mockito.ArgumentMatchers.nullable;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
 
@@ -80,13 +81,13 @@ public class DestinationTest {
 		this.mockedNuxeoAutomationClient = PowerMockito.mock(HttpAutomationClient.class);
 		this.mockedNuxeoClientSession = PowerMockito.mock(Session.class);
 		PowerMockito.whenNew(HttpAutomationClient.class).withAnyArguments().thenReturn(this.mockedNuxeoAutomationClient);
-		PowerMockito.when(this.mockedNuxeoAutomationClient.getSession(Matchers.anyString(), Matchers.anyString())).thenReturn(this.mockedNuxeoClientSession);		
+		PowerMockito.when(this.mockedNuxeoAutomationClient.getSession(nullable(String.class), nullable(String.class))).thenReturn(this.mockedNuxeoClientSession);		
 
 		// Prepare LDAP mock
         mockedDirContext = PowerMockito.mock(InitialDirContext.class);
         PowerMockito.whenNew(InitialDirContext.class).withAnyArguments().thenReturn(mockedDirContext);
 		PowerMockito.when(mockedDirContext.getNameInNamespace()).thenReturn(LDAP_ENTRY_NAME_SPACE);
-		PowerMockito.when(mockedDirContext.lookup(Matchers.anyString())).thenReturn(mockedDirContext);
+		PowerMockito.when(mockedDirContext.lookup(nullable(String.class))).thenReturn(mockedDirContext);
 	}
 
 	@After
@@ -106,11 +107,11 @@ public class DestinationTest {
 					.getResource("data/jobs/destination/XmlToNuxeo-test1-input.xml")
 					.getPath();
 			
-			PowerMockito.when(mockedDestinationXMLElement.getAttributeValue(Matchers.anyString()))
+			PowerMockito.when(mockedDestinationXMLElement.getAttributeValue(nullable(String.class)))
 				.thenReturn("NuxeoTarget")
 				.thenReturn("nuxeo");
 			
-			PowerMockito.when(mockedDestinationXMLElement.getChildText(Matchers.anyString()))			
+			PowerMockito.when(mockedDestinationXMLElement.getChildText(nullable(String.class)))			
 				.thenReturn("uri")
 				.thenReturn("login")
 				.thenReturn("passwd")
@@ -119,7 +120,7 @@ public class DestinationTest {
 			
 			Destination destination = DestinationFactory.getDestination(this.context, this.mockedDestinationXMLElement, this.jobActivity);
 			assertTrue(destination.isAnythingToDo().equals(IsAnythingToDoStatus.NO));
-			Mockito.verify(this.mockedNuxeoAutomationClient, never()).getSession(Matchers.anyString(), Matchers.anyString());
+			Mockito.verify(this.mockedNuxeoAutomationClient, never()).getSession(nullable(String.class), nullable(String.class));
 		} catch (Exception e) {
 			e.printStackTrace();
 			Assert.fail();
@@ -138,11 +139,11 @@ public class DestinationTest {
 					.getResource("data/jobs/destination/XmlToNuxeo-test2-input.xml")
 					.getPath();
 			
-			PowerMockito.when(mockedDestinationXMLElement.getAttributeValue(Matchers.anyString()))
+			PowerMockito.when(mockedDestinationXMLElement.getAttributeValue(nullable(String.class)))
 				.thenReturn("NuxeoTarget")
 				.thenReturn("nuxeo");
 			
-			PowerMockito.when(mockedDestinationXMLElement.getChildText(Matchers.anyString()))			
+			PowerMockito.when(mockedDestinationXMLElement.getChildText(nullable(String.class)))			
 				.thenReturn("uri")
 				.thenReturn("login")
 				.thenReturn("passwd")
@@ -151,7 +152,7 @@ public class DestinationTest {
 			
 			Destination destination = DestinationFactory.getDestination(this.context, this.mockedDestinationXMLElement, this.jobActivity);
 			assertTrue(destination.isAnythingToDo().equals(IsAnythingToDoStatus.YES));
-			Mockito.verify(this.mockedNuxeoAutomationClient, times(1)).getSession(Matchers.anyString(), Matchers.anyString());
+			Mockito.verify(this.mockedNuxeoAutomationClient, times(1)).getSession(nullable(String.class), nullable(String.class));
 		} catch (Exception e) {
 			e.printStackTrace();
 			Assert.fail();
@@ -171,11 +172,11 @@ public class DestinationTest {
 					.getResource("data/jobs/destination/XmlToNuxeo-test3-input.xml")
 					.getPath();
 			
-			PowerMockito.when(mockedDestinationXMLElement.getAttributeValue(Matchers.anyString()))
+			PowerMockito.when(mockedDestinationXMLElement.getAttributeValue(nullable(String.class)))
 				.thenReturn("NuxeoTarget")
 				.thenReturn("nuxeo");
 			
-			PowerMockito.when(mockedDestinationXMLElement.getChildText(Matchers.anyString()))			
+			PowerMockito.when(mockedDestinationXMLElement.getChildText(nullable(String.class)))			
 				.thenReturn("uri")
 				.thenReturn("login")
 				.thenReturn("passwd")
@@ -184,7 +185,7 @@ public class DestinationTest {
 			
 			Destination destination = DestinationFactory.getDestination(this.context, this.mockedDestinationXMLElement, this.jobActivity);
 			assertTrue(destination.isAnythingToDo().equals(IsAnythingToDoStatus.YES));
-			Mockito.verify(this.mockedNuxeoAutomationClient, times(1)).getSession(Matchers.anyString(), Matchers.anyString());
+			Mockito.verify(this.mockedNuxeoAutomationClient, times(1)).getSession(nullable(String.class), nullable(String.class));
 		} catch (Exception e) {
 			e.printStackTrace();
 			Assert.fail();
@@ -203,11 +204,11 @@ public class DestinationTest {
 					.getResource("data/jobs/destination/StateBaseToLdap-test1-input.xml")
 					.getPath();
 			
-			PowerMockito.when(mockedDestinationXMLElement.getAttributeValue(Matchers.anyString()))
+			PowerMockito.when(mockedDestinationXMLElement.getAttributeValue(nullable(String.class)))
 				.thenReturn("LDAPTarget")
 				.thenReturn("ldap");
 			
-			PowerMockito.when(mockedDestinationXMLElement.getChildText(Matchers.anyString()))			
+			PowerMockito.when(mockedDestinationXMLElement.getChildText(nullable(String.class)))			
 				.thenReturn("com.sun.jndi.ldap.LdapCtxFactory")
 				.thenReturn("uri")
 				.thenReturn("login")
@@ -234,11 +235,11 @@ public class DestinationTest {
 					.getResource("data/jobs/destination/StateBaseToLdap-test2-input.xml")
 					.getPath();
 			
-			PowerMockito.when(mockedDestinationXMLElement.getAttributeValue(Matchers.anyString()))
+			PowerMockito.when(mockedDestinationXMLElement.getAttributeValue(nullable(String.class)))
 				.thenReturn("LDAPTarget")
 				.thenReturn("ldap");
 			
-			PowerMockito.when(mockedDestinationXMLElement.getChildText(Matchers.anyString()))			
+			PowerMockito.when(mockedDestinationXMLElement.getChildText(nullable(String.class)))			
 				.thenReturn("com.sun.jndi.ldap.LdapCtxFactory")
 				.thenReturn("uri")
 				.thenReturn("login")
@@ -266,11 +267,11 @@ public class DestinationTest {
 					.getResource("data/jobs/destination/StateBaseToLdap-test3-input.xml")
 					.getPath();
 			
-			PowerMockito.when(mockedDestinationXMLElement.getAttributeValue(Matchers.anyString()))
+			PowerMockito.when(mockedDestinationXMLElement.getAttributeValue(nullable(String.class)))
 				.thenReturn("LDAPTarget")
 				.thenReturn("ldap");
 			
-			PowerMockito.when(mockedDestinationXMLElement.getChildText(Matchers.anyString()))			
+			PowerMockito.when(mockedDestinationXMLElement.getChildText(nullable(String.class)))			
 				.thenReturn("com.sun.jndi.ldap.LdapCtxFactory")
 				.thenReturn("uri")
 				.thenReturn("login")

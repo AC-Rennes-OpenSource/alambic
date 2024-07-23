@@ -16,27 +16,7 @@
  ******************************************************************************/
 package fr.gouv.education.acrennes.alambic.ldap;
 
-import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.anyInt;
-import static org.mockito.Matchers.anyString;
-import static org.mockito.Mockito.never;
-import static org.mockito.Mockito.verify;
-
-import java.io.InputStream;
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
-
-import javax.naming.NamingEnumeration;
-import javax.naming.directory.Attribute;
-import javax.naming.directory.Attributes;
-import javax.naming.directory.BasicAttribute;
-import javax.naming.directory.BasicAttributes;
-import javax.naming.directory.DirContext;
-import javax.naming.directory.InitialDirContext;
-import javax.naming.directory.SearchControls;
-import javax.naming.directory.SearchResult;
-
+import fr.gouv.education.acrennes.alambic.utils.Variables;
 import org.apache.commons.lang.StringUtils;
 import org.apache.directory.shared.ldap.message.ArrayNamingEnumeration;
 import org.jdom2.Element;
@@ -50,13 +30,25 @@ import org.junit.runner.RunWith;
 import org.mockito.Matchers;
 import org.mockito.Mockito;
 import org.powermock.api.mockito.PowerMockito;
+import org.powermock.core.classloader.annotations.PowerMockIgnore;
 import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.modules.junit4.PowerMockRunner;
 
-import fr.gouv.education.acrennes.alambic.utils.Variables;
+import javax.naming.NamingEnumeration;
+import javax.naming.directory.*;
+import java.io.InputStream;
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
+
+import static org.mockito.ArgumentMatchers.nullable;
+import static org.mockito.Matchers.*;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.verify;
 
 @RunWith(PowerMockRunner.class)
-@PrepareForTest({Entry.class})
+@PrepareForTest({ Entry.class })
+@PowerMockIgnore({ "javax.management.*" })
 public class EntryTest {
 
     private InitialDirContext mockedDirContext;
@@ -109,9 +101,9 @@ public class EntryTest {
     }
 
     private Entry buildFromPivot(final String filePath) throws Exception {
-    	return buildFromPivot("uid=epoe,ou=personnes,dc=ent-bretagne,dc=fr", filePath);
+        return buildFromPivot("uid=epoe,ou=personnes,dc=ent-bretagne,dc=fr", filePath);
     }
-    
+
     private Entry buildFromPivot(final String nameInNamespace, final String filePath) throws Exception {
         final Element mockedPivotEntry;
         try (final InputStream is = EntryTest.class.getClassLoader().getResourceAsStream(filePath)) {
@@ -119,22 +111,22 @@ public class EntryTest {
         }
 
         PowerMockito.when(mockedDirContext.getNameInNamespace()).thenReturn(nameInNamespace);
-        PowerMockito.when(mockedDirContext.lookup(Matchers.anyString())).thenReturn(mockedDirContext);
+        PowerMockito.when(mockedDirContext.lookup(nullable(String.class))).thenReturn(mockedDirContext);
 
         return new Entry(mockedPivotEntry, mockedDirContext, null, new Variables(), null, null);
     }
 
     private void setEntryInLdap(final String entryInLdap) throws Exception {
-    	setEntryInLdap("uid=epoe,ou=personnes,dc=ent-bretagne,dc=fr", entryInLdap);
+        setEntryInLdap("uid=epoe,ou=personnes,dc=ent-bretagne,dc=fr", entryInLdap);
     }
 
     private void setEntryInLdap(final String nameInNamespace, final String entryInLdap) throws Exception {
         PowerMockito.when(mockedDirContext.search(
-                Matchers.anyString(),
-                Matchers.anyString(),
-                Matchers.any(SearchControls.class)
+                nullable(String.class),
+                nullable(String.class),
+                nullable(SearchControls.class)
         )).thenReturn(
-                buildResultSet(nameInNamespace, new String[]{entryInLdap})
+                buildResultSet(nameInNamespace, new String[] { entryInLdap })
         );
         PowerMockito.when(mockedDirContext.getAttributes(Matchers.matches(""))).thenReturn(buildAttributes(entryInLdap));
     }
@@ -148,33 +140,33 @@ public class EntryTest {
             Element mockedPivotEntry = (new SAXBuilder()).build(is).getRootElement();
 
             PowerMockito.when(mockedDirContext.getNameInNamespace()).thenReturn("uid=epoe,ou=personnes,dc=ent-bretagne,dc=fr");
-            PowerMockito.when(mockedDirContext.lookup(Matchers.anyString())).thenReturn(mockedDirContext);
+            PowerMockito.when(mockedDirContext.lookup(nullable(String.class))).thenReturn(mockedDirContext);
 
             Entry entry = new Entry(mockedPivotEntry, mockedDirContext, null, new Variables(), null, null);
             Assert.assertNotNull(entry);
 
             String existingEntryInLDAP = "{" +
-                    "\"objectClass\":[\"top\",\"person\",\"organizationalPerson\",\"educationnationale\",\"inetOrgPerson\"]," +
-                    "\"uid\":\"epoe\"," +
-                    "\"ENTPersonUid\":\"0123456789\"," +
-                    "\"cn\":\"POE Edgar\"," +
-                    "\"sn\":\"Poe\"," +
-                    "\"givenName\":\"Edgar\"," +
-                    "\"codecivilite\":\"M\"," +
-                    "\"mail\":\"edgar.poe@litterature.com\"," +
-                    "\"title\":\"ECR\"," +
-                    "\"typensi\":\"AAF\"," +
-                    "\"datenaissance\":\"19/01/1809\"," +
-                    "\"Rne\":\"0350063D\""
-                    + "}";
+                                         "\"objectClass\":[\"top\",\"person\",\"organizationalPerson\",\"educationnationale\",\"inetOrgPerson\"]," +
+                                         "\"uid\":\"epoe\"," +
+                                         "\"ENTPersonUid\":\"0123456789\"," +
+                                         "\"cn\":\"POE Edgar\"," +
+                                         "\"sn\":\"Poe\"," +
+                                         "\"givenName\":\"Edgar\"," +
+                                         "\"codecivilite\":\"M\"," +
+                                         "\"mail\":\"edgar.poe@litterature.com\"," +
+                                         "\"title\":\"ECR\"," +
+                                         "\"typensi\":\"AAF\"," +
+                                         "\"datenaissance\":\"19/01/1809\"," +
+                                         "\"Rne\":\"0350063D\""
+                                         + "}";
 
-            PowerMockito.when(mockedDirContext.search(Matchers.anyString(), Matchers.anyString(), Matchers.any(SearchControls.class))).
-                    thenReturn(buildResultSet("uid=epoe,ou=personnes,dc=ent-bretagne,dc=fr", new String[]{existingEntryInLDAP}));
+            PowerMockito.when(mockedDirContext.search(nullable(String.class), nullable(String.class), nullable(SearchControls.class))).
+                    thenReturn(buildResultSet("uid=epoe,ou=personnes,dc=ent-bretagne,dc=fr", new String[] { existingEntryInLDAP }));
             PowerMockito.when(mockedDirContext.getAttributes(Matchers.matches(""))).thenReturn(buildAttributes(existingEntryInLDAP));
 
             entry.update();
 
-            verify(mockedDirContext, never()).modifyAttributes(Mockito.anyString(), Mockito.anyInt(), Mockito.any());
+            verify(mockedDirContext, never()).modifyAttributes(nullable(String.class), any(Integer.class), any());
         } catch (Exception e) {
             System.out.println(e.getMessage());
             Assert.fail();
@@ -190,27 +182,27 @@ public class EntryTest {
             Element mockedPivotEntry = (new SAXBuilder()).build(is).getRootElement();
 
             PowerMockito.when(mockedDirContext.getNameInNamespace()).thenReturn("uid=epoe,ou=personnes,dc=ent-bretagne,dc=fr");
-            PowerMockito.when(mockedDirContext.lookup(Matchers.anyString())).thenReturn(mockedDirContext);
+            PowerMockito.when(mockedDirContext.lookup(nullable(String.class))).thenReturn(mockedDirContext);
 
             Entry entry = new Entry(mockedPivotEntry, mockedDirContext, null, new Variables(), null, null);
             Assert.assertNotNull(entry);
 
             String existingEntryInLDAP = "{" +
-                    "\"objectClass\":[\"top\",\"person\",\"organizationalPerson\",\"educationnationale\",\"inetOrgPerson\"]," +
-                    "\"uid\":\"epoe\"," +
-                    "\"cn\":\"POE Edgar\"," +
-                    "\"sn\":\"Poe\"," +
-                    "\"givenName\":\"Edgar\"," +
-                    "\"codecivilite\":\"M\"," +
-                    "\"mail\":\"edgar.poe@litterature.com\"," +
-                    "\"title\":\"ECR\"," +
-                    "\"typensi\":\"AAF\"," +
-                    "\"datenaissance\":\"19/01/1809\"," +
-                    "\"Rne\":\"0350063D\""
-                    + "}";
+                                         "\"objectClass\":[\"top\",\"person\",\"organizationalPerson\",\"educationnationale\",\"inetOrgPerson\"]," +
+                                         "\"uid\":\"epoe\"," +
+                                         "\"cn\":\"POE Edgar\"," +
+                                         "\"sn\":\"Poe\"," +
+                                         "\"givenName\":\"Edgar\"," +
+                                         "\"codecivilite\":\"M\"," +
+                                         "\"mail\":\"edgar.poe@litterature.com\"," +
+                                         "\"title\":\"ECR\"," +
+                                         "\"typensi\":\"AAF\"," +
+                                         "\"datenaissance\":\"19/01/1809\"," +
+                                         "\"Rne\":\"0350063D\""
+                                         + "}";
 
-            PowerMockito.when(mockedDirContext.search(Matchers.anyString(), Matchers.anyString(), Matchers.any(SearchControls.class))).
-                    thenReturn(buildResultSet("uid=epoe,ou=personnes,dc=ent-bretagne,dc=fr", new String[]{existingEntryInLDAP}));
+            PowerMockito.when(mockedDirContext.search(nullable(String.class), nullable(String.class), nullable(SearchControls.class))).
+                    thenReturn(buildResultSet("uid=epoe,ou=personnes,dc=ent-bretagne,dc=fr", new String[] { existingEntryInLDAP }));
             PowerMockito.when(mockedDirContext.getAttributes(Matchers.matches(""))).thenReturn(buildAttributes(existingEntryInLDAP));
 
             entry.update();
@@ -232,32 +224,33 @@ public class EntryTest {
             Element mockedPivotEntry = (new SAXBuilder()).build(is).getRootElement();
 
             PowerMockito.when(mockedDirContext.getNameInNamespace()).thenReturn("uid=epoe,ou=personnes,dc=ent-bretagne,dc=fr");
-            PowerMockito.when(mockedDirContext.lookup(Matchers.anyString())).thenReturn(mockedDirContext);
+            PowerMockito.when(mockedDirContext.lookup(nullable(String.class))).thenReturn(mockedDirContext);
 
             Entry entry = new Entry(mockedPivotEntry, mockedDirContext, null, new Variables(), null, null);
             Assert.assertNotNull(entry);
 
             String existingEntryInLDAP = "{" +
-                    "\"objectClass\":[\"top\",\"person\",\"organizationalPerson\",\"educationnationale\",\"inetOrgPerson\"]," +
-                    "\"uid\":\"epoe\"," +
-                    "\"cn\":\"POE Edgar\"," +
-                    "\"sn\":\"Poe\"," +
-                    "\"givenName\":\"Edgar\"," +
-                    "\"codecivilite\":\"M\"," +
-                    "\"mail\":\"edgar.poe@litterature.com\"," +
-                    "\"title\":\"ECR\"," +
-                    "\"typensi\":\"AAF\"," +
-                    "\"datenaissance\":\"19/01/1809\"," +
-                    "\"Rne\":\"0350063D\""
-                    + "}";
+                                         "\"objectClass\":[\"top\",\"person\",\"organizationalPerson\",\"educationnationale\",\"inetOrgPerson\"]," +
+                                         "\"uid\":\"epoe\"," +
+                                         "\"cn\":\"POE Edgar\"," +
+                                         "\"sn\":\"Poe\"," +
+                                         "\"givenName\":\"Edgar\"," +
+                                         "\"codecivilite\":\"M\"," +
+                                         "\"mail\":\"edgar.poe@litterature.com\"," +
+                                         "\"title\":\"ECR\"," +
+                                         "\"typensi\":\"AAF\"," +
+                                         "\"datenaissance\":\"19/01/1809\"," +
+                                         "\"Rne\":\"0350063D\""
+                                         + "}";
 
-            PowerMockito.when(mockedDirContext.search(Matchers.anyString(), Matchers.anyString(), Matchers.any(SearchControls.class))).
-                    thenReturn(buildResultSet("uid=epoe,ou=personnes,dc=ent-bretagne,dc=fr", new String[]{existingEntryInLDAP}));
+            PowerMockito.when(mockedDirContext.search(nullable(String.class), nullable(String.class), nullable(SearchControls.class))).
+                    thenReturn(buildResultSet("uid=epoe,ou=personnes,dc=ent-bretagne,dc=fr", new String[] { existingEntryInLDAP }));
             PowerMockito.when(mockedDirContext.getAttributes(Matchers.matches(""))).thenReturn(buildAttributes(existingEntryInLDAP));
 
             entry.update();
 
-            verify(mockedDirContext, never()).modifyAttributes("", DirContext.REPLACE_ATTRIBUTE, buildAttributes("{\"ENTPersonUid\":\"0123456789\",\"title\":\"MOD\"}"));
+            verify(mockedDirContext, never()).modifyAttributes("", DirContext.REPLACE_ATTRIBUTE, buildAttributes("{\"ENTPersonUid\":\"0123456789\"," +
+                                                                                                                 "\"title\":\"MOD\"}"));
         } catch (Exception e) {
             System.out.println(e.getMessage());
             Assert.fail();
@@ -274,28 +267,28 @@ public class EntryTest {
             Element mockedPivotEntry = (new SAXBuilder()).build(is).getRootElement();
 
             PowerMockito.when(mockedDirContext.getNameInNamespace()).thenReturn("uid=epoe,ou=personnes,dc=ent-bretagne,dc=fr");
-            PowerMockito.when(mockedDirContext.lookup(Matchers.anyString())).thenReturn(mockedDirContext);
+            PowerMockito.when(mockedDirContext.lookup(nullable(String.class))).thenReturn(mockedDirContext);
 
             Entry entry = new Entry(mockedPivotEntry, mockedDirContext, null, new Variables(), null, null);
             Assert.assertNotNull(entry);
 
             String existingEntryInLDAP = "{" +
-                    "\"objectClass\":[\"top\",\"person\",\"organizationalPerson\",\"educationnationale\",\"inetOrgPerson\"]," +
-                    "\"uid\":\"epoe\"," +
-                    "\"ENTPersonUid\":\"\"," +
-                    "\"cn\":\"POE Edgar\"," +
-                    "\"sn\":\"Poe\"," +
-                    "\"givenName\":\"Edgar\"," +
-                    "\"codecivilite\":\"M\"," +
-                    "\"mail\":\"edgar.poe@litterature.com\"," +
-                    "\"title\":\"ECR\"," +
-                    "\"typensi\":\"AAF\"," +
-                    "\"datenaissance\":\"19/01/1809\"," +
-                    "\"Rne\":\"0350063D\""
-                    + "}";
+                                         "\"objectClass\":[\"top\",\"person\",\"organizationalPerson\",\"educationnationale\",\"inetOrgPerson\"]," +
+                                         "\"uid\":\"epoe\"," +
+                                         "\"ENTPersonUid\":\"\"," +
+                                         "\"cn\":\"POE Edgar\"," +
+                                         "\"sn\":\"Poe\"," +
+                                         "\"givenName\":\"Edgar\"," +
+                                         "\"codecivilite\":\"M\"," +
+                                         "\"mail\":\"edgar.poe@litterature.com\"," +
+                                         "\"title\":\"ECR\"," +
+                                         "\"typensi\":\"AAF\"," +
+                                         "\"datenaissance\":\"19/01/1809\"," +
+                                         "\"Rne\":\"0350063D\""
+                                         + "}";
 
-            PowerMockito.when(mockedDirContext.search(Matchers.anyString(), Matchers.anyString(), Matchers.any(SearchControls.class))).
-                    thenReturn(buildResultSet("uid=epoe,ou=personnes,dc=ent-bretagne,dc=fr", new String[]{existingEntryInLDAP}));
+            PowerMockito.when(mockedDirContext.search(nullable(String.class), nullable(String.class), nullable(SearchControls.class))).
+                    thenReturn(buildResultSet("uid=epoe,ou=personnes,dc=ent-bretagne,dc=fr", new String[] { existingEntryInLDAP }));
             PowerMockito.when(mockedDirContext.getAttributes(Matchers.matches(""))).thenReturn(buildAttributes(existingEntryInLDAP));
 
             entry.update();
@@ -318,33 +311,33 @@ public class EntryTest {
             Element mockedPivotEntry = (new SAXBuilder()).build(is).getRootElement();
 
             PowerMockito.when(mockedDirContext.getNameInNamespace()).thenReturn("uid=epoe,ou=personnes,dc=ent-bretagne,dc=fr");
-            PowerMockito.when(mockedDirContext.lookup(Matchers.anyString())).thenReturn(mockedDirContext);
+            PowerMockito.when(mockedDirContext.lookup(nullable(String.class))).thenReturn(mockedDirContext);
 
             Entry entry = new Entry(mockedPivotEntry, mockedDirContext, null, new Variables(), null, null);
             Assert.assertNotNull(entry);
 
             String existingEntryInLDAP = "{" +
-                    "\"objectClass\":[\"top\",\"person\",\"organizationalPerson\",\"educationnationale\",\"inetOrgPerson\"]," +
-                    "\"uid\":\"epoe\"," +
-                    "\"ENTPersonUid\":\" \"," +
-                    "\"cn\":\"POE Edgar\"," +
-                    "\"sn\":\"Poe\"," +
-                    "\"givenName\":\"Edgar\"," +
-                    "\"codecivilite\":\"M\"," +
-                    "\"mail\":\"edgar.poe@litterature.com\"," +
-                    "\"title\":\"ECR\"," +
-                    "\"typensi\":\"AAF\"," +
-                    "\"datenaissance\":\"19/01/1809\"," +
-                    "\"Rne\":\"0350063D\""
-                    + "}";
+                                         "\"objectClass\":[\"top\",\"person\",\"organizationalPerson\",\"educationnationale\",\"inetOrgPerson\"]," +
+                                         "\"uid\":\"epoe\"," +
+                                         "\"ENTPersonUid\":\" \"," +
+                                         "\"cn\":\"POE Edgar\"," +
+                                         "\"sn\":\"Poe\"," +
+                                         "\"givenName\":\"Edgar\"," +
+                                         "\"codecivilite\":\"M\"," +
+                                         "\"mail\":\"edgar.poe@litterature.com\"," +
+                                         "\"title\":\"ECR\"," +
+                                         "\"typensi\":\"AAF\"," +
+                                         "\"datenaissance\":\"19/01/1809\"," +
+                                         "\"Rne\":\"0350063D\""
+                                         + "}";
 
-            PowerMockito.when(mockedDirContext.search(Matchers.anyString(), Matchers.anyString(), Matchers.any(SearchControls.class))).
-                    thenReturn(buildResultSet("uid=epoe,ou=personnes,dc=ent-bretagne,dc=fr", new String[]{existingEntryInLDAP}));
+            PowerMockito.when(mockedDirContext.search(nullable(String.class), nullable(String.class), nullable(SearchControls.class))).
+                    thenReturn(buildResultSet("uid=epoe,ou=personnes,dc=ent-bretagne,dc=fr", new String[] { existingEntryInLDAP }));
             PowerMockito.when(mockedDirContext.getAttributes(Matchers.matches(""))).thenReturn(buildAttributes(existingEntryInLDAP));
 
             entry.update();
 
-            verify(mockedDirContext, never()).modifyAttributes(Mockito.anyString(), Mockito.anyInt(), Mockito.any());
+            verify(mockedDirContext, never()).modifyAttributes(nullable(String.class), any(Integer.class), any());
         } catch (Exception e) {
             System.out.println(e.getMessage());
             Assert.fail();
@@ -363,33 +356,33 @@ public class EntryTest {
             Element mockedPivotEntry = (new SAXBuilder()).build(is).getRootElement();
 
             PowerMockito.when(mockedDirContext.getNameInNamespace()).thenReturn("uid=epoe,ou=personnes,dc=ent-bretagne,dc=fr");
-            PowerMockito.when(mockedDirContext.lookup(Matchers.anyString())).thenReturn(mockedDirContext);
+            PowerMockito.when(mockedDirContext.lookup(nullable(String.class))).thenReturn(mockedDirContext);
 
             Entry entry = new Entry(mockedPivotEntry, mockedDirContext, null, new Variables(), null, null);
             Assert.assertNotNull(entry);
 
             String existingEntryInLDAP = "{" +
-                    "\"objectClass\":[\"top\",\"personne\"]," +
-                    "\"uid\":\"epoe\"," +
-                    "\"ENTPersonUid\":\"0123456789\"," +
-                    "\"cn\":\"POE Edgar\"," +
-                    "\"sn\":\"Poe\"," +
-                    "\"givenName\":\"Edgar\"," +
-                    "\"codecivilite\":\"M\"," +
-                    "\"mail\":\"edgar.poe@litterature.com\"," +
-                    "\"title\":\"ECR\"," +
-                    "\"typensi\":\"AAF\"," +
-                    "\"datenaissance\":\"19/01/1809\"," +
-                    "\"Rne\":\"0350063D\""
-                    + "}";
+                                         "\"objectClass\":[\"top\",\"personne\"]," +
+                                         "\"uid\":\"epoe\"," +
+                                         "\"ENTPersonUid\":\"0123456789\"," +
+                                         "\"cn\":\"POE Edgar\"," +
+                                         "\"sn\":\"Poe\"," +
+                                         "\"givenName\":\"Edgar\"," +
+                                         "\"codecivilite\":\"M\"," +
+                                         "\"mail\":\"edgar.poe@litterature.com\"," +
+                                         "\"title\":\"ECR\"," +
+                                         "\"typensi\":\"AAF\"," +
+                                         "\"datenaissance\":\"19/01/1809\"," +
+                                         "\"Rne\":\"0350063D\""
+                                         + "}";
 
-            PowerMockito.when(mockedDirContext.search(Matchers.anyString(), Matchers.anyString(), Matchers.any(SearchControls.class))).
-                    thenReturn(buildResultSet("uid=epoe,ou=personnes,dc=ent-bretagne,dc=fr", new String[]{existingEntryInLDAP}));
+            PowerMockito.when(mockedDirContext.search(nullable(String.class), nullable(String.class), nullable(SearchControls.class))).
+                    thenReturn(buildResultSet("uid=epoe,ou=personnes,dc=ent-bretagne,dc=fr", new String[] { existingEntryInLDAP }));
             PowerMockito.when(mockedDirContext.getAttributes(Matchers.matches(""))).thenReturn(buildAttributes(existingEntryInLDAP));
 
             entry.update();
 
-            verify(mockedDirContext, never()).modifyAttributes(Mockito.anyString(), Mockito.anyInt(), Mockito.any());
+            verify(mockedDirContext, never()).modifyAttributes(nullable(String.class), any(Integer.class), any());
         } catch (Exception e) {
             System.out.println(e.getMessage());
             Assert.fail();
@@ -408,33 +401,36 @@ public class EntryTest {
             Element mockedPivotEntry = (new SAXBuilder()).build(is).getRootElement();
 
             PowerMockito.when(mockedDirContext.getNameInNamespace()).thenReturn("uid=epoe,ou=personnes,dc=ent-bretagne,dc=fr");
-            PowerMockito.when(mockedDirContext.lookup(Matchers.anyString())).thenReturn(mockedDirContext);
+            PowerMockito.when(mockedDirContext.lookup(nullable(String.class))).thenReturn(mockedDirContext);
 
             Entry entry = new Entry(mockedPivotEntry, mockedDirContext, null, new Variables(), null, null);
             Assert.assertNotNull(entry);
 
             String existingEntryInLDAP = "{" +
-                    "\"objectClass\":[\"top\",\"personne\"]," +
-                    "\"uid\":\"epoe\"," +
-                    "\"ENTPersonUid\":\"0123456789\"," +
-                    "\"cn\":\"POE Edgar\"," +
-                    "\"sn\":\"Poe\"," +
-                    "\"givenName\":\"Edgar\"," +
-                    "\"codecivilite\":\"M\"," +
-                    "\"mail\":\"edgar.poe@litterature.com\"," +
-                    "\"title\":\"ECR\"," +
-                    "\"typensi\":\"AAF\"," +
-                    "\"datenaissance\":\"19/01/1809\"," +
-                    "\"Rne\":\"0350063D\""
-                    + "}";
+                                         "\"objectClass\":[\"top\",\"personne\"]," +
+                                         "\"uid\":\"epoe\"," +
+                                         "\"ENTPersonUid\":\"0123456789\"," +
+                                         "\"cn\":\"POE Edgar\"," +
+                                         "\"sn\":\"Poe\"," +
+                                         "\"givenName\":\"Edgar\"," +
+                                         "\"codecivilite\":\"M\"," +
+                                         "\"mail\":\"edgar.poe@litterature.com\"," +
+                                         "\"title\":\"ECR\"," +
+                                         "\"typensi\":\"AAF\"," +
+                                         "\"datenaissance\":\"19/01/1809\"," +
+                                         "\"Rne\":\"0350063D\""
+                                         + "}";
 
-            PowerMockito.when(mockedDirContext.search(Matchers.anyString(), Matchers.anyString(), Matchers.any(SearchControls.class))).
-                    thenReturn(buildResultSet("uid=epoe,ou=personnes,dc=ent-bretagne,dc=fr", new String[]{existingEntryInLDAP}));
+            PowerMockito.when(mockedDirContext.search(nullable(String.class), nullable(String.class), nullable(SearchControls.class))).
+                    thenReturn(buildResultSet("uid=epoe,ou=personnes,dc=ent-bretagne,dc=fr", new String[] { existingEntryInLDAP }));
             PowerMockito.when(mockedDirContext.getAttributes(Matchers.matches(""))).thenReturn(buildAttributes(existingEntryInLDAP));
 
             entry.update();
 
-            verify(mockedDirContext).modifyAttributes("", DirContext.REPLACE_ATTRIBUTE, buildAttributes("{\"objectClass\":[\"top\",\"person\",\"organizationalPerson\",\"educationnationale\",\"inetOrgPerson\"]}"));
+            verify(mockedDirContext).modifyAttributes("", DirContext.REPLACE_ATTRIBUTE, buildAttributes("{\"objectClass\":[\"top\",\"person\"," +
+                                                                                                        "\"organizationalPerson\"," +
+                                                                                                        "\"educationnationale\"," +
+                                                                                                        "\"inetOrgPerson\"]}"));
         } catch (Exception e) {
             System.out.println(e.getMessage());
             Assert.fail();
@@ -453,33 +449,36 @@ public class EntryTest {
             Element mockedPivotEntry = (new SAXBuilder()).build(is).getRootElement();
 
             PowerMockito.when(mockedDirContext.getNameInNamespace()).thenReturn("uid=epoe,ou=personnes,dc=ent-bretagne,dc=fr");
-            PowerMockito.when(mockedDirContext.lookup(Matchers.anyString())).thenReturn(mockedDirContext);
+            PowerMockito.when(mockedDirContext.lookup(nullable(String.class))).thenReturn(mockedDirContext);
 
             Entry entry = new Entry(mockedPivotEntry, mockedDirContext, null, new Variables(), null, null);
             Assert.assertNotNull(entry);
 
             String existingEntryInLDAP = "{" +
-                    "\"objectClass\":[]," +
-                    "\"uid\":\"epoe\"," +
-                    "\"ENTPersonUid\":\"0123456789\"," +
-                    "\"cn\":\"POE Edgar\"," +
-                    "\"sn\":\"Poe\"," +
-                    "\"givenName\":\"Edgar\"," +
-                    "\"codecivilite\":\"M\"," +
-                    "\"mail\":\"edgar.poe@litterature.com\"," +
-                    "\"title\":\"ECR\"," +
-                    "\"typensi\":\"AAF\"," +
-                    "\"datenaissance\":\"19/01/1809\"," +
-                    "\"Rne\":\"0350063D\""
-                    + "}";
+                                         "\"objectClass\":[]," +
+                                         "\"uid\":\"epoe\"," +
+                                         "\"ENTPersonUid\":\"0123456789\"," +
+                                         "\"cn\":\"POE Edgar\"," +
+                                         "\"sn\":\"Poe\"," +
+                                         "\"givenName\":\"Edgar\"," +
+                                         "\"codecivilite\":\"M\"," +
+                                         "\"mail\":\"edgar.poe@litterature.com\"," +
+                                         "\"title\":\"ECR\"," +
+                                         "\"typensi\":\"AAF\"," +
+                                         "\"datenaissance\":\"19/01/1809\"," +
+                                         "\"Rne\":\"0350063D\""
+                                         + "}";
 
-            PowerMockito.when(mockedDirContext.search(Matchers.anyString(), Matchers.anyString(), Matchers.any(SearchControls.class))).
-                    thenReturn(buildResultSet("uid=epoe,ou=personnes,dc=ent-bretagne,dc=fr", new String[]{existingEntryInLDAP}));
+            PowerMockito.when(mockedDirContext.search(nullable(String.class), nullable(String.class), nullable(SearchControls.class))).
+                    thenReturn(buildResultSet("uid=epoe,ou=personnes,dc=ent-bretagne,dc=fr", new String[] { existingEntryInLDAP }));
             PowerMockito.when(mockedDirContext.getAttributes(Matchers.matches(""))).thenReturn(buildAttributes(existingEntryInLDAP));
 
             entry.update();
 
-            verify(mockedDirContext).modifyAttributes("", DirContext.REPLACE_ATTRIBUTE, buildAttributes("{\"objectClass\":[\"top\",\"person\",\"organizationalPerson\",\"educationnationale\",\"inetOrgPerson\"]}"));
+            verify(mockedDirContext).modifyAttributes("", DirContext.REPLACE_ATTRIBUTE, buildAttributes("{\"objectClass\":[\"top\",\"person\"," +
+                                                                                                        "\"organizationalPerson\"," +
+                                                                                                        "\"educationnationale\"," +
+                                                                                                        "\"inetOrgPerson\"]}"));
         } catch (Exception e) {
             System.out.println(e.getMessage());
             Assert.fail();
@@ -496,32 +495,35 @@ public class EntryTest {
             Element mockedPivotEntry = (new SAXBuilder()).build(is).getRootElement();
 
             PowerMockito.when(mockedDirContext.getNameInNamespace()).thenReturn("uid=epoe,ou=personnes,dc=ent-bretagne,dc=fr");
-            PowerMockito.when(mockedDirContext.lookup(Matchers.anyString())).thenReturn(mockedDirContext);
+            PowerMockito.when(mockedDirContext.lookup(nullable(String.class))).thenReturn(mockedDirContext);
 
             Entry entry = new Entry(mockedPivotEntry, mockedDirContext, null, new Variables(), null, null);
             Assert.assertNotNull(entry);
 
             String existingEntryInLDAP = "{" +
-                    "\"uid\":\"epoe\"," +
-                    "\"ENTPersonUid\":\"0123456789\"," +
-                    "\"cn\":\"POE Edgar\"," +
-                    "\"sn\":\"Poe\"," +
-                    "\"givenName\":\"Edgar\"," +
-                    "\"codecivilite\":\"M\"," +
-                    "\"mail\":\"edgar.poe@litterature.com\"," +
-                    "\"title\":\"ECR\"," +
-                    "\"typensi\":\"AAF\"," +
-                    "\"datenaissance\":\"19/01/1809\"," +
-                    "\"Rne\":\"0350063D\""
-                    + "}";
+                                         "\"uid\":\"epoe\"," +
+                                         "\"ENTPersonUid\":\"0123456789\"," +
+                                         "\"cn\":\"POE Edgar\"," +
+                                         "\"sn\":\"Poe\"," +
+                                         "\"givenName\":\"Edgar\"," +
+                                         "\"codecivilite\":\"M\"," +
+                                         "\"mail\":\"edgar.poe@litterature.com\"," +
+                                         "\"title\":\"ECR\"," +
+                                         "\"typensi\":\"AAF\"," +
+                                         "\"datenaissance\":\"19/01/1809\"," +
+                                         "\"Rne\":\"0350063D\""
+                                         + "}";
 
-            PowerMockito.when(mockedDirContext.search(Matchers.anyString(), Matchers.anyString(), Matchers.any(SearchControls.class))).
-                    thenReturn(buildResultSet("uid=epoe,ou=personnes,dc=ent-bretagne,dc=fr", new String[]{existingEntryInLDAP}));
+            PowerMockito.when(mockedDirContext.search(nullable(String.class), nullable(String.class), nullable(SearchControls.class))).
+                    thenReturn(buildResultSet("uid=epoe,ou=personnes,dc=ent-bretagne,dc=fr", new String[] { existingEntryInLDAP }));
             PowerMockito.when(mockedDirContext.getAttributes(Matchers.matches(""))).thenReturn(buildAttributes(existingEntryInLDAP));
 
             entry.update();
 
-            verify(mockedDirContext).modifyAttributes("", DirContext.REPLACE_ATTRIBUTE, buildAttributes("{\"objectClass\":[\"top\",\"person\",\"organizationalPerson\",\"educationnationale\",\"inetOrgPerson\"]}"));
+            verify(mockedDirContext).modifyAttributes("", DirContext.REPLACE_ATTRIBUTE, buildAttributes("{\"objectClass\":[\"top\",\"person\"," +
+                                                                                                        "\"organizationalPerson\"," +
+                                                                                                        "\"educationnationale\"," +
+                                                                                                        "\"inetOrgPerson\"]}"));
         } catch (Exception e) {
             System.out.println(e.getMessage());
             Assert.fail();
@@ -543,42 +545,47 @@ public class EntryTest {
             Element mockedPivotEntry = (new SAXBuilder()).build(is).getRootElement();
 
             PowerMockito.when(mockedDirContext.getNameInNamespace()).thenReturn("ou=0352318E,ou=structures,dc=ent-bretagne,dc=fr");
-            PowerMockito.when(mockedDirContext.lookup(Matchers.anyString())).thenReturn(mockedDirContext);
+            PowerMockito.when(mockedDirContext.lookup(nullable(String.class))).thenReturn(mockedDirContext);
 
             Entry entry = new Entry(mockedPivotEntry, mockedDirContext, null, new Variables(), null, null);
             Assert.assertNotNull(entry);
 
             String existingEntryInLDAP = "{" +
-                    "\"objectClass\":[\"top\",\"ENTStructure\",\"ENTOrganisation\",\"ENTEtablissement\"]," +
-                    "\"ou\":\"0352318E\"," +
-                    "\"ENTEtablissementContrat\":\"PU\"," +
-                    "\"street\":\"AVENUE DU BOIS GREFFIER\"," +
-                    "\"ENTOrganisationGeoLoc\":\"47.84770462898778,-1.6935174304831626\"," +
-                    "\"ENTDisplayName\":\"LYCEE GENERAL ET TECHNOLOGIQUE JEAN BRITO\"," +
-                    "\"ENTStructureJointure\":\"3681\"," +
-                    "\"description\":\"LYCEE GENERAL ET TECHNOLOGIQUE JEAN BRITO\"," +
-                    "\"ENTStructureNomCourant\":\"JEAN BRITO\"," +
-                    "\"ENTEtablissementBassin\":\"035002BU\"," +
-                    "\"telephoneNumber\":\"+33 2 99 43 31 31\"," +
-                    "\"facsimileTelephoneNumber\":\"+33 2 99 43 31 30\"," +
-                    "\"postalCode\":\"35470\"," +
-                    "\"ENTManager\":\"cn=0352318E_DIR,ou=profils,ou=groupes,dc=ent-bretagne,dc=fr\"," +
-                    "\"l\":\"BAIN DE BR\"," +
-                    "\"ENTStructureUAI\":\"0352318E\"," +
-                    "\"ENTEtablissementMinistereTutelle\":\"MEN\"," +
-                    "\"ENTStructureTypeStruct\":\"LYC\"," +
-                    "\"ENTStructureClasses\":[\"1 L1$1 L1$20113019110$20113019112\",\"1 STMG1$1 STMG1$21131016110\",\"1 STMG2$1 STMG2$21131016110\"]," +
-                    "\"ENTStructureGroupes\":[\"1 L1_ANG RENF$$1 L1\",\"1 L1_DGEMC$$1 L1\",\"1 L1_ESP2$$1 L1\",\"1 STMG1_ESP2$$1 STMG1\"]," +
-                    "\"ENTOrganisationProfils\":[\"cn=0352318E_ADF,ou=profils,ou=groupes,dc=ent-bretagne,dc=fr\",\"cn=0352318E_DOC,ou=profils,ou=groupes,dc=ent-bretagne,dc=fr\",\"cn=0352318E_TOUS,ou=profils,ou=groupes,dc=ent-bretagne,dc=fr\",\"cn=0352318E_SUR,ou=profils,ou=groupes,dc=ent-bretagne,dc=fr" +
-                    "\",\"cn=0352318E_DIR,ou=profils,ou=groupes,dc=ent-bretagne,dc=fr\",\"cn=0352318E_ENS,ou=profils,ou=groupes,dc=ent-bretagne,dc=fr\"]" +
-                    "}";
-            PowerMockito.when(mockedDirContext.search(Matchers.anyString(), Matchers.anyString(), Matchers.any(SearchControls.class))).
-                    thenReturn(buildResultSet("ou=0352318E,ou=structures,dc=ent-bretagne,dc=fr", new String[]{existingEntryInLDAP}));
+                                         "\"objectClass\":[\"top\",\"ENTStructure\",\"ENTOrganisation\",\"ENTEtablissement\"]," +
+                                         "\"ou\":\"0352318E\"," +
+                                         "\"ENTEtablissementContrat\":\"PU\"," +
+                                         "\"street\":\"AVENUE DU BOIS GREFFIER\"," +
+                                         "\"ENTOrganisationGeoLoc\":\"47.84770462898778,-1.6935174304831626\"," +
+                                         "\"ENTDisplayName\":\"LYCEE GENERAL ET TECHNOLOGIQUE JEAN BRITO\"," +
+                                         "\"ENTStructureJointure\":\"3681\"," +
+                                         "\"description\":\"LYCEE GENERAL ET TECHNOLOGIQUE JEAN BRITO\"," +
+                                         "\"ENTStructureNomCourant\":\"JEAN BRITO\"," +
+                                         "\"ENTEtablissementBassin\":\"035002BU\"," +
+                                         "\"telephoneNumber\":\"+33 2 99 43 31 31\"," +
+                                         "\"facsimileTelephoneNumber\":\"+33 2 99 43 31 30\"," +
+                                         "\"postalCode\":\"35470\"," +
+                                         "\"ENTManager\":\"cn=0352318E_DIR,ou=profils,ou=groupes,dc=ent-bretagne,dc=fr\"," +
+                                         "\"l\":\"BAIN DE BR\"," +
+                                         "\"ENTStructureUAI\":\"0352318E\"," +
+                                         "\"ENTEtablissementMinistereTutelle\":\"MEN\"," +
+                                         "\"ENTStructureTypeStruct\":\"LYC\"," +
+                                         "\"ENTStructureClasses\":[\"1 L1$1 L1$20113019110$20113019112\",\"1 STMG1$1 STMG1$21131016110\",\"1 " +
+                                         "STMG2$1 STMG2$21131016110\"]," +
+                                         "\"ENTStructureGroupes\":[\"1 L1_ANG RENF$$1 L1\",\"1 L1_DGEMC$$1 L1\",\"1 L1_ESP2$$1 L1\",\"1 " +
+                                         "STMG1_ESP2$$1 STMG1\"]," +
+                                         "\"ENTOrganisationProfils\":[\"cn=0352318E_ADF,ou=profils,ou=groupes,dc=ent-bretagne,dc=fr\"," +
+                                         "\"cn=0352318E_DOC,ou=profils,ou=groupes,dc=ent-bretagne,dc=fr\",\"cn=0352318E_TOUS,ou=profils,ou=groupes," +
+                                         "dc=ent-bretagne,dc=fr\",\"cn=0352318E_SUR,ou=profils,ou=groupes,dc=ent-bretagne,dc=fr" +
+                                         "\",\"cn=0352318E_DIR,ou=profils,ou=groupes,dc=ent-bretagne,dc=fr\",\"cn=0352318E_ENS,ou=profils," +
+                                         "ou=groupes,dc=ent-bretagne,dc=fr\"]" +
+                                         "}";
+            PowerMockito.when(mockedDirContext.search(nullable(String.class), nullable(String.class), nullable(SearchControls.class))).
+                    thenReturn(buildResultSet("ou=0352318E,ou=structures,dc=ent-bretagne,dc=fr", new String[] { existingEntryInLDAP }));
             PowerMockito.when(mockedDirContext.getAttributes(Matchers.matches(""))).thenReturn(buildAttributes(existingEntryInLDAP));
 
             entry.update();
 
-            Mockito.verify(mockedDirContext, Mockito.never()).modifyAttributes(Mockito.anyString(), Mockito.anyInt(), Mockito.any());
+            Mockito.verify(mockedDirContext, Mockito.never()).modifyAttributes(nullable(String.class), any(Integer.class), any());
         } catch (Exception e) {
             System.out.println(e.getMessage());
             Assert.fail();
@@ -596,42 +603,47 @@ public class EntryTest {
             Element mockedPivotEntry = (new SAXBuilder()).build(is).getRootElement();
 
             PowerMockito.when(mockedDirContext.getNameInNamespace()).thenReturn("ou=0352318E,ou=structures,dc=ent-bretagne,dc=fr");
-            PowerMockito.when(mockedDirContext.lookup(Matchers.anyString())).thenReturn(mockedDirContext);
+            PowerMockito.when(mockedDirContext.lookup(nullable(String.class))).thenReturn(mockedDirContext);
 
             Entry entry = new Entry(mockedPivotEntry, mockedDirContext, null, new Variables(), null, null);
             Assert.assertNotNull(entry);
 
             String existingEntryInLDAP = "{" +
-                    "\"objectClass\":[\"top\",\"ENTStructure\",\"ENTOrganisation\",\"ENTEtablissement\"]," +
-                    "\"ou\":\"0352318E\"," +
-                    "\"ENTEtablissementContrat\":\"PU\"," +
-                    "\"street\":\"AVENUE DU BOIS GREFFIER\"," +
-                    "\"ENTOrganisationGeoLoc\":\"47.84770462898778,-1.6935174304831626\"," +
-                    "\"ENTDisplayName\":\"LYCEE GENERAL ET TECHNOLOGIQUE JEAN BRITO\"," +
-                    "\"ENTStructureJointure\":\"3681\"," +
-                    "\"description\":\"LYCEE GENERAL ET TECHNOLOGIQUE JEAN BRITO\"," +
-                    "\"ENTStructureNomCourant\":\"JEAN BRITO\"," +
-                    "\"ENTEtablissementBassin\":\"035002BU\"," +
-                    "\"telephoneNumber\":\"+33 2 99 43 31 31\"," +
-                    "\"facsimileTelephoneNumber\":\"+33 2 99 43 31 30\"," +
-                    "\"postalCode\":\"35470\"," +
-                    "\"ENTManager\":\"cn=0352318E_DIR,ou=profils,ou=groupes,dc=ent-bretagne,dc=fr\"," +
-                    "\"l\":\"BAIN DE BR\"," +
-                    "\"ENTStructureUAI\":\"0352318E\"," +
-                    "\"ENTEtablissementMinistereTutelle\":\"MEN\"," +
-                    "\"ENTStructureTypeStruct\":\"LYC\"," +
-                    "\"ENTStructureClasses\":[\"1 L1$1 L1$20113019110$20113019112\",\"1 STMG1$1 STMG1$21131016110\",\"1 STMG2$1 STMG2$21131016110\"]," +
-                    "\"ENTStructureGroupes\":[\"1 L1_ANG RENF$$1 L1\",\"1 L1_DGEMC$$1 L1\",\"1 L1_ESP2$$1 L1\",\"1 STMG1_ESP2$$1 STMG1\"]," +
-                    "\"ENTOrganisationProfils\":[\"cn=0352318E_ADF,ou=profils,ou=groupes,dc=ent-bretagne,dc=fr\",\"cn=0352318E_DOC,ou=profils,ou=groupes,dc=ent-bretagne,dc=fr\",\"cn=0352318E_TOUS,ou=profils,ou=groupes,dc=ent-bretagne,dc=fr\",\"cn=0352318E_SUR,ou=profils,ou=groupes,dc=ent-bretagne,dc=fr" +
-                    "\",\"cn=0352318E_DIR,ou=profils,ou=groupes,dc=ent-bretagne,dc=fr\",\"cn=0352318E_ENS,ou=profils,ou=groupes,dc=ent-bretagne,dc=fr\"]" +
-                    "}";
-            PowerMockito.when(mockedDirContext.search(Matchers.anyString(), Matchers.anyString(), Matchers.any(SearchControls.class))).
-                    thenReturn(buildResultSet("ou=0352318E,ou=structures,dc=ent-bretagne,dc=fr", new String[]{existingEntryInLDAP}));
+                                         "\"objectClass\":[\"top\",\"ENTStructure\",\"ENTOrganisation\",\"ENTEtablissement\"]," +
+                                         "\"ou\":\"0352318E\"," +
+                                         "\"ENTEtablissementContrat\":\"PU\"," +
+                                         "\"street\":\"AVENUE DU BOIS GREFFIER\"," +
+                                         "\"ENTOrganisationGeoLoc\":\"47.84770462898778,-1.6935174304831626\"," +
+                                         "\"ENTDisplayName\":\"LYCEE GENERAL ET TECHNOLOGIQUE JEAN BRITO\"," +
+                                         "\"ENTStructureJointure\":\"3681\"," +
+                                         "\"description\":\"LYCEE GENERAL ET TECHNOLOGIQUE JEAN BRITO\"," +
+                                         "\"ENTStructureNomCourant\":\"JEAN BRITO\"," +
+                                         "\"ENTEtablissementBassin\":\"035002BU\"," +
+                                         "\"telephoneNumber\":\"+33 2 99 43 31 31\"," +
+                                         "\"facsimileTelephoneNumber\":\"+33 2 99 43 31 30\"," +
+                                         "\"postalCode\":\"35470\"," +
+                                         "\"ENTManager\":\"cn=0352318E_DIR,ou=profils,ou=groupes,dc=ent-bretagne,dc=fr\"," +
+                                         "\"l\":\"BAIN DE BR\"," +
+                                         "\"ENTStructureUAI\":\"0352318E\"," +
+                                         "\"ENTEtablissementMinistereTutelle\":\"MEN\"," +
+                                         "\"ENTStructureTypeStruct\":\"LYC\"," +
+                                         "\"ENTStructureClasses\":[\"1 L1$1 L1$20113019110$20113019112\",\"1 STMG1$1 STMG1$21131016110\",\"1 " +
+                                         "STMG2$1 STMG2$21131016110\"]," +
+                                         "\"ENTStructureGroupes\":[\"1 L1_ANG RENF$$1 L1\",\"1 L1_DGEMC$$1 L1\",\"1 L1_ESP2$$1 L1\",\"1 " +
+                                         "STMG1_ESP2$$1 STMG1\"]," +
+                                         "\"ENTOrganisationProfils\":[\"cn=0352318E_ADF,ou=profils,ou=groupes,dc=ent-bretagne,dc=fr\"," +
+                                         "\"cn=0352318E_DOC,ou=profils,ou=groupes,dc=ent-bretagne,dc=fr\",\"cn=0352318E_TOUS,ou=profils,ou=groupes," +
+                                         "dc=ent-bretagne,dc=fr\",\"cn=0352318E_SUR,ou=profils,ou=groupes,dc=ent-bretagne,dc=fr" +
+                                         "\",\"cn=0352318E_DIR,ou=profils,ou=groupes,dc=ent-bretagne,dc=fr\",\"cn=0352318E_ENS,ou=profils," +
+                                         "ou=groupes,dc=ent-bretagne,dc=fr\"]" +
+                                         "}";
+            PowerMockito.when(mockedDirContext.search(nullable(String.class), nullable(String.class), nullable(SearchControls.class))).
+                    thenReturn(buildResultSet("ou=0352318E,ou=structures,dc=ent-bretagne,dc=fr", new String[] { existingEntryInLDAP }));
             PowerMockito.when(mockedDirContext.getAttributes(Matchers.matches(""))).thenReturn(buildAttributes(existingEntryInLDAP));
 
             entry.update();
 
-            Mockito.verify(mockedDirContext, Mockito.never()).modifyAttributes(Mockito.anyString(), Mockito.anyInt(), Mockito.any());
+            Mockito.verify(mockedDirContext, Mockito.never()).modifyAttributes(nullable(String.class), any(Integer.class), any());
         } catch (Exception e) {
             System.out.println(e.getMessage());
             Assert.fail();
@@ -651,45 +663,55 @@ public class EntryTest {
             Element mockedPivotEntry = (new SAXBuilder()).build(is).getRootElement();
 
             PowerMockito.when(mockedDirContext.getNameInNamespace()).thenReturn("ou=0352318E,ou=structures,dc=ent-bretagne,dc=fr");
-            PowerMockito.when(mockedDirContext.lookup(Matchers.anyString())).thenReturn(mockedDirContext);
+            PowerMockito.when(mockedDirContext.lookup(nullable(String.class))).thenReturn(mockedDirContext);
 
             Entry entry = new Entry(mockedPivotEntry, mockedDirContext, null, new Variables(), null, null);
             Assert.assertNotNull(entry);
 
             String existingEntryInLDAP = "{" +
-                    "\"objectClass\":[\"top\",\"ENTStructure\",\"ENTOrganisation\",\"ENTEtablissement\"]," +
-                    "\"ou\":\"0352318E\"," +
-                    "\"ENTEtablissementContrat\":\"PU\"," +
-                    "\"street\":\"AVENUE DU BOIS GREFFIER\"," +
-                    "\"ENTOrganisationGeoLoc\":\"47.84770462898778,-1.6935174304831626\"," +
-                    "\"ENTDisplayName\":\"LYCEE GENERAL ET TECHNOLOGIQUE JEAN BRITO\"," +
-                    "\"ENTStructureJointure\":\"3681\"," +
-                    "\"description\":\"LYCEE GENERAL ET TECHNOLOGIQUE JEAN BRITO\"," +
-                    "\"ENTStructureNomCourant\":\"JEAN BRITO\"," +
-                    "\"ENTEtablissementBassin\":\"035002BU\"," +
-                    "\"telephoneNumber\":\"+33 2 99 43 31 31\"," +
-                    "\"facsimileTelephoneNumber\":\"+33 2 99 43 31 30\"," +
-                    "\"postalCode\":\"35470\"," +
-                    "\"ENTManager\":\"cn=0352318E_DIR,ou=profils,ou=groupes,dc=ent-bretagne,dc=fr\"," +
-                    "\"l\":\"BAIN DE BR\"," +
-                    "\"ENTStructureUAI\":\"0352318E\"," +
-                    "\"ENTEtablissementMinistereTutelle\":\"MEN\"," +
-                    "\"ENTStructureTypeStruct\":\"LYC\"," +
-                    "\"ENTStructureClasses\":[\"1 L1$1 L1$20113019110$20113019112\",\"1 STMG1$1 STMG1$21131016110\",\"1 STMG2$1 STMG2$21131016110\"]," +
-                    "\"ENTStructureGroupes\":[\"1 L1_ANG RENF$$1 L1\",\"1 L1_DGEMC$$1 L1\",\"1 L1_ESP2$$1 L1\",\"1 STMG1_ESP2$$1 STMG1\"]," +
-                    "\"ENTOrganisationProfils\":[\"cn=0352318E_ADF,ou=profils,ou=groupes,dc=ent-bretagne,dc=fr\",\"cn=0352318E_DOC,ou=profils,ou=groupes,dc=ent-bretagne,dc=fr\",\"cn=0352318E_TOUS,ou=profils,ou=groupes,dc=ent-bretagne,dc=fr\",\"cn=0352318E_SUR,ou=profils,ou=groupes,dc=ent-bretagne,dc=fr" +
-                    "\",\"cn=0352318E_DIR,ou=profils,ou=groupes,dc=ent-bretagne,dc=fr\",\"cn=0352318E_ENS,ou=profils,ou=groupes,dc=ent-bretagne,dc=fr\"]" +
-                    "}";
-            PowerMockito.when(mockedDirContext.search(Matchers.anyString(), Matchers.anyString(), Matchers.any(SearchControls.class))).
-                    thenReturn(buildResultSet("ou=0352318E,ou=structures,dc=ent-bretagne,dc=fr", new String[]{existingEntryInLDAP}));
+                                         "\"objectClass\":[\"top\",\"ENTStructure\",\"ENTOrganisation\",\"ENTEtablissement\"]," +
+                                         "\"ou\":\"0352318E\"," +
+                                         "\"ENTEtablissementContrat\":\"PU\"," +
+                                         "\"street\":\"AVENUE DU BOIS GREFFIER\"," +
+                                         "\"ENTOrganisationGeoLoc\":\"47.84770462898778,-1.6935174304831626\"," +
+                                         "\"ENTDisplayName\":\"LYCEE GENERAL ET TECHNOLOGIQUE JEAN BRITO\"," +
+                                         "\"ENTStructureJointure\":\"3681\"," +
+                                         "\"description\":\"LYCEE GENERAL ET TECHNOLOGIQUE JEAN BRITO\"," +
+                                         "\"ENTStructureNomCourant\":\"JEAN BRITO\"," +
+                                         "\"ENTEtablissementBassin\":\"035002BU\"," +
+                                         "\"telephoneNumber\":\"+33 2 99 43 31 31\"," +
+                                         "\"facsimileTelephoneNumber\":\"+33 2 99 43 31 30\"," +
+                                         "\"postalCode\":\"35470\"," +
+                                         "\"ENTManager\":\"cn=0352318E_DIR,ou=profils,ou=groupes,dc=ent-bretagne,dc=fr\"," +
+                                         "\"l\":\"BAIN DE BR\"," +
+                                         "\"ENTStructureUAI\":\"0352318E\"," +
+                                         "\"ENTEtablissementMinistereTutelle\":\"MEN\"," +
+                                         "\"ENTStructureTypeStruct\":\"LYC\"," +
+                                         "\"ENTStructureClasses\":[\"1 L1$1 L1$20113019110$20113019112\",\"1 STMG1$1 STMG1$21131016110\",\"1 " +
+                                         "STMG2$1 STMG2$21131016110\"]," +
+                                         "\"ENTStructureGroupes\":[\"1 L1_ANG RENF$$1 L1\",\"1 L1_DGEMC$$1 L1\",\"1 L1_ESP2$$1 L1\",\"1 " +
+                                         "STMG1_ESP2$$1 STMG1\"]," +
+                                         "\"ENTOrganisationProfils\":[\"cn=0352318E_ADF,ou=profils,ou=groupes,dc=ent-bretagne,dc=fr\"," +
+                                         "\"cn=0352318E_DOC,ou=profils,ou=groupes,dc=ent-bretagne,dc=fr\",\"cn=0352318E_TOUS,ou=profils,ou=groupes," +
+                                         "dc=ent-bretagne,dc=fr\",\"cn=0352318E_SUR,ou=profils,ou=groupes,dc=ent-bretagne,dc=fr" +
+                                         "\",\"cn=0352318E_DIR,ou=profils,ou=groupes,dc=ent-bretagne,dc=fr\",\"cn=0352318E_ENS,ou=profils," +
+                                         "ou=groupes,dc=ent-bretagne,dc=fr\"]" +
+                                         "}";
+            PowerMockito.when(mockedDirContext.search(nullable(String.class), nullable(String.class), nullable(SearchControls.class))).
+                    thenReturn(buildResultSet("ou=0352318E,ou=structures,dc=ent-bretagne,dc=fr", new String[] { existingEntryInLDAP }));
             PowerMockito.when(mockedDirContext.getAttributes(Matchers.matches(""))).thenReturn(buildAttributes(existingEntryInLDAP));
 
             entry.update();
 
             Mockito.verify(mockedDirContext).modifyAttributes("", DirContext.REPLACE_ATTRIBUTE, buildAttributes("{" +
-                    "\"ENTStructureClasses\":[\"1 L1$1 L1$20113019110$20113019112\",\"1 STMG2$1 STMG2$21131016110\"]," +
-                    "\"ENTStructureGroupes\":[\"1 L1_ANG RENF$$1 L1\",\"1 L1_DGEMC$$1 L1\",\"2 L2_ESP2$$1 L1\",\"1 STMG1_ESP2$$1 STMG1\"]," +
-                    "}"));
+                                                                                                                "\"ENTStructureClasses\":[\"1 L1$1 " +
+                                                                                                                "L1$20113019110$20113019112\",\"1 " +
+                                                                                                                "STMG2$1 STMG2$21131016110\"]," +
+                                                                                                                "\"ENTStructureGroupes\":[\"1 " +
+                                                                                                                "L1_ANG RENF$$1 L1\",\"1 " +
+                                                                                                                "L1_DGEMC$$1 L1\",\"2 L2_ESP2$$1 " +
+                                                                                                                "L1\",\"1 STMG1_ESP2$$1 STMG1\"]," +
+                                                                                                                "}"));
         } catch (Exception e) {
             System.out.println(e.getMessage());
             Assert.fail();
@@ -709,44 +731,53 @@ public class EntryTest {
             Element mockedPivotEntry = (new SAXBuilder()).build(is).getRootElement();
 
             PowerMockito.when(mockedDirContext.getNameInNamespace()).thenReturn("ou=0352318E,ou=structures,dc=ent-bretagne,dc=fr");
-            PowerMockito.when(mockedDirContext.lookup(Matchers.anyString())).thenReturn(mockedDirContext);
+            PowerMockito.when(mockedDirContext.lookup(nullable(String.class))).thenReturn(mockedDirContext);
 
             Entry entry = new Entry(mockedPivotEntry, mockedDirContext, null, new Variables(), null, null);
             Assert.assertNotNull(entry);
 
             String existingEntryInLDAP = "{" +
-                    "\"objectClass\":[\"top\",\"ENTStructure\",\"ENTOrganisation\",\"ENTEtablissement\"]," +
-                    "\"ou\":\"0352318E\"," +
-                    "\"ENTEtablissementContrat\":\"PU\"," +
-                    "\"street\":\"AVENUE DU BOIS GREFFIER\"," +
-                    "\"ENTOrganisationGeoLoc\":\"47.84770462898778,-1.6935174304831626\"," +
-                    "\"ENTDisplayName\":\"LYCEE GENERAL ET TECHNOLOGIQUE JEAN BRITO\"," +
-                    "\"ENTStructureJointure\":\"3681\"," +
-                    "\"description\":\"LYCEE GENERAL ET TECHNOLOGIQUE JEAN BRITO\"," +
-                    "\"ENTStructureNomCourant\":\"JEAN BRITO\"," +
-                    "\"ENTEtablissementBassin\":\"035002BU\"," +
-                    "\"telephoneNumber\":\"+33 2 99 43 31 31\"," +
-                    "\"facsimileTelephoneNumber\":\"+33 2 99 43 31 30\"," +
-                    "\"postalCode\":\"35470\"," +
-                    "\"ENTManager\":\"cn=0352318E_DIR,ou=profils,ou=groupes,dc=ent-bretagne,dc=fr\"," +
-                    "\"l\":\"BAIN DE BR\"," +
-                    "\"ENTStructureUAI\":\"0352318E\"," +
-                    "\"ENTEtablissementMinistereTutelle\":\"MEN\"," +
-                    "\"ENTStructureTypeStruct\":\"LYC\"," +
-                    "\"ENTStructureClasses\":[\"1 L1$1 L1$20113019110$20113019112\",\"1 STMG1$1 STMG1$21131016110\",\"1 STMG2$1 STMG2$21131016110\"]," +
-                    "\"ENTStructureGroupes\":[\"1 L1_ANG RENF$$1 L1\",\"1 L1_DGEMC$$1 L1\",\"1 L1_ESP2$$1 L1\",\"1 STMG1_ESP2$$1 STMG1\"]," +
-                    "\"ENTOrganisationProfils\":[\"cn=0352318E_ADF,ou=profils,ou=groupes,dc=ent-bretagne,dc=fr\",\"cn=0352318E_DOC,ou=profils,ou=groupes,dc=ent-bretagne,dc=fr\",\"cn=0352318E_TOUS,ou=profils,ou=groupes,dc=ent-bretagne,dc=fr\",\"cn=0352318E_SUR,ou=profils,ou=groupes,dc=ent-bretagne,dc=fr" +
-                    "\",\"cn=0352318E_DIR,ou=profils,ou=groupes,dc=ent-bretagne,dc=fr\",\"cn=0352318E_ENS,ou=profils,ou=groupes,dc=ent-bretagne,dc=fr\"]" +
-                    "}";
-            PowerMockito.when(mockedDirContext.search(Matchers.anyString(), Matchers.anyString(), Matchers.any(SearchControls.class))).
-                    thenReturn(buildResultSet("ou=0352318E,ou=structures,dc=ent-bretagne,dc=fr", new String[]{existingEntryInLDAP}));
+                                         "\"objectClass\":[\"top\",\"ENTStructure\",\"ENTOrganisation\",\"ENTEtablissement\"]," +
+                                         "\"ou\":\"0352318E\"," +
+                                         "\"ENTEtablissementContrat\":\"PU\"," +
+                                         "\"street\":\"AVENUE DU BOIS GREFFIER\"," +
+                                         "\"ENTOrganisationGeoLoc\":\"47.84770462898778,-1.6935174304831626\"," +
+                                         "\"ENTDisplayName\":\"LYCEE GENERAL ET TECHNOLOGIQUE JEAN BRITO\"," +
+                                         "\"ENTStructureJointure\":\"3681\"," +
+                                         "\"description\":\"LYCEE GENERAL ET TECHNOLOGIQUE JEAN BRITO\"," +
+                                         "\"ENTStructureNomCourant\":\"JEAN BRITO\"," +
+                                         "\"ENTEtablissementBassin\":\"035002BU\"," +
+                                         "\"telephoneNumber\":\"+33 2 99 43 31 31\"," +
+                                         "\"facsimileTelephoneNumber\":\"+33 2 99 43 31 30\"," +
+                                         "\"postalCode\":\"35470\"," +
+                                         "\"ENTManager\":\"cn=0352318E_DIR,ou=profils,ou=groupes,dc=ent-bretagne,dc=fr\"," +
+                                         "\"l\":\"BAIN DE BR\"," +
+                                         "\"ENTStructureUAI\":\"0352318E\"," +
+                                         "\"ENTEtablissementMinistereTutelle\":\"MEN\"," +
+                                         "\"ENTStructureTypeStruct\":\"LYC\"," +
+                                         "\"ENTStructureClasses\":[\"1 L1$1 L1$20113019110$20113019112\",\"1 STMG1$1 STMG1$21131016110\",\"1 " +
+                                         "STMG2$1 STMG2$21131016110\"]," +
+                                         "\"ENTStructureGroupes\":[\"1 L1_ANG RENF$$1 L1\",\"1 L1_DGEMC$$1 L1\",\"1 L1_ESP2$$1 L1\",\"1 " +
+                                         "STMG1_ESP2$$1 STMG1\"]," +
+                                         "\"ENTOrganisationProfils\":[\"cn=0352318E_ADF,ou=profils,ou=groupes,dc=ent-bretagne,dc=fr\"," +
+                                         "\"cn=0352318E_DOC,ou=profils,ou=groupes,dc=ent-bretagne,dc=fr\",\"cn=0352318E_TOUS,ou=profils,ou=groupes," +
+                                         "dc=ent-bretagne,dc=fr\",\"cn=0352318E_SUR,ou=profils,ou=groupes,dc=ent-bretagne,dc=fr" +
+                                         "\",\"cn=0352318E_DIR,ou=profils,ou=groupes,dc=ent-bretagne,dc=fr\",\"cn=0352318E_ENS,ou=profils," +
+                                         "ou=groupes,dc=ent-bretagne,dc=fr\"]" +
+                                         "}";
+            PowerMockito.when(mockedDirContext.search(nullable(String.class), nullable(String.class), nullable(SearchControls.class))).
+                    thenReturn(buildResultSet("ou=0352318E,ou=structures,dc=ent-bretagne,dc=fr", new String[] { existingEntryInLDAP }));
             PowerMockito.when(mockedDirContext.getAttributes(Matchers.matches(""))).thenReturn(buildAttributes(existingEntryInLDAP));
 
             entry.update();
 
             Mockito.verify(mockedDirContext).modifyAttributes("", DirContext.REPLACE_ATTRIBUTE, buildAttributes("{" +
-                    "\"ENTStructureGroupes\":[\"1 L1_ANG RENF$$1 L1\",\"1 L1_DGEMC$$1 L1\",\"2 L2_ESP2$$1 L1\",\"1 STMG1_ESP2$$1 STMG1\",\"1 L1_ESP2$$1 L1\"]" +
-                    "}"));
+                                                                                                                "\"ENTStructureGroupes\":[\"1 " +
+                                                                                                                "L1_ANG RENF$$1 L1\",\"1 " +
+                                                                                                                "L1_DGEMC$$1 L1\",\"2 L2_ESP2$$1 " +
+                                                                                                                "L1\",\"1 STMG1_ESP2$$1 STMG1\",\"1" +
+                                                                                                                " L1_ESP2$$1 L1\"]" +
+                                                                                                                "}"));
         } catch (Exception e) {
             System.out.println(e.getMessage());
             Assert.fail();
@@ -766,74 +797,87 @@ public class EntryTest {
             Element mockedPivotEntry = (new SAXBuilder()).build(is).getRootElement();
 
             PowerMockito.when(mockedDirContext.getNameInNamespace()).thenReturn("ou=0352318E,ou=structures,dc=ent-bretagne,dc=fr");
-            PowerMockito.when(mockedDirContext.lookup(Matchers.anyString())).thenReturn(mockedDirContext);
+            PowerMockito.when(mockedDirContext.lookup(nullable(String.class))).thenReturn(mockedDirContext);
 
             Entry entry = new Entry(mockedPivotEntry, mockedDirContext, null, new Variables(), null, null);
             Assert.assertNotNull(entry);
 
             String existingEntryInLDAP = "{" +
-                    "\"objectClass\":[\"top\",\"ENTStructure\",\"ENTOrganisation\",\"ENTEtablissement\"]," +
-                    "\"ou\":\"0352318E\"," +
-                    "\"ENTEtablissementContrat\":\"PU\"," +
-                    "\"street\":\"AVENUE DU BOIS GREFFIER\"," +
-                    "\"ENTOrganisationGeoLoc\":\"47.84770462898778,-1.6935174304831626\"," +
-                    "\"ENTDisplayName\":\"LYCEE GENERAL ET TECHNOLOGIQUE JEAN BRITO\"," +
-                    "\"ENTStructureJointure\":\"3681\"," +
-                    "\"description\":\"LYCEE GENERAL ET TECHNOLOGIQUE JEAN BRITO\"," +
-                    "\"ENTStructureNomCourant\":\"JEAN BRITO\"," +
-                    "\"ENTEtablissementBassin\":\"035002BU\"," +
-                    "\"telephoneNumber\":\"+33 2 99 43 31 31\"," +
-                    "\"facsimileTelephoneNumber\":\"+33 2 99 43 31 30\"," +
-                    "\"postalCode\":\"35470\"," +
-                    "\"ENTManager\":\"cn=0352318E_DIR,ou=profils,ou=groupes,dc=ent-bretagne,dc=fr\"," +
-                    "\"l\":\"BAIN DE BR\"," +
-                    "\"ENTStructureUAI\":\"0352318E\"," +
-                    "\"ENTEtablissementMinistereTutelle\":\"MEN\"," +
-                    "\"ENTStructureTypeStruct\":\"LYC\"," +
-                    "\"ENTStructureClasses\":[\"1 L1$1 L1$20113019110$20113019112\",\"1 STMG1$1 STMG1$21131016110\",\"1 STMG2$1 STMG2$21131016110\"]," +
-                    "\"ENTStructureGroupes\":[\"1 L1_ANG RENF$$1 L1\",\"1 L1_DGEMC$$1 L1\",\"1 L1_ESP2$$1 L1\",\"1 STMG1_ESP2$$1 STMG1\"]," +
-                    "\"ENTOrganisationProfils\":[\"cn=0352318E_ADF,ou=profils,ou=groupes,dc=ent-bretagne,dc=fr\",\"cn=0352318E_DOC,ou=profils,ou=groupes,dc=ent-bretagne,dc=fr\",\"cn=0352318E_TOUS,ou=profils,ou=groupes,dc=ent-bretagne,dc=fr\",\"cn=0352318E_SUR,ou=profils,ou=groupes,dc=ent-bretagne,dc=fr" +
-                    "\",\"cn=0352318E_DIR,ou=profils,ou=groupes,dc=ent-bretagne,dc=fr\",\"cn=0352318E_ENS,ou=profils,ou=groupes,dc=ent-bretagne,dc=fr\"]" +
-                    "}";
-            PowerMockito.when(mockedDirContext.search(Matchers.anyString(), Matchers.anyString(), Matchers.any(SearchControls.class))).
-                    thenReturn(buildResultSet("ou=0352318E,ou=structures,dc=ent-bretagne,dc=fr", new String[]{existingEntryInLDAP}));
+                                         "\"objectClass\":[\"top\",\"ENTStructure\",\"ENTOrganisation\",\"ENTEtablissement\"]," +
+                                         "\"ou\":\"0352318E\"," +
+                                         "\"ENTEtablissementContrat\":\"PU\"," +
+                                         "\"street\":\"AVENUE DU BOIS GREFFIER\"," +
+                                         "\"ENTOrganisationGeoLoc\":\"47.84770462898778,-1.6935174304831626\"," +
+                                         "\"ENTDisplayName\":\"LYCEE GENERAL ET TECHNOLOGIQUE JEAN BRITO\"," +
+                                         "\"ENTStructureJointure\":\"3681\"," +
+                                         "\"description\":\"LYCEE GENERAL ET TECHNOLOGIQUE JEAN BRITO\"," +
+                                         "\"ENTStructureNomCourant\":\"JEAN BRITO\"," +
+                                         "\"ENTEtablissementBassin\":\"035002BU\"," +
+                                         "\"telephoneNumber\":\"+33 2 99 43 31 31\"," +
+                                         "\"facsimileTelephoneNumber\":\"+33 2 99 43 31 30\"," +
+                                         "\"postalCode\":\"35470\"," +
+                                         "\"ENTManager\":\"cn=0352318E_DIR,ou=profils,ou=groupes,dc=ent-bretagne,dc=fr\"," +
+                                         "\"l\":\"BAIN DE BR\"," +
+                                         "\"ENTStructureUAI\":\"0352318E\"," +
+                                         "\"ENTEtablissementMinistereTutelle\":\"MEN\"," +
+                                         "\"ENTStructureTypeStruct\":\"LYC\"," +
+                                         "\"ENTStructureClasses\":[\"1 L1$1 L1$20113019110$20113019112\",\"1 STMG1$1 STMG1$21131016110\",\"1 " +
+                                         "STMG2$1 STMG2$21131016110\"]," +
+                                         "\"ENTStructureGroupes\":[\"1 L1_ANG RENF$$1 L1\",\"1 L1_DGEMC$$1 L1\",\"1 L1_ESP2$$1 L1\",\"1 " +
+                                         "STMG1_ESP2$$1 STMG1\"]," +
+                                         "\"ENTOrganisationProfils\":[\"cn=0352318E_ADF,ou=profils,ou=groupes,dc=ent-bretagne,dc=fr\"," +
+                                         "\"cn=0352318E_DOC,ou=profils,ou=groupes,dc=ent-bretagne,dc=fr\",\"cn=0352318E_TOUS,ou=profils,ou=groupes," +
+                                         "dc=ent-bretagne,dc=fr\",\"cn=0352318E_SUR,ou=profils,ou=groupes,dc=ent-bretagne,dc=fr" +
+                                         "\",\"cn=0352318E_DIR,ou=profils,ou=groupes,dc=ent-bretagne,dc=fr\",\"cn=0352318E_ENS,ou=profils," +
+                                         "ou=groupes,dc=ent-bretagne,dc=fr\"]" +
+                                         "}";
+            PowerMockito.when(mockedDirContext.search(nullable(String.class), nullable(String.class), nullable(SearchControls.class))).
+                    thenReturn(buildResultSet("ou=0352318E,ou=structures,dc=ent-bretagne,dc=fr", new String[] { existingEntryInLDAP }));
             PowerMockito.when(mockedDirContext.getAttributes(Matchers.matches(""))).thenReturn(buildAttributes(existingEntryInLDAP));
 
             entry.update();
 
             Mockito.verify(mockedDirContext).modifyAttributes("", DirContext.REPLACE_ATTRIBUTE, buildAttributes("{" +
-                    "\"ENTStructureClasses\":[\"1 L1$1 L1$20113019110$20113019112\",\"1 STMG1$1 STMG1$21131016110\",\"1 STMG2$1 STMG2$21131016110\",\"3 L3$1 L1$20113019110$20113019112\"]," +
-                    "}"));
+                                                                                                                "\"ENTStructureClasses\":[\"1 L1$1 " +
+                                                                                                                "L1$20113019110$20113019112\",\"1 " +
+                                                                                                                "STMG1$1 STMG1$21131016110\",\"1 " +
+                                                                                                                "STMG2$1 STMG2$21131016110\",\"3 " +
+                                                                                                                "L3$1 L1$20113019110$20113019112" +
+                                                                                                                "\"]," +
+                                                                                                                "}"));
         } catch (Exception e) {
             System.out.println(e.getMessage());
             Assert.fail();
         }
     }
-    
+
     /* test use case :
      * - Mode 'append' (attribute member)
      * - Append values already present in the values list of attributes member & ExplicitMember
-     *   > ExplicitMember : the appended values are removed from the list (as the persons become 'usual' members according to their new functions, overall profile)
+     *   > ExplicitMember : the appended values are removed from the list (as the persons become 'usual' members according to their new functions,
+     * overall profile)
      *   > member : is kept unchanged
      **/
     @Test
     public void test15() throws Exception {
         final Entry mockedPivotEntry = buildFromPivot("dn=cn=profil-lambda,ou=profils,ou=groupes,dc=ent-bretagne,dc=fr", "data/entry/pivot15.xml");
-        
+
         String existingEntryInLDAP = "{" +
-        		"\"dn\": \"cn=profil-lambda,ou=profils,ou=groupes,dc=ent-bretagne,dc=fr\"," +
-                "\"objectClass\": [\"top\", \"groupOfNames\", \"ENTProfil\"]," +
-                "\"cn\": \"profil-lambda\"," +
-                "\"description\": \"Un profil quelconque\"," +
-                "\"ENTDisplayName\": \"Un profil quelconque\"," +
-                "\"ExplicitMember\": [\"uid=esati,ou=personnes,dc=ent-bretagne,dc=fr\", \"uid=cdebussy,ou=personnes,dc=ent-bretagne,dc=fr\"]," +
-                "\"member\": [\"uid=esati,ou=personnes,dc=ent-bretagne,dc=fr\", \"uid=gfaure,ou=personnes,dc=ent-bretagne,dc=fr\", \"uid=cdebussy,ou=personnes,dc=ent-bretagne,dc=fr\"]" +
-                "}";
-        
+                                     "\"dn\": \"cn=profil-lambda,ou=profils,ou=groupes,dc=ent-bretagne,dc=fr\"," +
+                                     "\"objectClass\": [\"top\", \"groupOfNames\", \"ENTProfil\"]," +
+                                     "\"cn\": \"profil-lambda\"," +
+                                     "\"description\": \"Un profil quelconque\"," +
+                                     "\"ENTDisplayName\": \"Un profil quelconque\"," +
+                                     "\"ExplicitMember\": [\"uid=esati,ou=personnes,dc=ent-bretagne,dc=fr\", \"uid=cdebussy,ou=personnes," +
+                                     "dc=ent-bretagne,dc=fr\"]," +
+                                     "\"member\": [\"uid=esati,ou=personnes,dc=ent-bretagne,dc=fr\", \"uid=gfaure,ou=personnes,dc=ent-bretagne," +
+                                     "dc=fr\", \"uid=cdebussy,ou=personnes,dc=ent-bretagne,dc=fr\"]" +
+                                     "}";
+
         setEntryInLdap("dn=cn=profil-lambda,ou=profils,ou=groupes,dc=ent-bretagne,dc=fr", existingEntryInLDAP);
-        
+
         mockedPivotEntry.update();
-        
+
         verify(mockedDirContext).modifyAttributes("", DirContext.REPLACE_ATTRIBUTE, buildAttributes("{\"ExplicitMember\": []}"));
     }
 
@@ -846,22 +890,26 @@ public class EntryTest {
     @Test
     public void test16() throws Exception {
         final Entry mockedPivotEntry = buildFromPivot("dn=cn=profil-lambda,ou=profils,ou=groupes,dc=ent-bretagne,dc=fr", "data/entry/pivot16.xml");
-        
+
         String existingEntryInLDAP = "{" +
-        		"\"dn\": \"cn=profil-lambda,ou=profils,ou=groupes,dc=ent-bretagne,dc=fr\"," +
-                "\"objectClass\": [\"top\", \"groupOfNames\", \"ENTProfil\"]," +
-                "\"cn\": \"profil-lambda\"," +
-                "\"description\": \"Un profil quelconque\"," +
-                "\"ENTDisplayName\": \"Un profil quelconque\"," +
-                "\"ExplicitMember\": [\"uid=cdebussy,ou=personnes,dc=ent-bretagne,dc=fr\"]," +
-                "\"member\": [\"uid=gfaure,ou=personnes,dc=ent-bretagne,dc=fr\", \"uid=cdebussy,ou=personnes,dc=ent-bretagne,dc=fr\"]" +
-                "}";
-        
+                                     "\"dn\": \"cn=profil-lambda,ou=profils,ou=groupes,dc=ent-bretagne,dc=fr\"," +
+                                     "\"objectClass\": [\"top\", \"groupOfNames\", \"ENTProfil\"]," +
+                                     "\"cn\": \"profil-lambda\"," +
+                                     "\"description\": \"Un profil quelconque\"," +
+                                     "\"ENTDisplayName\": \"Un profil quelconque\"," +
+                                     "\"ExplicitMember\": [\"uid=cdebussy,ou=personnes,dc=ent-bretagne,dc=fr\"]," +
+                                     "\"member\": [\"uid=gfaure,ou=personnes,dc=ent-bretagne,dc=fr\", \"uid=cdebussy,ou=personnes,dc=ent-bretagne," +
+                                     "dc=fr\"]" +
+                                     "}";
+
         setEntryInLdap("dn=cn=profil-lambda,ou=profils,ou=groupes,dc=ent-bretagne,dc=fr", existingEntryInLDAP);
-        
+
         mockedPivotEntry.update();
-        
-        verify(mockedDirContext).modifyAttributes("", DirContext.REPLACE_ATTRIBUTE, buildAttributes("{\"ExplicitMember\": [\"uid=esati,ou=personnes,dc=ent-bretagne,dc=fr\", \"uid=cdebussy,ou=personnes,dc=ent-bretagne,dc=fr\"]}"));
+
+        verify(mockedDirContext).modifyAttributes("", DirContext.REPLACE_ATTRIBUTE, buildAttributes("{\"ExplicitMember\": [\"uid=esati," +
+                                                                                                    "ou=personnes,dc=ent-bretagne,dc=fr\", " +
+                                                                                                    "\"uid=cdebussy,ou=personnes,dc=ent-bretagne," +
+                                                                                                    "dc=fr\"]}"));
     }
 
     /* test use case :
@@ -873,21 +921,23 @@ public class EntryTest {
     @Test
     public void test17() throws Exception {
         final Entry mockedPivotEntry = buildFromPivot("dn=cn=profil-lambda,ou=profils,ou=groupes,dc=ent-bretagne,dc=fr", "data/entry/pivot17.xml");
-        
+
         String existingEntryInLDAP = "{" +
-        		"\"dn\": \"cn=profil-lambda,ou=profils,ou=groupes,dc=ent-bretagne,dc=fr\"," +
-                "\"objectClass\": [\"top\", \"groupOfNames\", \"ENTProfil\"]," +
-                "\"cn\": \"profil-lambda\"," +
-                "\"description\": \"Un profil quelconque\"," +
-                "\"ENTDisplayName\": \"Un profil quelconque\"," +
-                "\"ExplicitMember\": [\"uid=esati,ou=personnes,dc=ent-bretagne,dc=fr\", \"uid=cdebussy,ou=personnes,dc=ent-bretagne,dc=fr\"]," +
-                "\"member\": [\"uid=gfaure,ou=personnes,dc=ent-bretagne,dc=fr\", \"uid=esati,ou=personnes,dc=ent-bretagne,dc=fr\", \"uid=cdebussy,ou=personnes,dc=ent-bretagne,dc=fr\"]" +
-                "}";
-        
+                                     "\"dn\": \"cn=profil-lambda,ou=profils,ou=groupes,dc=ent-bretagne,dc=fr\"," +
+                                     "\"objectClass\": [\"top\", \"groupOfNames\", \"ENTProfil\"]," +
+                                     "\"cn\": \"profil-lambda\"," +
+                                     "\"description\": \"Un profil quelconque\"," +
+                                     "\"ENTDisplayName\": \"Un profil quelconque\"," +
+                                     "\"ExplicitMember\": [\"uid=esati,ou=personnes,dc=ent-bretagne,dc=fr\", \"uid=cdebussy,ou=personnes," +
+                                     "dc=ent-bretagne,dc=fr\"]," +
+                                     "\"member\": [\"uid=gfaure,ou=personnes,dc=ent-bretagne,dc=fr\", \"uid=esati,ou=personnes,dc=ent-bretagne," +
+                                     "dc=fr\", \"uid=cdebussy,ou=personnes,dc=ent-bretagne,dc=fr\"]" +
+                                     "}";
+
         setEntryInLdap("dn=cn=profil-lambda,ou=profils,ou=groupes,dc=ent-bretagne,dc=fr", existingEntryInLDAP);
-        
+
         mockedPivotEntry.update();
-        
+
         verify(mockedDirContext, never()).modifyAttributes(anyString(), anyInt(), any(Attributes.class));
     }
 
@@ -900,22 +950,27 @@ public class EntryTest {
     @Test
     public void test18() throws Exception {
         final Entry mockedPivotEntry = buildFromPivot("dn=cn=profil-lambda,ou=profils,ou=groupes,dc=ent-bretagne,dc=fr", "data/entry/pivot18.xml");
-        
+
         String existingEntryInLDAP = "{" +
-        		"\"dn\": \"cn=profil-lambda,ou=profils,ou=groupes,dc=ent-bretagne,dc=fr\"," +
-                "\"objectClass\": [\"top\", \"groupOfNames\", \"ENTProfil\"]," +
-                "\"cn\": \"profil-lambda\"," +
-                "\"description\": \"Un profil quelconque\"," +
-                "\"ENTDisplayName\": \"Un profil quelconque\"," +
-                "\"ExplicitMember\": [\"uid=esati,ou=personnes,dc=ent-bretagne,dc=fr\", \"uid=cdebussy,ou=personnes,dc=ent-bretagne,dc=fr\"]," +
-                "\"member\": [\"uid=gfaure,ou=personnes,dc=ent-bretagne,dc=fr\", \"uid=esati,ou=personnes,dc=ent-bretagne,dc=fr\", \"uid=cdebussy,ou=personnes,dc=ent-bretagne,dc=fr\"]" +
-                "}";
-        
+                                     "\"dn\": \"cn=profil-lambda,ou=profils,ou=groupes,dc=ent-bretagne,dc=fr\"," +
+                                     "\"objectClass\": [\"top\", \"groupOfNames\", \"ENTProfil\"]," +
+                                     "\"cn\": \"profil-lambda\"," +
+                                     "\"description\": \"Un profil quelconque\"," +
+                                     "\"ENTDisplayName\": \"Un profil quelconque\"," +
+                                     "\"ExplicitMember\": [\"uid=esati,ou=personnes,dc=ent-bretagne,dc=fr\", \"uid=cdebussy,ou=personnes," +
+                                     "dc=ent-bretagne,dc=fr\"]," +
+                                     "\"member\": [\"uid=gfaure,ou=personnes,dc=ent-bretagne,dc=fr\", \"uid=esati,ou=personnes,dc=ent-bretagne," +
+                                     "dc=fr\", \"uid=cdebussy,ou=personnes,dc=ent-bretagne,dc=fr\"]" +
+                                     "}";
+
         setEntryInLdap("dn=cn=profil-lambda,ou=profils,ou=groupes,dc=ent-bretagne,dc=fr", existingEntryInLDAP);
-        
+
         mockedPivotEntry.update();
-        
-        verify(mockedDirContext).modifyAttributes("", DirContext.REPLACE_ATTRIBUTE, buildAttributes("{\"ExplicitMember\": [\"uid=fpoulenc,ou=personnes,dc=ent-bretagne,dc=fr\", \"uid=cs-saens,ou=personnes,dc=ent-bretagne,dc=fr\"]}"));
+
+        verify(mockedDirContext).modifyAttributes("", DirContext.REPLACE_ATTRIBUTE, buildAttributes("{\"ExplicitMember\": [\"uid=fpoulenc," +
+                                                                                                    "ou=personnes,dc=ent-bretagne,dc=fr\", " +
+                                                                                                    "\"uid=cs-saens,ou=personnes,dc=ent-bretagne," +
+                                                                                                    "dc=fr\"]}"));
     }
 
     /* test use case :
@@ -927,21 +982,23 @@ public class EntryTest {
     @Test
     public void test19() throws Exception {
         final Entry mockedPivotEntry = buildFromPivot("dn=cn=profil-lambda,ou=profils,ou=groupes,dc=ent-bretagne,dc=fr", "data/entry/pivot19.xml");
-        
+
         String existingEntryInLDAP = "{" +
-        		"\"dn\": \"cn=profil-lambda,ou=profils,ou=groupes,dc=ent-bretagne,dc=fr\"," +
-                "\"objectClass\": [\"top\", \"groupOfNames\", \"ENTProfil\"]," +
-                "\"cn\": \"profil-lambda\"," +
-                "\"description\": \"Un profil quelconque\"," +
-                "\"ENTDisplayName\": \"Un profil quelconque\"," +
-                "\"ExplicitMember\": [\"uid=esati,ou=personnes,dc=ent-bretagne,dc=fr\", \"uid=cdebussy,ou=personnes,dc=ent-bretagne,dc=fr\"]," +
-                "\"member\": [\"uid=gfaure,ou=personnes,dc=ent-bretagne,dc=fr\", \"uid=esati,ou=personnes,dc=ent-bretagne,dc=fr\", \"uid=cdebussy,ou=personnes,dc=ent-bretagne,dc=fr\"]" +
-                "}";
-        
+                                     "\"dn\": \"cn=profil-lambda,ou=profils,ou=groupes,dc=ent-bretagne,dc=fr\"," +
+                                     "\"objectClass\": [\"top\", \"groupOfNames\", \"ENTProfil\"]," +
+                                     "\"cn\": \"profil-lambda\"," +
+                                     "\"description\": \"Un profil quelconque\"," +
+                                     "\"ENTDisplayName\": \"Un profil quelconque\"," +
+                                     "\"ExplicitMember\": [\"uid=esati,ou=personnes,dc=ent-bretagne,dc=fr\", \"uid=cdebussy,ou=personnes," +
+                                     "dc=ent-bretagne,dc=fr\"]," +
+                                     "\"member\": [\"uid=gfaure,ou=personnes,dc=ent-bretagne,dc=fr\", \"uid=esati,ou=personnes,dc=ent-bretagne," +
+                                     "dc=fr\", \"uid=cdebussy,ou=personnes,dc=ent-bretagne,dc=fr\"]" +
+                                     "}";
+
         setEntryInLdap("dn=cn=profil-lambda,ou=profils,ou=groupes,dc=ent-bretagne,dc=fr", existingEntryInLDAP);
-        
+
         mockedPivotEntry.update();
-        
+
         verify(mockedDirContext, never()).modifyAttributes(anyString(), anyInt(), any(Attributes.class));
     }
 
@@ -955,22 +1012,27 @@ public class EntryTest {
     @Test
     public void test20() throws Exception {
         final Entry mockedPivotEntry = buildFromPivot("dn=cn=profil-lambda,ou=profils,ou=groupes,dc=ent-bretagne,dc=fr", "data/entry/pivot20.xml");
-        
+
         String existingEntryInLDAP = "{" +
-        		"\"dn\": \"cn=profil-lambda,ou=profils,ou=groupes,dc=ent-bretagne,dc=fr\"," +
-                "\"objectClass\": [\"top\", \"groupOfNames\", \"ENTProfil\"]," +
-                "\"cn\": \"profil-lambda\"," +
-                "\"description\": \"Un profil quelconque\"," +
-                "\"ENTDisplayName\": \"Un profil quelconque\"," +
-                "\"ExplicitMember\": [\"uid=esati,ou=personnes,dc=ent-bretagne,dc=fr\", \"uid=cdebussy,ou=personnes,dc=ent-bretagne,dc=fr\"]," +
-                "\"member\": [\"uid=esati,ou=personnes,dc=ent-bretagne,dc=fr\", \"uid=cdebussy,ou=personnes,dc=ent-bretagne,dc=fr\"]" +
-                "}";
-        
+                                     "\"dn\": \"cn=profil-lambda,ou=profils,ou=groupes,dc=ent-bretagne,dc=fr\"," +
+                                     "\"objectClass\": [\"top\", \"groupOfNames\", \"ENTProfil\"]," +
+                                     "\"cn\": \"profil-lambda\"," +
+                                     "\"description\": \"Un profil quelconque\"," +
+                                     "\"ENTDisplayName\": \"Un profil quelconque\"," +
+                                     "\"ExplicitMember\": [\"uid=esati,ou=personnes,dc=ent-bretagne,dc=fr\", \"uid=cdebussy,ou=personnes," +
+                                     "dc=ent-bretagne,dc=fr\"]," +
+                                     "\"member\": [\"uid=esati,ou=personnes,dc=ent-bretagne,dc=fr\", \"uid=cdebussy,ou=personnes,dc=ent-bretagne," +
+                                     "dc=fr\"]" +
+                                     "}";
+
         setEntryInLdap("dn=cn=profil-lambda,ou=profils,ou=groupes,dc=ent-bretagne,dc=fr", existingEntryInLDAP);
-        
+
         mockedPivotEntry.update();
-        
-        verify(mockedDirContext).modifyAttributes("", DirContext.REPLACE_ATTRIBUTE, buildAttributes("{\"member\": [\"uid=cdebussy,ou=personnes,dc=ent-bretagne,dc=fr\"], \"ExplicitMember\": [\"uid=cdebussy,ou=personnes,dc=ent-bretagne,dc=fr\"]}"));
+
+        verify(mockedDirContext).modifyAttributes("", DirContext.REPLACE_ATTRIBUTE, buildAttributes("{\"member\": [\"uid=cdebussy,ou=personnes," +
+                                                                                                    "dc=ent-bretagne,dc=fr\"], \"ExplicitMember\": " +
+                                                                                                    "[\"uid=cdebussy,ou=personnes,dc=ent-bretagne," +
+                                                                                                    "dc=fr\"]}"));
     }
 
     /* test use case :
@@ -983,22 +1045,30 @@ public class EntryTest {
     @Test
     public void test21() throws Exception {
         final Entry mockedPivotEntry = buildFromPivot("dn=cn=profil-lambda,ou=profils,ou=groupes,dc=ent-bretagne,dc=fr", "data/entry/pivot21.xml");
-        
+
         String existingEntryInLDAP = "{" +
-        		"\"dn\": \"cn=profil-lambda,ou=profils,ou=groupes,dc=ent-bretagne,dc=fr\"," +
-                "\"objectClass\": [\"top\", \"groupOfNames\", \"ENTProfil\"]," +
-                "\"cn\": \"profil-lambda\"," +
-                "\"description\": \"Un profil quelconque\"," +
-                "\"ENTDisplayName\": \"Un profil quelconque\"," +
-                "\"ExplicitMember\": [\"uid=gbizet,ou=personnes,dc=ent-bretagne,dc=fr\", \"uid=esati,ou=personnes,dc=ent-bretagne,dc=fr\", \"uid=cdebussy,ou=personnes,dc=ent-bretagne,dc=fr\"]," +
-                "\"member\": [\"uid=cs-saens,ou=personnes,dc=ent-bretagne,dc=fr\", \"uid=esati,ou=personnes,dc=ent-bretagne,dc=fr\", \"uid=cdebussy,ou=personnes,dc=ent-bretagne,dc=fr\", \"uid=gbizet,ou=personnes,dc=ent-bretagne,dc=fr\", \"uid=fpoulenc,ou=personnes,dc=ent-bretagne,dc=fr\"]" +
-                "}";
-        
+                                     "\"dn\": \"cn=profil-lambda,ou=profils,ou=groupes,dc=ent-bretagne,dc=fr\"," +
+                                     "\"objectClass\": [\"top\", \"groupOfNames\", \"ENTProfil\"]," +
+                                     "\"cn\": \"profil-lambda\"," +
+                                     "\"description\": \"Un profil quelconque\"," +
+                                     "\"ENTDisplayName\": \"Un profil quelconque\"," +
+                                     "\"ExplicitMember\": [\"uid=gbizet,ou=personnes,dc=ent-bretagne,dc=fr\", \"uid=esati,ou=personnes," +
+                                     "dc=ent-bretagne,dc=fr\", \"uid=cdebussy,ou=personnes,dc=ent-bretagne,dc=fr\"]," +
+                                     "\"member\": [\"uid=cs-saens,ou=personnes,dc=ent-bretagne,dc=fr\", \"uid=esati,ou=personnes,dc=ent-bretagne," +
+                                     "dc=fr\", \"uid=cdebussy,ou=personnes,dc=ent-bretagne,dc=fr\", \"uid=gbizet,ou=personnes,dc=ent-bretagne," +
+                                     "dc=fr\", \"uid=fpoulenc,ou=personnes,dc=ent-bretagne,dc=fr\"]" +
+                                     "}";
+
         setEntryInLdap("dn=cn=profil-lambda,ou=profils,ou=groupes,dc=ent-bretagne,dc=fr", existingEntryInLDAP);
-        
+
         mockedPivotEntry.update();
-        
-        verify(mockedDirContext).modifyAttributes("", DirContext.REPLACE_ATTRIBUTE, buildAttributes("{\"member\": [\"uid=cs-saens,ou=personnes,dc=ent-bretagne,dc=fr\", \"uid=cdebussy,ou=personnes,dc=ent-bretagne,dc=fr\", \"uid=fpoulenc,ou=personnes,dc=ent-bretagne,dc=fr\"], \"ExplicitMember\": [\"uid=cdebussy,ou=personnes,dc=ent-bretagne,dc=fr\"]}"));
+
+        verify(mockedDirContext).modifyAttributes("", DirContext.REPLACE_ATTRIBUTE, buildAttributes("{\"member\": [\"uid=cs-saens,ou=personnes," +
+                                                                                                    "dc=ent-bretagne,dc=fr\", \"uid=cdebussy," +
+                                                                                                    "ou=personnes,dc=ent-bretagne,dc=fr\", " +
+                                                                                                    "\"uid=fpoulenc,ou=personnes,dc=ent-bretagne," +
+                                                                                                    "dc=fr\"], \"ExplicitMember\": [\"uid=cdebussy," +
+                                                                                                    "ou=personnes,dc=ent-bretagne,dc=fr\"]}"));
     }
 
     /* test use case :
@@ -1010,22 +1080,30 @@ public class EntryTest {
     @Test
     public void test22() throws Exception {
         final Entry mockedPivotEntry = buildFromPivot("dn=cn=profil-lambda,ou=profils,ou=groupes,dc=ent-bretagne,dc=fr", "data/entry/pivot22.xml");
-        
+
         String existingEntryInLDAP = "{" +
-        		"\"dn\": \"cn=profil-lambda,ou=profils,ou=groupes,dc=ent-bretagne,dc=fr\"," +
-                "\"objectClass\": [\"top\", \"groupOfNames\", \"ENTProfil\"]," +
-                "\"cn\": \"profil-lambda\"," +
-                "\"description\": \"Un profil quelconque\"," +
-                "\"ENTDisplayName\": \"Un profil quelconque\"," +
-                "\"ExplicitMember\": [\"uid=gbizet,ou=personnes,dc=ent-bretagne,dc=fr\", \"uid=esati,ou=personnes,dc=ent-bretagne,dc=fr\", \"uid=cdebussy,ou=personnes,dc=ent-bretagne,dc=fr\"]," +
-                "\"member\": [\"uid=cs-saens,ou=personnes,dc=ent-bretagne,dc=fr\", \"uid=esati,ou=personnes,dc=ent-bretagne,dc=fr\", \"uid=cdebussy,ou=personnes,dc=ent-bretagne,dc=fr\", \"uid=gbizet,ou=personnes,dc=ent-bretagne,dc=fr\", \"uid=fpoulenc,ou=personnes,dc=ent-bretagne,dc=fr\"]" +
-                "}";
-        
+                                     "\"dn\": \"cn=profil-lambda,ou=profils,ou=groupes,dc=ent-bretagne,dc=fr\"," +
+                                     "\"objectClass\": [\"top\", \"groupOfNames\", \"ENTProfil\"]," +
+                                     "\"cn\": \"profil-lambda\"," +
+                                     "\"description\": \"Un profil quelconque\"," +
+                                     "\"ENTDisplayName\": \"Un profil quelconque\"," +
+                                     "\"ExplicitMember\": [\"uid=gbizet,ou=personnes,dc=ent-bretagne,dc=fr\", \"uid=esati,ou=personnes," +
+                                     "dc=ent-bretagne,dc=fr\", \"uid=cdebussy,ou=personnes,dc=ent-bretagne,dc=fr\"]," +
+                                     "\"member\": [\"uid=cs-saens,ou=personnes,dc=ent-bretagne,dc=fr\", \"uid=esati,ou=personnes,dc=ent-bretagne," +
+                                     "dc=fr\", \"uid=cdebussy,ou=personnes,dc=ent-bretagne,dc=fr\", \"uid=gbizet,ou=personnes,dc=ent-bretagne," +
+                                     "dc=fr\", \"uid=fpoulenc,ou=personnes,dc=ent-bretagne,dc=fr\"]" +
+                                     "}";
+
         setEntryInLdap("dn=cn=profil-lambda,ou=profils,ou=groupes,dc=ent-bretagne,dc=fr", existingEntryInLDAP);
-        
+
         mockedPivotEntry.update();
-        
-        verify(mockedDirContext).modifyAttributes("", DirContext.REPLACE_ATTRIBUTE, buildAttributes("{\"member\": [\"uid=cs-saens,ou=personnes,dc=ent-bretagne,dc=fr\", \"uid=esati,ou=personnes,dc=ent-bretagne,dc=fr\", \"uid=cdebussy,ou=personnes,dc=ent-bretagne,dc=fr\", \"uid=gbizet,ou=personnes,dc=ent-bretagne,dc=fr\"]}"));
+
+        verify(mockedDirContext).modifyAttributes("", DirContext.REPLACE_ATTRIBUTE, buildAttributes("{\"member\": [\"uid=cs-saens,ou=personnes," +
+                                                                                                    "dc=ent-bretagne,dc=fr\", \"uid=esati," +
+                                                                                                    "ou=personnes,dc=ent-bretagne,dc=fr\", " +
+                                                                                                    "\"uid=cdebussy,ou=personnes,dc=ent-bretagne," +
+                                                                                                    "dc=fr\", \"uid=gbizet,ou=personnes," +
+                                                                                                    "dc=ent-bretagne,dc=fr\"]}"));
     }
 
     /* test use case :
@@ -1037,22 +1115,31 @@ public class EntryTest {
     @Test
     public void test23() throws Exception {
         final Entry mockedPivotEntry = buildFromPivot("dn=cn=profil-lambda,ou=profils,ou=groupes,dc=ent-bretagne,dc=fr", "data/entry/pivot23.xml");
-        
+
         String existingEntryInLDAP = "{" +
-        		"\"dn\": \"cn=profil-lambda,ou=profils,ou=groupes,dc=ent-bretagne,dc=fr\"," +
-                "\"objectClass\": [\"top\", \"groupOfNames\", \"ENTProfil\"]," +
-                "\"cn\": \"profil-lambda\"," +
-                "\"description\": \"Un profil quelconque\"," +
-                "\"ENTDisplayName\": \"Un profil quelconque\"," +
-                "\"ExplicitMember\": [\"uid=gbizet,ou=personnes,dc=ent-bretagne,dc=fr\", \"uid=esati,ou=personnes,dc=ent-bretagne,dc=fr\", \"uid=cdebussy,ou=personnes,dc=ent-bretagne,dc=fr\"]," +
-                "\"member\": [\"uid=cs-saens,ou=personnes,dc=ent-bretagne,dc=fr\", \"uid=esati,ou=personnes,dc=ent-bretagne,dc=fr\", \"uid=cdebussy,ou=personnes,dc=ent-bretagne,dc=fr\", \"uid=gbizet,ou=personnes,dc=ent-bretagne,dc=fr\"]" +
-                "}";
-        
+                                     "\"dn\": \"cn=profil-lambda,ou=profils,ou=groupes,dc=ent-bretagne,dc=fr\"," +
+                                     "\"objectClass\": [\"top\", \"groupOfNames\", \"ENTProfil\"]," +
+                                     "\"cn\": \"profil-lambda\"," +
+                                     "\"description\": \"Un profil quelconque\"," +
+                                     "\"ENTDisplayName\": \"Un profil quelconque\"," +
+                                     "\"ExplicitMember\": [\"uid=gbizet,ou=personnes,dc=ent-bretagne,dc=fr\", \"uid=esati,ou=personnes," +
+                                     "dc=ent-bretagne,dc=fr\", \"uid=cdebussy,ou=personnes,dc=ent-bretagne,dc=fr\"]," +
+                                     "\"member\": [\"uid=cs-saens,ou=personnes,dc=ent-bretagne,dc=fr\", \"uid=esati,ou=personnes,dc=ent-bretagne," +
+                                     "dc=fr\", \"uid=cdebussy,ou=personnes,dc=ent-bretagne,dc=fr\", \"uid=gbizet,ou=personnes,dc=ent-bretagne," +
+                                     "dc=fr\"]" +
+                                     "}";
+
         setEntryInLdap("dn=cn=profil-lambda,ou=profils,ou=groupes,dc=ent-bretagne,dc=fr", existingEntryInLDAP);
-        
+
         mockedPivotEntry.update();
-        
-        verify(mockedDirContext).modifyAttributes("", DirContext.REPLACE_ATTRIBUTE, buildAttributes("{\"member\": [\"uid=cs-saens,ou=personnes,dc=ent-bretagne,dc=fr\", \"uid=esati,ou=personnes,dc=ent-bretagne,dc=fr\", \"uid=cdebussy,ou=personnes,dc=ent-bretagne,dc=fr\", \"uid=gbizet,ou=personnes,dc=ent-bretagne,dc=fr\", \"uid=fpoulenc,ou=personnes,dc=ent-bretagne,dc=fr\"]}"));
+
+        verify(mockedDirContext).modifyAttributes("", DirContext.REPLACE_ATTRIBUTE, buildAttributes("{\"member\": [\"uid=cs-saens,ou=personnes," +
+                                                                                                    "dc=ent-bretagne,dc=fr\", \"uid=esati," +
+                                                                                                    "ou=personnes,dc=ent-bretagne,dc=fr\", " +
+                                                                                                    "\"uid=cdebussy,ou=personnes,dc=ent-bretagne," +
+                                                                                                    "dc=fr\", \"uid=gbizet,ou=personnes," +
+                                                                                                    "dc=ent-bretagne,dc=fr\", \"uid=fpoulenc," +
+                                                                                                    "ou=personnes,dc=ent-bretagne,dc=fr\"]}"));
     }
 
     /* test use case :
@@ -1064,192 +1151,199 @@ public class EntryTest {
     @Test
     public void test24() throws Exception {
         final Entry mockedPivotEntry = buildFromPivot("dn=cn=profil-lambda,ou=profils,ou=groupes,dc=ent-bretagne,dc=fr", "data/entry/pivot24.xml");
-        
+
         String existingEntryInLDAP = "{" +
-        		"\"dn\": \"cn=profil-lambda,ou=profils,ou=groupes,dc=ent-bretagne,dc=fr\"," +
-                "\"objectClass\": [\"top\", \"groupOfNames\", \"ENTProfil\"]," +
-                "\"cn\": \"profil-lambda\"," +
-                "\"description\": \"Un profil quelconque\"," +
-                "\"ENTDisplayName\": \"Un profil quelconque\"," +
-                "\"ExplicitMember\": [\"uid=gbizet,ou=personnes,dc=ent-bretagne,dc=fr\", \"uid=cdebussy,ou=personnes,dc=ent-bretagne,dc=fr\"]," +
-                "\"member\": [\"uid=gbizet,ou=personnes,dc=ent-bretagne,dc=fr\", \"uid=mlegrand,ou=personnes,dc=ent-bretagne,dc=fr\", \"uid=cdebussy,ou=personnes,dc=ent-bretagne,dc=fr\"]" +
-                "}";
-        
+                                     "\"dn\": \"cn=profil-lambda,ou=profils,ou=groupes,dc=ent-bretagne,dc=fr\"," +
+                                     "\"objectClass\": [\"top\", \"groupOfNames\", \"ENTProfil\"]," +
+                                     "\"cn\": \"profil-lambda\"," +
+                                     "\"description\": \"Un profil quelconque\"," +
+                                     "\"ENTDisplayName\": \"Un profil quelconque\"," +
+                                     "\"ExplicitMember\": [\"uid=gbizet,ou=personnes,dc=ent-bretagne,dc=fr\", \"uid=cdebussy,ou=personnes," +
+                                     "dc=ent-bretagne,dc=fr\"]," +
+                                     "\"member\": [\"uid=gbizet,ou=personnes,dc=ent-bretagne,dc=fr\", \"uid=mlegrand,ou=personnes,dc=ent-bretagne," +
+                                     "dc=fr\", \"uid=cdebussy,ou=personnes,dc=ent-bretagne,dc=fr\"]" +
+                                     "}";
+
         setEntryInLdap("dn=cn=profil-lambda,ou=profils,ou=groupes,dc=ent-bretagne,dc=fr", existingEntryInLDAP);
-        
+
         mockedPivotEntry.update();
-        
-        verify(mockedDirContext).modifyAttributes("", DirContext.REPLACE_ATTRIBUTE, buildAttributes("{\"member\": [\"uid=pdukas,ou=personnes,dc=ent-bretagne,dc=fr\", \"uid=gbizet,ou=personnes,dc=ent-bretagne,dc=fr\", \"uid=cdebussy,ou=personnes,dc=ent-bretagne,dc=fr\", \"uid=gbizet,ou=personnes,dc=ent-bretagne,dc=fr\"]}"));
+
+        verify(mockedDirContext).modifyAttributes("", DirContext.REPLACE_ATTRIBUTE, buildAttributes("{\"member\": [\"uid=pdukas,ou=personnes," +
+                                                                                                    "dc=ent-bretagne,dc=fr\", \"uid=gbizet," +
+                                                                                                    "ou=personnes,dc=ent-bretagne,dc=fr\", " +
+                                                                                                    "\"uid=cdebussy,ou=personnes,dc=ent-bretagne," +
+                                                                                                    "dc=fr\", \"uid=gbizet,ou=personnes," +
+                                                                                                    "dc=ent-bretagne,dc=fr\"]}"));
     }
 
     @Test
     public void update_modifyModeRemove_noValue() throws Exception {
-    	final Entry entry = buildFromPivot("data/entry/modifyModeRemove_noValue.xml");
-    	setEntryInLdap("{ \"uid\": \"epoe\", \"Rne\": [\"0350063D\", \"0350064E\", \"0360063E\"] }");
+        final Entry entry = buildFromPivot("data/entry/modifyModeRemove_noValue.xml");
+        setEntryInLdap("{ \"uid\": \"epoe\", \"Rne\": [\"0350063D\", \"0350064E\", \"0360063E\"] }");
 
-    	entry.update();
+        entry.update();
 
-    	verify(mockedDirContext, never()).modifyAttributes(anyString(), anyInt(), any(Attributes.class));
+        verify(mockedDirContext, never()).modifyAttributes(anyString(), anyInt(), any(Attributes.class));
     }
 
     @Test
     public void update_modifyModeRemove_noMatch() throws Exception {
-    	final Entry entry = buildFromPivot("data/entry/modifyModeRemove_noMatch.xml");
-    	setEntryInLdap("{ \"uid\": \"epoe\", \"Rne\": [\"0350063D\", \"0350064E\", \"0360063E\"] }");
+        final Entry entry = buildFromPivot("data/entry/modifyModeRemove_noMatch.xml");
+        setEntryInLdap("{ \"uid\": \"epoe\", \"Rne\": [\"0350063D\", \"0350064E\", \"0360063E\"] }");
 
-    	entry.update();
+        entry.update();
 
-    	verify(mockedDirContext, never()).modifyAttributes(anyString(), anyInt(), any(Attributes.class));
+        verify(mockedDirContext, never()).modifyAttributes(anyString(), anyInt(), any(Attributes.class));
     }
 
     @Test
     public void update_modifyModeRemove_oneValue() throws Exception {
-    	final Entry entry = buildFromPivot("data/entry/modifyModeRemove_oneValue.xml");
-    	setEntryInLdap("{ \"uid\": \"epoe\", \"Rne\": [\"0350063D\", \"0350064E\", \"0360063E\"] }");
+        final Entry entry = buildFromPivot("data/entry/modifyModeRemove_oneValue.xml");
+        setEntryInLdap("{ \"uid\": \"epoe\", \"Rne\": [\"0350063D\", \"0350064E\", \"0360063E\"] }");
 
-    	entry.update();
+        entry.update();
 
-    	verify(mockedDirContext).modifyAttributes(
-    			"",
-    			DirContext.REPLACE_ATTRIBUTE,
-    			buildAttributes("{ \"Rne\": [\"0350063D\", \"0360063E\"] }")
-    			);
+        verify(mockedDirContext).modifyAttributes(
+                "",
+                DirContext.REPLACE_ATTRIBUTE,
+                buildAttributes("{ \"Rne\": [\"0350063D\", \"0360063E\"] }")
+        );
     }
 
     @Test
     public void update_modifyModeRemove_manyValues() throws Exception {
-    	final Entry entry = buildFromPivot("data/entry/modifyModeRemove_manyValues.xml");
-    	setEntryInLdap("{ \"uid\": \"epoe\", \"Rne\": [\"0350063D\", \"0350064E\", \"0360063E\"] }");
+        final Entry entry = buildFromPivot("data/entry/modifyModeRemove_manyValues.xml");
+        setEntryInLdap("{ \"uid\": \"epoe\", \"Rne\": [\"0350063D\", \"0350064E\", \"0360063E\"] }");
 
-    	entry.update();
+        entry.update();
 
-    	verify(mockedDirContext).modifyAttributes(
-    			"",
-    			DirContext.REPLACE_ATTRIBUTE,
-    			buildAttributes("{ \"Rne\": [\"0360063E\"] }")
-    			);
+        verify(mockedDirContext).modifyAttributes(
+                "",
+                DirContext.REPLACE_ATTRIBUTE,
+                buildAttributes("{ \"Rne\": [\"0360063E\"] }")
+        );
     }
 
     @Test
     public void update_modifyModeRemove_allValues() throws Exception {
-    	final Entry entry = buildFromPivot("data/entry/modifyModeRemove_allValues.xml");
-    	setEntryInLdap("{ \"uid\": \"epoe\", \"Rne\": [\"0350063D\", \"0350064E\", \"0360063E\"] }");
+        final Entry entry = buildFromPivot("data/entry/modifyModeRemove_allValues.xml");
+        setEntryInLdap("{ \"uid\": \"epoe\", \"Rne\": [\"0350063D\", \"0350064E\", \"0360063E\"] }");
 
-    	entry.update();
+        entry.update();
 
-    	verify(mockedDirContext).modifyAttributes(
-    			"",
-    			DirContext.REMOVE_ATTRIBUTE,
-    			buildAttributes("{ \"Rne\": [] }")
-    			);
+        verify(mockedDirContext).modifyAttributes(
+                "",
+                DirContext.REMOVE_ATTRIBUTE,
+                buildAttributes("{ \"Rne\": [] }")
+        );
     }
 
     @Test
     public void update_modifyModeRemove_applyTwice() throws Exception {
-    	final Entry entry = buildFromPivot("data/entry/modifyModeRemove_applyTwice.xml");
-    	setEntryInLdap("{ \"uid\": \"epoe\", \"Rne\": [\"0350063D\", \"0350064E\", \"0360063E\"] }");
+        final Entry entry = buildFromPivot("data/entry/modifyModeRemove_applyTwice.xml");
+        setEntryInLdap("{ \"uid\": \"epoe\", \"Rne\": [\"0350063D\", \"0350064E\", \"0360063E\"] }");
 
-    	entry.update();
+        entry.update();
 
-    	verify(mockedDirContext).modifyAttributes(
-    			"",
-    			DirContext.REPLACE_ATTRIBUTE,
-    			buildAttributes("{ \"Rne\": [\"0350064E\"] }")
-    			);
+        verify(mockedDirContext).modifyAttributes(
+                "",
+                DirContext.REPLACE_ATTRIBUTE,
+                buildAttributes("{ \"Rne\": [\"0350064E\"] }")
+        );
     }
 
     @Test
     public void update_modifyModeRemove_withRegExp() throws Exception {
-    	final Entry entry = buildFromPivot("data/entry/modifyModeRemove_withRegExp.xml");
-    	setEntryInLdap("{ \"uid\": \"epoe\", \"Rne\": [\"0350063D\", \"0350064E\", \"0360063E\"] }");
+        final Entry entry = buildFromPivot("data/entry/modifyModeRemove_withRegExp.xml");
+        setEntryInLdap("{ \"uid\": \"epoe\", \"Rne\": [\"0350063D\", \"0350064E\", \"0360063E\"] }");
 
-    	entry.update();
+        entry.update();
 
-    	verify(mockedDirContext).modifyAttributes(
-    			"",
-    			DirContext.REPLACE_ATTRIBUTE,
-    			buildAttributes("{ \"Rne\": [\"0360063E\"] }")
-    			);
+        verify(mockedDirContext).modifyAttributes(
+                "",
+                DirContext.REPLACE_ATTRIBUTE,
+                buildAttributes("{ \"Rne\": [\"0360063E\"] }")
+        );
     }
 
     @Test
     public void update_modifyModeRemove_withRegExp_then_modifyModeAppend_manyValues() throws Exception {
-    	final Entry entry = buildFromPivot("data/entry/modifyModeRemove_withRegExp_then_modifyModeAppend_manyValues.xml");
-    	setEntryInLdap("{ \"uid\": \"epoe\", \"Rne\": [\"0350063D\", \"0350064E\", \"0360063E\"] }");
+        final Entry entry = buildFromPivot("data/entry/modifyModeRemove_withRegExp_then_modifyModeAppend_manyValues.xml");
+        setEntryInLdap("{ \"uid\": \"epoe\", \"Rne\": [\"0350063D\", \"0350064E\", \"0360063E\"] }");
 
-    	entry.update();
+        entry.update();
 
-    	verify(mockedDirContext).modifyAttributes(
-    			"",
-    			DirContext.REPLACE_ATTRIBUTE,
-    			buildAttributes("{ \"Rne\": [ \"0360063E\", \"0350068I\", \"0351164G\"] }")
-    			);
+        verify(mockedDirContext).modifyAttributes(
+                "",
+                DirContext.REPLACE_ATTRIBUTE,
+                buildAttributes("{ \"Rne\": [ \"0360063E\", \"0350068I\", \"0351164G\"] }")
+        );
     }
 
     @Test
     public void update_modifyModeRemove_oneValue_then_modifyModeAppend_otherValue() throws Exception {
-    	final Entry entry = buildFromPivot("data/entry/modifyModeRemove_oneValue_then_modifyModeAppend_otherValue.xml");
-    	setEntryInLdap("{ \"uid\": \"epoe\", \"Rne\": [\"0350063D\", \"0350064E\", \"0360063E\"] }");
+        final Entry entry = buildFromPivot("data/entry/modifyModeRemove_oneValue_then_modifyModeAppend_otherValue.xml");
+        setEntryInLdap("{ \"uid\": \"epoe\", \"Rne\": [\"0350063D\", \"0350064E\", \"0360063E\"] }");
 
-    	entry.update();
+        entry.update();
 
-    	verify(mockedDirContext).modifyAttributes(
-    			"",
-    			DirContext.REPLACE_ATTRIBUTE,
-    			buildAttributes("{ \"Rne\": [\"0350063D\", \"0350170L\", \"0360063E\"] }")
-    			);
+        verify(mockedDirContext).modifyAttributes(
+                "",
+                DirContext.REPLACE_ATTRIBUTE,
+                buildAttributes("{ \"Rne\": [\"0350063D\", \"0350170L\", \"0360063E\"] }")
+        );
     }
 
     @Test
     public void update_modifyModeRemove_allValues_then_modifyModeAppend_oneValue() throws Exception {
-    	final Entry entry = buildFromPivot("data/entry/modifyModeRemove_allValues_then_modifyModeAppend_oneValue.xml");
-    	setEntryInLdap("{ \"uid\": \"epoe\", \"Rne\": [\"0350063D\", \"0350064E\", \"0360063E\"] }");
+        final Entry entry = buildFromPivot("data/entry/modifyModeRemove_allValues_then_modifyModeAppend_oneValue.xml");
+        setEntryInLdap("{ \"uid\": \"epoe\", \"Rne\": [\"0350063D\", \"0350064E\", \"0360063E\"] }");
 
-    	entry.update();
+        entry.update();
 
-    	verify(mockedDirContext).modifyAttributes(
-    			"",
-    			DirContext.REPLACE_ATTRIBUTE,
-    			buildAttributes("{ \"Rne\": [\"0350170L\"] }")
-    			);
-    	verify(mockedDirContext, never()).modifyAttributes(
-    			"",
-    			DirContext.REMOVE_ATTRIBUTE,
-    			buildAttributes("{ \"Rne\": [] }")
-    			);
+        verify(mockedDirContext).modifyAttributes(
+                "",
+                DirContext.REPLACE_ATTRIBUTE,
+                buildAttributes("{ \"Rne\": [\"0350170L\"] }")
+        );
+        verify(mockedDirContext, never()).modifyAttributes(
+                "",
+                DirContext.REMOVE_ATTRIBUTE,
+                buildAttributes("{ \"Rne\": [] }")
+        );
     }
 
     @Test
     public void update_modifyModeAppend_oneValue_then_modifyModeRemove_allValues() throws Exception {
-    	final Entry entry = buildFromPivot("data/entry/modifyModeAppend_oneValue_then_modifyModeRemove_allValues.xml");
-    	setEntryInLdap("{ \"uid\": \"epoe\", \"Rne\": [\"0350063D\", \"0350064E\", \"0360063E\"] }");
+        final Entry entry = buildFromPivot("data/entry/modifyModeAppend_oneValue_then_modifyModeRemove_allValues.xml");
+        setEntryInLdap("{ \"uid\": \"epoe\", \"Rne\": [\"0350063D\", \"0350064E\", \"0360063E\"] }");
 
-    	entry.update();
+        entry.update();
 
-    	verify(mockedDirContext, never()).modifyAttributes(
-    			"",
-    			DirContext.REPLACE_ATTRIBUTE,
-    			buildAttributes("{ \"Rne\": [\"0350063D\", \"0350064E\", \"0360063E\", \"0350170L\"] }")
-    			);
-    	verify(mockedDirContext).modifyAttributes(
-    			"",
-    			DirContext.REMOVE_ATTRIBUTE,
-    			buildAttributes("{ \"Rne\": [] }")
-    			);
+        verify(mockedDirContext, never()).modifyAttributes(
+                "",
+                DirContext.REPLACE_ATTRIBUTE,
+                buildAttributes("{ \"Rne\": [\"0350063D\", \"0350064E\", \"0360063E\", \"0350170L\"] }")
+        );
+        verify(mockedDirContext).modifyAttributes(
+                "",
+                DirContext.REMOVE_ATTRIBUTE,
+                buildAttributes("{ \"Rne\": [] }")
+        );
     }
 
     @Test
     public void update_modifyModeAppend_oneValue_then_modifyModeRemove_sameValue() throws Exception {
-    	final Entry entry = buildFromPivot("data/entry/modifyModeAppend_oneValue_then_modifyModeRemove_sameValue.xml");
-    	setEntryInLdap("{ \"uid\": \"epoe\", \"Rne\": [\"0350063D\", \"0350064E\", \"0360063E\"] }");
+        final Entry entry = buildFromPivot("data/entry/modifyModeAppend_oneValue_then_modifyModeRemove_sameValue.xml");
+        setEntryInLdap("{ \"uid\": \"epoe\", \"Rne\": [\"0350063D\", \"0350064E\", \"0360063E\"] }");
 
-    	entry.update();
+        entry.update();
 
-    	verify(mockedDirContext, never()).modifyAttributes(
-    			"",
-    			DirContext.REPLACE_ATTRIBUTE,
-    			buildAttributes("{ \"Rne\": [\"0350063D\", \"0350064E\", \"0360063E\"] }")
-    			);
+        verify(mockedDirContext, never()).modifyAttributes(
+                "",
+                DirContext.REPLACE_ATTRIBUTE,
+                buildAttributes("{ \"Rne\": [\"0350063D\", \"0350064E\", \"0360063E\"] }")
+        );
     }
 
     @Test
@@ -1274,22 +1368,22 @@ public class EntryTest {
             Element mockedPivotEntry = (new SAXBuilder()).build(is).getRootElement();
 
             PowerMockito.when(mockedDirContext.getNameInNamespace()).thenReturn("uid=epoe,ou=personnes,dc=ent-bretagne,dc=fr");
-            PowerMockito.when(mockedDirContext.lookup(Matchers.anyString())).thenReturn(mockedDirContext);
+            PowerMockito.when(mockedDirContext.lookup(nullable(String.class))).thenReturn(mockedDirContext);
 
             Entry entry = new Entry(mockedPivotEntry, mockedDirContext, null, new Variables(), null, null);
             Assert.assertNotNull(entry);
 
             String existingEntryInLDAP = "{" +
-                    "\"uid\":\"id\"," +
-                    "\"ENTFoo\":\"foo\"," +
-                    "\"ENTBar\":\"bar\"" +
-                    "}";
+                                         "\"uid\":\"id\"," +
+                                         "\"ENTFoo\":\"foo\"," +
+                                         "\"ENTBar\":\"bar\"" +
+                                         "}";
 
             setEntryInLdap(existingEntryInLDAP);
 
             entry.update();
 
-            verify(mockedDirContext, never()).modifyAttributes(Mockito.anyString(), Mockito.anyInt(), Mockito.any());
+            verify(mockedDirContext, never()).modifyAttributes(nullable(String.class), any(Integer.class), any());
         } catch (Exception e) {
             System.out.println(e.getMessage());
             Assert.fail();
@@ -1308,16 +1402,16 @@ public class EntryTest {
             Element mockedPivotEntry = (new SAXBuilder()).build(is).getRootElement();
 
             PowerMockito.when(mockedDirContext.getNameInNamespace()).thenReturn("uid=epoe,ou=personnes,dc=ent-bretagne,dc=fr");
-            PowerMockito.when(mockedDirContext.lookup(Matchers.anyString())).thenReturn(mockedDirContext);
+            PowerMockito.when(mockedDirContext.lookup(nullable(String.class))).thenReturn(mockedDirContext);
 
             Entry entry = new Entry(mockedPivotEntry, mockedDirContext, null, new Variables(), null, null);
             Assert.assertNotNull(entry);
 
             String existingEntryInLDAP = "{" +
-                    "\"uid\":\"id\"," +
-                    "\"ENTFoo\":\"foo\"," +
-                    "\"ENTBar\":\"bar\"" +
-                    "}";
+                                         "\"uid\":\"id\"," +
+                                         "\"ENTFoo\":\"foo\"," +
+                                         "\"ENTBar\":\"bar\"" +
+                                         "}";
 
             setEntryInLdap(existingEntryInLDAP);
 
@@ -1342,16 +1436,16 @@ public class EntryTest {
             Element mockedPivotEntry = (new SAXBuilder()).build(is).getRootElement();
 
             PowerMockito.when(mockedDirContext.getNameInNamespace()).thenReturn("uid=epoe,ou=personnes,dc=ent-bretagne,dc=fr");
-            PowerMockito.when(mockedDirContext.lookup(Matchers.anyString())).thenReturn(mockedDirContext);
+            PowerMockito.when(mockedDirContext.lookup(nullable(String.class))).thenReturn(mockedDirContext);
 
             Entry entry = new Entry(mockedPivotEntry, mockedDirContext, null, new Variables(), null, null);
             Assert.assertNotNull(entry);
 
             String existingEntryInLDAP = "{" +
-                    "\"uid\":\"id\"," +
-                    "\"ENTFoo\":\"foo\"," +
-                    "\"ENTBar\":\"bar\"" +
-                    "}";
+                                         "\"uid\":\"id\"," +
+                                         "\"ENTFoo\":\"foo\"," +
+                                         "\"ENTBar\":\"bar\"" +
+                                         "}";
 
             setEntryInLdap(existingEntryInLDAP);
 
@@ -1376,16 +1470,16 @@ public class EntryTest {
             Element mockedPivotEntry = (new SAXBuilder()).build(is).getRootElement();
 
             PowerMockito.when(mockedDirContext.getNameInNamespace()).thenReturn("uid=epoe,ou=personnes,dc=ent-bretagne,dc=fr");
-            PowerMockito.when(mockedDirContext.lookup(Matchers.anyString())).thenReturn(mockedDirContext);
+            PowerMockito.when(mockedDirContext.lookup(nullable(String.class))).thenReturn(mockedDirContext);
 
             Entry entry = new Entry(mockedPivotEntry, mockedDirContext, null, new Variables(), null, null);
             Assert.assertNotNull(entry);
 
             String existingEntryInLDAP = "{" +
-                    "\"uid\":\"id\"," +
-                    "\"ENTFoo\":\"foo\"," +
-                    "\"ENTBar\":\"bar\"" +
-                    "}";
+                                         "\"uid\":\"id\"," +
+                                         "\"ENTFoo\":\"foo\"," +
+                                         "\"ENTBar\":\"bar\"" +
+                                         "}";
 
             setEntryInLdap(existingEntryInLDAP);
 
@@ -1410,16 +1504,16 @@ public class EntryTest {
             Element mockedPivotEntry = (new SAXBuilder()).build(is).getRootElement();
 
             PowerMockito.when(mockedDirContext.getNameInNamespace()).thenReturn("uid=epoe,ou=personnes,dc=ent-bretagne,dc=fr");
-            PowerMockito.when(mockedDirContext.lookup(Matchers.anyString())).thenReturn(mockedDirContext);
+            PowerMockito.when(mockedDirContext.lookup(nullable(String.class))).thenReturn(mockedDirContext);
 
             Entry entry = new Entry(mockedPivotEntry, mockedDirContext, null, new Variables(), null, null);
             Assert.assertNotNull(entry);
 
             String existingEntryInLDAP = "{" +
-                    "\"uid\":\"id\"," +
-                    "\"ENTFoo\":\"foo\"," +
-                    "\"ENTBar\":\"bar\"" +
-                    "}";
+                                         "\"uid\":\"id\"," +
+                                         "\"ENTFoo\":\"foo\"," +
+                                         "\"ENTBar\":\"bar\"" +
+                                         "}";
 
             setEntryInLdap(existingEntryInLDAP);
 
