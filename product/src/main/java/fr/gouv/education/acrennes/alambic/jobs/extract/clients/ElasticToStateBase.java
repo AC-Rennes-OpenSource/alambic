@@ -157,7 +157,7 @@ public class ElasticToStateBase implements IToStateBase {
 	private void executeInnerQuery(final String uri, final String query) {
 		statebase = new ArrayList<>();
 		try {
-			WebServiceApi wsapi = new WebServiceApi(uri, HttpMethod.POST, ElasticToStateBase.headers, query, Arrays.asList(new Integer(200)));
+			WebServiceApi wsapi = new WebServiceApi(uri, HttpMethod.POST, ElasticToStateBase.headers, query, List.of(200));
 			HttpUriRequest request = wsapi.getRequest();
 			if (StringUtils.isNotBlank(this.authHeader)) {
 				request.setHeader(HttpHeaders.AUTHORIZATION, this.authHeader);
