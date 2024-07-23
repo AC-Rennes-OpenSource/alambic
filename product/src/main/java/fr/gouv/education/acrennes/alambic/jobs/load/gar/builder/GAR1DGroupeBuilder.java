@@ -122,7 +122,8 @@ public class GAR1DGroupeBuilder extends GAR1DBuilder {
                 garPersonGroupe.setGARGroupeCode(personGroupe.getGroupeCode());
                 garPersonGroupes.add(garPersonGroupe);
             } else {
-                log.warn("Filtered groupCode element from entity (ENTPersonUid=" + personGroupe.getPersonIdentifiant() + ") since it references a code '" + personGroupe.getGroupeCode() + "' absent from the UAI '" + uai + "'");
+                log.warn("Filtered groupCode element from entity (ENTPersonUid=" + personGroupe.getPersonIdentifiant() + ") since it references a " +
+                         "code '" + personGroupe.getGroupeCode() + "' absent from the UAI '" + uai + "'");
             }
         });
 
@@ -133,7 +134,8 @@ public class GAR1DGroupeBuilder extends GAR1DBuilder {
 
         private GARENTGroupe container;
 
-        protected GARENTGroupeWriter(ObjectFactory factory, String version, int page, int maxNodesCount, String output, String xsdFile) throws JAXBException, SAXException {
+        protected GARENTGroupeWriter(ObjectFactory factory, String version, int page, int maxNodesCount, String output, String xsdFile)
+                throws JAXBException, SAXException {
             super(factory, version, page, maxNodesCount, output);
             container = factory.createGARENTGroupe();
             container.setVersion(version);

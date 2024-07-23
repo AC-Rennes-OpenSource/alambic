@@ -16,28 +16,28 @@
  ******************************************************************************/
 package fr.gouv.education.acrennes.alambic.jobs.ftl;
 
-import java.util.List;
-import java.util.Map;
-
 import fr.gouv.education.acrennes.alambic.jobs.extract.clients.CsvToStateBase;
 import junit.framework.TestCase;
 
+import java.util.List;
+import java.util.Map;
+
 public class CsvToModelTest extends TestCase {
-	private CsvToStateBase cm;
+    private CsvToStateBase cm;
 
-	public void testCsvToModel() {
-		cm = new CsvToStateBase("src/test/resources/data/temp/persons-list.csv");
-		assertNotNull(cm);
+    public void testCsvToModel() {
+        cm = new CsvToStateBase("src/test/resources/data/temp/persons-list.csv");
+        assertNotNull(cm);
 
-		try {
-			cm.executeQuery(null);
-			List<Map<String, List<String>>> sb = cm.getStateBase();
-			assertEquals(2220, sb.size());
-		} finally {
-			if (null != cm) {
-				cm.close();
-			}
-		}
-	}
+        try {
+            cm.executeQuery(null);
+            List<Map<String, List<String>>> sb = cm.getStateBase();
+            assertEquals(2220, sb.size());
+        } finally {
+            if (null != cm) {
+                cm.close();
+            }
+        }
+    }
 
 }

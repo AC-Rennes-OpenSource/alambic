@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <root>
-	<item name="brown">1</item>
-	<item name="pink">6</item>
-	<item name="black">5</item>
+    <item name="brown">1</item>
+    <item name="pink">6</item>
+    <item name="black">5</item>
 </root>

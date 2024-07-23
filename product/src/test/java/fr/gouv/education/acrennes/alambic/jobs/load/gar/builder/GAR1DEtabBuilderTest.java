@@ -38,7 +38,8 @@ public class GAR1DEtabBuilderTest extends GAR1DBuilderTestUtils {
         Source mockedStructures = PowerMockito.mock(LDAPSource.class);
         Source mockedEntries = PowerMockito.mock(LDAPSource.class);
         List<Map<String, List<String>>> structuresMaps = new ArrayList<>();
-        Stream.of("0351234A", "0354321B", "0352143C").forEach(uai -> structuresMaps.add(Collections.singletonMap("ENTStructureUAI", Collections.singletonList(uai))));
+        Stream.of("0351234A", "0354321B", "0352143C").forEach(uai -> structuresMaps.add(Collections.singletonMap("ENTStructureUAI",
+                Collections.singletonList(uai))));
         PowerMockito.when(mockedStructures.getEntries()).thenReturn(structuresMaps);
         PowerMockito.when(mockedEntries.getEntries()).thenReturn(null);
         Map<String, Source> resources = new HashMap<>();

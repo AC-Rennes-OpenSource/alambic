@@ -16,89 +16,86 @@
  ******************************************************************************/
 package fr.gouv.education.acrennes.alambic.jobs.stats;
 
-import java.io.UnsupportedEncodingException;
-import java.security.NoSuchAlgorithmException;
+import fr.gouv.education.acrennes.alambic.ldap.LdapExtraction;
+import fr.gouv.education.acrennes.alambic.utils.EncodeUtils;
+import fr.gouv.education.acrennes.alambic.utils.Functions;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 
 import javax.naming.NamingException;
 import javax.naming.directory.Attribute;
 import javax.naming.directory.SearchResult;
-
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-
-import fr.gouv.education.acrennes.alambic.ldap.LdapExtraction;
-import fr.gouv.education.acrennes.alambic.utils.EncodeUtils;
-import fr.gouv.education.acrennes.alambic.utils.Functions;
+import java.io.UnsupportedEncodingException;
+import java.security.NoSuchAlgorithmException;
 
 public class LdapStatsMdp extends LdapExtraction {
 
-	private static final Log log = LogFactory.getLog(LdapStatsMdp.class);
-	
-	private int countEntries = 0;
-	private int countMdpChanged = 0;
-	private int countMdpUnChanged = 0;
+    private static final Log log = LogFactory.getLog(LdapStatsMdp.class);
 
-	public LdapStatsMdp(final String driver, final String url, final String login, final String pwd, final String query) {
-		super(driver, url, login, pwd, query, new String[] { "uid", "ENTPersonDateNaissance", "userPassword" });
-	}
+    private int countEntries = 0;
+    private int countMdpChanged = 0;
+    private int countMdpUnChanged = 0;
 
-	public void executeCountAction() {
-		// tranfo vers format extration générique
-		try {
-			while (searchRes.hasMore()) {
-				SearchResult sR = searchRes.next();
-				String rdn = new String(sR.getName());
-				if (isChanged(sR)) {
-					countMdpChanged++;
-					log.debug("Mot de passe de " + rdn + " change : O");
-				}
-				else {
-					countMdpUnChanged++;
-					log.debug("Mot de passe de " + rdn + " change : N");
-				}
-				countEntries++;
-			}
-		} catch (NamingException e) {
-			log.error("Comparaison MdP / valeur par defaut : " + e.getMessage());
-		}
-	}
+    public LdapStatsMdp(final String driver, final String url, final String login, final String pwd, final String query) {
+        super(driver, url, login, pwd, query, new String[] { "uid", "ENTPersonDateNaissance", "userPassword" });
+    }
 
-	private boolean isChanged(final SearchResult sR) {
+    public void executeCountAction() {
+        // tranfo vers format extration générique
+        try {
+            while (searchRes.hasMore()) {
+                SearchResult sR = searchRes.next();
+                String rdn = sR.getName();
+                if (isChanged(sR)) {
+                    countMdpChanged++;
+                    log.debug("Mot de passe de " + rdn + " change : O");
+                } else {
+                    countMdpUnChanged++;
+                    log.debug("Mot de passe de " + rdn + " change : N");
+                }
+                countEntries++;
+            }
+        } catch (NamingException e) {
+            log.error("Comparaison MdP / valeur par defaut : " + e.getMessage());
+        }
+    }
 
-		try {
-			Attribute attrValDef = sR.getAttributes().get("entpersondatenaissance");
-			Attribute attrMdp = sR.getAttributes().get("userPassword");
+    private boolean isChanged(final SearchResult sR) {
 
-			if (attrMdp == null || attrValDef == null) {
-				return false;
-			}
+        try {
+            Attribute attrValDef = sR.getAttributes().get("entpersondatenaissance");
+            Attribute attrMdp = sR.getAttributes().get("userPassword");
 
-			String mdp = Functions.getInstance().valueToString(attrMdp.get(0));
-			String valDef = Functions.getInstance().valueToString(attrValDef.get(0));
-			valDef = valDef.replace("/", "");
-			String mdpDef = "{SHA}" + EncodeUtils.fonctionBase64Sha1(valDef);
+            if (attrMdp == null || attrValDef == null) {
+                return false;
+            }
 
-			return !mdp.equals(mdpDef);
-		} catch (UnsupportedEncodingException e) {
-			log.error(e.getMessage());
-		} catch (NoSuchAlgorithmException e) {
-			log.error(e.getMessage());
-		} catch (NamingException e) {
-			log.error(e.getMessage());
-		}
-		return false;
-	}
+            String mdp = Functions.getInstance().valueToString(attrMdp.get(0));
+            String valDef = Functions.getInstance().valueToString(attrValDef.get(0));
+            valDef = valDef.replace("/", "");
+            String mdpDef = "{SHA}" + EncodeUtils.fonctionBase64Sha1(valDef);
 
-	public int getCountMdpChanged() {
-		return countMdpChanged;
-	}
+            return !mdp.equals(mdpDef);
+        } catch (UnsupportedEncodingException e) {
+            log.error(e.getMessage());
+        } catch (NoSuchAlgorithmException e) {
+            log.error(e.getMessage());
+        } catch (NamingException e) {
+            log.error(e.getMessage());
+        }
+        return false;
+    }
 
-	public int getCountMdpUnChanged() {
-		return countMdpUnChanged;
-	}
+    public int getCountMdpChanged() {
+        return countMdpChanged;
+    }
 
-	public int getCountEntries() {
-		return countEntries;
-	}
+    public int getCountMdpUnChanged() {
+        return countMdpUnChanged;
+    }
+
+    public int getCountEntries() {
+        return countEntries;
+    }
 
 }

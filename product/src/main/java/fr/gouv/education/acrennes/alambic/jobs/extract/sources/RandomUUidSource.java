@@ -16,33 +16,32 @@
  ******************************************************************************/
 package fr.gouv.education.acrennes.alambic.jobs.extract.sources;
 
+import fr.gouv.education.acrennes.alambic.exception.AlambicException;
+import fr.gouv.education.acrennes.alambic.jobs.CallableContext;
+import fr.gouv.education.acrennes.alambic.jobs.extract.clients.RandomUUidToStateBase;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.jdom2.Element;
 
-import fr.gouv.education.acrennes.alambic.exception.AlambicException;
-import fr.gouv.education.acrennes.alambic.jobs.CallableContext;
-import fr.gouv.education.acrennes.alambic.jobs.extract.clients.RandomUUidToStateBase;
-
 public class RandomUUidSource extends AbstractSource {
 
-	private static final Log log = LogFactory.getLog(RandomUUidSource.class);
+    private static final Log log = LogFactory.getLog(RandomUUidSource.class);
 
-	private final String DEFAULT_PROCESS_ID = "SOURCE_ID_%s_%s";
+    private final String DEFAULT_PROCESS_ID = "SOURCE_ID_%s_%s";
 
-	public RandomUUidSource(final CallableContext context, final Element sourceNode) throws AlambicException {
-		super(context, sourceNode);
-	}
+    public RandomUUidSource(final CallableContext context, final Element sourceNode) throws AlambicException {
+        super(context, sourceNode);
+    }
 
-	@Override
-	public void initialize(Element sourceNode) {
-		
-		try {
-			long currentThread = Thread.currentThread().getId();
-			setClient(new RandomUUidToStateBase(String.format(DEFAULT_PROCESS_ID, getName(), currentThread)));
-		} catch (Exception e) {
-			log.error("Failed to instanciate the client of source '" + getName() + "', error:" + e.getMessage());
-		}		
-	}
+    @Override
+    public void initialize(Element sourceNode) {
+
+        try {
+            long currentThread = Thread.currentThread().getId();
+            setClient(new RandomUUidToStateBase(String.format(DEFAULT_PROCESS_ID, getName(), currentThread)));
+        } catch (Exception e) {
+            log.error("Failed to instanciate the client of source '" + getName() + "', error:" + e.getMessage());
+        }
+    }
 
 }

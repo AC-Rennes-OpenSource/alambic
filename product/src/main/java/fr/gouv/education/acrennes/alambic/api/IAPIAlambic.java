@@ -16,22 +16,22 @@
  ******************************************************************************/
 package fr.gouv.education.acrennes.alambic.api;
 
+import fr.gouv.education.acrennes.alambic.monitoring.ActivityMBean;
+
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.Future;
 
-import fr.gouv.education.acrennes.alambic.monitoring.ActivityMBean;
-
 public interface IAPIAlambic {
 
-	List<Future<ActivityMBean>> run(
-			String addonName,
-			String jobFileName,
-			boolean isReadOnlyJob,
-			List<String> tasksList,
-			Map<String, String> parameters
-	);
+    List<Future<ActivityMBean>> run(
+            String addonName,
+            String jobFileName,
+            boolean isReadOnlyJob,
+            List<String> tasksList,
+            Map<String, String> parameters
+    );
 
-	void closeInstance();
+    void closeInstance();
 
 }

@@ -1,47 +1,47 @@
 <persistence xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-  xsi:schemaLocation="http://java.sun.com/xml/ns/persistence http://java.sun.com/xml/ns/persistence/persistence_2_0.xsd"
-  version="2.0" xmlns="http://java.sun.com/xml/ns/persistence">
-	<persistence-unit name="PRODUCTION_PERSISTENCE_UNIT" transaction-type="RESOURCE_LOCAL">
-		<provider>org.eclipse.persistence.jpa.PersistenceProvider</provider>
-		<class>fr.gouv.education.acrennes.alambic.random.persistence.RandomDictionaryEntity</class>
-		<class>fr.gouv.education.acrennes.alambic.random.persistence.RandomDictionaryEntityPK</class>
-		<class>fr.gouv.education.acrennes.alambic.random.persistence.RandomAuditEntity</class>
-		<class>fr.gouv.education.acrennes.alambic.random.persistence.RandomLambdaEntity</class>
-		<class>fr.gouv.education.acrennes.alambic.random.persistence.RandomBlurIDEntity</class>
-		<class>fr.gouv.education.acrennes.alambic.jobs.load.gar.persistence.StaffEntity</class>
-		<class>fr.gouv.education.acrennes.alambic.jobs.load.gar.persistence.StaffEntityPK</class>
-		<class>fr.gouv.education.acrennes.alambic.jobs.load.gar.persistence.EnseignementEntity</class>
-		<class>fr.gouv.education.acrennes.alambic.jobs.load.gar.persistence.PersonGroupeEntity</class>
-		<class>fr.gouv.education.acrennes.alambic.audit.persistence.AuditEntity</class>
-		<properties>
-			<property name="eclipselink.ddl-generation" value="create-or-extend-tables" />
-			<property name="eclipselink.ddl-generation.output-mode" value="database" />			
-			<property name="eclipselink.logging.level" value="off" />			
-			<property name="eclipselink.jdbc.cache-statements" value="true" />
-			<property name="eclipselink.jdbc.batch-writing" value="JDBC" />
-		</properties>
-	</persistence-unit>
-	<persistence-unit name="TEST_PERSISTENCE_UNIT" transaction-type="RESOURCE_LOCAL">
-		<provider>org.eclipse.persistence.jpa.PersistenceProvider</provider>
-		<class>fr.gouv.education.acrennes.alambic.random.persistence.RandomDictionaryEntity</class>
-		<class>fr.gouv.education.acrennes.alambic.random.persistence.RandomDictionaryEntityPK</class>
-		<class>fr.gouv.education.acrennes.alambic.random.persistence.RandomAuditEntity</class>
-		<class>fr.gouv.education.acrennes.alambic.random.persistence.RandomLambdaEntity</class>
-		<class>fr.gouv.education.acrennes.alambic.random.persistence.RandomBlurIDEntity</class>
-		<class>fr.gouv.education.acrennes.alambic.jobs.load.gar.persistence.StaffEntity</class>
-		<class>fr.gouv.education.acrennes.alambic.jobs.load.gar.persistence.StaffEntityPK</class>
-		<class>fr.gouv.education.acrennes.alambic.jobs.load.gar.persistence.EnseignementEntity</class>
-		<class>fr.gouv.education.acrennes.alambic.jobs.load.gar.persistence.PersonGroupeEntity</class>
-		<class>fr.gouv.education.acrennes.alambic.audit.persistence.AuditEntity</class>
-		<properties>
-			<property name="javax.persistence.jdbc.driver" value="org.h2.Driver" />
-			<property name="javax.persistence.jdbc.url" value="jdbc:h2:mem:test" />
-			<property name="javax.persistence.jdbc.user" value="sa" />
-			<property name="javax.persistence.jdbc.password" value="sa" />
-			<property name="eclipselink.ddl-generation" value="drop-and-create-tables" />
-			<property name="eclipselink.ddl-generation.output-mode" value="database" />
-			<property name="eclipselink.logging.level" value="OFF" />
-			<property name="eclipselink.logging.parameters" value="true"/>
-		</properties>
-	</persistence-unit>
+             xsi:schemaLocation="http://java.sun.com/xml/ns/persistence http://java.sun.com/xml/ns/persistence/persistence_2_0.xsd"
+             version="2.0" xmlns="http://java.sun.com/xml/ns/persistence">
+    <persistence-unit name="PRODUCTION_PERSISTENCE_UNIT" transaction-type="RESOURCE_LOCAL">
+        <provider>org.eclipse.persistence.jpa.PersistenceProvider</provider>
+        <class>fr.gouv.education.acrennes.alambic.random.persistence.RandomDictionaryEntity</class>
+        <class>fr.gouv.education.acrennes.alambic.random.persistence.RandomDictionaryEntityPK</class>
+        <class>fr.gouv.education.acrennes.alambic.random.persistence.RandomAuditEntity</class>
+        <class>fr.gouv.education.acrennes.alambic.random.persistence.RandomLambdaEntity</class>
+        <class>fr.gouv.education.acrennes.alambic.random.persistence.RandomBlurIDEntity</class>
+        <class>fr.gouv.education.acrennes.alambic.jobs.load.gar.persistence.StaffEntity</class>
+        <class>fr.gouv.education.acrennes.alambic.jobs.load.gar.persistence.StaffEntityPK</class>
+        <class>fr.gouv.education.acrennes.alambic.jobs.load.gar.persistence.EnseignementEntity</class>
+        <class>fr.gouv.education.acrennes.alambic.jobs.load.gar.persistence.PersonGroupeEntity</class>
+        <class>fr.gouv.education.acrennes.alambic.audit.persistence.AuditEntity</class>
+        <properties>
+            <property name="eclipselink.ddl-generation" value="create-or-extend-tables"/>
+            <property name="eclipselink.ddl-generation.output-mode" value="database"/>
+            <property name="eclipselink.logging.level" value="off"/>
+            <property name="eclipselink.jdbc.cache-statements" value="true"/>
+            <property name="eclipselink.jdbc.batch-writing" value="JDBC"/>
+        </properties>
+    </persistence-unit>
+    <persistence-unit name="TEST_PERSISTENCE_UNIT" transaction-type="RESOURCE_LOCAL">
+        <provider>org.eclipse.persistence.jpa.PersistenceProvider</provider>
+        <class>fr.gouv.education.acrennes.alambic.random.persistence.RandomDictionaryEntity</class>
+        <class>fr.gouv.education.acrennes.alambic.random.persistence.RandomDictionaryEntityPK</class>
+        <class>fr.gouv.education.acrennes.alambic.random.persistence.RandomAuditEntity</class>
+        <class>fr.gouv.education.acrennes.alambic.random.persistence.RandomLambdaEntity</class>
+        <class>fr.gouv.education.acrennes.alambic.random.persistence.RandomBlurIDEntity</class>
+        <class>fr.gouv.education.acrennes.alambic.jobs.load.gar.persistence.StaffEntity</class>
+        <class>fr.gouv.education.acrennes.alambic.jobs.load.gar.persistence.StaffEntityPK</class>
+        <class>fr.gouv.education.acrennes.alambic.jobs.load.gar.persistence.EnseignementEntity</class>
+        <class>fr.gouv.education.acrennes.alambic.jobs.load.gar.persistence.PersonGroupeEntity</class>
+        <class>fr.gouv.education.acrennes.alambic.audit.persistence.AuditEntity</class>
+        <properties>
+            <property name="javax.persistence.jdbc.driver" value="org.h2.Driver"/>
+            <property name="javax.persistence.jdbc.url" value="jdbc:h2:mem:test"/>
+            <property name="javax.persistence.jdbc.user" value="sa"/>
+            <property name="javax.persistence.jdbc.password" value="sa"/>
+            <property name="eclipselink.ddl-generation" value="drop-and-create-tables"/>
+            <property name="eclipselink.ddl-generation.output-mode" value="database"/>
+            <property name="eclipselink.logging.level" value="OFF"/>
+            <property name="eclipselink.logging.parameters" value="true"/>
+        </properties>
+    </persistence-unit>
 </persistence>

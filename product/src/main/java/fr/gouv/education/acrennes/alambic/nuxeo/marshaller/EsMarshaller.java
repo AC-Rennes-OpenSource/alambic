@@ -24,39 +24,39 @@ import org.nuxeo.ecm.automation.client.model.Documents;
 
 public class EsMarshaller implements JsonMarshaller<Documents> {
 
-	@Override
-	public String getType() {
-		return "esresponse";
-	}
+    @Override
+    public String getType() {
+        return "esresponse";
+    }
 
-	@Override
-	public Class<Documents> getJavaType() {
-		return Documents.class;
-	}
+    @Override
+    public Class<Documents> getJavaType() {
+        return Documents.class;
+    }
 
-	@Override
-	public Documents read(final JsonParser jp) throws Exception {
-		jp.nextToken();
-		String key = jp.getCurrentName();
-		if ("value".equals(key)) {
-			jp.nextToken(); // '{'
-			jp.nextToken(); // hopefully "entity-type"
-			jp.nextToken(); // its value
-			String etype = jp.getText();
-			JsonMarshaller<?> jm = JsonMarshalling.getMarshaller(etype);
-			if (null != jm) {
-				return (Documents) jm.read(jp);
-			}
-		} else {
-			throw new Exception("missing 'value' field");
-		}
+    @Override
+    public Documents read(final JsonParser jp) throws Exception {
+        jp.nextToken();
+        String key = jp.getCurrentName();
+        if ("value".equals(key)) {
+            jp.nextToken(); // '{'
+            jp.nextToken(); // hopefully "entity-type"
+            jp.nextToken(); // its value
+            String etype = jp.getText();
+            JsonMarshaller<?> jm = JsonMarshalling.getMarshaller(etype);
+            if (null != jm) {
+                return (Documents) jm.read(jp);
+            }
+        } else {
+            throw new Exception("missing 'value' field");
+        }
 
-		return null;
-	}
+        return null;
+    }
 
-	@Override
-	public void write(final JsonGenerator jg, final Object value) throws Exception {
-		// nothing
-	}
+    @Override
+    public void write(final JsonGenerator jg, final Object value) throws Exception {
+        // nothing
+    }
 
 }

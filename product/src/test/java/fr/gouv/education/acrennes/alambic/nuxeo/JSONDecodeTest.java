@@ -16,50 +16,48 @@
  ******************************************************************************/
 package fr.gouv.education.acrennes.alambic.nuxeo;
 
-import java.io.IOException;
-
-import org.junit.Assert;
-import junit.framework.TestCase;
-import net.sf.json.JSONArray;
-import net.sf.json.JSONObject;
-
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
+import junit.framework.TestCase;
+import net.sf.json.JSONArray;
+import net.sf.json.JSONObject;
+import org.junit.Assert;
+
+import java.io.IOException;
 
 public class JSONDecodeTest extends TestCase {
 
     private static final ObjectMapper mapper = new ObjectMapper();
 
-	public void test1() throws JsonProcessingException, IOException {
-		JSONArray content = new JSONArray();
-		JSONObject obj = new JSONObject();
-		obj.element("uid", "mberhaut1");
-		obj.element("niveau", "1");
-		obj.element("ident", "marc berhaut");
-		obj.element("email", "marc.berhaut@ac-rennes.fr");
-		obj.element("owner", "true");
-		content.add(obj);
-		
-		obj = new JSONObject();
-		obj.element("uid", "oadam");
-		obj.element("niveau", "2");
-		obj.element("ident", "Olivier Adam");
-		obj.element("email", "olivier.adam@ac-rennes.fr");
-		obj.element("owner", "false");
-		content.add(obj);
-	
-		System.out.println("CONTENT=" + content);
-		
+    public void test1() throws IOException {
+        JSONArray content = new JSONArray();
+        JSONObject obj = new JSONObject();
+        obj.element("uid", "mberhaut1");
+        obj.element("niveau", "1");
+        obj.element("ident", "marc berhaut");
+        obj.element("email", "marc.berhaut@ac-rennes.fr");
+        obj.element("owner", "true");
+        content.add(obj);
+
+        obj = new JSONObject();
+        obj.element("uid", "oadam");
+        obj.element("niveau", "2");
+        obj.element("ident", "Olivier Adam");
+        obj.element("email", "olivier.adam@ac-rennes.fr");
+        obj.element("owner", "false");
+        content.add(obj);
+
+        System.out.println("CONTENT=" + content);
+
         ArrayNode jsonArray = (ArrayNode) mapper.readTree(content.toString());
-		Assert.assertNotNull(jsonArray);
-		System.out.println("JSON=" + jsonArray.toString());
-		
+        Assert.assertNotNull(jsonArray);
+        System.out.println("JSON=" + jsonArray);
+
         for (int i = 0; i < jsonArray.size(); i++) {
             JsonNode node = jsonArray.get(i);
             System.out.println(" > node=" + node.toString());
-        }		
-	}
-	
+        }
+    }
+
 }

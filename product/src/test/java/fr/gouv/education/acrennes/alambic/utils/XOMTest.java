@@ -16,40 +16,40 @@
  ******************************************************************************/
 package fr.gouv.education.acrennes.alambic.utils;
 
-import java.io.File;
-
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
-
 import nu.xom.Builder;
 import nu.xom.Document;
 import nu.xom.Element;
 import nu.xom.Nodes;
+import org.junit.Assert;
+import org.junit.Before;
+import org.junit.Test;
+
+import java.io.File;
 
 public class XOMTest {
 
-	private File xmlFile;
+    private File xmlFile;
 
-	@Before
-	public void setUp() {
-		xmlFile = new File("src/test/resources/data/entry/liste-disciplines.xml");
-	}
+    @Before
+    public void setUp() {
+        xmlFile = new File("src/test/resources/data/entry/liste-disciplines.xml");
+    }
 
-	@Test
-	public void test1() {
-		final String EXPECTED_NODE_RESULT = "<discipline clé=\"arts-plastiques\" titre=\"Arts plastiques\"><inspecteur><codes><code value=\"I1800\" /></codes></inspecteur><enseignant><codes><code value=\"L1800\" /></codes></enseignant></discipline>";
+    @Test
+    public void test1() {
+        final String EXPECTED_NODE_RESULT = "<discipline clé=\"arts-plastiques\" titre=\"Arts plastiques\"><inspecteur><codes><code value=\"I1800\"" +
+                                            " /></codes></inspecteur><enseignant><codes><code value=\"L1800\" /></codes></enseignant></discipline>";
 
-		try {
-			Document document = new Builder().build(xmlFile);
-			Nodes nodes = document.query("//discipline[enseignant/codes/code[@value='L1800']]");
-			Assert.assertEquals(1, nodes.size());
+        try {
+            Document document = new Builder().build(xmlFile);
+            Nodes nodes = document.query("//discipline[enseignant/codes/code[@value='L1800']]");
+            Assert.assertEquals(1, nodes.size());
 
-			Element elt = (Element) nodes.get(0);
-			Assert.assertEquals(EXPECTED_NODE_RESULT.replaceAll("\\s", ""), elt.toXML().replaceAll("[\\s\\n]", ""));
-		} catch (Exception e) {
-			Assert.fail(e.getMessage());
-		}
-	}
+            Element elt = (Element) nodes.get(0);
+            Assert.assertEquals(EXPECTED_NODE_RESULT.replaceAll("\\s", ""), elt.toXML().replaceAll("[\\s\\n]", ""));
+        } catch (Exception e) {
+            Assert.fail(e.getMessage());
+        }
+    }
 
 }

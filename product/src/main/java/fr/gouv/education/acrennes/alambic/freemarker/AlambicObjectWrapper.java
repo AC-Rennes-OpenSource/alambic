@@ -17,35 +17,34 @@
 package fr.gouv.education.acrennes.alambic.freemarker;
 
 import fr.gouv.education.acrennes.alambic.Constants;
+import freemarker.template.DefaultObjectWrapper;
+import freemarker.template.TemplateModel;
+import freemarker.template.TemplateModelException;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import org.nuxeo.ecm.automation.client.model.PropertyList;
 import org.nuxeo.ecm.automation.client.model.PropertyMap;
 
-import freemarker.template.DefaultObjectWrapper;
-import freemarker.template.TemplateModel;
-import freemarker.template.TemplateModelException;
-
 public class AlambicObjectWrapper extends DefaultObjectWrapper {
 
-	public AlambicObjectWrapper() {
-		super(Constants.FREEMARKER_VERSION);
-	}
+    public AlambicObjectWrapper() {
+        super(Constants.FREEMARKER_VERSION);
+    }
 
-	@Override
-	protected TemplateModel handleUnknownType(final Object obj) throws TemplateModelException {
+    @Override
+    protected TemplateModel handleUnknownType(final Object obj) throws TemplateModelException {
 
-		if (obj instanceof PropertyList) {
-			return new PropertyListAdapter((PropertyList) obj, this);
-		} else if (obj instanceof PropertyMap) {
-			return new PropertyMapAdapter((PropertyMap) obj, this);
-		} else if (obj instanceof JSONObject) {
-			return new JSONObjectAdapter((JSONObject) obj, this);
-		} else if (obj instanceof JSONArray) {
-			return new JSONArrayAdapter((JSONArray) obj, this);
-		}
-		
-		return super.handleUnknownType(obj);
-	}
+        if (obj instanceof PropertyList) {
+            return new PropertyListAdapter((PropertyList) obj, this);
+        } else if (obj instanceof PropertyMap) {
+            return new PropertyMapAdapter((PropertyMap) obj, this);
+        } else if (obj instanceof JSONObject) {
+            return new JSONObjectAdapter((JSONObject) obj, this);
+        } else if (obj instanceof JSONArray) {
+            return new JSONArrayAdapter((JSONArray) obj, this);
+        }
+
+        return super.handleUnknownType(obj);
+    }
 
 }

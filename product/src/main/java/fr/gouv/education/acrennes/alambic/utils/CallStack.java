@@ -23,95 +23,95 @@ import java.util.Map;
 
 public class CallStack {
 
-	private String id;
-	private String param;
-	private String fulltext;
-	private final List<CallStack> stack;
-	private final Map<String, String> ctx;
+    private String id;
+    private String param;
+    private String fulltext;
+    private final List<CallStack> stack;
+    private final Map<String, String> ctx;
 
-	public CallStack(final String id) {
-		setId(id);
-		stack = new ArrayList<>();
-		ctx = new HashMap<String, String>();
-	}
+    public CallStack(final String id) {
+        setId(id);
+        stack = new ArrayList<>();
+        ctx = new HashMap<String, String>();
+    }
 
-	public String getId() {
-		return id;
-	}
+    public String getId() {
+        return id;
+    }
 
-	public void setId(final String id) {
-		this.id = id;
-	}
+    public void setId(final String id) {
+        this.id = id;
+    }
 
-	public String getParam() {
-		return param;
-	}
+    public String getParam() {
+        return param;
+    }
 
-	public void setParam(final String param) {
-		this.param = param;
-	}
+    public void setParam(final String param) {
+        this.param = param;
+    }
 
-	public String getFulltext() {
-		return fulltext;
-	}
+    public String getFulltext() {
+        return fulltext;
+    }
 
-	public void setFulltext(final String fulltext) {
-		this.fulltext = fulltext;
-	}
+    public void setFulltext(final String fulltext) {
+        this.fulltext = fulltext;
+    }
 
-	public List<CallStack> getStack() {
-		return stack;
-	}
+    public List<CallStack> getStack() {
+        return stack;
+    }
 
-	public Map<String, String> getCtx() {
-		return ctx;
-	}
+    public Map<String, String> getCtx() {
+        return ctx;
+    }
 
-	public void add(final CallStack stack) {
-		getStack().add(stack);
-	}
+    public void add(final CallStack stack) {
+        getStack().add(stack);
+    }
 
-	public CallStack getInner(final String fulltext) {
-		CallStack inner = null;
-		for (CallStack item : getStack()) {
-			if (item.getFulltext().equals(fulltext)) {
-				inner = item;
-				break;
-			}
-		}
-		return inner;
-	}
+    public CallStack getInner(final String fulltext) {
+        CallStack inner = null;
+        for (CallStack item : getStack()) {
+            if (item.getFulltext().equals(fulltext)) {
+                inner = item;
+                break;
+            }
+        }
+        return inner;
+    }
 
-	@Override
-	public int hashCode() {
-		return toString().hashCode();
-	}
+    @Override
+    public int hashCode() {
+        return toString().hashCode();
+    }
 
-	@Override
-	public boolean equals(final Object obj) {
-		boolean status = false;
+    @Override
+    public boolean equals(final Object obj) {
+        boolean status = false;
 
-		if (null != obj) {
-			status = getFulltext().equals(((CallStack) obj).getFulltext());
-		}
+        if (null != obj) {
+            status = getFulltext().equals(((CallStack) obj).getFulltext());
+        }
 
-		return status;
-	}
+        return status;
+    }
 
-	@Override
-	public String toString() {
-		return "{\"id\":\"" + id + "\",\"fulltext\":\"" + fulltext + "\",\"param\":\"" + param + "\",\"stack\":[" + callStackToString() + "]}";
-	}
+    @Override
+    public String toString() {
+        return "{\"id\":\"" + id + "\",\"fulltext\":\"" + fulltext + "\",\"param\":\"" + param + "\",\"stack\":[" + callStackToString() + "]}";
+    }
 
-	private String callStackToString() {
-		String str = "";
-		if (!getStack().isEmpty()) {
-			for (CallStack item : getStack()) {
-				str = str + item + ",";
-			}
-			str = str.replaceAll(",$", "");
-		}
-		return str;
-	}
+    private String callStackToString() {
+        String str = "";
+        if (!getStack().isEmpty()) {
+            for (CallStack item : getStack()) {
+                str = str + item + ",";
+            }
+            str = str.replaceAll(",$", "");
+        }
+        return str;
+    }
 
 }

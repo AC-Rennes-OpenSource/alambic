@@ -19,7 +19,7 @@ package fr.gouv.education.acrennes.alambic.nuxeo;
 import org.nuxeo.ecm.automation.client.OperationRequest;
 
 public interface AlambicOperation {
-	
-	public Object execute(OperationRequest request);
-	
+
+    Object execute(OperationRequest request);
+
 }

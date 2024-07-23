@@ -19,10 +19,10 @@ package fr.gouv.education.acrennes.alambic.utils.geo;
 import org.opengis.util.FactoryException;
 
 public class GeoConvertInitException extends RuntimeException {
-	private static final long serialVersionUID = -6874379947901479504L;
+    private static final long serialVersionUID = -6874379947901479504L;
 
-	public GeoConvertInitException(FactoryException ex) {
-		super(ex);
-	}
+    public GeoConvertInitException(FactoryException ex) {
+        super(ex);
+    }
 
 }

@@ -16,68 +16,67 @@
  ******************************************************************************/
 package fr.gouv.education.acrennes.alambic.jobs.load;
 
-import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.util.List;
-import java.util.Map;
-import java.util.Collections;
-
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-import org.jdom2.Element;
-
 import fr.gouv.education.acrennes.alambic.exception.AlambicException;
 import fr.gouv.education.acrennes.alambic.jobs.CallableContext;
 import fr.gouv.education.acrennes.alambic.monitoring.ActivityMBean;
 import fr.gouv.education.acrennes.alambic.monitoring.ActivityTrafficLight;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.jdom2.Element;
+
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
 
 public class StateBaseToFileDelete extends AbstractDestination {
 
-	private static final Log log = LogFactory.getLog(StateBaseToFileDelete.class);
+    private static final Log log = LogFactory.getLog(StateBaseToFileDelete.class);
 
-	private int count;
+    private int count;
 
-	public StateBaseToFileDelete(final CallableContext context, final Element job, final ActivityMBean jobActivity) throws AlambicException {
-		super(context, job, jobActivity);
-		this.count = 0;
-	}
+    public StateBaseToFileDelete(final CallableContext context, final Element job, final ActivityMBean jobActivity) throws AlambicException {
+        super(context, job, jobActivity);
+        this.count = 0;
+    }
 
-	@Override
-	public void execute() throws AlambicException {
-		List<Map<String, List<String>>> stateBase = (source != null) ? source.getEntries() : Collections.emptyList();
+    @Override
+    public void execute() throws AlambicException {
+        List<Map<String, List<String>>> stateBase = (source != null) ? source.getEntries() : Collections.emptyList();
 
-		for (final Map<String, List<String>> item : stateBase) {
-			// activity monitoring
-			jobActivity.setProgress(((this.count + 1) * 100) / stateBase.size());
-			jobActivity.setProcessing("processing entry " + (this.count + 1) + "/" + stateBase.size());
+        for (final Map<String, List<String>> item : stateBase) {
+            // activity monitoring
+            jobActivity.setProgress(((this.count + 1) * 100) / stateBase.size());
+            jobActivity.setProcessing("processing entry " + (this.count + 1) + "/" + stateBase.size());
 
-			// delete the file (ignore directories)
-	        try {
-	        	if (Boolean.parseBoolean(item.get("isFile").get(0))) {
-	        		Path path = Paths.get(item.get("path").get(0));
-	        		if (!isDryMode) {
-	        			Files.delete(path);
-	        			log.info("Deleted the file '" + path + "'");
-	        		} else {
-	        			log.info("[DRY MODE] Deleted the file '" + path + "'");
-	        		}
-	        	} else {
-	        		log.info("Ignore '" + item.get("name").get(0) + "' since it is a directory");
-	        	}
-			} catch (IOException e) {
-				jobActivity.setTrafficLight(ActivityTrafficLight.RED);
-				throw new AlambicException(e);
-			}
-		}
+            // delete the file (ignore directories)
+            try {
+                if (Boolean.parseBoolean(item.get("isFile").get(0))) {
+                    Path path = Paths.get(item.get("path").get(0));
+                    if (!isDryMode) {
+                        Files.delete(path);
+                        log.info("Deleted the file '" + path + "'");
+                    } else {
+                        log.info("[DRY MODE] Deleted the file '" + path + "'");
+                    }
+                } else {
+                    log.info("Ignore '" + item.get("name").get(0) + "' since it is a directory");
+                }
+            } catch (IOException e) {
+                jobActivity.setTrafficLight(ActivityTrafficLight.RED);
+                throw new AlambicException(e);
+            }
+        }
 
-		count++;
-	}
+        count++;
+    }
 
-	@Override
-	public boolean isDryModeSupported() {
-		return true; // This files won't be deleted from the file system
-	}
+    @Override
+    public boolean isDryModeSupported() {
+        return true; // This files won't be deleted from the file system
+    }
 
 }

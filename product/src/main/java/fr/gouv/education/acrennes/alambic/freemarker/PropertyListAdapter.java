@@ -16,38 +16,32 @@
  ******************************************************************************/
 package fr.gouv.education.acrennes.alambic.freemarker;
 
+import freemarker.template.*;
 import org.nuxeo.ecm.automation.client.model.PropertyList;
-
-import freemarker.template.AdapterTemplateModel;
-import freemarker.template.ObjectWrapper;
-import freemarker.template.TemplateModel;
-import freemarker.template.TemplateModelException;
-import freemarker.template.TemplateSequenceModel;
-import freemarker.template.WrappingTemplateModel;
 
 public class PropertyListAdapter extends WrappingTemplateModel implements TemplateSequenceModel, AdapterTemplateModel {
 
-	private final PropertyList propertyList;
-	
-	public PropertyListAdapter(PropertyList propertyList, ObjectWrapper ow) {
-		super(ow);
-		this.propertyList = propertyList;
-	}
-	
-	@SuppressWarnings("rawtypes")
-	@Override
-	public Object getAdaptedObject(Class hint) {
-		return this.propertyList;
-	}
+    private final PropertyList propertyList;
 
-	@Override
-	public TemplateModel get(int index) throws TemplateModelException {
-		return wrap(this.propertyList.list().get(index));
-	}
+    public PropertyListAdapter(PropertyList propertyList, ObjectWrapper ow) {
+        super(ow);
+        this.propertyList = propertyList;
+    }
 
-	@Override
-	public int size() throws TemplateModelException {
-		return this.propertyList.size();
-	}
+    @SuppressWarnings("rawtypes")
+    @Override
+    public Object getAdaptedObject(Class hint) {
+        return this.propertyList;
+    }
+
+    @Override
+    public TemplateModel get(int index) throws TemplateModelException {
+        return wrap(this.propertyList.list().get(index));
+    }
+
+    @Override
+    public int size() throws TemplateModelException {
+        return this.propertyList.size();
+    }
 
 }

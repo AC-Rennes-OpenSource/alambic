@@ -16,9 +16,9 @@ import javax.xml.bind.annotation.XmlType;
 
 /**
  * <p>Classe Java pour GARPersonProfils complex type.
- * 
+ *
  * <p>Le fragment de schéma suivant indique le contenu attendu figurant dans cette classe.
- * 
+ *
  * <pre>
  * &lt;complexType name="GARPersonProfils">
  *   &lt;complexContent>
@@ -31,13 +31,13 @@ import javax.xml.bind.annotation.XmlType;
  *   &lt;/complexContent>
  * &lt;/complexType>
  * </pre>
- * 
- * 
+ *
+ *
  */
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlType(name = "GARPersonProfils", propOrder = {
-    "garStructureUAI",
-    "garPersonProfil"
+        "garStructureUAI",
+        "garPersonProfil"
 })
 public class GARPersonProfils {
 
@@ -48,11 +48,11 @@ public class GARPersonProfils {
 
     /**
      * Obtient la valeur de la propriété garStructureUAI.
-     * 
+     *
      * @return
      *     possible object is
      *     {@link String }
-     *     
+     *
      */
     public String getGARStructureUAI() {
         return garStructureUAI;
@@ -60,11 +60,11 @@ public class GARPersonProfils {
 
     /**
      * Définit la valeur de la propriété garStructureUAI.
-     * 
+     *
      * @param value
      *     allowed object is
      *     {@link String }
-     *     
+     *
      */
     public void setGARStructureUAI(String value) {
         this.garStructureUAI = value;
@@ -72,11 +72,11 @@ public class GARPersonProfils {
 
     /**
      * Obtient la valeur de la propriété garPersonProfil.
-     * 
+     *
      * @return
      *     possible object is
      *     {@link String }
-     *     
+     *
      */
     public String getGARPersonProfil() {
         return garPersonProfil;
@@ -84,11 +84,11 @@ public class GARPersonProfils {
 
     /**
      * Définit la valeur de la propriété garPersonProfil.
-     * 
+     *
      * @param value
      *     allowed object is
      *     {@link String }
-     *     
+     *
      */
     public void setGARPersonProfil(String value) {
         this.garPersonProfil = value;

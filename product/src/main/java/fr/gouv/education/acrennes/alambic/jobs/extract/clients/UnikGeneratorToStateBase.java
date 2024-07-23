@@ -21,8 +21,8 @@ import fr.gouv.education.acrennes.alambic.generator.service.RandomGeneratorServi
 
 public class UnikGeneratorToStateBase extends RandomClientToStateBase {
 
-	public UnikGeneratorToStateBase(final String defaultProcessId) throws AlambicException {
-		super(defaultProcessId, GENERATOR_TYPE.UNIK);
-	}
+    public UnikGeneratorToStateBase(final String defaultProcessId) throws AlambicException {
+        super(defaultProcessId, GENERATOR_TYPE.UNIK);
+    }
 
 }

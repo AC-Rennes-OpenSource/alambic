@@ -21,8 +21,8 @@ import fr.gouv.education.acrennes.alambic.generator.service.RandomGeneratorServi
 
 public class RandomUAIToStateBase extends RandomClientToStateBase {
 
-	public RandomUAIToStateBase(final String defaultProcessId) throws AlambicException {
-		super(defaultProcessId, GENERATOR_TYPE.UAI);
-	}
+    public RandomUAIToStateBase(final String defaultProcessId) throws AlambicException {
+        super(defaultProcessId, GENERATOR_TYPE.UAI);
+    }
 
 }

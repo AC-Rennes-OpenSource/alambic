@@ -16,10 +16,10 @@
  ******************************************************************************/
 package fr.gouv.education.acrennes.alambic.nuxeo;
 
+import org.jdom2.Element;
+
 import java.util.ArrayList;
 import java.util.List;
-
-import org.jdom2.Element;
 
 /*
  * Structure XML à décoder dans le
@@ -32,30 +32,30 @@ import org.jdom2.Element;
 
 public class ACL {
 
-	private final Element aclElement;
-	private static final String LOCAL = "local";
-	private static final String NAME = "name";
+    private final Element aclElement;
+    private static final String LOCAL = "local";
+    private static final String NAME = "name";
 
-	public ACL(final Element aclElement) {
-		this.aclElement = aclElement;
-	}
+    public ACL(final Element aclElement) {
+        this.aclElement = aclElement;
+    }
 
-	public String getName() {
-		String name = LOCAL;
-		if (aclElement != null) {
-			if (aclElement.getAttributeValue(NAME) != null) {
-				name = aclElement.getAttributeValue(NAME);
-			}
-		}
-		return name;
-	}
+    public String getName() {
+        String name = LOCAL;
+        if (aclElement != null) {
+            if (aclElement.getAttributeValue(NAME) != null) {
+                name = aclElement.getAttributeValue(NAME);
+            }
+        }
+        return name;
+    }
 
-	public List<ACE> getAceList() {
-		List<ACE> lace = new ArrayList<ACE>();
-		for (Element aceElement : (List<Element>) aclElement.getChildren()) {
-			lace.add(new ACE(aceElement));
-		}
-		return lace;
+    public List<ACE> getAceList() {
+        List<ACE> lace = new ArrayList<ACE>();
+        for (Element aceElement : aclElement.getChildren()) {
+            lace.add(new ACE(aceElement));
+        }
+        return lace;
 
-	}
+    }
 }

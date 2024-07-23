@@ -16,76 +16,75 @@
  ******************************************************************************/
 package fr.gouv.education.acrennes.alambic.monitoring;
 
-import java.util.List;
+import fr.gouv.education.acrennes.alambic.nuxeo.marshaller.Report;
 
 import javax.management.ObjectName;
-
-import fr.gouv.education.acrennes.alambic.nuxeo.marshaller.Report;
+import java.util.List;
 
 public interface ActivityMBean {
 
-	public enum ACTIVITY_STATUS {
-		WAITING,
-		RUNNING,
-		COMPLETED
-	}
+    enum ACTIVITY_STATUS {
+        WAITING,
+        RUNNING,
+        COMPLETED
+    }
 
-	public enum ACTIVITY_TYPE {
-		META,
-		INNER
-	}
+    enum ACTIVITY_TYPE {
+        META,
+        INNER
+    }
 
-	public String getJobName();
+    String getJobName();
 
-	public int getProgress();
+    int getProgress();
 
-	public void setProgress(int value);
-	
-	public long getDuration();
+    void setProgress(int value);
 
-	public String getProcessing();
+    long getDuration();
 
-	public void setProcessing(String processing);
+    String getProcessing();
 
-	public String getStatus();
+    void setProcessing(String processing);
 
-	public void setStatus(String status);
+    String getStatus();
 
-	public long getStartTime();
+    void setStatus(String status);
 
-	public void setStartTime(long time);
+    long getStartTime();
 
-	public long getEndTime();
+    void setStartTime(long time);
 
-	public void setEndTime(long time);
+    long getEndTime();
 
-	public String getThread();
+    void setEndTime(long time);
 
-	public void setThread(String name);
+    String getThread();
 
-	public ActivityTrafficLight getTrafficLight();
+    void setThread(String name);
 
-	public void setTrafficLight(ActivityTrafficLight light);
+    ActivityTrafficLight getTrafficLight();
 
-	public void registerInnerActivity(final ActivityMBean innerActivity);
-	
-	public void setInnerJobsCount(int count);
+    void setTrafficLight(ActivityTrafficLight light);
 
-	public int getInnerJobsCount();
-	
-	public Object getResult();
+    void registerInnerActivity(final ActivityMBean innerActivity);
 
-	public void setResult(Object val);
-	
-	public ObjectName getObjectName();
-	
-	public void addError(String e);
+    void setInnerJobsCount(int count);
 
-	public void addError(Exception e);
-	
-	public List<Exception> getErrors();
-	
-	public String toString();
-	
-	public Report getReport();	
+    int getInnerJobsCount();
+
+    Object getResult();
+
+    void setResult(Object val);
+
+    ObjectName getObjectName();
+
+    void addError(String e);
+
+    void addError(Exception e);
+
+    List<Exception> getErrors();
+
+    String toString();
+
+    Report getReport();
 }

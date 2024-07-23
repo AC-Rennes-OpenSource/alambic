@@ -1,77 +1,77 @@
 <entry verifyIfExist="(ou=0352318E)">
-	<dn>ou=0352318E,ou=structures,dc=ent-bretagne,dc=fr</dn>
-	<attributes>
-		<attr name="objectClass" modifyMode="ignore">
-			<value>top</value>
-			<value>ENTStructure</value>
-			<value>ENTOrganisation</value>
-			<value>ENTEtablissement</value>
-		</attr>
-		<attr name="ENTEtablissementContrat" modifyMode="ignore">
-			<value>PU</value>
-		</attr>
-		<attr name="street" modifyMode="replace">
-			<value>AVENUE DU BOIS GREFFIER</value>
-		</attr>
-		<attr name="ENTOrganisationGeoLoc" modifyMode="replace">
-			<value>47.84770462898778,-1.6935174304831626</value>
-		</attr>
-		<attr name="ENTDisplayName" modifyMode="replace">
-			<value>LYCEE GENERAL ET TECHNOLOGIQUE JEAN BRITO</value>
-		</attr>
-		<attr name="ENTStructureJointure" modifyMode="ignore">
-			<value>3681</value>
-		</attr>
-		<attr name="description" modifyMode="replace">
-			<value>LYCEE GENERAL ET TECHNOLOGIQUE JEAN BRITO</value>
-		</attr>
-		<attr name="ENTStructureNomCourant" modifyMode="replace">
-			<value>JEAN BRITO</value>
-		</attr>
-		<attr name="ENTEtablissementBassin" modifyMode="replace">
-			<value>035002BU</value>
-		</attr>
-		<attr name="telephoneNumber" modifyMode="replace">
-			<value>+33 2 99 43 31 31</value>
-		</attr>
-		<attr name="facsimileTelephoneNumber" modifyMode="replace">
-			<value>+33 2 99 43 31 30</value>
-		</attr>
-		<attr name="postalCode" modifyMode="replace">
-			<value>35470</value>
-		</attr>
-		<attr name="ENTManager" modifyMode="replace">
-			<value>cn=0352318E_DIR,ou=profils,ou=groupes,dc=ent-bretagne,dc=fr</value>
-		</attr>
-		<attr name="l" modifyMode="replace">
-			<value>BAIN DE BR</value>
-		</attr>
-		<attr name="ENTStructureUAI" modifyMode="replace">
-			<value>0352318E</value>
-		</attr>
-		<attr name="ENTEtablissementMinistereTutelle" modifyMode="replace">
-			<value>MEN</value>
-		</attr>
-		<attr name="ENTStructureTypeStruct" modifyMode="replace">
-			<value>LYC</value>
-		</attr>
-		<attr name="ENTStructureClasses" modifyMode="replace">
-			<value>1 L1$1 L1$20113019110$20113019112</value>
-			<value>1 STMG2$1 STMG2$21131016110</value>
-		</attr>
-		<attr name="ENTStructureGroupes" modifyMode="replace">
-			<value>1 L1_ANG RENF$$1 L1</value>
-			<value>1 L1_DGEMC$$1 L1</value>
-			<value>2 L2_ESP2$$1 L1</value>
-			<value>1 STMG1_ESP2$$1 STMG1</value>
-		</attr>
-		<attr name="ENTOrganisationProfils" modifyMode="replace">
-			<value>cn=0352318E_ADF,ou=profils,ou=groupes,dc=ent-bretagne,dc=fr</value>
-			<value>cn=0352318E_DOC,ou=profils,ou=groupes,dc=ent-bretagne,dc=fr</value>
-			<value>cn=0352318E_TOUS,ou=profils,ou=groupes,dc=ent-bretagne,dc=fr</value>
-			<value>cn=0352318E_SUR,ou=profils,ou=groupes,dc=ent-bretagne,dc=fr</value>
-			<value>cn=0352318E_DIR,ou=profils,ou=groupes,dc=ent-bretagne,dc=fr</value>
-			<value>cn=0352318E_ENS,ou=profils,ou=groupes,dc=ent-bretagne,dc=fr</value>
-		</attr>
-	</attributes>
+    <dn>ou=0352318E,ou=structures,dc=ent-bretagne,dc=fr</dn>
+    <attributes>
+        <attr name="objectClass" modifyMode="ignore">
+            <value>top</value>
+            <value>ENTStructure</value>
+            <value>ENTOrganisation</value>
+            <value>ENTEtablissement</value>
+        </attr>
+        <attr name="ENTEtablissementContrat" modifyMode="ignore">
+            <value>PU</value>
+        </attr>
+        <attr name="street" modifyMode="replace">
+            <value>AVENUE DU BOIS GREFFIER</value>
+        </attr>
+        <attr name="ENTOrganisationGeoLoc" modifyMode="replace">
+            <value>47.84770462898778,-1.6935174304831626</value>
+        </attr>
+        <attr name="ENTDisplayName" modifyMode="replace">
+            <value>LYCEE GENERAL ET TECHNOLOGIQUE JEAN BRITO</value>
+        </attr>
+        <attr name="ENTStructureJointure" modifyMode="ignore">
+            <value>3681</value>
+        </attr>
+        <attr name="description" modifyMode="replace">
+            <value>LYCEE GENERAL ET TECHNOLOGIQUE JEAN BRITO</value>
+        </attr>
+        <attr name="ENTStructureNomCourant" modifyMode="replace">
+            <value>JEAN BRITO</value>
+        </attr>
+        <attr name="ENTEtablissementBassin" modifyMode="replace">
+            <value>035002BU</value>
+        </attr>
+        <attr name="telephoneNumber" modifyMode="replace">
+            <value>+33 2 99 43 31 31</value>
+        </attr>
+        <attr name="facsimileTelephoneNumber" modifyMode="replace">
+            <value>+33 2 99 43 31 30</value>
+        </attr>
+        <attr name="postalCode" modifyMode="replace">
+            <value>35470</value>
+        </attr>
+        <attr name="ENTManager" modifyMode="replace">
+            <value>cn=0352318E_DIR,ou=profils,ou=groupes,dc=ent-bretagne,dc=fr</value>
+        </attr>
+        <attr name="l" modifyMode="replace">
+            <value>BAIN DE BR</value>
+        </attr>
+        <attr name="ENTStructureUAI" modifyMode="replace">
+            <value>0352318E</value>
+        </attr>
+        <attr name="ENTEtablissementMinistereTutelle" modifyMode="replace">
+            <value>MEN</value>
+        </attr>
+        <attr name="ENTStructureTypeStruct" modifyMode="replace">
+            <value>LYC</value>
+        </attr>
+        <attr name="ENTStructureClasses" modifyMode="replace">
+            <value>1 L1$1 L1$20113019110$20113019112</value>
+            <value>1 STMG2$1 STMG2$21131016110</value>
+        </attr>
+        <attr name="ENTStructureGroupes" modifyMode="replace">
+            <value>1 L1_ANG RENF$$1 L1</value>
+            <value>1 L1_DGEMC$$1 L1</value>
+            <value>2 L2_ESP2$$1 L1</value>
+            <value>1 STMG1_ESP2$$1 STMG1</value>
+        </attr>
+        <attr name="ENTOrganisationProfils" modifyMode="replace">
+            <value>cn=0352318E_ADF,ou=profils,ou=groupes,dc=ent-bretagne,dc=fr</value>
+            <value>cn=0352318E_DOC,ou=profils,ou=groupes,dc=ent-bretagne,dc=fr</value>
+            <value>cn=0352318E_TOUS,ou=profils,ou=groupes,dc=ent-bretagne,dc=fr</value>
+            <value>cn=0352318E_SUR,ou=profils,ou=groupes,dc=ent-bretagne,dc=fr</value>
+            <value>cn=0352318E_DIR,ou=profils,ou=groupes,dc=ent-bretagne,dc=fr</value>
+            <value>cn=0352318E_ENS,ou=profils,ou=groupes,dc=ent-bretagne,dc=fr</value>
+        </attr>
+    </attributes>
 </entry>

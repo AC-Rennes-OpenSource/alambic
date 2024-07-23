@@ -24,19 +24,19 @@
 
 package fr.gouv.education.acrennes.alambic.jobs.load.gar.binding2d;
 
-import java.util.ArrayList;
-import java.util.List;
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlType;
+import java.util.ArrayList;
+import java.util.List;
 
 
 /**
  * <p>Classe Java pour GAREnsGroupeMatiere complex type.
- * 
+ *
  * <p>Le fragment de schéma suivant indique le contenu attendu figurant dans cette classe.
- * 
+ *
  * <pre>
  * &lt;complexType name="GAREnsGroupeMatiere">
  *   &lt;complexContent>
@@ -51,15 +51,15 @@ import javax.xml.bind.annotation.XmlType;
  *   &lt;/complexContent>
  * &lt;/complexType>
  * </pre>
- * 
- * 
+ *
+ *
  */
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlType(name = "GAREnsGroupeMatiere", propOrder = {
-    "garStructureUAI",
-    "garPersonIdentifiant",
-    "garGroupeCode",
-    "garMatiereCode"
+        "garStructureUAI",
+        "garPersonIdentifiant",
+        "garGroupeCode",
+        "garMatiereCode"
 })
 public class GAREnsGroupeMatiere {
 
@@ -74,11 +74,11 @@ public class GAREnsGroupeMatiere {
 
     /**
      * Obtient la valeur de la propriété garStructureUAI.
-     * 
+     *
      * @return
      *     possible object is
      *     {@link String }
-     *     
+     *
      */
     public String getGARStructureUAI() {
         return garStructureUAI;
@@ -86,11 +86,11 @@ public class GAREnsGroupeMatiere {
 
     /**
      * Définit la valeur de la propriété garStructureUAI.
-     * 
+     *
      * @param value
      *     allowed object is
      *     {@link String }
-     *     
+     *
      */
     public void setGARStructureUAI(String value) {
         this.garStructureUAI = value;
@@ -98,11 +98,11 @@ public class GAREnsGroupeMatiere {
 
     /**
      * Obtient la valeur de la propriété garPersonIdentifiant.
-     * 
+     *
      * @return
      *     possible object is
      *     {@link String }
-     *     
+     *
      */
     public String getGARPersonIdentifiant() {
         return garPersonIdentifiant;
@@ -110,11 +110,11 @@ public class GAREnsGroupeMatiere {
 
     /**
      * Définit la valeur de la propriété garPersonIdentifiant.
-     * 
+     *
      * @param value
      *     allowed object is
      *     {@link String }
-     *     
+     *
      */
     public void setGARPersonIdentifiant(String value) {
         this.garPersonIdentifiant = value;
@@ -122,11 +122,11 @@ public class GAREnsGroupeMatiere {
 
     /**
      * Obtient la valeur de la propriété garGroupeCode.
-     * 
+     *
      * @return
      *     possible object is
      *     {@link String }
-     *     
+     *
      */
     public String getGARGroupeCode() {
         return garGroupeCode;
@@ -134,11 +134,11 @@ public class GAREnsGroupeMatiere {
 
     /**
      * Définit la valeur de la propriété garGroupeCode.
-     * 
+     *
      * @param value
      *     allowed object is
      *     {@link String }
-     *     
+     *
      */
     public void setGARGroupeCode(String value) {
         this.garGroupeCode = value;
@@ -146,25 +146,25 @@ public class GAREnsGroupeMatiere {
 
     /**
      * Gets the value of the garMatiereCode property.
-     * 
+     *
      * <p>
      * This accessor method returns a reference to the live list,
      * not a snapshot. Therefore any modification you make to the
      * returned list will be present inside the JAXB object.
      * This is why there is not a <CODE>set</CODE> method for the garMatiereCode property.
-     * 
+     *
      * <p>
      * For example, to add a new item, do as follows:
      * <pre>
      *    getGARMatiereCode().add(newItem);
      * </pre>
-     * 
-     * 
+     *
+     *
      * <p>
      * Objects of the following type(s) are allowed in the list
      * {@link String }
-     * 
-     * 
+     *
+     *
      */
     public List<String> getGARMatiereCode() {
         if (garMatiereCode == null) {

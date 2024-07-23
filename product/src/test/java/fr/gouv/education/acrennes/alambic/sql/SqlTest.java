@@ -15,48 +15,46 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  ******************************************************************************/
 package fr.gouv.education.acrennes.alambic.sql;
-import java.sql.Connection;
-import java.sql.DriverManager;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.ResultSetMetaData;
-import java.sql.SQLException;
+
+import java.sql.*;
 
 public class SqlTest {
 
-	public static void main(String[] args) {
-	        String driver = "com.mysql.jdbc.Driver";
-	        String url    = "jdbc:mysql://lxseriah3.in.ac-rennes.fr/sasper"; // Change it to your database name
-	        String username = "loc";
-	        String password = "ldapomatic"; // Change it to your Password
-	        System.setProperty(driver,"");
+    public static void main(String[] args) {
+        String driver = "com.mysql.jdbc.Driver";
+        String url = "jdbc:mysql://lxseriah3.in.ac-rennes.fr/sasper"; // Change it to your database name
+        String username = "loc";
+        String password = "ldapomatic"; // Change it to your Password
+        System.setProperty(driver, "");
 
-	        try {
-				Connection connection = DriverManager.getConnection(url,username,password);
-				PreparedStatement pstmt = connection.prepareStatement("SELECT * FROM bureau;");
-                ResultSet rs = pstmt.executeQuery();
-                
-              //tranfo vers format extration g�n�rique
-        		ResultSetMetaData rsmd = rs.getMetaData();
-        	    int numberOfColumns = rsmd.getColumnCount();
-        		while(rs.next()){
-        			for (int i=1;i<=numberOfColumns;i++){
-        				String s = rs.getString(i);
-        				if (s==null) s="";
-        			
-        				System.out.print(rsmd.getColumnLabel(i) +" : "+ s+ "\r");
-        			}
-        			System.out.print("\n");
-        			
+        try {
+            Connection connection = DriverManager.getConnection(url, username, password);
+            PreparedStatement pstmt = connection.prepareStatement("SELECT * FROM bureau;");
+            ResultSet rs = pstmt.executeQuery();
+
+            //tranfo vers format extration g�n�rique
+            ResultSetMetaData rsmd = rs.getMetaData();
+            int numberOfColumns = rsmd.getColumnCount();
+            while (rs.next()) {
+                for (int i = 1; i <= numberOfColumns; i++) {
+                    String s = rs.getString(i);
+                    if (s == null) {
+                        s = "";
+                    }
+
+                    System.out.print(rsmd.getColumnLabel(i) + " : " + s + "\r");
                 }
-                
-                rs.close();
-                pstmt.close();
-                connection.close();
-			} catch (SQLException e) {
-				e.printStackTrace();
-			}
+                System.out.print("\n");
 
-	    }
-	}
+            }
+
+            rs.close();
+            pstmt.close();
+            connection.close();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+
+    }
+}
 

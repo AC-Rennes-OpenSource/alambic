@@ -16,114 +16,106 @@
  ******************************************************************************/
 package fr.gouv.education.acrennes.alambic.jobs.load.gar.persistence;
 
+import org.eclipse.persistence.annotations.CascadeOnDelete;
+import org.eclipse.persistence.annotations.Index;
+import org.eclipse.persistence.annotations.Indexes;
+
+import javax.persistence.*;
 import java.io.Serializable;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
-import javax.persistence.CascadeType;
-import javax.persistence.Column;
-import javax.persistence.EmbeddedId;
-import javax.persistence.Entity;
-import javax.persistence.EnumType;
-import javax.persistence.Enumerated;
-import javax.persistence.OneToMany;
-
-import org.eclipse.persistence.annotations.CascadeOnDelete;
-import org.eclipse.persistence.annotations.Index;
-import org.eclipse.persistence.annotations.Indexes;
-
 @Entity
 @Indexes({
-		@Index(name = "staffentity_pk_idx", unique = true, columnNames = { "uuid", "uai" }),
-		@Index(name = "staffentity_uuid_idx", columnNames = { "uuid" }),
-		@Index(name = "staffentity_uai_idx", columnNames = { "uai" }),
-		@Index(name = "staffentity_type_idx", columnNames = { "type" })
+        @Index(name = "staffentity_pk_idx", unique = true, columnNames = { "uuid", "uai" }),
+        @Index(name = "staffentity_uuid_idx", columnNames = { "uuid" }),
+        @Index(name = "staffentity_uai_idx", columnNames = { "uai" }),
+        @Index(name = "staffentity_type_idx", columnNames = { "type" })
 })
 public class StaffEntity implements Serializable {
 
-	private static final long serialVersionUID = 1L;
+    private static final long serialVersionUID = 1L;
 
-	public enum STAFF_TYPE {
-		TEACHER,
-		STUDENT
-	}
+    public enum STAFF_TYPE {
+        TEACHER,
+        STUDENT
+    }
 
-	@EmbeddedId
-	private StaffEntityPK primaryKey;
+    @EmbeddedId
+    private StaffEntityPK primaryKey;
 
-	@OneToMany(targetEntity = EnseignementEntity.class, orphanRemoval = true, cascade = CascadeType.ALL /*, fetch = FetchType.LAZY */)
-	@CascadeOnDelete
-	private List<EnseignementEntity> enseignements;
+    @OneToMany(targetEntity = EnseignementEntity.class, orphanRemoval = true, cascade = CascadeType.ALL /*, fetch = FetchType.LAZY */)
+    @CascadeOnDelete
+    private List<EnseignementEntity> enseignements;
 
-	@Enumerated(EnumType.STRING)
-	@Column(name = "type")
-	private STAFF_TYPE type;
+    @Enumerated(EnumType.STRING)
+    @Column(name = "type")
+    private STAFF_TYPE type;
 
-	public StaffEntity() {
-	}
+    public StaffEntity() {
+    }
 
-	public StaffEntity(final StaffEntityPK pk, final STAFF_TYPE type) {
-		primaryKey = pk;
-		this.type = type;
-		enseignements = Collections.emptyList();
-	}
+    public StaffEntity(final StaffEntityPK pk, final STAFF_TYPE type) {
+        primaryKey = pk;
+        this.type = type;
+        enseignements = Collections.emptyList();
+    }
 
-	public StaffEntity(final StaffEntityPK pk, final List<EnseignementEntity> enseignements, final STAFF_TYPE type) {
-		this(pk, type);
-		this.enseignements = enseignements;
-	}
+    public StaffEntity(final StaffEntityPK pk, final List<EnseignementEntity> enseignements, final STAFF_TYPE type) {
+        this(pk, type);
+        this.enseignements = enseignements;
+    }
 
-	public StaffEntityPK getPrimaryKey() {
-		return primaryKey;
-	}
+    public StaffEntityPK getPrimaryKey() {
+        return primaryKey;
+    }
 
-	public void setPrimaryKey(final StaffEntityPK primaryKey) {
-		this.primaryKey = primaryKey;
-	}
+    public void setPrimaryKey(final StaffEntityPK primaryKey) {
+        this.primaryKey = primaryKey;
+    }
 
-	public STAFF_TYPE getType() {
-		return type;
-	}
+    public STAFF_TYPE getType() {
+        return type;
+    }
 
-	public void setType(final STAFF_TYPE type) {
-		this.type = type;
-	}
+    public void setType(final STAFF_TYPE type) {
+        this.type = type;
+    }
 
-	public List<EnseignementEntity> getEnseignements() {
-		return enseignements;
-	}
+    public List<EnseignementEntity> getEnseignements() {
+        return enseignements;
+    }
 
-	public void setEnseignements(final List<EnseignementEntity> enseignements) {
-		this.enseignements = enseignements;
-	}
+    public void setEnseignements(final List<EnseignementEntity> enseignements) {
+        this.enseignements = enseignements;
+    }
 
-	@Override
-	public boolean equals(final Object obj) {
-		boolean isEqual = false;
+    @Override
+    public boolean equals(final Object obj) {
+        boolean isEqual = false;
 
-		if (obj == this) {
-			isEqual = true;
-		} else if (null != obj) {
-			if (obj instanceof StaffEntity) {
-				StaffEntity other = (StaffEntity) obj;
-				if (other.getPrimaryKey().equals(getPrimaryKey()) && type == other.getType()) {
-					isEqual = true;
-				}
-			}
-		}
+        if (obj == this) {
+            isEqual = true;
+        } else if (null != obj) {
+            if (obj instanceof final StaffEntity other) {
+                if (other.getPrimaryKey().equals(getPrimaryKey()) && type == other.getType()) {
+                    isEqual = true;
+                }
+            }
+        }
 
-		return isEqual;
-	}
+        return isEqual;
+    }
 
-	@Override
-	public String toString() {
-		return "{\"primaryKey\":" + getPrimaryKey() + ",\"type\":\"" + getType() + "\",\"enseignements\":[" + Arrays.toString(getEnseignements().toArray()) + "]}";
-	}
+    @Override
+    public String toString() {
+        return "{\"primaryKey\":" + getPrimaryKey() + ",\"type\":\"" + getType() + "\",\"enseignements\":[" + Arrays.toString(getEnseignements().toArray()) + "]}";
+    }
 
-	@Override
-	public int hashCode() {
-		return "StaffEntity::".concat(toString()).hashCode();
-	}
+    @Override
+    public int hashCode() {
+        return "StaffEntity::".concat(toString()).hashCode();
+    }
 
 }

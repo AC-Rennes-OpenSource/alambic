@@ -18,34 +18,34 @@ package fr.gouv.education.acrennes.alambic.monitoring;
 
 public enum ActivityTrafficLight {
 
-	GREEN(1),
-	ORANGE(2),
-	RED(3);
-	
-	private int value;
-	
-	ActivityTrafficLight(int value) {
-		this.value = value;
-	}
+    GREEN(1),
+    ORANGE(2),
+    RED(3);
 
-	public int getScalarValue() {
-		return this.value;
-	}
+    private final int value;
 
-	public boolean isLowerThan(final ActivityTrafficLight activity) {
-		return this.value < activity.getScalarValue();
-	}
+    ActivityTrafficLight(int value) {
+        this.value = value;
+    }
 
-	public boolean isEqualOrLowerThan(final ActivityTrafficLight activity) {
-		return this.value <= activity.getScalarValue();
-	}
+    public int getScalarValue() {
+        return this.value;
+    }
 
-	public boolean isGreaterThan(final ActivityTrafficLight activity) {
-		return this.value > activity.getScalarValue();
-	}
+    public boolean isLowerThan(final ActivityTrafficLight activity) {
+        return this.value < activity.getScalarValue();
+    }
 
-	public boolean isEqualOrGreaterThan(final ActivityTrafficLight activity) {
-		return this.value >= activity.getScalarValue();
-	}
-	
+    public boolean isEqualOrLowerThan(final ActivityTrafficLight activity) {
+        return this.value <= activity.getScalarValue();
+    }
+
+    public boolean isGreaterThan(final ActivityTrafficLight activity) {
+        return this.value > activity.getScalarValue();
+    }
+
+    public boolean isEqualOrGreaterThan(final ActivityTrafficLight activity) {
+        return this.value >= activity.getScalarValue();
+    }
+
 }

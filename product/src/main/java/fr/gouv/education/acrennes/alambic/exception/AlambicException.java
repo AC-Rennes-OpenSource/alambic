@@ -18,17 +18,19 @@ package fr.gouv.education.acrennes.alambic.exception;
 
 public class AlambicException extends Exception {
 
-	private static final long serialVersionUID = 1L;
-	public AlambicException() {
+    private static final long serialVersionUID = 1L;
+
+    public AlambicException() {
         super();
     }
+
     public AlambicException(String s) {
         super(s);
     }
 
-	public AlambicException(Throwable cause) {
-		super(cause);
-	}
+    public AlambicException(Throwable cause) {
+        super(cause);
+    }
 }
 
 

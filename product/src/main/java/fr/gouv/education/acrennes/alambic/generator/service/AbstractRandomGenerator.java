@@ -16,6 +16,19 @@
  ******************************************************************************/
 package fr.gouv.education.acrennes.alambic.generator.service;
 
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import fr.gouv.education.acrennes.alambic.Constants;
+import fr.gouv.education.acrennes.alambic.exception.AlambicException;
+import fr.gouv.education.acrennes.alambic.generator.service.RandomGeneratorService.GENERATOR_TYPE;
+import fr.gouv.education.acrennes.alambic.random.persistence.RandomAuditEntity;
+import fr.gouv.education.acrennes.alambic.random.persistence.RandomEntity;
+import org.apache.commons.lang.StringUtils;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+
+import javax.persistence.EntityManager;
+import javax.persistence.Query;
 import java.io.IOException;
 import java.io.Serializable;
 import java.util.ArrayList;
@@ -24,340 +37,332 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.locks.ReentrantReadWriteLock.WriteLock;
 
-import javax.persistence.EntityManager;
-import javax.persistence.Query;
-
-import org.apache.commons.lang.StringUtils;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-
-import com.fasterxml.jackson.core.type.TypeReference;
-import com.fasterxml.jackson.databind.ObjectMapper;
-
-import fr.gouv.education.acrennes.alambic.Constants;
-import fr.gouv.education.acrennes.alambic.exception.AlambicException;
-import fr.gouv.education.acrennes.alambic.generator.service.RandomGeneratorService.GENERATOR_TYPE;
-import fr.gouv.education.acrennes.alambic.random.persistence.RandomAuditEntity;
-import fr.gouv.education.acrennes.alambic.random.persistence.RandomEntity;
-
 public abstract class AbstractRandomGenerator implements RandomGenerator {
 
-	private static final Log log = LogFactory.getLog(AbstractRandomGenerator.class);
+    private static final Log log = LogFactory.getLog(AbstractRandomGenerator.class);
 
-	private static final long DEFAULT_RANDOM_GENERATOR_CAPACITY = 1000;
-	
-	/**
-	 * A cache is implemented to prevent observed 'LightWeightLocks' (LWLock of type 'buffer_mapping') on SELECT commands
-	 * when getting the actual generator capacity (method call 'getActualCapacity()'). The SELECT commands were blocking 
-	 * each other then leading to poor performances when multi-threading was used by jobs.
-	 * The cache aims to limit the database accesses to minimum required.
-	 */
-	private final ObjectMapper mapper;
-	protected final EntityManager em;
+    private static final long DEFAULT_RANDOM_GENERATOR_CAPACITY = 1000;
 
-	public AbstractRandomGenerator(final EntityManager em) throws AlambicException {
-		this.mapper = new ObjectMapper();
-		this.em = em;
-	}
-	
-	@Override
-	public List<RandomEntity> getEntities(final String query, final String processId, final UNICITY_SCOPE scope) throws AlambicException {
-		List<RandomEntity> entitiesList = new ArrayList<>();
-		Map<String, Object> queryMap = null;
-		String innerProcessId;
-		String capacityCacheKey;
-		String contentionToken;
+    /**
+     * A cache is implemented to prevent observed 'LightWeightLocks' (LWLock of type 'buffer_mapping') on SELECT commands
+     * when getting the actual generator capacity (method call 'getActualCapacity()'). The SELECT commands were blocking
+     * each other then leading to poor performances when multi-threading was used by jobs.
+     * The cache aims to limit the database accesses to minimum required.
+     */
+    private final ObjectMapper mapper;
+    protected final EntityManager em;
 
-		try {
-			queryMap = mapper.readValue(query, new TypeReference<Map<String, Object>>() {});
-			String blurId = (String) queryMap.get("blurid");
-			if (StringUtils.isBlank(blurId)) {
-				throw new AlambicException("Mising mandatory parameter 'blur identifier'");
-			}
-			innerProcessId = (StringUtils.isNotBlank((String) queryMap.get("processId")) ? (String) queryMap.get("processId") : processId);
-			capacityCacheKey = getCapacityCacheKey(queryMap, innerProcessId, scope);			
-			contentionToken = getContentionToken(queryMap);
-			queryMap.put(Constants.RANDOM_GENERATOR_INNER_ITERATION, 1); // allow requested generator to handle increment when needed
-		} catch (IOException e) {
-			throw new AlambicException("Failed to get random entries (type : " + getType(queryMap) + "), error: " + e.getMessage());
-		}
+    public AbstractRandomGenerator(final EntityManager em) throws AlambicException {
+        this.mapper = new ObjectMapper();
+        this.em = em;
+    }
 
-		/**
-		 * Synchronize the code block to avoid race condition among threads
-		 */
-		WriteLock lock = RandomGeneratorService.getLock(contentionToken).writeLock();
-		lock.lock();
+    @Override
+    public List<RandomEntity> getEntities(final String query, final String processId, final UNICITY_SCOPE scope) throws AlambicException {
+        List<RandomEntity> entitiesList = new ArrayList<>();
+        Map<String, Object> queryMap = null;
+        String innerProcessId;
+        String capacityCacheKey;
+        String contentionToken;
 
-		try {
-			boolean doReuse = Boolean.parseBoolean((String) queryMap.get("reuse"));
-			if (doReuse) {
-				String blurId = (String) queryMap.get("blurid");
-				if (StringUtils.isNotBlank(blurId)) {
-					entitiesList = getFormerEntities(queryMap, innerProcessId, scope);
-				} else {
-					log.error("Requested to get the same former random user entity but no blurId was passed as parameter");
-				}
-			}
+        try {
+            queryMap = mapper.readValue(query, new TypeReference<Map<String, Object>>() {
+            });
+            String blurId = (String) queryMap.get("blurid");
+            if (StringUtils.isBlank(blurId)) {
+                throw new AlambicException("Mising mandatory parameter 'blur identifier'");
+            }
+            innerProcessId = (StringUtils.isNotBlank((String) queryMap.get("processId")) ? (String) queryMap.get("processId") : processId);
+            capacityCacheKey = getCapacityCacheKey(queryMap, innerProcessId, scope);
+            contentionToken = getContentionToken(queryMap);
+            queryMap.put(Constants.RANDOM_GENERATOR_INNER_ITERATION, 1); // allow requested generator to handle increment when needed
+        } catch (IOException e) {
+            throw new AlambicException("Failed to get random entries (type : " + getType(queryMap) + "), error: " + e.getMessage());
+        }
 
-			// get random entities whenever either no former entities were requested or found
-			while (entitiesList.size() < (int) queryMap.get("count")) {
-				/**
-				 * Check the random generator capacity to serve the requested entities count (object: preserve from non finishing loops).
-				 */
-				if (!Constants.UNLIMITED_GENERATOR_FILTER.equals(getCapacityFilter(queryMap))) {
-					long remainingGeneratorCapacity = getActualCapacity(queryMap, innerProcessId, scope);
-					long remainingRequestedCount = (int) queryMap.get("count") - entitiesList.size();
-					if (remainingGeneratorCapacity < remainingRequestedCount) {
-						throw new AlambicException("Failed to get '" + (int) queryMap.get("count") + "' random entry from generator type '" + getType(queryMap) + "'. The generator capacity is exceeded.");
-					}
-				}
+        /**
+         * Synchronize the code block to avoid race condition among threads
+         */
+        WriteLock lock = RandomGeneratorService.getLock(contentionToken).writeLock();
+        lock.lock();
 
-				// Get a random entity
-				RandomEntity entity = getEntity(queryMap, innerProcessId, scope);
-				
-				if (!this.em.getTransaction().isActive()) {
-					this.em.getTransaction().begin();
-				}
-				
-				// persist the entity built (within the persistence context) and keep audit record so that the entity can be found in "reuse" context
-				if (!isAlreadyUsed(queryMap, entity, innerProcessId, scope)) {
-					entitiesList.add(entity);
-					persist(entity);
-					auditEntity(queryMap, entity, innerProcessId);
-					
-					if (StringUtils.isNotBlank(capacityCacheKey) && RandomGeneratorService.getCapacityCache().containsKey(capacityCacheKey)) {
-						long actual_count = RandomGeneratorService.getCapacityCache().get(capacityCacheKey);
-						RandomGeneratorService.getCapacityCache().put(capacityCacheKey, (actual_count + 1));
-					} else {
-						RandomGeneratorService.getCapacityCache().put(capacityCacheKey, (long) 1);
-					}
-				}
-				
-				this.em.getTransaction().commit();
+        try {
+            boolean doReuse = Boolean.parseBoolean((String) queryMap.get("reuse"));
+            if (doReuse) {
+                String blurId = (String) queryMap.get("blurid");
+                if (StringUtils.isNotBlank(blurId)) {
+                    entitiesList = getFormerEntities(queryMap, innerProcessId, scope);
+                } else {
+                    log.error("Requested to get the same former random user entity but no blurId was passed as parameter");
+                }
+            }
 
-				// increment iteration index
-				queryMap.put(Constants.RANDOM_GENERATOR_INNER_ITERATION, (1 + ((int) queryMap.get(Constants.RANDOM_GENERATOR_INNER_ITERATION))));
-			}
-		} finally {
-			lock.unlock();
-			RandomGeneratorService.releaseLock(contentionToken);
-		}
+            // get random entities whenever either no former entities were requested or found
+            while (entitiesList.size() < (int) queryMap.get("count")) {
+                /**
+                 * Check the random generator capacity to serve the requested entities count (object: preserve from non finishing loops).
+                 */
+                if (!Constants.UNLIMITED_GENERATOR_FILTER.equals(getCapacityFilter(queryMap))) {
+                    long remainingGeneratorCapacity = getActualCapacity(queryMap, innerProcessId, scope);
+                    long remainingRequestedCount = (int) queryMap.get("count") - entitiesList.size();
+                    if (remainingGeneratorCapacity < remainingRequestedCount) {
+                        throw new AlambicException("Failed to get '" + queryMap.get("count") + "' random entry from generator type '" + getType(queryMap) + "'. The generator capacity is exceeded.");
+                    }
+                }
 
-		return entitiesList;
-	}
+                // Get a random entity
+                RandomEntity entity = getEntity(queryMap, innerProcessId, scope);
 
-	public String getCapacityCacheKey(final Map<String, Object> query, final String processId, final UNICITY_SCOPE scope) {
-		String key = null;
-		try {
-			String capacityFilter = getCapacityFilter(query);
-			key = String.format("%s-%s-%s", getType(query), processId, (StringUtils.isNotBlank(capacityFilter)) ? capacityFilter : "NONE");
-		} catch (AlambicException e) {
-			log.error("Failed to get the generator actual capacity cache key, error : " + e.getMessage());
-		}
-		return key;
-	}
+                if (!this.em.getTransaction().isActive()) {
+                    this.em.getTransaction().begin();
+                }
 
-	@Override
-	public void persist(final Serializable entity) {
-		this.em.persist(entity);
-	}
-	
-	@Override
-	public void auditEntity(final Map<String, Object> query, final RandomEntity entity, final String processId) throws AlambicException {
-		String blurId = (String) query.get("blurid");
-		RandomAuditEntity rae = new RandomAuditEntity(processId, getType(query), entity.getHash(), getCapacityFilter(query), blurId);
-		this.em.persist(rae);
-	}
+                // persist the entity built (within the persistence context) and keep audit record so that the entity can be found in "reuse" context
+                if (!isAlreadyUsed(queryMap, entity, innerProcessId, scope)) {
+                    entitiesList.add(entity);
+                    persist(entity);
+                    auditEntity(queryMap, entity, innerProcessId);
 
-	@Override
-	public void close() {
-		if (null != em) {
-			if (this.em.getTransaction().isActive()) {
-				this.em.getTransaction().commit();
-			}
-			this.em.close();
-		}
-	}
+                    if (StringUtils.isNotBlank(capacityCacheKey) && RandomGeneratorService.getCapacityCache().containsKey(capacityCacheKey)) {
+                        long actual_count = RandomGeneratorService.getCapacityCache().get(capacityCacheKey);
+                        RandomGeneratorService.getCapacityCache().put(capacityCacheKey, (actual_count + 1));
+                    } else {
+                        RandomGeneratorService.getCapacityCache().put(capacityCacheKey, (long) 1);
+                    }
+                }
 
-	@Override
-	public long getCapacity(final Map<String, Object> query) throws AlambicException {
-		return DEFAULT_RANDOM_GENERATOR_CAPACITY;
-	}
+                this.em.getTransaction().commit();
 
-	/**
-	 * Build a lock contention token to avoid race condition among threads requesting the random service.
-	 * Strategy :
-	 * 	ONLY when multiple threads request the same generator type and pass-in parameter the same capacity filter. Otherwise, it is not worth locking.
-	 * Hence, the couple {generator type, capacity filter} deals with the contention key. This ensures that good performance (the synchronization
-	 * mechanism pet peeve) are obtained even when a large number of threads are used.
-	 */
-	private String getContentionToken(Map<String, Object> queryMap) throws AlambicException {
-		String cf = getCapacityFilter(queryMap);
-		String type = getType(queryMap).toString();
-		String token =  String.format("%s@%s", type, (StringUtils.isNotBlank(cf) ? cf : "UNDEFINED"));
-		return token;
-	}
-	
-	private long getActualCapacity(final Map<String, Object> query, final String processId, final UNICITY_SCOPE scope) {
-		long count = 0;
-		long capacity = 0;
+                // increment iteration index
+                queryMap.put(Constants.RANDOM_GENERATOR_INNER_ITERATION, (1 + ((int) queryMap.get(Constants.RANDOM_GENERATOR_INNER_ITERATION))));
+            }
+        } finally {
+            lock.unlock();
+            RandomGeneratorService.releaseLock(contentionToken);
+        }
 
-		try {			
-			if (!RandomGenerator.UNICITY_SCOPE.NONE.equals(scope)) {
-				String cacheKey = getCapacityCacheKey(query, processId, scope);
-				if (StringUtils.isNotBlank(cacheKey) && RandomGeneratorService.getCapacityCache().containsKey(cacheKey)) {
-					count = RandomGeneratorService.getCapacityCache().get(cacheKey);
-				} else {
-					List<String> predicatlist = new ArrayList<>();
-					String BASE_QUERY = "SELECT count(rae.id) FROM RandomAuditEntity rae WHERE %s";
+        return entitiesList;
+    }
 
-					predicatlist.add(String.format("rae.type = '%s'", getType(query)));
+    public String getCapacityCacheKey(final Map<String, Object> query, final String processId, final UNICITY_SCOPE scope) {
+        String key = null;
+        try {
+            String capacityFilter = getCapacityFilter(query);
+            key = String.format("%s-%s-%s", getType(query), processId, (StringUtils.isNotBlank(capacityFilter)) ? capacityFilter : "NONE");
+        } catch (AlambicException e) {
+            log.error("Failed to get the generator actual capacity cache key, error : " + e.getMessage());
+        }
+        return key;
+    }
 
-					if (RandomGenerator.UNICITY_SCOPE.PROCESS.equals(scope)) {
-						// Count the already used entities by this single process id
-						predicatlist.add(String.format("rae.processId = '%s'", processId));
-					} // else RandomGenerator.UNICITY_SCOPE.PROCESS_ALL : no process predicate as the process id doesn't matter.
+    @Override
+    public void persist(final Serializable entity) {
+        this.em.persist(entity);
+    }
 
-					String capacityFilter = getCapacityFilter(query);
-					if (StringUtils.isNotBlank(capacityFilter)) {
-						predicatlist.add(String.format("rae.capacityFilter = '%s'", capacityFilter));
-					}
+    @Override
+    public void auditEntity(final Map<String, Object> query, final RandomEntity entity, final String processId) throws AlambicException {
+        String blurId = (String) query.get("blurid");
+        RandomAuditEntity rae = new RandomAuditEntity(processId, getType(query), entity.getHash(), getCapacityFilter(query), blurId);
+        this.em.persist(rae);
+    }
 
-					count = (Long) executeQueryScalar(String.format(BASE_QUERY, StringUtils.join(predicatlist, " AND ")));
-					RandomGeneratorService.getCapacityCache().put(cacheKey, count);
-				}
-			}
-			capacity = getCapacity(query) - count;
-		} catch (AlambicException e) {
-			log.error("Failed to get the actual generator capacity, error : " + e.getMessage());
-		}
+    @Override
+    public void close() {
+        if (null != em) {
+            if (this.em.getTransaction().isActive()) {
+                this.em.getTransaction().commit();
+            }
+            this.em.close();
+        }
+    }
 
-		return capacity;
-	}
+    @Override
+    public long getCapacity(final Map<String, Object> query) throws AlambicException {
+        return DEFAULT_RANDOM_GENERATOR_CAPACITY;
+    }
 
-	@SuppressWarnings("unchecked")
-	@Override
-	public boolean isAlreadyUsed(final Map<String, Object> queryMap, final RandomEntity entity, final String processId, final UNICITY_SCOPE scope) throws AlambicException {
-		boolean isUsed = true;
-		List<RandomEntity> results = Collections.emptyList();
+    /**
+     * Build a lock contention token to avoid race condition among threads requesting the random service.
+     * Strategy :
+     * 	ONLY when multiple threads request the same generator type and pass-in parameter the same capacity filter. Otherwise, it is not worth
+     * 	locking.
+     * Hence, the couple {generator type, capacity filter} deals with the contention key. This ensures that good performance (the synchronization
+     * mechanism pet peeve) are obtained even when a large number of threads are used.
+     */
+    private String getContentionToken(Map<String, Object> queryMap) throws AlambicException {
+        String cf = getCapacityFilter(queryMap);
+        String type = getType(queryMap).toString();
+        String token = String.format("%s@%s", type, (StringUtils.isNotBlank(cf) ? cf : "UNDEFINED"));
+        return token;
+    }
 
-		if (!RandomGenerator.UNICITY_SCOPE.NONE.equals(scope)) {
-			String query = "SELECT rae.id FROM RandomAuditEntity rae WHERE rae.type = '" + getType(queryMap) + "' AND rae.hash = '" + entity.getHash() + "'";
-			if (RandomGenerator.UNICITY_SCOPE.PROCESS.equals(scope)) {
-				// Check the current entity was already used by this single process id
-				query = query.concat(" AND rae.processId = '" + processId + "'");
-			} /*
-			 * else {
-			 *   RandomGenerator.UNICITY_SCOPE.PROCESS_ALL : whatever the process is
-			 * }
-			 */
+    private long getActualCapacity(final Map<String, Object> query, final String processId, final UNICITY_SCOPE scope) {
+        long count = 0;
+        long capacity = 0;
 
-			String capacityFilter = getCapacityFilter(queryMap);
-			if (StringUtils.isNotBlank(capacityFilter)) {
-				// Focus on same query parameters (defined via capacity filter)
-				query = query.concat(" AND rae.capacityFilter = '" + capacityFilter + "'");
-			}
+        try {
+            if (!RandomGenerator.UNICITY_SCOPE.NONE.equals(scope)) {
+                String cacheKey = getCapacityCacheKey(query, processId, scope);
+                if (StringUtils.isNotBlank(cacheKey) && RandomGeneratorService.getCapacityCache().containsKey(cacheKey)) {
+                    count = RandomGeneratorService.getCapacityCache().get(cacheKey);
+                } else {
+                    List<String> predicatlist = new ArrayList<>();
+                    String BASE_QUERY = "SELECT count(rae.id) FROM RandomAuditEntity rae WHERE %s";
 
-			results = executeQueryList(query, 1); // For performance constraint. Only interested in the boolean result : exists or not
-		} /*
-		 * else {
-		 * RandomGenerator.UNICITY_SCOPE.NONE : no matter if already used
-		 * }
-		 */
+                    predicatlist.add(String.format("rae.type = '%s'", getType(query)));
 
-		if (0 == results.size()) {
-			isUsed = false;
-		}
+                    if (RandomGenerator.UNICITY_SCOPE.PROCESS.equals(scope)) {
+                        // Count the already used entities by this single process id
+                        predicatlist.add(String.format("rae.processId = '%s'", processId));
+                    } // else RandomGenerator.UNICITY_SCOPE.PROCESS_ALL : no process predicate as the process id doesn't matter.
 
-		return isUsed;
-	}
+                    String capacityFilter = getCapacityFilter(query);
+                    if (StringUtils.isNotBlank(capacityFilter)) {
+                        predicatlist.add(String.format("rae.capacityFilter = '%s'", capacityFilter));
+                    }
 
-	private List<RandomEntity> getFormerEntities(final Map<String, Object> queryMap, final String processId, final UNICITY_SCOPE scope) throws AlambicException {
-		List<RandomEntity> formerEntities = new ArrayList<>();
+                    count = (Long) executeQueryScalar(String.format(BASE_QUERY, StringUtils.join(predicatlist, " AND ")));
+                    RandomGeneratorService.getCapacityCache().put(cacheKey, count);
+                }
+            }
+            capacity = getCapacity(query) - count;
+        } catch (AlambicException e) {
+            log.error("Failed to get the actual generator capacity, error : " + e.getMessage());
+        }
 
-		String blurId = (String) queryMap.get("blurid");
-		String query = "SELECT rae FROM RandomAuditEntity rae WHERE rae.type = '" + getType(queryMap) + "' AND rae.blurId = '" + blurId + "'";
-		if (RandomGenerator.UNICITY_SCOPE.PROCESS.equals(scope)) {
-			// Check the current entity was already used by this single process id
-			query = query.concat(" AND rae.processId = '" + processId + "'");
-		}
+        return capacity;
+    }
 
-		String capacityFilter = getCapacityFilter(queryMap);
-		if (StringUtils.isNotBlank(capacityFilter)) {
-			// Focus on same query parameters (defined via capacity filter)
-			query = query.concat(" AND rae.capacityFilter = '" + capacityFilter + "'");
-		}
+    @SuppressWarnings("unchecked")
+    @Override
+    public boolean isAlreadyUsed(final Map<String, Object> queryMap, final RandomEntity entity, final String processId, final UNICITY_SCOPE scope)
+            throws AlambicException {
+        boolean isUsed = true;
+        List<RandomEntity> results = Collections.emptyList();
 
-		List<RandomAuditEntity>  auditResultSet = executeQueryList(query);
-		if (!auditResultSet.isEmpty()) {
-			for (RandomAuditEntity auditEntity : auditResultSet) {
-				formerEntities.addAll(executeQueryList(String.format("SELECT entities FROM %s entities WHERE entities.hash = '%s'", getPersistanceEntityType(queryMap), auditEntity.getHash())));
-			}
-		}
+        if (!RandomGenerator.UNICITY_SCOPE.NONE.equals(scope)) {
+            String query =
+                    "SELECT rae.id FROM RandomAuditEntity rae WHERE rae.type = '" + getType(queryMap) + "' AND rae.hash = '" + entity.getHash() +
+                    "'";
+            if (RandomGenerator.UNICITY_SCOPE.PROCESS.equals(scope)) {
+                // Check the current entity was already used by this single process id
+                query = query.concat(" AND rae.processId = '" + processId + "'");
+            } /*
+             * else {
+             *   RandomGenerator.UNICITY_SCOPE.PROCESS_ALL : whatever the process is
+             * }
+             */
 
-		return formerEntities;
-	}
+            String capacityFilter = getCapacityFilter(queryMap);
+            if (StringUtils.isNotBlank(capacityFilter)) {
+                // Focus on same query parameters (defined via capacity filter)
+                query = query.concat(" AND rae.capacityFilter = '" + capacityFilter + "'");
+            }
 
-	protected long getRandomNumber(final long min, final long max) {
-		return (long) (Math.random() * ((max - min) + 1) + min);
-	}
+            results = executeQueryList(query, 1); // For performance constraint. Only interested in the boolean result : exists or not
+        } /*
+         * else {
+         * RandomGenerator.UNICITY_SCOPE.NONE : no matter if already used
+         * }
+         */
 
-	private <T> List<T> executeQueryList(String sqlQuery) {
-		return executeQueryList(sqlQuery, 0);
-	}
+        if (0 == results.size()) {
+            isUsed = false;
+        }
 
-	@SuppressWarnings("unchecked")
-	private <T> List<T> executeQueryList(String sqlQuery, int limit) {
-		List<T> resultSet = null;
-		long stime=0, etime;
+        return isUsed;
+    }
 
-		if (log.isDebugEnabled()) {
-			stime = System.currentTimeMillis();
-		}
+    private List<RandomEntity> getFormerEntities(final Map<String, Object> queryMap, final String processId, final UNICITY_SCOPE scope)
+            throws AlambicException {
+        List<RandomEntity> formerEntities = new ArrayList<>();
 
-		Query emQuery = em.createQuery(sqlQuery);
-		if (0 < limit) {
-			emQuery.setMaxResults(limit);
-		}
-		resultSet = emQuery.getResultList();
+        String blurId = (String) queryMap.get("blurid");
+        String query = "SELECT rae FROM RandomAuditEntity rae WHERE rae.type = '" + getType(queryMap) + "' AND rae.blurId = '" + blurId + "'";
+        if (RandomGenerator.UNICITY_SCOPE.PROCESS.equals(scope)) {
+            // Check the current entity was already used by this single process id
+            query = query.concat(" AND rae.processId = '" + processId + "'");
+        }
 
-		if (log.isDebugEnabled()) {
-			etime = System.currentTimeMillis();
-			log.debug(String.format("Executed query (duration %s ms) : %s", (etime - stime), sqlQuery));
-		}
-		return resultSet;
-	}
+        String capacityFilter = getCapacityFilter(queryMap);
+        if (StringUtils.isNotBlank(capacityFilter)) {
+            // Focus on same query parameters (defined via capacity filter)
+            query = query.concat(" AND rae.capacityFilter = '" + capacityFilter + "'");
+        }
 
-	private <T> Object executeQueryScalar(String sqlQuery) {
-		Object resultSet = null;
-		long stime=0, etime;
+        List<RandomAuditEntity> auditResultSet = executeQueryList(query);
+        if (!auditResultSet.isEmpty()) {
+            for (RandomAuditEntity auditEntity : auditResultSet) {
+                formerEntities.addAll(executeQueryList(String.format("SELECT entities FROM %s entities WHERE entities.hash = '%s'",
+                        getPersistanceEntityType(queryMap), auditEntity.getHash())));
+            }
+        }
 
-		if (log.isDebugEnabled()) {
-			stime = System.currentTimeMillis();
-		}
+        return formerEntities;
+    }
 
-		Query emQuery = em.createQuery(sqlQuery);
-		resultSet = emQuery.getSingleResult();
+    protected long getRandomNumber(final long min, final long max) {
+        return (long) (Math.random() * ((max - min) + 1) + min);
+    }
 
-		if (log.isDebugEnabled()) {
-			etime = System.currentTimeMillis();
-			log.debug(String.format("Executed query (duration %s ms) : %s", (etime - stime), sqlQuery));
-		}
-		return resultSet;
-	}
+    private <T> List<T> executeQueryList(String sqlQuery) {
+        return executeQueryList(sqlQuery, 0);
+    }
 
-	@Override
-	public String getPersistanceEntityType(final Map<String, Object> query) throws AlambicException {
-		return "RandomLambdaEntity";
-	}
+    @SuppressWarnings("unchecked")
+    private <T> List<T> executeQueryList(String sqlQuery, int limit) {
+        List<T> resultSet = null;
+        long stime = 0, etime;
 
-	@Override
-	abstract public RandomEntity getEntity(final Map<String, Object> query, final String processId, final UNICITY_SCOPE scope) throws AlambicException;
+        if (log.isDebugEnabled()) {
+            stime = System.currentTimeMillis();
+        }
 
-	@Override
-	abstract public GENERATOR_TYPE getType(final Map<String, Object> query) throws AlambicException;
+        Query emQuery = em.createQuery(sqlQuery);
+        if (0 < limit) {
+            emQuery.setMaxResults(limit);
+        }
+        resultSet = emQuery.getResultList();
 
-	@Override
-	abstract public String getCapacityFilter(final Map<String, Object> query) throws AlambicException;
+        if (log.isDebugEnabled()) {
+            etime = System.currentTimeMillis();
+            log.debug(String.format("Executed query (duration %s ms) : %s", (etime - stime), sqlQuery));
+        }
+        return resultSet;
+    }
+
+    private <T> Object executeQueryScalar(String sqlQuery) {
+        Object resultSet = null;
+        long stime = 0, etime;
+
+        if (log.isDebugEnabled()) {
+            stime = System.currentTimeMillis();
+        }
+
+        Query emQuery = em.createQuery(sqlQuery);
+        resultSet = emQuery.getSingleResult();
+
+        if (log.isDebugEnabled()) {
+            etime = System.currentTimeMillis();
+            log.debug(String.format("Executed query (duration %s ms) : %s", (etime - stime), sqlQuery));
+        }
+        return resultSet;
+    }
+
+    @Override
+    public String getPersistanceEntityType(final Map<String, Object> query) throws AlambicException {
+        return "RandomLambdaEntity";
+    }
+
+    @Override
+    abstract public RandomEntity getEntity(final Map<String, Object> query, final String processId, final UNICITY_SCOPE scope)
+            throws AlambicException;
+
+    @Override
+    abstract public GENERATOR_TYPE getType(final Map<String, Object> query) throws AlambicException;
+
+    @Override
+    abstract public String getCapacityFilter(final Map<String, Object> query) throws AlambicException;
 
 }

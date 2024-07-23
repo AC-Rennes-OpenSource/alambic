@@ -73,7 +73,7 @@ public abstract class GAR1DBuilder implements GARTypeBuilder {
             }
 
             // Flush the possibly remaining entities
-			writer.flush();
+            writer.flush();
 
         } catch (JAXBException | SAXException | FileNotFoundException | XPathExpressionException e) {
             failGARExecution(e);
@@ -85,7 +85,8 @@ public abstract class GAR1DBuilder implements GARTypeBuilder {
             if (checkRestriction(entity)) {
                 buildEntity(entity);
             } else {
-                log.debug("Skipping entity '" + GARHelper.getInstance().getPersonEntityBlurId(entity) + "' since it doesn't belong to the restriction list");
+                log.debug("Skipping entity '" + GARHelper.getInstance().getPersonEntityBlurId(entity) + "' since it doesn't belong to the " +
+                          "restriction list");
             }
         } catch (MissingAttributeException e) {
             jobActivity.setTrafficLight(ActivityTrafficLight.ORANGE);
@@ -102,7 +103,7 @@ public abstract class GAR1DBuilder implements GARTypeBuilder {
     protected abstract void buildEntity(Map<String, List<String>> entity) throws MissingAttributeException, FileNotFoundException, JAXBException;
 
     protected void setProgress(int index, int entriesSize) {
-        jobActivity.setProgress(((index +1) * 100) / entriesSize);
+        jobActivity.setProgress(((index + 1) * 100) / entriesSize);
         jobActivity.setProcessing("processing entry " + (index + 1) + "/" + entriesSize);
     }
 
@@ -112,13 +113,14 @@ public abstract class GAR1DBuilder implements GARTypeBuilder {
     }
 
     protected String getMandatoryAttribute(Map<String, List<String>> entity, String attributeName) throws MissingAttributeException {
-		List<String> attribute = entity.get(attributeName);
-		if (CollectionUtils.isNotEmpty(attribute) && StringUtils.isNotBlank(attribute.get(0))) {
-			return attribute.get(0);
-		} else {
-			throw new MissingAttributeException("Skipping entity '" + GARHelper.getInstance().getPersonEntityBlurId(entity) + "' as it has no attribute '" + attributeName + "' (mandatory)");
-		}
-	}
+        List<String> attribute = entity.get(attributeName);
+        if (CollectionUtils.isNotEmpty(attribute) && StringUtils.isNotBlank(attribute.get(0))) {
+            return attribute.get(0);
+        } else {
+            throw new MissingAttributeException("Skipping entity '" + GARHelper.getInstance().getPersonEntityBlurId(entity) + "' as it has no " +
+                                                "attribute '" + attributeName + "' (mandatory)");
+        }
+    }
 
     protected void handleOptionalAttribute(Map<String, List<String>> entity, String attributeName, Consumer<String> method) {
         handleOptionalAttribute(entity, attributeName, method, null);
@@ -131,7 +133,7 @@ public abstract class GAR1DBuilder implements GARTypeBuilder {
         } else if (null != elseMethod) {
             elseMethod.run();
         } else {
-            log.debug("Entity '" + GARHelper.getInstance().getPersonEntityBlurId(entity) + "' has no attribute '" + attributeName +"'");
+            log.debug("Entity '" + GARHelper.getInstance().getPersonEntityBlurId(entity) + "' has no attribute '" + attributeName + "'");
         }
     }
 

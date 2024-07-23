@@ -16,90 +16,78 @@
  ******************************************************************************/
 package fr.gouv.education.acrennes.alambic.amqp.clients;
 
+import fr.gouv.education.acrennes.alambic.amqp.broker.EmbeddedBroker;
+import org.junit.*;
+
+import javax.jms.*;
+import javax.naming.Context;
+import javax.naming.InitialContext;
 import java.io.IOException;
 import java.util.Properties;
 
-import javax.jms.Connection;
-import javax.jms.ConnectionFactory;
-import javax.jms.Destination;
-import javax.jms.MessageConsumer;
-import javax.jms.MessageProducer;
-import javax.jms.Session;
-import javax.jms.TextMessage;
-import javax.naming.Context;
-import javax.naming.InitialContext;
-
-import org.junit.AfterClass;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.Test;
-
-import fr.gouv.education.acrennes.alambic.amqp.broker.EmbeddedBroker;
-
 public class AMQPQpidTest {
 
-	private static final String INITIAL_BROKER_CONNEXION_CONFIG_PATH = "data/qpid/qpid-broker.properties";
+    private static final String INITIAL_BROKER_CONNEXION_CONFIG_PATH = "data/qpid/qpid-broker.properties";
 
-	private static EmbeddedBroker brokerStarter;
+    private static EmbeddedBroker brokerStarter;
 
-	@BeforeClass
-	public static void startup() throws Exception {
-		brokerStarter = new EmbeddedBroker();
-		brokerStarter.startBroker();
-	}
+    @BeforeClass
+    public static void startup() throws Exception {
+        brokerStarter = new EmbeddedBroker();
+        brokerStarter.startBroker();
+    }
 
-	@AfterClass
-	public static void tearDown() throws Exception {
-		brokerStarter.stopBroker();
-	}
+    @AfterClass
+    public static void tearDown() throws Exception {
+        brokerStarter.stopBroker();
+    }
 
-	@Before
-	public void setUp() throws IOException {
-	}
+    @Before
+    public void setUp() throws IOException {
+    }
 
-	/**
-	 * - QPID embedded Broker
-	 * - QPID client + Java JMS
-	 * */
-	@Test
-	public void test() throws Exception {
-		final String MESSAGE_BODY = "Hello all folks!";
-		
-		Connection connection = null;
-		Context context = null;
+    /**
+     * - QPID embedded Broker
+     * - QPID client + Java JMS
+     * */
+    @Test
+    public void test() throws Exception {
+        final String MESSAGE_BODY = "Hello all folks!";
 
-		try {
-			Properties properties = new Properties();
-			properties.load(AMQPQpidTest.class.getClassLoader().getResourceAsStream(INITIAL_BROKER_CONNEXION_CONFIG_PATH));
-			context = new InitialContext(properties);
+        Connection connection = null;
+        Context context = null;
 
-			ConnectionFactory connFactory = (ConnectionFactory) context.lookup("qpidConnectionfactory");
-			connection = connFactory.createConnection();
-			connection.start();
+        try {
+            Properties properties = new Properties();
+            properties.load(AMQPQpidTest.class.getClassLoader().getResourceAsStream(INITIAL_BROKER_CONNEXION_CONFIG_PATH));
+            context = new InitialContext(properties);
 
-			Session session=connection.createSession(false,Session.CLIENT_ACKNOWLEDGE);
-			Destination destination = (Destination) context.lookup("topicExchange");
+            ConnectionFactory connFactory = (ConnectionFactory) context.lookup("qpidConnectionfactory");
+            connection = connFactory.createConnection();
+            connection.start();
 
-			MessageProducer messageProducer = session.createProducer(destination);
-			MessageConsumer messageConsumer = session.createConsumer(destination);
+            Session session = connection.createSession(false, Session.CLIENT_ACKNOWLEDGE);
+            Destination destination = (Destination) context.lookup("topicExchange");
 
-			TextMessage message = session.createTextMessage(MESSAGE_BODY);
-			messageProducer.send(message);
+            MessageProducer messageProducer = session.createProducer(destination);
+            MessageConsumer messageConsumer = session.createConsumer(destination);
 
-			message = (TextMessage)messageConsumer.receive();
-			Assert.assertEquals(MESSAGE_BODY, message.getText());
-			
-			// explicit acknowledge receipt of the message
-			message.acknowledge();			
-			connection.stop();
-		} catch (Exception e) {
-			Assert.fail(e.getMessage());
-		} finally {
-			if (null != context) {
-				context.close();
-			}
-		}
-	}
+            TextMessage message = session.createTextMessage(MESSAGE_BODY);
+            messageProducer.send(message);
+
+            message = (TextMessage) messageConsumer.receive();
+            Assert.assertEquals(MESSAGE_BODY, message.getText());
+
+            // explicit acknowledge receipt of the message
+            message.acknowledge();
+            connection.stop();
+        } catch (Exception e) {
+            Assert.fail(e.getMessage());
+        } finally {
+            if (null != context) {
+                context.close();
+            }
+        }
+    }
 
 }

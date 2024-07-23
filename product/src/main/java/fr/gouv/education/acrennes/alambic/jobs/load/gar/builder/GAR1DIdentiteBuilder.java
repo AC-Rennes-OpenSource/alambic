@@ -74,7 +74,8 @@ public abstract class GAR1DIdentiteBuilder extends GAR1DBuilder {
                 setGARDateNaissance(garIdentite, xmlgc);
             } catch (ParseException | DatatypeConfigurationException e) {
                 jobActivity.setTrafficLight(ActivityTrafficLight.ORANGE);
-                log.warn("Failed to parse the attribute 'ENTPersonDateNaissance', might not match the following expected date format 'dd/MM/yyyy', error: " + e.getMessage());
+                log.warn("Failed to parse the attribute 'ENTPersonDateNaissance', might not match the following expected date format 'dd/MM/yyyy', " +
+                         "error: " + e.getMessage());
             }
         });
 

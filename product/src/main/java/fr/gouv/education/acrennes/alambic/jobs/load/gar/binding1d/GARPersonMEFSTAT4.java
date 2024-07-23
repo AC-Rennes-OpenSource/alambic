@@ -16,9 +16,9 @@ import javax.xml.bind.annotation.XmlType;
 
 /**
  * <p>Classe Java pour GARPersonMEFSTAT4 complex type.
- * 
+ *
  * <p>Le fragment de schéma suivant indique le contenu attendu figurant dans cette classe.
- * 
+ *
  * <pre>
  * &lt;complexType name="GARPersonMEFSTAT4">
  *   &lt;complexContent>
@@ -32,14 +32,14 @@ import javax.xml.bind.annotation.XmlType;
  *   &lt;/complexContent>
  * &lt;/complexType>
  * </pre>
- * 
- * 
+ *
+ *
  */
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlType(name = "GARPersonMEFSTAT4", propOrder = {
-    "garStructureUAI",
-    "garPersonIdentifiant",
-    "garmefstat4Code"
+        "garStructureUAI",
+        "garPersonIdentifiant",
+        "garmefstat4Code"
 })
 public class GARPersonMEFSTAT4 {
 
@@ -52,11 +52,11 @@ public class GARPersonMEFSTAT4 {
 
     /**
      * Obtient la valeur de la propriété garStructureUAI.
-     * 
+     *
      * @return
      *     possible object is
      *     {@link String }
-     *     
+     *
      */
     public String getGARStructureUAI() {
         return garStructureUAI;
@@ -64,11 +64,11 @@ public class GARPersonMEFSTAT4 {
 
     /**
      * Définit la valeur de la propriété garStructureUAI.
-     * 
+     *
      * @param value
      *     allowed object is
      *     {@link String }
-     *     
+     *
      */
     public void setGARStructureUAI(String value) {
         this.garStructureUAI = value;
@@ -76,11 +76,11 @@ public class GARPersonMEFSTAT4 {
 
     /**
      * Obtient la valeur de la propriété garPersonIdentifiant.
-     * 
+     *
      * @return
      *     possible object is
      *     {@link String }
-     *     
+     *
      */
     public String getGARPersonIdentifiant() {
         return garPersonIdentifiant;
@@ -88,11 +88,11 @@ public class GARPersonMEFSTAT4 {
 
     /**
      * Définit la valeur de la propriété garPersonIdentifiant.
-     * 
+     *
      * @param value
      *     allowed object is
      *     {@link String }
-     *     
+     *
      */
     public void setGARPersonIdentifiant(String value) {
         this.garPersonIdentifiant = value;
@@ -100,11 +100,11 @@ public class GARPersonMEFSTAT4 {
 
     /**
      * Obtient la valeur de la propriété garmefstat4Code.
-     * 
+     *
      * @return
      *     possible object is
      *     {@link String }
-     *     
+     *
      */
     public String getGARMEFSTAT4Code() {
         return garmefstat4Code;
@@ -112,11 +112,11 @@ public class GARPersonMEFSTAT4 {
 
     /**
      * Définit la valeur de la propriété garmefstat4Code.
-     * 
+     *
      * @param value
      *     allowed object is
      *     {@link String }
-     *     
+     *
      */
     public void setGARMEFSTAT4Code(String value) {
         this.garmefstat4Code = value;

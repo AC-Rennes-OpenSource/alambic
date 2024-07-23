@@ -16,43 +16,8 @@
  ******************************************************************************/
 package fr.gouv.education.acrennes.alambic.utils;
 
-import java.io.ByteArrayOutputStream;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.io.OutputStream;
-import java.io.OutputStreamWriter;
-import java.io.UnsupportedEncodingException;
-import java.io.Writer;
-import java.security.SecureRandom;
-import java.sql.SQLException;
-import java.sql.Timestamp;
-import java.text.DateFormat;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.Collections;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.Hashtable;
-import java.util.List;
-import java.util.Map;
-import java.util.Properties;
-import java.util.UUID;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-
-import javax.naming.Context;
-import javax.naming.NamingEnumeration;
-import javax.naming.NamingException;
-import javax.naming.directory.Attributes;
-import javax.naming.directory.DirContext;
-import javax.naming.directory.InitialDirContext;
-import javax.naming.directory.SearchControls;
-import javax.naming.directory.SearchResult;
-
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import fr.gouv.education.acrennes.alambic.Constants;
 import fr.gouv.education.acrennes.alambic.exception.AlambicException;
 import fr.gouv.education.acrennes.alambic.freemarker.AlambicObjectWrapper;
@@ -67,6 +32,8 @@ import fr.gouv.education.acrennes.alambic.utils.geo.GeoConvertException;
 import fr.gouv.education.acrennes.alambic.utils.lambert.Lambert;
 import fr.gouv.education.acrennes.alambic.utils.lambert.LambertPoint;
 import fr.gouv.education.acrennes.alambic.utils.lambert.LambertZone;
+import freemarker.template.Configuration;
+import freemarker.template.TemplateException;
 import org.apache.commons.codec.Charsets;
 import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.lang.StringUtils;
@@ -77,16 +44,28 @@ import org.opengis.geometry.DirectPosition;
 import org.opengis.referencing.operation.CoordinateOperation;
 import org.opengis.referencing.operation.TransformException;
 
-import com.fasterxml.jackson.core.type.TypeReference;
-import com.fasterxml.jackson.databind.ObjectMapper;
-
-import freemarker.template.Configuration;
-import freemarker.template.TemplateException;
+import javax.naming.Context;
+import javax.naming.NamingEnumeration;
+import javax.naming.NamingException;
+import javax.naming.directory.*;
+import java.io.*;
+import java.nio.charset.StandardCharsets;
+import java.security.SecureRandom;
+import java.sql.SQLException;
+import java.sql.Timestamp;
+import java.text.DateFormat;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.*;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 public class Functions {
 
     private static final Log LOG = LogFactory.getLog(Functions.class);
-    private static final String UNICITY_PATTERN_COMPLIANCY = "(candidate=\"([^\"\\|]+)\"(,login=\"([^\"\\|]+)\")?(,password=\"([^\"\\|]+)\")?\\|search=)?((ldap:\\/\\/.+)\\?\\?sub\\?.*\\([^=\\(\\)]+=[^=\\(\\)]*\\*[^=\\(\\)]*\\).*)";
+    private static final String UNICITY_PATTERN_COMPLIANCY = "(candidate=\"([^\"\\|]+)\"(,login=\"([^\"\\|]+)\")?(,password=\"([^\"\\|]+)\")" +
+                                                             "?\\|search=)?((ldap:\\/\\/.+)\\?\\?sub\\?.*\\([^=\\(\\)]+=[^=\\(\\)]*\\*[^=\\(\\)" +
+                                                             "]*\\).*)";
     private static final String UNICITY_PATTERN_TOKEN = "(\\(([^=\\(\\)]+)=([^=\\(\\)]*\\*[^=\\(\\)]*)\\))";
     private static final String CIPHER_PATTERN = "([^,=]+)=([^,]+)";
     private static final String STRING_FORMAT_PATTERN = "([^;=]+)=([^;]+)";
@@ -103,7 +82,7 @@ public class Functions {
         return geoConvertInstance;
     }
 
-    private static enum COMPUTE_DATE_OPERAND_FIELD {
+    private enum COMPUTE_DATE_OPERAND_FIELD {
 
         DAY(Calendar.DATE),
         MONTH(Calendar.MONTH),
@@ -111,7 +90,7 @@ public class Functions {
 
         private final int field;
 
-        private COMPUTE_DATE_OPERAND_FIELD(final int fieldCode) {
+        COMPUTE_DATE_OPERAND_FIELD(final int fieldCode) {
             field = fieldCode;
         }
 
@@ -332,7 +311,7 @@ public class Functions {
         if (!param.contains(",")) {
             return null;
         }
-        final String v[] = param.split(",");
+        final String[] v = param.split(",");
         if (v.length != 2) {
             return null;
         }
@@ -343,14 +322,14 @@ public class Functions {
         if (!param.contains("-p-")) {
             return "-1";
         }
-        final String v[] = param.split("-p-");
+        final String[] v = param.split("-p-");
         if (v.length != 2) {
             return "-1";
         }
         final int X = Integer.parseInt(v[0]);
         final int Y = Integer.parseInt(v[1]);
         final LambertPoint pt = Lambert.convertToWGS84Deg(X, Y, LambertZone.Lambert93);
-        return new Double(pt.getY()).toString();
+        return Double.toString(pt.getY());
     }
 
     private String rdn(final String param) {
@@ -378,7 +357,8 @@ public class Functions {
                 while (tokensMatcher.find()) {
                     reqAttributes.add(tokensMatcher.group(2));
                     if (StringUtils.isNotBlank(valuePattern) && !valuePattern.equals(tokensMatcher.group(3))) {
-                        LOG.error("All unicity patterns must be the same within the request. But found two different ones '" + valuePattern + "' && '" + tokensMatcher.group(3) + "' in the request '" + searchString + "'");
+                        LOG.error("All unicity patterns must be the same within the request. But found two different ones '" + valuePattern + "' &&" +
+                                  " '" + tokensMatcher.group(3) + "' in the request '" + searchString + "'");
                         break;
                     }
                     valuePattern = tokensMatcher.group(3);
@@ -455,7 +435,9 @@ public class Functions {
                     LOG.error("Empty unicity pattern ('*') might be present in the request '" + searchString + "'");
                 }
             } else {
-                LOG.error("The LDAP search URL ('" + searchString + "') doesn't match URL format RFC 2255 (ex: 'ldap://<host>:<port>/ou=People,o=JNDITutorial??sub?(<attribut name>=<value must contain asterisk * character to specify the possible increment position>)')");
+                LOG.error("The LDAP search URL ('" + searchString + "') doesn't match URL format RFC 2255 (ex: 'ldap://<host>:<port>/ou=People," +
+                          "o=JNDITutorial??sub?(<attribut name>=<value must contain asterisk * character to specify the possible increment " +
+                          "position>)')");
             }
         } catch (final NamingException e) {
             LOG.error("Failed to execute the LDAP search, error: " + e.getMessage(), e);
@@ -475,13 +457,13 @@ public class Functions {
 
     private String cipher(final String params) {
         final String FORMAT_ERROR = "The CIPHER function parameters ('" + params + "') dont match the pattern 'mode=<eg:ENCRYPT_MODE|DECRYPT_MODE>,"
-                + "algorithm=<eg:RSA,AES>,path=<keystore file absolute path>,"
-                + "ksPwd=<keystore password>,"
-                + "[ksType=<keystore type (eg: JCEKS or default if missing)>],"
-                + "alias=<key alias>,"
-                + "[keyPwd=<key password (might be defferent from the keystore's one)>],"
-                + "[keyType=<key type (eg: secret, public, private)>],"
-                + "plaintext=<the text to cipher>'";
+                                    + "algorithm=<eg:RSA,AES>,path=<keystore file absolute path>,"
+                                    + "ksPwd=<keystore password>,"
+                                    + "[ksType=<keystore type (eg: JCEKS or default if missing)>],"
+                                    + "alias=<key alias>,"
+                                    + "[keyPwd=<key password (might be defferent from the keystore's one)>],"
+                                    + "[keyType=<key type (eg: secret, public, private)>],"
+                                    + "plaintext=<the text to cipher>'";
 
         String result = "";
 
@@ -495,16 +477,18 @@ public class Functions {
             }
 
             if (StringUtils.isBlank(parameters.get("mode")) ||
-                    StringUtils.isBlank(parameters.get("algorithm")) ||
-                    StringUtils.isBlank(parameters.get("path")) ||
-                    StringUtils.isBlank(parameters.get("ksPwd")) ||
-                    StringUtils.isBlank(parameters.get("alias")) ||
-                    StringUtils.isBlank(parameters.get("plaintext"))) {
+                StringUtils.isBlank(parameters.get("algorithm")) ||
+                StringUtils.isBlank(parameters.get("path")) ||
+                StringUtils.isBlank(parameters.get("ksPwd")) ||
+                StringUtils.isBlank(parameters.get("alias")) ||
+                StringUtils.isBlank(parameters.get("plaintext"))) {
                 LOG.error(FORMAT_ERROR);
             } else {
                 // execute the ciphering operation
                 final CipherKeyStore keystore = new CipherKeyStore(parameters.get("path"),
-                        (StringUtils.isNotBlank(parameters.get("ksType"))) ? CipherKeyStore.KEYSTORE_TYPE.valueOf(parameters.get("ksType")) : CipherKeyStore.KEYSTORE_TYPE.DEFAULT,
+                        (StringUtils.isNotBlank(parameters.get("ksType")))
+                        ? CipherKeyStore.KEYSTORE_TYPE.valueOf(parameters.get("ksType"))
+                        : CipherKeyStore.KEYSTORE_TYPE.DEFAULT,
                         parameters.get("ksPwd"));
 
                 final CipherHelper cipher = new CipherHelper(parameters.get("algorithm"),
@@ -587,14 +571,16 @@ public class Functions {
 
     private String password(final String params, final CallStack callStack) {
         final String FORMAT_ERROR = "The PASSWORD function parameters ('" + params + "') dont match the pattern 'length=<the password length>,"
-                + "symbols=<the allowed dictionary symbols eg:LETTER_MAJ, LETTER_MIN, DIGIT, SPECIAL>,"
-                + "reuse=<do reuse the same previously provided password from audit logs based-on the blur identifier. e.g. true|false>,"
-                + "blurid=<the blur identifier to associate the password(s) to so that it can be retreived>,"
-                + "processId=<the process identifier attached to this request>,"
-                + "scope=<scope of password unicity resolution. e.g. NONE, PROCESS, PROCESS_ALL>'";
+                                    + "symbols=<the allowed dictionary symbols eg:LETTER_MAJ, LETTER_MIN, DIGIT, SPECIAL>,"
+                                    + "reuse=<do reuse the same previously provided password from audit logs based-on the blur identifier. e.g. " +
+                                    "true|false>,"
+                                    + "blurid=<the blur identifier to associate the password(s) to so that it can be retreived>,"
+                                    + "processId=<the process identifier attached to this request>,"
+                                    + "scope=<scope of password unicity resolution. e.g. NONE, PROCESS, PROCESS_ALL>'";
 
         /** Exemple :
-         * "(PASSWORD){\"length\":8,\"symbols\":\"LETTER_MAJ,LETTER_MIN,DIGIT,SPECIAL\",\"processId\":\"EXTACA\",\"scope\":\"PROCESS\",\"reuse\":\"true\",\"blurid\":\"John.Doe@noo.fr\"}(/PASSWORD)"
+         * "(PASSWORD){\"length\":8,\"symbols\":\"LETTER_MAJ,LETTER_MIN,DIGIT,SPECIAL\",\"processId\":\"EXTACA\",\"scope\":\"PROCESS\",
+         * \"reuse\":\"true\",\"blurid\":\"John.Doe@noo.fr\"}(/PASSWORD)"
          */
 
         String password = "";
@@ -605,10 +591,10 @@ public class Functions {
             final Map<String, Object> queryMap = mapper.readValue(params, new TypeReference<Map<String, Object>>() {
             });
             if ((null != (queryMap.get("length")))
-                    && (null != queryMap.get("symbols"))
-                    && StringUtils.isNotBlank((String) queryMap.get("processId"))
-                    && StringUtils.isNotBlank((String) queryMap.get("scope"))
-                    && ((StringUtils.isNotBlank((String) queryMap.get("reuse")) && StringUtils.isNotBlank((String) queryMap.get("blurid")))
+                && (null != queryMap.get("symbols"))
+                && StringUtils.isNotBlank((String) queryMap.get("processId"))
+                && StringUtils.isNotBlank((String) queryMap.get("scope"))
+                && ((StringUtils.isNotBlank((String) queryMap.get("reuse")) && StringUtils.isNotBlank((String) queryMap.get("blurid")))
                     || (StringUtils.isBlank((String) queryMap.get("reuse")) && StringUtils.isBlank((String) queryMap.get("blurid"))))) {
 
                 // Add 'count' parameter to 1 as only one password can be requested & build the query for the random generator
@@ -618,7 +604,8 @@ public class Functions {
                 // Generate a password
                 final RandomGenerator generator = RandomGeneratorService.getRandomGenerator(RandomGeneratorService.GENERATOR_TYPE.PASSWORD);
                 try {
-                    final List<RandomEntity> passwordEntities = generator.getEntities(query, (String) queryMap.get("processId"), RandomGenerator.UNICITY_SCOPE.valueOf((String) queryMap.get("scope")));
+                    final List<RandomEntity> passwordEntities = generator.getEntities(query, (String) queryMap.get("processId"),
+                            RandomGenerator.UNICITY_SCOPE.valueOf((String) queryMap.get("scope")));
                     if ((null != passwordEntities) && !passwordEntities.isEmpty()) {
                         final String entityJson = passwordEntities.get(0).getJson();
                         final Map<String, Object> entityMap = new ObjectMapper().readValue(entityJson, new TypeReference<Map<String, Object>>() {
@@ -655,10 +642,11 @@ public class Functions {
 
     private String computeDate(final String params) {
         final String FORMAT_ERROR = "The COMPUTEDATE function parameters ('" + params + "') dont match the pattern 'format=<the date format>,"
-                + "value=<the date value with respect of the format>,"
-                + "operator=<the operation type to perform : PLUS or MINUS>"
-                + "uint=<the date field to as first operand of the operation : DAY, MONTH, YEAR. Optional parameter. As default, DAY field.>"
-                + "operand=<the second operand to either add or substract>";
+                                    + "value=<the date value with respect of the format>,"
+                                    + "operator=<the operation type to perform : PLUS or MINUS>"
+                                    + "uint=<the date field to as first operand of the operation : DAY, MONTH, YEAR. Optional parameter. As " +
+                                    "default, DAY field.>"
+                                    + "operand=<the second operand to either add or substract>";
 
         /** Exemple :
          * "(COMPUTEDATE){\"format\":\"dd/MM/yyyy\",\"value\":\"08/03/2018\",\"operator\":\"MINUS\",\"unit\":\"DAY\",\"operand\":\"5\"}(/COMPUTEDATE)"
@@ -669,10 +657,10 @@ public class Functions {
             final Map<String, Object> paramsMap = new ObjectMapper().readValue(params, new TypeReference<Map<String, Object>>() {
             });
             if ((null != paramsMap)
-                    && StringUtils.isNotBlank((String) paramsMap.get("format"))
-                    && StringUtils.isNotBlank((String) paramsMap.get("value"))
-                    && StringUtils.isNotBlank((String) paramsMap.get("operator"))
-                    && StringUtils.isNotBlank((String) paramsMap.get("operand"))) {
+                && StringUtils.isNotBlank((String) paramsMap.get("format"))
+                && StringUtils.isNotBlank((String) paramsMap.get("value"))
+                && StringUtils.isNotBlank((String) paramsMap.get("operator"))
+                && StringUtils.isNotBlank((String) paramsMap.get("operand"))) {
                 final String unit = (StringUtils.isNotBlank((String) paramsMap.get("unit"))) ? (String) paramsMap.get("unit") : "DAY";
                 int operand = Integer.parseInt((String) paramsMap.get("operand"));
                 operand = ("PLUS".equals(paramsMap.get("operator"))) ? operand : (-1 * operand);
@@ -705,7 +693,7 @@ public class Functions {
         if (!param.contains(";")) {
             return "";
         }
-        final String values[] = param.split(";");
+        final String[] values = param.split(";");
         if (values.length != 3) {
             return "";
         }
@@ -713,7 +701,7 @@ public class Functions {
         final String s = values[0];
         final String delimiter = values[1];
         final int part = Integer.parseInt(values[2]);
-        final String parts[] = s.split(delimiter);
+        final String[] parts = s.split(delimiter);
         if ((part <= 0) || (part > parts.length)) {
             return "";
         }
@@ -742,7 +730,7 @@ public class Functions {
         if (!param.contains(";")) {
             return "-1";
         }
-        final String v[] = param.split(";");
+        final String[] v = param.split(";");
         if (v.length != 2) {
             return "-1";
         }
@@ -778,7 +766,7 @@ public class Functions {
         if (!param.contains("-param-")) {
             return "-1";
         }
-        final String v[] = param.split("-param-");
+        final String[] v = param.split("-param-");
         // if (v.length!=2)
         // return "-1";
         final String driver = v[0];
@@ -796,8 +784,8 @@ public class Functions {
         return res;
     }
 
-    private String fonctionProperty(final String param) throws FileNotFoundException, IOException {
-        final String v[] = param.split("-param-");
+    private String fonctionProperty(final String param) throws IOException {
+        final String[] v = param.split("-param-");
         // if (v.length!=2)
         // return "-1";
         final String file = v[0];
@@ -816,7 +804,7 @@ public class Functions {
     }
 
     private String fonctionFormatSqlIn(final String param) {
-        final String values[] = param.split(";");
+        final String[] values = param.split(";");
         String res = "";
         for (int i = 0; i < values.length; i++) {
             res = res + "'%s',".replaceAll("%s", values[i]);
@@ -827,7 +815,7 @@ public class Functions {
     private String fonctionCopy(final String param) {
         String res = "";
         if (param.contains(";")) {
-            final String values[] = param.split(";");
+            final String[] values = param.split(";");
             final int count = values.length;
             if (count == 3) {
                 final String valeur = values[0];
@@ -846,7 +834,7 @@ public class Functions {
     private String fonctionFormat(final String param) {
         if (param.contains("||")) {
             final String pattern = param.substring(0, param.indexOf("||"));
-            final String values[] = param.substring(param.indexOf("||") + 2).split(";");
+            final String[] values = param.substring(param.indexOf("||") + 2).split(";");
             String res = "";
             for (int i = 0; i < values.length; i++) {
                 res = res + pattern.replaceAll("%s", values[i]);
@@ -859,7 +847,9 @@ public class Functions {
     }
 
     private String stringFormat(final String params) {
-        final String FORMAT_ERROR = "The STRINGFORMAT function parameters ('" + params + "') dont match the pattern 'pattern=<eg:%4s>;values=<values seperated by colon character. eg:val1,val2>;types=<the type of each value seperated by colon character. eg:String,Integer>";
+        final String FORMAT_ERROR = "The STRINGFORMAT function parameters ('" + params + "') dont match the pattern 'pattern=<eg:%4s>;" +
+                                    "values=<values seperated by colon character. eg:val1,val2>;types=<the type of each value seperated by colon " +
+                                    "character. eg:String,Integer>";
 
         String result = "";
 
@@ -1006,11 +996,11 @@ public class Functions {
     }
 
     public String generateSalt(final String params) {
-    	Integer saltLength = Integer.valueOf(StringUtils.isNotBlank(params) ? params.trim() : String.valueOf(Constants.DEFAULT_SALT_LENGTH));
-    	SecureRandom random = new SecureRandom();
-    	byte[] salt = new byte[saltLength];
-    	random.nextBytes(salt);
-    	return Base64.encodeBase64String(salt).substring(0, saltLength);
+        Integer saltLength = Integer.valueOf(StringUtils.isNotBlank(params) ? params.trim() : String.valueOf(Constants.DEFAULT_SALT_LENGTH));
+        SecureRandom random = new SecureRandom();
+        byte[] salt = new byte[saltLength];
+        random.nextBytes(salt);
+        return Base64.encodeBase64String(salt).substring(0, saltLength);
     }
 
     public String replaceVarsFromMap(final String patternString, String s, final Map<String, String> mapTable) {
@@ -1036,9 +1026,8 @@ public class Functions {
             return "";
         } else if (value instanceof String) {
             return value.toString();
-        } else if (value instanceof byte[]) {
-            final byte[] bytes = (byte[]) value;
-            return new String(bytes, "UTF-8");
+        } else if (value instanceof final byte[] bytes) {
+            return new String(bytes, StandardCharsets.UTF_8);
         }
         return "";
     }

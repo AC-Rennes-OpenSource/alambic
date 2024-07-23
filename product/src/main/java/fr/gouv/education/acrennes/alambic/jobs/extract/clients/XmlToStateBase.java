@@ -16,13 +16,6 @@
  ******************************************************************************/
 package fr.gouv.education.acrennes.alambic.jobs.extract.clients;
 
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-
 import fr.gouv.education.acrennes.alambic.exception.AlambicException;
 import org.apache.commons.lang.NotImplementedException;
 import org.jdom2.Element;
@@ -30,80 +23,84 @@ import org.jdom2.JDOMException;
 import org.jdom2.input.SAXBuilder;
 import org.xml.sax.InputSource;
 
+import java.io.IOException;
+import java.util.*;
+
 // FIXME Cette classe n'est pas utilisée (XMLSource utilise la classe interne XMLClient). La supprimer ?
 public class XmlToStateBase implements IToStateBase {
-	private final List<Map<String, List<String>>> stateBase = new ArrayList<>();
-	private List<Element> itemList;
-	private InputSource fXml;
-	private final int countResults = 0;
+    private final List<Map<String, List<String>>> stateBase = new ArrayList<>();
+    private final List<Element> itemList;
+    private final InputSource fXml;
+    private final int countResults = 0;
 
-	@SuppressWarnings("unchecked")
-	public XmlToStateBase(final String fichierXml) throws JDOMException, IOException {
-		fXml = new InputSource(fichierXml);
-		Element racine = (new SAXBuilder()).build(fXml).getRootElement();
-		// Cr�ation d'une List contenant toutes les entr�es
-		itemList = racine.getChildren();
-		// Chargement de la liste des entrées
+    @SuppressWarnings("unchecked")
+    public XmlToStateBase(final String fichierXml) throws JDOMException, IOException {
+        fXml = new InputSource(fichierXml);
+        Element racine = (new SAXBuilder()).build(fXml).getRootElement();
+        // Cr�ation d'une List contenant toutes les entr�es
+        itemList = racine.getChildren();
+        // Chargement de la liste des entrées
 
-		/*
-		 * <statebase>
-		 * <item>
-		 * <key name="PROPERTY">
-		 * <value>VALEUR1</value>
-		 * <value>VALEUR2</value>
-		 * </key>
-		 * </item>
-		 * <statebase>
-		 */
+        /*
+         * <statebase>
+         * <item>
+         * <key name="PROPERTY">
+         * <value>VALEUR1</value>
+         * <value>VALEUR2</value>
+         * </key>
+         * </item>
+         * <statebase>
+         */
 
-		for (Element item : itemList) {
-			Map<String, List<String>> key = new HashMap<>();
-			for (Element keyElement : item.getChildren("key")) {
-				List<String> value = new ArrayList<>();
-				for (Element valueElement : (List<Element>) keyElement) {
-					value.add(valueElement.getValue());
-				}
-				key.put(keyElement.getAttributeValue("name"), value);
-			}
-			stateBase.add(key);
-		}
+        for (Element item : itemList) {
+            Map<String, List<String>> key = new HashMap<>();
+            for (Element keyElement : item.getChildren("key")) {
+                List<String> value = new ArrayList<>();
+                for (Element valueElement : (List<Element>) keyElement) {
+                    value.add(valueElement.getValue());
+                }
+                key.put(keyElement.getAttributeValue("name"), value);
+            }
+            stateBase.add(key);
+        }
 
-	}
+    }
 
-	@Override
-	public int getCountResults() {
-		return countResults;
-	}
+    @Override
+    public int getCountResults() {
+        return countResults;
+    }
 
-	@Override
-	public List<Map<String, List<String>>> getStateBase() {
-		return stateBase;
-	}
+    @Override
+    public List<Map<String, List<String>>> getStateBase() {
+        return stateBase;
+    }
 
-	@Override
-	public void executeQuery(final String query) {
-		executeQuery(query, null);
-	}
+    @Override
+    public void executeQuery(final String query) {
+        executeQuery(query, null);
+    }
 
-	@Override
-	public void executeQuery(final String query, final String scope) {
-		throw new NotImplementedException("It is not possible to query XML file yet.");
-	}
+    @Override
+    public void executeQuery(final String query, final String scope) {
+        throw new NotImplementedException("It is not possible to query XML file yet.");
+    }
 
-	@Override
-	public void close() {
-		// TODO Auto-generated method stub
-	}
+    @Override
+    public void close() {
+        // TODO Auto-generated method stub
+    }
 
-	@Override
-	public void clear() {
-		stateBase.clear();
-	}
+    @Override
+    public void clear() {
+        stateBase.clear();
+    }
 
-	@Override
-	public Iterator<List<Map<String, List<String>>>> getPageIterator(final String query, final String scope, final int pageSize, final String sortBy, final String orderBy)
-			throws AlambicException {
-		throw new AlambicException("Not implemented operation");
-	}
+    @Override
+    public Iterator<List<Map<String, List<String>>>> getPageIterator(final String query, final String scope, final int pageSize,
+                                                                     final String sortBy, final String orderBy)
+            throws AlambicException {
+        throw new AlambicException("Not implemented operation");
+    }
 
 }

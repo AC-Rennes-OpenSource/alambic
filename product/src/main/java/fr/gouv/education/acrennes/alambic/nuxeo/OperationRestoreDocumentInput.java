@@ -16,38 +16,39 @@
  ******************************************************************************/
 package fr.gouv.education.acrennes.alambic.nuxeo;
 
-import java.util.Map;
-
 import org.nuxeo.ecm.automation.client.OperationRequest;
+
+import java.util.Map;
 
 public class OperationRestoreDocumentInput implements AlambicOperation {
 
-	private static final String jsonDescription = "{"
-			+ "\"id\":\"Context.RestoreDocumentInput\","
-			+ "\"label\":\"Restore Document Input\","
-			+ "\"category\":\"Execution Context\","
-			+ "\"requires\":null,"
-			+ "\"description\":\"Restore the document input from a context variable given its name. Return the document.\","
-			+ "\"url\":\"" + OperationRestoreDocumentInput.class.getName()  + "\","
-			+ "\"signature\":[\"void\",\"document\"],"
-			+ "\"params\":[{"
-				+ "\"name\":\"name\","
-				+ "\"description\":\"\","
-				+ "\"type\":\"string\","
-				+ "\"required\":true,"
-				+ "\"widget\":null,"
-				+ "\"order\":0,"
-				+ "\"values\":[]}]"
-			+ "}";
-			
-	public static String getJSONDescription() {
-		return jsonDescription;
-	}
+    private static final String jsonDescription = "{"
+                                                  + "\"id\":\"Context.RestoreDocumentInput\","
+                                                  + "\"label\":\"Restore Document Input\","
+                                                  + "\"category\":\"Execution Context\","
+                                                  + "\"requires\":null,"
+                                                  + "\"description\":\"Restore the document input from a context variable given its name. Return " +
+                                                  "the document.\","
+                                                  + "\"url\":\"" + OperationRestoreDocumentInput.class.getName() + "\","
+                                                  + "\"signature\":[\"void\",\"document\"],"
+                                                  + "\"params\":[{"
+                                                  + "\"name\":\"name\","
+                                                  + "\"description\":\"\","
+                                                  + "\"type\":\"string\","
+                                                  + "\"required\":true,"
+                                                  + "\"widget\":null,"
+                                                  + "\"order\":0,"
+                                                  + "\"values\":[]}]"
+                                                  + "}";
 
-	@Override
-	public Object execute(OperationRequest request) {
-		Map<String, Object> parameters = request.getParameters();
-		return request.getContextParameters().get(parameters.get("name"));
-	}
-	
+    public static String getJSONDescription() {
+        return jsonDescription;
+    }
+
+    @Override
+    public Object execute(OperationRequest request) {
+        Map<String, Object> parameters = request.getParameters();
+        return request.getContextParameters().get(parameters.get("name"));
+    }
+
 }

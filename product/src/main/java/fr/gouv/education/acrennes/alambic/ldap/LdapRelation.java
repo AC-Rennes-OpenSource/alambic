@@ -16,19 +16,6 @@
  ******************************************************************************/
 package fr.gouv.education.acrennes.alambic.ldap;
 
-import java.io.UnsupportedEncodingException;
-import java.util.ArrayList;
-import java.util.List;
-
-import javax.naming.NamingEnumeration;
-import javax.naming.NamingException;
-import javax.naming.directory.Attribute;
-import javax.naming.directory.Attributes;
-import javax.naming.directory.BasicAttribute;
-import javax.naming.directory.BasicAttributes;
-import javax.naming.directory.DirContext;
-import javax.naming.directory.SearchControls;
-
 import fr.gouv.education.acrennes.alambic.Constants;
 import fr.gouv.education.acrennes.alambic.exception.AlambicException;
 import fr.gouv.education.acrennes.alambic.utils.Functions;
@@ -36,123 +23,130 @@ import fr.gouv.education.acrennes.alambic.utils.LdapUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
+import javax.naming.NamingEnumeration;
+import javax.naming.NamingException;
+import javax.naming.directory.*;
+import java.io.UnsupportedEncodingException;
+import java.util.ArrayList;
+import java.util.List;
+
 public class LdapRelation {
-	private static final Log log = LogFactory.getLog(LdapRelation.class);
-	
-	public final static int DELETE = 2;
-	public final static int ADD = 1;
-	public final static int IGNORE = 0;
+    private static final Log log = LogFactory.getLog(LdapRelation.class);
 
-	private DirContext ctx = null;
-	private List<String> listDn = new ArrayList<String>();
-	private int updateMode = 0;
-	private String attribute = "memberOf";
-	private String value = "";
+    public final static int DELETE = 2;
+    public final static int ADD = 1;
+    public final static int IGNORE = 0;
 
-	public LdapRelation(final DirContext ctx, final List<String> listDn, final int updateMode,
-			final String attribute, final String value) throws AlambicException {
-		super();
-		if (Constants.MAX_LDAP_RELATION_SIZE >= listDn.size()) {
-			this.ctx = ctx;
-			this.listDn = listDn;
-			this.updateMode = updateMode;
-			this.attribute = attribute;
-			this.value = value;
-		} else {
-			throw new AlambicException("Dépassement de capacité sur une mise en relation d'attribut '"+ attribute + "' (taille limite " + Constants.MAX_LDAP_RELATION_SIZE + ")");
-		}
-	}
+    private DirContext ctx = null;
+    private List<String> listDn = new ArrayList<String>();
+    private int updateMode = 0;
+    private String attribute = "memberOf";
+    private String value = "";
 
-	public LdapRelation(final DirContext ctx) {
-		this.ctx = ctx;
-	}
+    public LdapRelation(final DirContext ctx, final List<String> listDn, final int updateMode,
+                        final String attribute, final String value) throws AlambicException {
+        super();
+        if (Constants.MAX_LDAP_RELATION_SIZE >= listDn.size()) {
+            this.ctx = ctx;
+            this.listDn = listDn;
+            this.updateMode = updateMode;
+            this.attribute = attribute;
+            this.value = value;
+        } else {
+            throw new AlambicException("Dépassement de capacité sur une mise en relation d'attribut '" + attribute + "' (taille limite " + Constants.MAX_LDAP_RELATION_SIZE + ")");
+        }
+    }
 
-	public void setDnList(final List<String> listDn) {
-		this.listDn = listDn;
-	}
+    public LdapRelation(final DirContext ctx) {
+        this.ctx = ctx;
+    }
 
-	public void setAttribute(final String attribute) {
-		this.attribute = attribute;
-	}
+    public void setDnList(final List<String> listDn) {
+        this.listDn = listDn;
+    }
 
-	public void setCtx(final DirContext ctx) {
-		this.ctx = ctx;
-	}
+    public void setAttribute(final String attribute) {
+        this.attribute = attribute;
+    }
 
-	public void setUpdateMode(final int updateMode) {
-		this.updateMode = updateMode;
-	}
+    public void setCtx(final DirContext ctx) {
+        this.ctx = ctx;
+    }
 
-	public void setValue(final String value) {
-		this.value = value;
-	}
+    public void setUpdateMode(final int updateMode) {
+        this.updateMode = updateMode;
+    }
 
-	private Attribute deleteValue(final Attribute attr) throws NamingException, UnsupportedEncodingException {
-		NamingEnumeration<?> values = attr.getAll();
-		try {
-			Attribute newAttr = new BasicAttribute(attr.getID());
-			while (values.hasMore()) {
-				String existingValue =
-						Functions.getInstance().valueToString(values.next());
-				if (!existingValue.equalsIgnoreCase(value)) {
-					// Ajoute les attributs existants différents de la valeur à supprimer
-					newAttr.add(existingValue);
-				}
-			}
-			return newAttr;
-		} finally {
-			values.close();
-		}
-	}
+    public void setValue(final String value) {
+        this.value = value;
+    }
 
-	private Attribute addValue(final Attribute attr) throws NamingException, UnsupportedEncodingException {
+    private Attribute deleteValue(final Attribute attr) throws NamingException, UnsupportedEncodingException {
+        NamingEnumeration<?> values = attr.getAll();
+        try {
+            Attribute newAttr = new BasicAttribute(attr.getID());
+            while (values.hasMore()) {
+                String existingValue =
+                        Functions.getInstance().valueToString(values.next());
+                if (!existingValue.equalsIgnoreCase(value)) {
+                    // Ajoute les attributs existants différents de la valeur à supprimer
+                    newAttr.add(existingValue);
+                }
+            }
+            return newAttr;
+        } finally {
+            values.close();
+        }
+    }
 
-		if (!LdapUtils.attributeContainsValue(attr, value)) {
-			attr.add(value);
-		}
+    private Attribute addValue(final Attribute attr) throws NamingException, UnsupportedEncodingException {
 
-		return attr;
-	}
+        if (!LdapUtils.attributeContainsValue(attr, value)) {
+            attr.add(value);
+        }
 
-	public boolean execute() {
-		boolean test = false;
-		SearchControls contraintes = new SearchControls();
-		contraintes.setSearchScope(SearchControls.ONELEVEL_SCOPE);
-		contraintes.setReturningAttributes(new String[] { attribute });
-		for (String dn : listDn) {
-			try {
-				String subContext = dn.substring(0, dn.indexOf(ctx.getNameInNamespace()) - 1);
-				DirContext entry = (DirContext) ctx.lookup(subContext);
-				Attribute existingAttr = entry.getAttributes("").get(attribute);
-				if (existingAttr == null) {
-					existingAttr = new BasicAttribute(attribute);
-				}
-				Attribute newAttr = null;
-				switch (updateMode) {
-				case ADD:
-					log.debug("LdapRelation ADD: " + dn + " -> " + attribute + " -> " + value);
-					newAttr = addValue(existingAttr);
-					break;
-				case DELETE:
-					log.debug("LdapRelation DEL: " + dn + " -> " + attribute + " -> " + value);
-					newAttr = deleteValue(existingAttr);
-					break;
-				default:
-					break;
-				}
-				Attributes attrsToMod = new BasicAttributes();
-				attrsToMod.put(newAttr);
-				entry.modifyAttributes("", DirContext.REPLACE_ATTRIBUTE, attrsToMod);
-			} catch (NamingException e) {
-				log.error("MAJ de la valeur (" + value + ") de l'attribut(" + attribute + ")de l'entrée(" + dn + ") : ");
-				log.error("   -> JAVA ERROR = " + e.getMessage());
-			} catch (UnsupportedEncodingException e) {
-				// TODO Auto-generated catch block
-				log.error("Effacement de la valeur (" + value + ") de l'attribut(" + attribute + ")de l'entrée(" + dn + ") : ");
-				log.error("   -> JAVA ERROR = " + e.getMessage());
-			}
-		}
-		return test;
-	}
+        return attr;
+    }
+
+    public boolean execute() {
+        boolean test = false;
+        SearchControls contraintes = new SearchControls();
+        contraintes.setSearchScope(SearchControls.ONELEVEL_SCOPE);
+        contraintes.setReturningAttributes(new String[] { attribute });
+        for (String dn : listDn) {
+            try {
+                String subContext = dn.substring(0, dn.indexOf(ctx.getNameInNamespace()) - 1);
+                DirContext entry = (DirContext) ctx.lookup(subContext);
+                Attribute existingAttr = entry.getAttributes("").get(attribute);
+                if (existingAttr == null) {
+                    existingAttr = new BasicAttribute(attribute);
+                }
+                Attribute newAttr = null;
+                switch (updateMode) {
+                    case ADD:
+                        log.debug("LdapRelation ADD: " + dn + " -> " + attribute + " -> " + value);
+                        newAttr = addValue(existingAttr);
+                        break;
+                    case DELETE:
+                        log.debug("LdapRelation DEL: " + dn + " -> " + attribute + " -> " + value);
+                        newAttr = deleteValue(existingAttr);
+                        break;
+                    default:
+                        break;
+                }
+                Attributes attrsToMod = new BasicAttributes();
+                attrsToMod.put(newAttr);
+                entry.modifyAttributes("", DirContext.REPLACE_ATTRIBUTE, attrsToMod);
+            } catch (NamingException e) {
+                log.error("MAJ de la valeur (" + value + ") de l'attribut(" + attribute + ")de l'entrée(" + dn + ") : ");
+                log.error("   -> JAVA ERROR = " + e.getMessage());
+            } catch (UnsupportedEncodingException e) {
+                // TODO Auto-generated catch block
+                log.error("Effacement de la valeur (" + value + ") de l'attribut(" + attribute + ")de l'entrée(" + dn + ") : ");
+                log.error("   -> JAVA ERROR = " + e.getMessage());
+            }
+        }
+        return test;
+    }
 
 }

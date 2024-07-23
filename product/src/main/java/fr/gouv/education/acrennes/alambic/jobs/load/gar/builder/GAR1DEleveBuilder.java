@@ -86,7 +86,8 @@ public class GAR1DEleveBuilder extends GAR1DIdentiteBuilder {
     protected boolean checkRestriction(Map<String, List<String>> entity) throws MissingAttributeException, XPathExpressionException {
         if (null != exportFiles.get("restrictionList")) {
             Element root = exportFiles.get("restrictionList").getDocumentElement();
-            String matchingEntry = (String) xpath.evaluate("//id[.='" + getMandatoryAttribute(entity, "ENTPersonJointure") + "']", root, XPathConstants.STRING);
+            String matchingEntry = (String) xpath.evaluate("//id[.='" + getMandatoryAttribute(entity, "ENTPersonJointure") + "']", root,
+                    XPathConstants.STRING);
             return StringUtils.isNotBlank(matchingEntry);
         } else {
             return true;
@@ -98,7 +99,7 @@ public class GAR1DEleveBuilder extends GAR1DIdentiteBuilder {
         resetVariables();
         writer.add(buildGarEleve(entity));
         List<GARPersonMEFSTAT4> mefList = buildGARPersonMEF(entity);
-        for (GARPersonMEFSTAT4 mef: mefList) {
+        for (GARPersonMEFSTAT4 mef : mefList) {
             writer.add(mef);
         }
 
@@ -129,24 +130,29 @@ public class GAR1DEleveBuilder extends GAR1DIdentiteBuilder {
                         addEtabAndProfils(entity, garEleve, uai, null, true);
                     }
                 } else {
-                    log.info("Student with blur identifier '"+ GARHelper.getInstance().getPersonEntityBlurId(entity) + "' is member of a structure ('UAI:" + uai + "') out of the involved list");
+                    log.info("Student with blur identifier '" + GARHelper.getInstance().getPersonEntityBlurId(entity) + "' is member of a structure" +
+                             " ('UAI:" + uai + "') out of the involved list");
                 }
             });
         } else {
-			throw new MissingAttributeException("Skipping entity '" + GARHelper.getInstance().getPersonEntityBlurId(entity) + "' as it has no attribute 'ENTEleveClasses'");
+            throw new MissingAttributeException("Skipping entity '" + GARHelper.getInstance().getPersonEntityBlurId(entity) + "' as it has no " +
+                                                "attribute 'ENTEleveClasses'");
         }
 
         // Add GARPersonProfil associated to the administrative structure if not already present
         if (StringUtils.isNotBlank(structRattach) && !functionCodes.contains(structRattach)) {
-            handleOptionalAttribute(entity, "ENTPersonNationalProfil", nationalProfil -> addEtabAndProfils(entity, garEleve, structRattach, nationalProfil, false), () -> {
+            handleOptionalAttribute(entity, "ENTPersonNationalProfil", nationalProfil -> addEtabAndProfils(entity, garEleve, structRattach,
+                    nationalProfil, false), () -> {
                 jobActivity.setTrafficLight(ActivityTrafficLight.ORANGE);
-                log.warn("Entity '" + GARHelper.getInstance().getPersonEntityBlurId(entity) + "' has no attribute 'ENTPersonNationalProfil' (or empty)");
+                log.warn("Entity '" + GARHelper.getInstance().getPersonEntityBlurId(entity) + "' has no attribute 'ENTPersonNationalProfil' (or " +
+                         "empty)");
             });
         }
 
         // Make sure at least one GARPersonProfil exists
         if (garEleve.getGARPersonProfils().isEmpty()) {
-            throw new MissingAttributeException("Skipping entity '" + GARHelper.getInstance().getPersonEntityBlurId(entity) + "' as it has no attribute 'GARPersonProfils' (mandatory)");
+            throw new MissingAttributeException("Skipping entity '" + GARHelper.getInstance().getPersonEntityBlurId(entity) + "' as it has no " +
+                                                "attribute 'GARPersonProfils' (mandatory)");
         }
 
         return garEleve;
@@ -171,7 +177,8 @@ public class GAR1DEleveBuilder extends GAR1DIdentiteBuilder {
             if (StringUtils.isNotBlank(classe)) {
                 String uai = GARHelper.getInstance().extractCodeGroup(classe, 0);
                 String groupeCode = GARHelper.getInstance().extractCodeGroup(classe, 1);
-                boolean alreadyExists = personGroupeEntities.stream().anyMatch(personGroupeEntity -> personGroupeEntity.getUai().equals(uai) && personGroupeEntity.getGroupeCode().equals(groupeCode));
+                boolean alreadyExists =
+                        personGroupeEntities.stream().anyMatch(personGroupeEntity -> personGroupeEntity.getUai().equals(uai) && personGroupeEntity.getGroupeCode().equals(groupeCode));
                 if (StringUtils.isNotBlank(uai) && StringUtils.isNotBlank(groupeCode) && !alreadyExists) {
                     personGroupeEntities.add(new PersonGroupeEntity(PersonGroupeEntity.PERSON_TYPE.STUDENT, uai, personIdentifiant, groupeCode));
                 }
@@ -210,7 +217,9 @@ public class GAR1DEleveBuilder extends GAR1DIdentiteBuilder {
 
         private GARENTEleve container;
 
-        protected GARENTEleveWriter(final ObjectFactory factory, final String version, final int page, final int maxNodesCount, String output, String xsdFile) throws JAXBException, SAXException {
+        protected GARENTEleveWriter(final ObjectFactory factory, final String version, final int page, final int maxNodesCount, String output,
+                                    String xsdFile)
+                throws JAXBException, SAXException {
             super(factory, version, page, maxNodesCount, output);
             container = factory.createGARENTEleve();
             container.setVersion(version);

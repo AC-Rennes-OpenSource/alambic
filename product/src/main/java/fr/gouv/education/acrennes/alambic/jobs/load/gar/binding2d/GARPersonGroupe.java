@@ -32,9 +32,9 @@ import javax.xml.bind.annotation.XmlType;
 
 /**
  * <p>Classe Java pour GARPersonGroupe complex type.
- * 
+ *
  * <p>Le fragment de schéma suivant indique le contenu attendu figurant dans cette classe.
- * 
+ *
  * <pre>
  * &lt;complexType name="GARPersonGroupe">
  *   &lt;complexContent>
@@ -48,14 +48,14 @@ import javax.xml.bind.annotation.XmlType;
  *   &lt;/complexContent>
  * &lt;/complexType>
  * </pre>
- * 
- * 
+ *
+ *
  */
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlType(name = "GARPersonGroupe", propOrder = {
-    "garStructureUAI",
-    "garPersonIdentifiant",
-    "garGroupeCode"
+        "garStructureUAI",
+        "garPersonIdentifiant",
+        "garGroupeCode"
 })
 public class GARPersonGroupe {
 
@@ -68,11 +68,11 @@ public class GARPersonGroupe {
 
     /**
      * Obtient la valeur de la propriété garStructureUAI.
-     * 
+     *
      * @return
      *     possible object is
      *     {@link String }
-     *     
+     *
      */
     public String getGARStructureUAI() {
         return garStructureUAI;
@@ -80,11 +80,11 @@ public class GARPersonGroupe {
 
     /**
      * Définit la valeur de la propriété garStructureUAI.
-     * 
+     *
      * @param value
      *     allowed object is
      *     {@link String }
-     *     
+     *
      */
     public void setGARStructureUAI(String value) {
         this.garStructureUAI = value;
@@ -92,11 +92,11 @@ public class GARPersonGroupe {
 
     /**
      * Obtient la valeur de la propriété garPersonIdentifiant.
-     * 
+     *
      * @return
      *     possible object is
      *     {@link String }
-     *     
+     *
      */
     public String getGARPersonIdentifiant() {
         return garPersonIdentifiant;
@@ -104,11 +104,11 @@ public class GARPersonGroupe {
 
     /**
      * Définit la valeur de la propriété garPersonIdentifiant.
-     * 
+     *
      * @param value
      *     allowed object is
      *     {@link String }
-     *     
+     *
      */
     public void setGARPersonIdentifiant(String value) {
         this.garPersonIdentifiant = value;
@@ -116,11 +116,11 @@ public class GARPersonGroupe {
 
     /**
      * Obtient la valeur de la propriété garGroupeCode.
-     * 
+     *
      * @return
      *     possible object is
      *     {@link String }
-     *     
+     *
      */
     public String getGARGroupeCode() {
         return garGroupeCode;
@@ -128,11 +128,11 @@ public class GARPersonGroupe {
 
     /**
      * Définit la valeur de la propriété garGroupeCode.
-     * 
+     *
      * @param value
      *     allowed object is
      *     {@link String }
-     *     
+     *
      */
     public void setGARGroupeCode(String value) {
         this.garGroupeCode = value;

@@ -18,7 +18,7 @@ package fr.gouv.education.acrennes.alambic.freemarker;
 
 public enum HtmlEncodingFormat {
 
-	DECIMAL,
-	HEXADECIMAL;
+    DECIMAL,
+    HEXADECIMAL
 
 }

@@ -16,55 +16,54 @@
  ******************************************************************************/
 package fr.gouv.education.acrennes.alambic.jobs.extract.sources;
 
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-
+import fr.gouv.education.acrennes.alambic.exception.AlambicException;
+import fr.gouv.education.acrennes.alambic.jobs.CallableContext;
+import fr.gouv.education.acrennes.alambic.jobs.extract.clients.FSToStateBase;
+import fr.gouv.education.acrennes.alambic.utils.Functions;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.jdom2.Element;
 
-import fr.gouv.education.acrennes.alambic.exception.AlambicException;
-import fr.gouv.education.acrennes.alambic.jobs.CallableContext;
-import fr.gouv.education.acrennes.alambic.jobs.extract.clients.FSToStateBase;
-import fr.gouv.education.acrennes.alambic.utils.Functions;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
 
 public class FileExplorerSource extends AbstractSource {
 
-	private static final Log log = LogFactory.getLog(FileExplorerSource.class);
+    private static final Log log = LogFactory.getLog(FileExplorerSource.class);
 
-	private int pageSize;
+    private int pageSize;
 
-	public FileExplorerSource(final CallableContext context, final Element sourceNode) throws AlambicException {
-		super(context, sourceNode);
-	}
+    public FileExplorerSource(final CallableContext context, final Element sourceNode) throws AlambicException {
+        super(context, sourceNode);
+    }
 
-	@Override
-	public void initialize(final Element sourceNode) {
+    @Override
+    public void initialize(final Element sourceNode) {
 
-		try {
-			query = sourceNode.getChildText("query");
-			if (StringUtils.isBlank(query) && !isDynamic()) {
-				log.error("Query is missing");
-			} else if (StringUtils.isNotBlank(query)) {
-				query = Functions.getInstance().executeAllFunctions(context.resolveString(query));
-			}
+        try {
+            query = sourceNode.getChildText("query");
+            if (StringUtils.isBlank(query) && !isDynamic()) {
+                log.error("Query is missing");
+            } else if (StringUtils.isNotBlank(query)) {
+                query = Functions.getInstance().executeAllFunctions(context.resolveString(query));
+            }
 
-			String page = sourceNode.getAttributeValue("page");
-			if (StringUtils.isNotBlank(page)) {
-				pageSize = Integer.parseInt(context.resolveString(page));
-			}
+            String page = sourceNode.getAttributeValue("page");
+            if (StringUtils.isNotBlank(page)) {
+                pageSize = Integer.parseInt(context.resolveString(page));
+            }
 
-			setClient(new FSToStateBase());
-		} catch (Exception e) {
-			log.error("Failed to instanciate the client of source '" + getName() + "', error:" + e.getMessage());
-		}
-	}
+            setClient(new FSToStateBase());
+        } catch (Exception e) {
+            log.error("Failed to instanciate the client of source '" + getName() + "', error:" + e.getMessage());
+        }
+    }
 
-	@Override
-	public Iterator<List<Map<String, List<String>>>> getPageIterator() throws AlambicException {
-		return getClient().getPageIterator(query, null, pageSize, null, null);
-	}
+    @Override
+    public Iterator<List<Map<String, List<String>>>> getPageIterator() throws AlambicException {
+        return getClient().getPageIterator(query, null, pageSize, null, null);
+    }
 
 }

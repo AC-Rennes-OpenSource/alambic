@@ -21,8 +21,8 @@ import fr.gouv.education.acrennes.alambic.generator.service.RandomGeneratorServi
 
 public class RandomMailToStateBase extends RandomClientToStateBase {
 
-	public RandomMailToStateBase(final String defaultProcessId) throws AlambicException {
-		super(defaultProcessId, GENERATOR_TYPE.MAIL);
-	}
+    public RandomMailToStateBase(final String defaultProcessId) throws AlambicException {
+        super(defaultProcessId, GENERATOR_TYPE.MAIL);
+    }
 
 }

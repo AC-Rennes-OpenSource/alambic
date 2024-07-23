@@ -16,62 +16,60 @@
  ******************************************************************************/
 package fr.gouv.education.acrennes.alambic.jobs;
 
-import java.io.FileReader;
-import java.io.IOException;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Properties;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.Future;
-
+import fr.gouv.education.acrennes.alambic.exception.AlambicException;
+import fr.gouv.education.acrennes.alambic.monitoring.ActivityMBean;
+import fr.gouv.education.acrennes.alambic.monitoring.ActivityTrafficLight;
+import fr.gouv.education.acrennes.alambic.utils.Variables;
 import org.custommonkey.xmlunit.XMLTestCase;
 import org.jdom2.JDOMException;
 import org.junit.Assert;
 import org.junit.Test;
 import org.xml.sax.SAXException;
 
-import fr.gouv.education.acrennes.alambic.exception.AlambicException;
-import fr.gouv.education.acrennes.alambic.monitoring.ActivityMBean;
-import fr.gouv.education.acrennes.alambic.monitoring.ActivityTrafficLight;
-import fr.gouv.education.acrennes.alambic.utils.Variables;
+import java.io.FileReader;
+import java.io.IOException;
+import java.util.List;
+import java.util.Properties;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.Future;
 
 public class JobsTest extends XMLTestCase {
 
-	@Test
-	public void test1() throws IOException, AlambicException, JDOMException, SAXException, InterruptedException, ExecutionException {
-		Jobs jobs = new Jobs("./", "src/test/resources/data/jobs/file1.xml", new Variables(), new Properties());
-		List<Future<ActivityMBean>> futures = jobs.executeJobList(Arrays.asList("all"), "1");
-		
-		Assert.assertTrue(futures.size() == 1);
-		Assert.assertTrue(futures.get(0).get().getTrafficLight().equals(ActivityTrafficLight.GREEN));
+    @Test
+    public void test1() throws IOException, AlambicException, JDOMException, SAXException, InterruptedException, ExecutionException {
+        Jobs jobs = new Jobs("./", "src/test/resources/data/jobs/file1.xml", new Variables(), new Properties());
+        List<Future<ActivityMBean>> futures = jobs.executeJobList(List.of("all"), "1");
 
-		assertXMLEqual(new FileReader("src/test/resources/data/jobs/expected-result-local1.xml"), 
-				new FileReader("src/test/resources/data/output/result-local1.xml"));
+        Assert.assertEquals(1, futures.size());
+        Assert.assertEquals(futures.get(0).get().getTrafficLight(), ActivityTrafficLight.GREEN);
 
-		assertXMLEqual(new FileReader("src/test/resources/data/jobs/expected-result-local2.xml"), 
-				new FileReader("src/test/resources/data/output/result-local2.xml"));
+        assertXMLEqual(new FileReader("src/test/resources/data/jobs/expected-result-local1.xml"),
+                new FileReader("src/test/resources/data/output/result-local1.xml"));
 
-		assertXMLEqual(new FileReader("src/test/resources/data/jobs/expected-result-external1.xml"), 
-				new FileReader("src/test/resources/data/output/result-external1.xml"));
+        assertXMLEqual(new FileReader("src/test/resources/data/jobs/expected-result-local2.xml"),
+                new FileReader("src/test/resources/data/output/result-local2.xml"));
 
-		assertXMLEqual(new FileReader("src/test/resources/data/jobs/expected-result-external2.xml"), 
-				new FileReader("src/test/resources/data/output/result-external2.xml"));				
-	}
+        assertXMLEqual(new FileReader("src/test/resources/data/jobs/expected-result-external1.xml"),
+                new FileReader("src/test/resources/data/output/result-external1.xml"));
 
-	@Test
-	public void test2() throws IOException, JDOMException, SAXException, AlambicException, InterruptedException, ExecutionException {
-		Jobs jobs = new Jobs("./", "src/test/resources/data/jobs/file3.xml", new Variables(), new Properties());
-		List<Future<ActivityMBean>> futures = jobs.executeJobList(Arrays.asList("all"), "1");
-		Assert.assertTrue(futures.size() == 1);
-		Assert.assertTrue(futures.get(0).get().getTrafficLight().equals(ActivityTrafficLight.RED));
-	}
+        assertXMLEqual(new FileReader("src/test/resources/data/jobs/expected-result-external2.xml"),
+                new FileReader("src/test/resources/data/output/result-external2.xml"));
+    }
 
-	@Test
-	public void test3() throws IOException, JDOMException, SAXException, AlambicException, InterruptedException, ExecutionException {
-			Jobs jobs = new Jobs("./", "src/test/resources/data/jobs/file4.xml", new Variables(), new Properties());
-			List<Future<ActivityMBean>> futures = jobs.executeJobList(Arrays.asList("all"), "1");
-			Assert.assertTrue(futures.size() == 1);
-			Assert.assertTrue(futures.get(0).get().getTrafficLight().equals(ActivityTrafficLight.RED));
-	}
+    @Test
+    public void test2() throws IOException, JDOMException, SAXException, AlambicException, InterruptedException, ExecutionException {
+        Jobs jobs = new Jobs("./", "src/test/resources/data/jobs/file3.xml", new Variables(), new Properties());
+        List<Future<ActivityMBean>> futures = jobs.executeJobList(List.of("all"), "1");
+        Assert.assertEquals(1, futures.size());
+        Assert.assertEquals(futures.get(0).get().getTrafficLight(), ActivityTrafficLight.RED);
+    }
+
+    @Test
+    public void test3() throws IOException, JDOMException, SAXException, AlambicException, InterruptedException, ExecutionException {
+        Jobs jobs = new Jobs("./", "src/test/resources/data/jobs/file4.xml", new Variables(), new Properties());
+        List<Future<ActivityMBean>> futures = jobs.executeJobList(List.of("all"), "1");
+        Assert.assertEquals(1, futures.size());
+        Assert.assertEquals(futures.get(0).get().getTrafficLight(), ActivityTrafficLight.RED);
+    }
 
 }

@@ -24,21 +24,17 @@
 
 package fr.gouv.education.acrennes.alambic.jobs.load.gar.binding2d;
 
+import javax.xml.bind.annotation.*;
+import javax.xml.datatype.XMLGregorianCalendar;
 import java.util.ArrayList;
 import java.util.List;
-import javax.xml.bind.annotation.XmlAccessType;
-import javax.xml.bind.annotation.XmlAccessorType;
-import javax.xml.bind.annotation.XmlElement;
-import javax.xml.bind.annotation.XmlSchemaType;
-import javax.xml.bind.annotation.XmlType;
-import javax.xml.datatype.XMLGregorianCalendar;
 
 
 /**
  * <p>Classe Java pour GAREleve complex type.
- * 
+ *
  * <p>Le fragment de schéma suivant indique le contenu attendu figurant dans cette classe.
- * 
+ *
  * <pre>
  * &lt;complexType name="GAREleve">
  *   &lt;complexContent>
@@ -51,17 +47,16 @@ import javax.xml.datatype.XMLGregorianCalendar;
  *   &lt;/complexContent>
  * &lt;/complexType>
  * </pre>
- * 
- * 
+ *
+ *
  */
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlType(name = "GAREleve", propOrder = {
-    "garPersonEtab",
-    "garPersonDateNaissance"
+        "garPersonEtab",
+        "garPersonDateNaissance"
 })
 public class GAREleve
-    extends GARIdentite
-{
+        extends GARIdentite {
 
     @XmlElement(name = "GARPersonEtab", required = true)
     protected List<String> garPersonEtab;
@@ -71,25 +66,25 @@ public class GAREleve
 
     /**
      * Gets the value of the garPersonEtab property.
-     * 
+     *
      * <p>
      * This accessor method returns a reference to the live list,
      * not a snapshot. Therefore any modification you make to the
      * returned list will be present inside the JAXB object.
      * This is why there is not a <CODE>set</CODE> method for the garPersonEtab property.
-     * 
+     *
      * <p>
      * For example, to add a new item, do as follows:
      * <pre>
      *    getGARPersonEtab().add(newItem);
      * </pre>
-     * 
-     * 
+     *
+     *
      * <p>
      * Objects of the following type(s) are allowed in the list
      * {@link String }
-     * 
-     * 
+     *
+     *
      */
     public List<String> getGARPersonEtab() {
         if (garPersonEtab == null) {
@@ -100,11 +95,11 @@ public class GAREleve
 
     /**
      * Obtient la valeur de la propriété garPersonDateNaissance.
-     * 
+     *
      * @return
      *     possible object is
      *     {@link XMLGregorianCalendar }
-     *     
+     *
      */
     public XMLGregorianCalendar getGARPersonDateNaissance() {
         return garPersonDateNaissance;
@@ -112,11 +107,11 @@ public class GAREleve
 
     /**
      * Définit la valeur de la propriété garPersonDateNaissance.
-     * 
+     *
      * @param value
      *     allowed object is
      *     {@link XMLGregorianCalendar }
-     *     
+     *
      */
     public void setGARPersonDateNaissance(XMLGregorianCalendar value) {
         this.garPersonDateNaissance = value;

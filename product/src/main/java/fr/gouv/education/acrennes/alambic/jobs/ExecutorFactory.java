@@ -16,71 +16,70 @@
  ******************************************************************************/
 package fr.gouv.education.acrennes.alambic.jobs;
 
+import fr.gouv.education.acrennes.alambic.exception.AlambicException;
+import fr.gouv.education.acrennes.alambic.monitoring.ActivityMBean;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+
 import java.util.Properties;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 
-import fr.gouv.education.acrennes.alambic.exception.AlambicException;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-
-import fr.gouv.education.acrennes.alambic.monitoring.ActivityMBean;
-
 public class ExecutorFactory {
 
-	private static final Log log = LogFactory.getLog(ExecutorFactory.class);
+    private static final Log log = LogFactory.getLog(ExecutorFactory.class);
 
-	public static final String THREAD_POOL_SIZE = "multithreading.pool.size";
-	private static final String DEFAULT_THREAD_POOL_SIZE = "20";
-	private static ExecutorFactory instance = null;
-	private final ExecutorService executor;
+    public static final String THREAD_POOL_SIZE = "multithreading.pool.size";
+    private static final String DEFAULT_THREAD_POOL_SIZE = "20";
+    private static ExecutorFactory instance = null;
+    private final ExecutorService executor;
 
-	private ExecutorFactory(int poolSize) {
-		executor = Executors.newFixedThreadPool(poolSize);
-	}
+    private ExecutorFactory(int poolSize) {
+        executor = Executors.newFixedThreadPool(poolSize);
+    }
 
-	private static ExecutorFactory getInstance() throws AlambicException {
-		if (null == instance) {
-			throw new AlambicException("ExecutorFactory is not already instanciated!");
-		}
-		
-		return instance;
-	}
+    private static ExecutorFactory getInstance() throws AlambicException {
+        if (null == instance) {
+            throw new AlambicException("ExecutorFactory is not already instanciated!");
+        }
 
-	private Future<ActivityMBean> submit(final CallableJob job) {
-		return executor.submit(job);
-	}
+        return instance;
+    }
 
-	private void shutdown() {
-		executor.shutdown();
-	}
-	
-	public static void initialize(Properties properties) throws AlambicException {
-		String size = properties.getProperty(THREAD_POOL_SIZE, DEFAULT_THREAD_POOL_SIZE);
-		if (null == instance) {
-			instance = new ExecutorFactory(Integer.valueOf(size));
-		} else {
-			throw new AlambicException("ExecutorFactory is already instanciated!");
-		}
-	}
-	
-	public static Future<ActivityMBean> submitJob(final CallableJob job) throws Exception {
-		log.info("Submit the job '" + job.getName() + "' for execution");
-		
-		Future<ActivityMBean> future = null;
-		if (job.isAsynchronous()) {
-			future = getInstance().submit(job);
-		} else {
-			ActivityMBean activity = job.call();
-			future = new CompletedJobFuture(activity);
-		}
+    private Future<ActivityMBean> submit(final CallableJob job) {
+        return executor.submit(job);
+    }
 
-		return future;
-	}
+    private void shutdown() {
+        executor.shutdown();
+    }
 
-	public static void close() throws AlambicException {
-		getInstance().shutdown();
-	}
+    public static void initialize(Properties properties) throws AlambicException {
+        String size = properties.getProperty(THREAD_POOL_SIZE, DEFAULT_THREAD_POOL_SIZE);
+        if (null == instance) {
+            instance = new ExecutorFactory(Integer.valueOf(size));
+        } else {
+            throw new AlambicException("ExecutorFactory is already instanciated!");
+        }
+    }
+
+    public static Future<ActivityMBean> submitJob(final CallableJob job) throws Exception {
+        log.info("Submit the job '" + job.getName() + "' for execution");
+
+        Future<ActivityMBean> future = null;
+        if (job.isAsynchronous()) {
+            future = getInstance().submit(job);
+        } else {
+            ActivityMBean activity = job.call();
+            future = new CompletedJobFuture(activity);
+        }
+
+        return future;
+    }
+
+    public static void close() throws AlambicException {
+        getInstance().shutdown();
+    }
 
 }

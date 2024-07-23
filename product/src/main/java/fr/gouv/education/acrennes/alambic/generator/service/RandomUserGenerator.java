@@ -16,69 +16,68 @@
  ******************************************************************************/
 package fr.gouv.education.acrennes.alambic.generator.service;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-
-import javax.persistence.EntityManager;
-
-import org.apache.commons.lang.StringUtils;
-
 import fr.gouv.education.acrennes.alambic.exception.AlambicException;
 import fr.gouv.education.acrennes.alambic.generator.service.RandomGeneratorService.GENERATOR_TYPE;
 import fr.gouv.education.acrennes.alambic.random.persistence.RandomEntity;
 import fr.gouv.education.acrennes.alambic.random.persistence.RandomLambdaEntity;
+import org.apache.commons.lang.StringUtils;
+
+import javax.persistence.EntityManager;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
 
 public class RandomUserGenerator extends AbstractRandomGenerator {
 
 //	private static final Log log = LogFactory.getLog(RandomUserGenerator.class);
-	
-	private RandomIdentityGenerator rig;
-	private RandomAddressGenerator rag;
 
-	public RandomUserGenerator(final EntityManager em) throws AlambicException{
-		super(em);
-		initialize(em);
-	}
+    private RandomIdentityGenerator rig;
+    private RandomAddressGenerator rag;
 
-	@Override
-	public RandomEntity getEntity(final Map<String, Object> query, final String processId, final UNICITY_SCOPE scope) throws AlambicException {
-		RandomEntity rie = rig.getEntity(query, processId, scope);
-		RandomEntity rae = rag.getEntity(query, processId, scope);
-		RandomEntity re = join(rie, rae);
-		re.setHash(rie.getHash()); // force the resulting random entity hash with the identity one so that pattern to detect already used entity (audit table) is based on firstname & name only (not address).
-		return re;
-	}
+    public RandomUserGenerator(final EntityManager em) throws AlambicException {
+        super(em);
+        initialize(em);
+    }
 
-	private void initialize(final EntityManager em) throws AlambicException {
-		this.rig = new RandomIdentityGenerator(em);
-		this.rag = new RandomAddressGenerator(em);
-	}
+    @Override
+    public RandomEntity getEntity(final Map<String, Object> query, final String processId, final UNICITY_SCOPE scope) throws AlambicException {
+        RandomEntity rie = rig.getEntity(query, processId, scope);
+        RandomEntity rae = rag.getEntity(query, processId, scope);
+        RandomEntity re = join(rie, rae);
+        re.setHash(rie.getHash()); // force the resulting random entity hash with the identity one so that pattern to detect already used entity
+        // (audit table) is based on firstname & name only (not address).
+        return re;
+    }
 
-	@Override
-	public GENERATOR_TYPE getType(final Map<String, Object> query) throws AlambicException {
-		return RandomGeneratorService.GENERATOR_TYPE.USER;
-	}
-	
-	@Override
-	public long getCapacity(final Map<String, Object> query) throws AlambicException {
-		return Math.min(rig.getCapacity(query), rag.getCapacity(query));
-	}
+    private void initialize(final EntityManager em) throws AlambicException {
+        this.rig = new RandomIdentityGenerator(em);
+        this.rag = new RandomAddressGenerator(em);
+    }
 
-	@Override
-	public String getCapacityFilter(final Map<String, Object> query) {
-		return rig.getCapacityFilter(query);
-	}
-	
-	private RandomEntity join(final RandomEntity ... res) {
-		String joinJsonDefinition = "{%s}";
-		List<String> jsonDefinitionsList = new ArrayList<>();
+    @Override
+    public GENERATOR_TYPE getType(final Map<String, Object> query) throws AlambicException {
+        return RandomGeneratorService.GENERATOR_TYPE.USER;
+    }
 
-		for (RandomEntity re : res) {
-			jsonDefinitionsList.add(re.getJson().replaceAll("^\\{|\\}$", ""));
-		}
+    @Override
+    public long getCapacity(final Map<String, Object> query) throws AlambicException {
+        return Math.min(rig.getCapacity(query), rag.getCapacity(query));
+    }
 
-		return new RandomLambdaEntity(String.format(joinJsonDefinition, StringUtils.join(jsonDefinitionsList, ", ")));
-	}
+    @Override
+    public String getCapacityFilter(final Map<String, Object> query) {
+        return rig.getCapacityFilter(query);
+    }
+
+    private RandomEntity join(final RandomEntity... res) {
+        String joinJsonDefinition = "{%s}";
+        List<String> jsonDefinitionsList = new ArrayList<>();
+
+        for (RandomEntity re : res) {
+            jsonDefinitionsList.add(re.getJson().replaceAll("^\\{|\\}$", ""));
+        }
+
+        return new RandomLambdaEntity(String.format(joinJsonDefinition, StringUtils.join(jsonDefinitionsList, ", ")));
+    }
 
 }

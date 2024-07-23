@@ -16,12 +16,11 @@
  ******************************************************************************/
 package fr.gouv.education.acrennes.alambic.jobs.load;
 
-import java.io.IOException;
-import java.nio.charset.StandardCharsets;
-import java.util.Base64;
-import java.util.List;
-
+import fr.gouv.education.acrennes.alambic.api.WebServiceApi;
 import fr.gouv.education.acrennes.alambic.exception.AlambicException;
+import fr.gouv.education.acrennes.alambic.jobs.CallableContext;
+import fr.gouv.education.acrennes.alambic.monitoring.ActivityMBean;
+import fr.gouv.education.acrennes.alambic.monitoring.ActivityTrafficLight;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -42,122 +41,124 @@ import org.jdom2.xpath.XPathExpression;
 import org.jdom2.xpath.XPathFactory;
 import org.xml.sax.InputSource;
 
-import fr.gouv.education.acrennes.alambic.api.WebServiceApi;
-import fr.gouv.education.acrennes.alambic.jobs.CallableContext;
-import fr.gouv.education.acrennes.alambic.monitoring.ActivityMBean;
-import fr.gouv.education.acrennes.alambic.monitoring.ActivityTrafficLight;
+import java.io.IOException;
+import java.nio.charset.StandardCharsets;
+import java.util.Base64;
+import java.util.List;
 
 public class StateBaseToWS extends AbstractDestination {
 
-	private static final Log log = LogFactory.getLog(StateBaseToWS.class);
-	private static int DEFAULT_TIME_OUT = 5_000; // 5 seconds
+    private static final Log log = LogFactory.getLog(StateBaseToWS.class);
+    private static final int DEFAULT_TIME_OUT = 5_000; // 5 seconds
 
-	private Element pivot = null;
-	private CloseableHttpClient httpClient;
-	private String authHeader;
+    private Element pivot = null;
+    private CloseableHttpClient httpClient;
+    private String authHeader;
 
-	public StateBaseToWS(final CallableContext context, final Element destinationNode, final ActivityMBean jobActivity)
-			throws AlambicException {
-		super(context, destinationNode, jobActivity);
+    public StateBaseToWS(final CallableContext context, final Element destinationNode, final ActivityMBean jobActivity)
+            throws AlambicException {
+        super(context, destinationNode, jobActivity);
 
-		// Get & parse input file
-		String pivotElt = destinationNode.getChildText("pivot");
-		if (StringUtils.isNotBlank(pivotElt)) {
-			try {
-				pivotElt = context.resolvePath(pivotElt);
-				this.pivot = (new SAXBuilder()).build(new InputSource(pivotElt)).getRootElement();
-			} catch (JDOMException | IOException e) {
-				throw new AlambicException("Erreur de parsing du fichier pivot, erreur : " + e.getMessage());
-			}
-		} else {
-			throw new AlambicException("le pivot n'est pas precisé");
-		}
-		
-		// Get authentication (basic supported only)
-		XPathFactory xpf = XPathFactory.instance();
-		XPathExpression<Element> xpath = xpf.compile(".//authentication/credentials", Filters.element());
-		List<Element> credentialsElts = xpath.evaluate(destinationNode);
-		if (null != credentialsElts && !credentialsElts.isEmpty()) {
-			String auth_login = context.resolveString(credentialsElts.get(0).getChildText("login"));
-			String auth_password = context.resolveString(credentialsElts.get(0).getChildText("password"));
-			if (StringUtils.isNotBlank(auth_login) && StringUtils.isNotBlank(auth_password)) {
-				byte[] encodedAuth = Base64.getEncoder().encode(String.format("%s:%s", auth_login, auth_password).getBytes(StandardCharsets.ISO_8859_1));
-				this.authHeader = "Basic ".concat(new String(encodedAuth));
-				log.debug("Authentification activée sur le connecteur web service");
-			}
-		} // else, no authentication
-		
-		// Get the connection timeout
-		String timeoutAttrValue = context.resolveString(destinationNode.getAttributeValue("connectionTimeout"));
-		int timeout = (StringUtils.isNotBlank(timeoutAttrValue)) ? Integer.parseInt(timeoutAttrValue) : DEFAULT_TIME_OUT;
+        // Get & parse input file
+        String pivotElt = destinationNode.getChildText("pivot");
+        if (StringUtils.isNotBlank(pivotElt)) {
+            try {
+                pivotElt = context.resolvePath(pivotElt);
+                this.pivot = (new SAXBuilder()).build(new InputSource(pivotElt)).getRootElement();
+            } catch (JDOMException | IOException e) {
+                throw new AlambicException("Erreur de parsing du fichier pivot, erreur : " + e.getMessage());
+            }
+        } else {
+            throw new AlambicException("le pivot n'est pas precisé");
+        }
 
-		// Get proxy configuration
-		String proxyHostAttrValue = context.resolveString(destinationNode.getAttributeValue("proxyHost"));
-		String proxyPortAttrValue = context.resolveString(destinationNode.getAttributeValue("proxyPort"));
-		
-		// Configure & instantiate the http connector
-		Builder requestConfig = RequestConfig.custom();
-		requestConfig = requestConfig.setConnectionRequestTimeout(timeout).setConnectTimeout(timeout).setSocketTimeout(timeout);
-		if (StringUtils.isNotBlank(proxyHostAttrValue) && StringUtils.isNotBlank(proxyPortAttrValue)) {
-			requestConfig = requestConfig.setProxy(new HttpHost(proxyHostAttrValue, Integer.parseInt(proxyPortAttrValue)));
-			log.debug(String.format("Configuration de proxy activée : host=%s, port=%s", proxyHostAttrValue, proxyPortAttrValue));
-		} else {
-			log.debug("Pas de configuration de proxy");
-		}
+        // Get authentication (basic supported only)
+        XPathFactory xpf = XPathFactory.instance();
+        XPathExpression<Element> xpath = xpf.compile(".//authentication/credentials", Filters.element());
+        List<Element> credentialsElts = xpath.evaluate(destinationNode);
+        if (null != credentialsElts && !credentialsElts.isEmpty()) {
+            String auth_login = context.resolveString(credentialsElts.get(0).getChildText("login"));
+            String auth_password = context.resolveString(credentialsElts.get(0).getChildText("password"));
+            if (StringUtils.isNotBlank(auth_login) && StringUtils.isNotBlank(auth_password)) {
+                byte[] encodedAuth =
+                        Base64.getEncoder().encode(String.format("%s:%s", auth_login, auth_password).getBytes(StandardCharsets.ISO_8859_1));
+                this.authHeader = "Basic ".concat(new String(encodedAuth));
+                log.debug("Authentification activée sur le connecteur web service");
+            }
+        } // else, no authentication
 
-		this.httpClient = HttpClientBuilder.create()
-				.useSystemProperties()
-				.setDefaultRequestConfig(requestConfig.build())
-				.build();
-	}
+        // Get the connection timeout
+        String timeoutAttrValue = context.resolveString(destinationNode.getAttributeValue("connectionTimeout"));
+        int timeout = (StringUtils.isNotBlank(timeoutAttrValue)) ? Integer.parseInt(timeoutAttrValue) : DEFAULT_TIME_OUT;
 
-	@Override
-	public void execute() {
-		int pivotEntriesCount = pivot.getChildren().size();
-		int currentPivotEntriesIndex = 1;
+        // Get proxy configuration
+        String proxyHostAttrValue = context.resolveString(destinationNode.getAttributeValue("proxyHost"));
+        String proxyPortAttrValue = context.resolveString(destinationNode.getAttributeValue("proxyPort"));
 
-		// Iterate over the list of API requests
-		for (final Element xmlNode : pivot.getChildren()) {
-			// activity monitoring
-			this.jobActivity.setProgress((currentPivotEntriesIndex * 100) / pivotEntriesCount);
-			this.jobActivity.setProcessing("processing entry " + currentPivotEntriesIndex + "/" + pivotEntriesCount);
+        // Configure & instantiate the http connector
+        Builder requestConfig = RequestConfig.custom();
+        requestConfig = requestConfig.setConnectionRequestTimeout(timeout).setConnectTimeout(timeout).setSocketTimeout(timeout);
+        if (StringUtils.isNotBlank(proxyHostAttrValue) && StringUtils.isNotBlank(proxyPortAttrValue)) {
+            requestConfig = requestConfig.setProxy(new HttpHost(proxyHostAttrValue, Integer.parseInt(proxyPortAttrValue)));
+            log.debug(String.format("Configuration de proxy activée : host=%s, port=%s", proxyHostAttrValue, proxyPortAttrValue));
+        } else {
+            log.debug("Pas de configuration de proxy");
+        }
 
-			WebServiceApi wsapi = null;
-			try {
-				wsapi = new WebServiceApi(this.context, xmlNode);
-				HttpUriRequest request = wsapi.getRequest();
-				if (StringUtils.isNotBlank(this.authHeader)) {
-					request.setHeader(HttpHeaders.AUTHORIZATION, this.authHeader);
-				}
-				HttpResponse response = this.httpClient.execute(request);
-				if (!wsapi.isSuccessful(response)) {
-					this.jobActivity.setTrafficLight(ActivityTrafficLight.RED);
-					log.error(String.format("Réponse en erreur sur la requête '" + wsapi + "' (codes attendus : '%s'), réponse reçue : code=%s, phrase=%s",
-									wsapi.getSuccessResponseCodes(),
-									response.getStatusLine().getStatusCode(), 
-									response.getStatusLine().getReasonPhrase()));
-				}
-				EntityUtils.consume(response.getEntity()); // consume the response content to avoid connection leaks
-			} catch (final Exception e) {
-				this.jobActivity.setTrafficLight(ActivityTrafficLight.RED);
-				log.error("Echec de traitement de la requête '" + wsapi + "', cause : " + e.getMessage());
-			}
-			currentPivotEntriesIndex++;
-		}
-	}
+        this.httpClient = HttpClientBuilder.create()
+                .useSystemProperties()
+                .setDefaultRequestConfig(requestConfig.build())
+                .build();
+    }
 
-	@Override
-	public void close() throws AlambicException {
-		try {
-			super.close();
-			if (null != this.httpClient) {
-				this.httpClient.close();
-			}
-		} catch (IOException e) {
-			throw new AlambicException("Echec pour fermer le connecteur, erreur : " + e.getMessage());
-		} finally {
-			this.httpClient = null;
-		}
-	}
+    @Override
+    public void execute() {
+        int pivotEntriesCount = pivot.getChildren().size();
+        int currentPivotEntriesIndex = 1;
+
+        // Iterate over the list of API requests
+        for (final Element xmlNode : pivot.getChildren()) {
+            // activity monitoring
+            this.jobActivity.setProgress((currentPivotEntriesIndex * 100) / pivotEntriesCount);
+            this.jobActivity.setProcessing("processing entry " + currentPivotEntriesIndex + "/" + pivotEntriesCount);
+
+            WebServiceApi wsapi = null;
+            try {
+                wsapi = new WebServiceApi(this.context, xmlNode);
+                HttpUriRequest request = wsapi.getRequest();
+                if (StringUtils.isNotBlank(this.authHeader)) {
+                    request.setHeader(HttpHeaders.AUTHORIZATION, this.authHeader);
+                }
+                HttpResponse response = this.httpClient.execute(request);
+                if (!wsapi.isSuccessful(response)) {
+                    this.jobActivity.setTrafficLight(ActivityTrafficLight.RED);
+                    log.error(String.format("Réponse en erreur sur la requête '" + wsapi + "' (codes attendus : '%s'), réponse reçue : code=%s, " +
+                                            "phrase=%s",
+                            wsapi.getSuccessResponseCodes(),
+                            response.getStatusLine().getStatusCode(),
+                            response.getStatusLine().getReasonPhrase()));
+                }
+                EntityUtils.consume(response.getEntity()); // consume the response content to avoid connection leaks
+            } catch (final Exception e) {
+                this.jobActivity.setTrafficLight(ActivityTrafficLight.RED);
+                log.error("Echec de traitement de la requête '" + wsapi + "', cause : " + e.getMessage());
+            }
+            currentPivotEntriesIndex++;
+        }
+    }
+
+    @Override
+    public void close() throws AlambicException {
+        try {
+            super.close();
+            if (null != this.httpClient) {
+                this.httpClient.close();
+            }
+        } catch (IOException e) {
+            throw new AlambicException("Echec pour fermer le connecteur, erreur : " + e.getMessage());
+        } finally {
+            this.httpClient = null;
+        }
+    }
 
 }

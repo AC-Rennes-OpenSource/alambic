@@ -16,7 +16,8 @@
  ******************************************************************************/
 package fr.gouv.education.acrennes.alambic.ldap;
 
-import java.util.Hashtable;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 
 import javax.naming.Context;
 import javax.naming.NamingEnumeration;
@@ -25,43 +26,41 @@ import javax.naming.directory.DirContext;
 import javax.naming.directory.InitialDirContext;
 import javax.naming.directory.SearchControls;
 import javax.naming.directory.SearchResult;
-
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import java.util.Hashtable;
 
 public class LdapExtraction {
-	private static final Log log = LogFactory.getLog(LdapExtraction.class);
+    private static final Log log = LogFactory.getLog(LdapExtraction.class);
 
-	private Hashtable<String, String> confLdap = new Hashtable<String, String>(5);
-	private SearchControls contraintes= new SearchControls();
-	protected DirContext ctx = null;
-	protected NamingEnumeration<SearchResult> searchRes;
+    private final Hashtable<String, String> confLdap = new Hashtable<String, String>(5);
+    private final SearchControls contraintes = new SearchControls();
+    protected DirContext ctx = null;
+    protected NamingEnumeration<SearchResult> searchRes;
 
-	public LdapExtraction(String driver, String url, String login, String pwd, String query, String[] attributeList) {
-		confLdap.put(Context.INITIAL_CONTEXT_FACTORY,driver);
-		confLdap.put(Context.PROVIDER_URL, url);
-		confLdap.put(Context.SECURITY_PRINCIPAL, login);
-		confLdap.put(Context.SECURITY_CREDENTIALS, pwd);
-		contraintes.setSearchScope(SearchControls.ONELEVEL_SCOPE);
-		if (attributeList!=null){
-			contraintes.setReturningAttributes(attributeList);
-		}
-		//Execution de la requète LDAP
-		try {
-			ctx = new InitialDirContext(confLdap);
-			searchRes = ctx.search("",query,contraintes);
-		} catch (NamingException e) {
-			log.error("Erreur ouverture du contexte : "+e.getMessage(), e);
-		}
-	}
+    public LdapExtraction(String driver, String url, String login, String pwd, String query, String[] attributeList) {
+        confLdap.put(Context.INITIAL_CONTEXT_FACTORY, driver);
+        confLdap.put(Context.PROVIDER_URL, url);
+        confLdap.put(Context.SECURITY_PRINCIPAL, login);
+        confLdap.put(Context.SECURITY_CREDENTIALS, pwd);
+        contraintes.setSearchScope(SearchControls.ONELEVEL_SCOPE);
+        if (attributeList != null) {
+            contraintes.setReturningAttributes(attributeList);
+        }
+        //Execution de la requète LDAP
+        try {
+            ctx = new InitialDirContext(confLdap);
+            searchRes = ctx.search("", query, contraintes);
+        } catch (NamingException e) {
+            log.error("Erreur ouverture du contexte : " + e.getMessage(), e);
+        }
+    }
 
-	public void close(){
-		try {
-			searchRes.close();
-			ctx.close();
-		} catch (NamingException e) {
-			log.error("Fermeture du contexte : "+e.getMessage(), e);
-		}
-	}
+    public void close() {
+        try {
+            searchRes.close();
+            ctx.close();
+        } catch (NamingException e) {
+            log.error("Fermeture du contexte : " + e.getMessage(), e);
+        }
+    }
 }
 

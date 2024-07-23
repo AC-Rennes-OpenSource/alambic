@@ -16,7 +16,7 @@
  ******************************************************************************/
 package fr.gouv.education.acrennes.alambic.jobs.load.gar.builder.exception;
 
-public class MissingAttributeException extends Exception{
+public class MissingAttributeException extends Exception {
     public MissingAttributeException(String message) {
         super(message);
     }

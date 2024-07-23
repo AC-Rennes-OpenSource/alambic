@@ -16,51 +16,51 @@
  ******************************************************************************/
 package fr.gouv.education.acrennes.alambic.nuxeo.marshaller;
 
-import java.util.List;
-
 import javax.xml.bind.annotation.XmlRootElement;
+import java.util.List;
 
 @XmlRootElement
 public class Report {
-	private String status;
-	private List<String> reasons;
-	private ActivityStack activity;
+    private String status;
+    private List<String> reasons;
+    private ActivityStack activity;
 
-	public static enum STATUS {
-		error,
-		success
-	}
-	
-	public Report() {}
-	
-	public Report(final String status, final List<String> reasons, final ActivityStack activity) {
-		setStatus(status);
-		setReasons(reasons);
-		setActivity(activity);
-	}
-	
-	public String getStatus() {
-		return status;
-	}
-	
-	public void setStatus(String status) {
-		this.status = status;
-	}
-	
-	public ActivityStack getActivity() {
-		return activity;
-	}
-	
-	public void setActivity(ActivityStack activity) {
-		this.activity = activity;
-	}
+    public enum STATUS {
+        error,
+        success
+    }
 
-	public List<String> getReasons() {
-		return reasons;
-	}
+    public Report() {
+    }
 
-	public void setReasons(List<String> reasons) {
-		this.reasons = reasons;
-	}
-	
+    public Report(final String status, final List<String> reasons, final ActivityStack activity) {
+        setStatus(status);
+        setReasons(reasons);
+        setActivity(activity);
+    }
+
+    public String getStatus() {
+        return status;
+    }
+
+    public void setStatus(String status) {
+        this.status = status;
+    }
+
+    public ActivityStack getActivity() {
+        return activity;
+    }
+
+    public void setActivity(ActivityStack activity) {
+        this.activity = activity;
+    }
+
+    public List<String> getReasons() {
+        return reasons;
+    }
+
+    public void setReasons(List<String> reasons) {
+        this.reasons = reasons;
+    }
+
 }

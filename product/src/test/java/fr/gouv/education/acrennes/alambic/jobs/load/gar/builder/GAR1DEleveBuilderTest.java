@@ -48,7 +48,8 @@ public class GAR1DEleveBuilderTest extends GAR1DBuilderTestUtils {
         Source mockedStructures = PowerMockito.mock(LDAPSource.class);
         Source mockedEntries = PowerMockito.mock(LDAPSource.class);
         List<Map<String, List<String>>> structuresMaps = new ArrayList<>();
-        Stream.of("0351234A", "0354321B", "0352143C").forEach(uai -> structuresMaps.add(Collections.singletonMap("ENTStructureUAI", Collections.singletonList(uai))));
+        Stream.of("0351234A", "0354321B", "0352143C").forEach(uai -> structuresMaps.add(Collections.singletonMap("ENTStructureUAI",
+                Collections.singletonList(uai))));
         PowerMockito.when(mockedStructures.getEntries()).thenReturn(structuresMaps);
         PowerMockito.when(mockedEntries.getEntries()).thenReturn(null);
         Map<String, Source> resources = new HashMap<>();
@@ -108,9 +109,9 @@ public class GAR1DEleveBuilderTest extends GAR1DBuilderTestUtils {
 
         List<GARPersonMEFSTAT4> garPersonMEFList = builder.buildGARPersonMEF(entity);
         Assert.assertTrue(garPersonMEFList.size() == 1
-            && StringUtils.equals(garPersonMEFList.get(0).getGARPersonIdentifiant(), "e6a4f485-ba7b-4f07-8e6a-23b4e1a04859")
-            && StringUtils.equals(garPersonMEFList.get(0).getGARStructureUAI(), "0351234A")
-            && StringUtils.equals(garPersonMEFList.get(0).getGARMEFSTAT4Code(), "1111"));
+                          && StringUtils.equals(garPersonMEFList.get(0).getGARPersonIdentifiant(), "e6a4f485-ba7b-4f07-8e6a-23b4e1a04859")
+                          && StringUtils.equals(garPersonMEFList.get(0).getGARStructureUAI(), "0351234A")
+                          && StringUtils.equals(garPersonMEFList.get(0).getGARMEFSTAT4Code(), "1111"));
     }
 
     private XMLGregorianCalendar getXmlGregorianCalendar(String formattedDate) throws ParseException, DatatypeConfigurationException {
@@ -150,15 +151,15 @@ public class GAR1DEleveBuilderTest extends GAR1DBuilderTestUtils {
 
     private boolean garEleveEquals(GAREleve expected, GAREleve actual) {
         return Objects.equals(expected.getGARPersonIdentifiant(), actual.getGARPersonIdentifiant())
-                && Objects.equals(expected.getGARPersonIdSecondaire(), actual.getGARPersonIdSecondaire())
-                && Objects.equals(expected.getGARPersonNomPatro(), actual.getGARPersonNomPatro())
-                && Objects.equals(expected.getGARPersonNom(), actual.getGARPersonNom())
-                && Objects.equals(expected.getGARPersonPrenom(), actual.getGARPersonPrenom())
-                && Objects.equals(expected.getGARPersonCivilite(), actual.getGARPersonCivilite())
-                && Objects.equals(expected.getGARPersonStructRattach(), actual.getGARPersonStructRattach())
-                && Objects.equals(expected.getGARPersonDateNaissance(), actual.getGARPersonDateNaissance())
-                && listsEquals(expected.getGARPersonProfils(), actual.getGARPersonProfils(), this::garProfilsEquals)
-                && listsEquals(expected.getGARPersonEtab(), actual.getGARPersonEtab(), this::stringListsEquals)
-                && listsEquals(expected.getGARPersonAutresPrenoms(), actual.getGARPersonAutresPrenoms(), this::stringListsEquals);
+               && Objects.equals(expected.getGARPersonIdSecondaire(), actual.getGARPersonIdSecondaire())
+               && Objects.equals(expected.getGARPersonNomPatro(), actual.getGARPersonNomPatro())
+               && Objects.equals(expected.getGARPersonNom(), actual.getGARPersonNom())
+               && Objects.equals(expected.getGARPersonPrenom(), actual.getGARPersonPrenom())
+               && Objects.equals(expected.getGARPersonCivilite(), actual.getGARPersonCivilite())
+               && Objects.equals(expected.getGARPersonStructRattach(), actual.getGARPersonStructRattach())
+               && Objects.equals(expected.getGARPersonDateNaissance(), actual.getGARPersonDateNaissance())
+               && listsEquals(expected.getGARPersonProfils(), actual.getGARPersonProfils(), this::garProfilsEquals)
+               && listsEquals(expected.getGARPersonEtab(), actual.getGARPersonEtab(), this::stringListsEquals)
+               && listsEquals(expected.getGARPersonAutresPrenoms(), actual.getGARPersonAutresPrenoms(), this::stringListsEquals);
     }
 }

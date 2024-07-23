@@ -19,14 +19,14 @@ package fr.gouv.education.acrennes.alambic.nuxeo;
 import junit.framework.TestCase;
 
 public class NxmlToNuxeoTest extends TestCase {
-	// private Logger logger = Logger.getLogger(this.getClass());;
-	public void testNxmlToNuxeo() {
-		// PropertyConfigurator.configure("src/test/resources/conf/log4j.properties");
-		//
-		// NxmlToNuxeo xn = new NxmlToNuxeo( "http://localhost:8181/nuxeo/site/automation", "Administrator", "ttcint01");
-		// assertNotNull(xn);
-		// xn.load("src/test/resources/jobs/csv/DUN.xml", "/default-domain/espace-de-publication/services-des-usages");
-		// xn.close();
-	}
+    // private Logger logger = Logger.getLogger(this.getClass());;
+    public void testNxmlToNuxeo() {
+        // PropertyConfigurator.configure("src/test/resources/conf/log4j.properties");
+        //
+        // NxmlToNuxeo xn = new NxmlToNuxeo( "http://localhost:8181/nuxeo/site/automation", "Administrator", "ttcint01");
+        // assertNotNull(xn);
+        // xn.load("src/test/resources/jobs/csv/DUN.xml", "/default-domain/espace-de-publication/services-des-usages");
+        // xn.close();
+    }
 
 }

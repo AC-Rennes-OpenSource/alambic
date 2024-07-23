@@ -24,19 +24,19 @@
 
 package fr.gouv.education.acrennes.alambic.jobs.load.gar.binding2d;
 
-import java.util.ArrayList;
-import java.util.List;
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlType;
+import java.util.ArrayList;
+import java.util.List;
 
 
 /**
  * <p>Classe Java pour GAREnsDisciplinesPostes complex type.
- * 
+ *
  * <p>Le fragment de schéma suivant indique le contenu attendu figurant dans cette classe.
- * 
+ *
  * <pre>
  * &lt;complexType name="GAREnsDisciplinesPostes">
  *   &lt;complexContent>
@@ -49,13 +49,13 @@ import javax.xml.bind.annotation.XmlType;
  *   &lt;/complexContent>
  * &lt;/complexType>
  * </pre>
- * 
- * 
+ *
+ *
  */
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlType(name = "GAREnsDisciplinesPostes", propOrder = {
-    "garStructureUAI",
-    "garEnsDisciplinePosteCode"
+        "garStructureUAI",
+        "garEnsDisciplinePosteCode"
 })
 public class GAREnsDisciplinesPostes {
 
@@ -66,11 +66,11 @@ public class GAREnsDisciplinesPostes {
 
     /**
      * Obtient la valeur de la propriété garStructureUAI.
-     * 
+     *
      * @return
      *     possible object is
      *     {@link String }
-     *     
+     *
      */
     public String getGARStructureUAI() {
         return garStructureUAI;
@@ -78,11 +78,11 @@ public class GAREnsDisciplinesPostes {
 
     /**
      * Définit la valeur de la propriété garStructureUAI.
-     * 
+     *
      * @param value
      *     allowed object is
      *     {@link String }
-     *     
+     *
      */
     public void setGARStructureUAI(String value) {
         this.garStructureUAI = value;
@@ -90,25 +90,25 @@ public class GAREnsDisciplinesPostes {
 
     /**
      * Gets the value of the garEnsDisciplinePosteCode property.
-     * 
+     *
      * <p>
      * This accessor method returns a reference to the live list,
      * not a snapshot. Therefore any modification you make to the
      * returned list will be present inside the JAXB object.
      * This is why there is not a <CODE>set</CODE> method for the garEnsDisciplinePosteCode property.
-     * 
+     *
      * <p>
      * For example, to add a new item, do as follows:
      * <pre>
      *    getGAREnsDisciplinePosteCode().add(newItem);
      * </pre>
-     * 
-     * 
+     *
+     *
      * <p>
      * Objects of the following type(s) are allowed in the list
      * {@link String }
-     * 
-     * 
+     *
+     *
      */
     public List<String> getGAREnsDisciplinePosteCode() {
         if (garEnsDisciplinePosteCode == null) {

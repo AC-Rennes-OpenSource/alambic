@@ -21,8 +21,8 @@ import fr.gouv.education.acrennes.alambic.generator.service.RandomGeneratorServi
 
 public class RandomImageToStateBase extends RandomClientToStateBase {
 
-	public RandomImageToStateBase(final String defaultProcessId) throws AlambicException {
-		super(defaultProcessId, GENERATOR_TYPE.IMAGE);
-	}
+    public RandomImageToStateBase(final String defaultProcessId) throws AlambicException {
+        super(defaultProcessId, GENERATOR_TYPE.IMAGE);
+    }
 
 }

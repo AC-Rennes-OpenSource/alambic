@@ -31,7 +31,7 @@ public class GAR1DBuilderTestUtils {
 
     public <T> void assertListEquals(List<T> expected, List<T> actual, BiConsumer<List<T>, List<T>> assertMethod) {
         Assert.assertTrue((Objects.isNull(expected) && Objects.isNull(actual)) ||
-                (expected != null && actual != null && expected.size() == actual.size()));
+                          (expected != null && actual != null && expected.size() == actual.size()));
         if (expected != null && actual != null) {
             assertMethod.accept(expected, actual);
         }
@@ -57,13 +57,15 @@ public class GAR1DBuilderTestUtils {
 
     public boolean garProfilsEquals(List<GARPersonProfils> expected, List<GARPersonProfils> actual) {
         // Par construction on garantit que les listes sont non nulles et ont la même taille
-        List<GARPersonProfils> workExpected = expected.stream().sorted(Comparator.comparing(GARPersonProfils::getGARStructureUAI)).collect(Collectors.toList());
-        List<GARPersonProfils> workActual = actual.stream().sorted(Comparator.comparing(GARPersonProfils::getGARStructureUAI)).collect(Collectors.toList());
+        List<GARPersonProfils> workExpected =
+                expected.stream().sorted(Comparator.comparing(GARPersonProfils::getGARStructureUAI)).collect(Collectors.toList());
+        List<GARPersonProfils> workActual =
+                actual.stream().sorted(Comparator.comparing(GARPersonProfils::getGARStructureUAI)).collect(Collectors.toList());
         boolean result = true;
         for (int i = 0; i < workExpected.size(); i++) {
             result = result
-                    && StringUtils.equals(workExpected.get(i).getGARStructureUAI(), workActual.get(i).getGARStructureUAI())
-                    && StringUtils.equals(workExpected.get(i).getGARPersonProfil(), workActual.get(i).getGARPersonProfil());
+                     && StringUtils.equals(workExpected.get(i).getGARStructureUAI(), workActual.get(i).getGARStructureUAI())
+                     && StringUtils.equals(workExpected.get(i).getGARPersonProfil(), workActual.get(i).getGARPersonProfil());
         }
         return result;
     }

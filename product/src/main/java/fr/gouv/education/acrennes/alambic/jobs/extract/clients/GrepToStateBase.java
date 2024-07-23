@@ -16,92 +16,89 @@
  ******************************************************************************/
 package fr.gouv.education.acrennes.alambic.jobs.extract.clients;
 
-import java.io.File;
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
+import fr.gouv.education.acrennes.alambic.exception.AlambicException;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.LineIterator;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import fr.gouv.education.acrennes.alambic.exception.AlambicException;
+
+import java.io.File;
+import java.io.IOException;
+import java.util.*;
 
 public class GrepToStateBase implements IToStateBase {
-	private static final Log log = LogFactory.getLog(GrepToStateBase.class);
+    private static final Log log = LogFactory.getLog(GrepToStateBase.class);
 
-	private List<Map<String, List<String>>> stateBase = new ArrayList<>();
-	private File file;
+    private List<Map<String, List<String>>> stateBase = new ArrayList<>();
+    private File file;
 
-	public GrepToStateBase(final String file) {
-		try {
-			this.file = new File(file);
-		} catch (Exception e) {
-			log.error("Failed to instantiate the GREP source client, error: " + e.getMessage());
-		}
-	}
+    public GrepToStateBase(final String file) {
+        try {
+            this.file = new File(file);
+        } catch (Exception e) {
+            log.error("Failed to instantiate the GREP source client, error: " + e.getMessage());
+        }
+    }
 
-	@Override
-	public int getCountResults() {
-		return stateBase.size();
-	}
+    @Override
+    public int getCountResults() {
+        return stateBase.size();
+    }
 
-	@Override
-	public List<Map<String, List<String>>> getStateBase() {
-		return stateBase;
-	}
+    @Override
+    public List<Map<String, List<String>>> getStateBase() {
+        return stateBase;
+    }
 
-	@Override
-	public void executeQuery(final String regex) {
-		executeQuery(regex, null);
-	}
+    @Override
+    public void executeQuery(final String regex) {
+        executeQuery(regex, null);
+    }
 
-	@Override
-	public void executeQuery(final String regex, final String scope) {
-		stateBase = new ArrayList<>();
-		LineIterator li = null;
-		int resultIndex = 1;
+    @Override
+    public void executeQuery(final String regex, final String scope) {
+        stateBase = new ArrayList<>();
+        LineIterator li = null;
+        int resultIndex = 1;
 
-		if (StringUtils.isNotBlank(regex)) {
-			try {
-				li = FileUtils.lineIterator(file, "UTF-8");
-				while (li.hasNext()) {
-					String line = li.nextLine();
-					if (line.matches(regex)) {
-						Map<String, List<String>> item = new HashMap<String, List<String>>();
-						item.put(String.valueOf(resultIndex++), Arrays.asList(line));
-						stateBase.add(item);
-						log.debug("Found XML element: " + item);
-					}
-				}
-			} catch (IOException e) {
-				log.error("Failed to execute query '" + regex + "' on file '" + file.getAbsolutePath() + "'");
-			} finally {
-				if (null != li) {
-					LineIterator.closeQuietly(li);
-				}
-			}
-		}
-	}
+        if (StringUtils.isNotBlank(regex)) {
+            try {
+                li = FileUtils.lineIterator(file, "UTF-8");
+                while (li.hasNext()) {
+                    String line = li.nextLine();
+                    if (line.matches(regex)) {
+                        Map<String, List<String>> item = new HashMap<String, List<String>>();
+                        item.put(String.valueOf(resultIndex++), List.of(line));
+                        stateBase.add(item);
+                        log.debug("Found XML element: " + item);
+                    }
+                }
+            } catch (IOException e) {
+                log.error("Failed to execute query '" + regex + "' on file '" + file.getAbsolutePath() + "'");
+            } finally {
+                if (null != li) {
+                    LineIterator.closeQuietly(li);
+                }
+            }
+        }
+    }
 
-	@Override
-	public void close() {
-		// no-op
-	}
+    @Override
+    public void close() {
+        // no-op
+    }
 
-	@Override
-	public void clear() {
-		stateBase.clear();
-	}
+    @Override
+    public void clear() {
+        stateBase.clear();
+    }
 
-	@Override
-	public Iterator<List<Map<String, List<String>>>> getPageIterator(final String query, final String scope, final int pageSize, final String sortBy, final String orderBy)
-			throws AlambicException {
-		throw new AlambicException("Not implemented operation");
-	}
+    @Override
+    public Iterator<List<Map<String, List<String>>>> getPageIterator(final String query, final String scope, final int pageSize,
+                                                                     final String sortBy, final String orderBy)
+            throws AlambicException {
+        throw new AlambicException("Not implemented operation");
+    }
 
 }

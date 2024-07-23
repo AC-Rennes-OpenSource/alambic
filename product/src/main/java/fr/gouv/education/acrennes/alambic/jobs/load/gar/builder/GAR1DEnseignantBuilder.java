@@ -62,7 +62,8 @@ public class GAR1DEnseignantBuilder extends GAR1DIdentiteBuilder {
 
     @Override
     protected void setGARCivilite(GARIdentite garIdentite, Map<String, List<String>> entity) {
-        handleOptionalAttribute(entity, "personalTitle", personalTitle -> garIdentite.setGARPersonCivilite(GARHelper.getInstance().getSDETCompliantTitleValue(personalTitle)));
+        handleOptionalAttribute(entity, "personalTitle",
+                personalTitle -> garIdentite.setGARPersonCivilite(GARHelper.getInstance().getSDETCompliantTitleValue(personalTitle)));
     }
 
     @Override
@@ -84,7 +85,8 @@ public class GAR1DEnseignantBuilder extends GAR1DIdentiteBuilder {
     protected boolean checkRestriction(Map<String, List<String>> entity) throws MissingAttributeException, XPathExpressionException {
         if (null != exportFiles.get("restrictionList")) {
             Element root = exportFiles.get("restrictionList").getDocumentElement();
-            String matchingEntry = (String) xpath.evaluate("//id[.='" + getMandatoryAttribute(entity, "ENTPersonJointure") + "']", root, XPathConstants.STRING);
+            String matchingEntry = (String) xpath.evaluate("//id[.='" + getMandatoryAttribute(entity, "ENTPersonJointure") + "']", root,
+                    XPathConstants.STRING);
             return StringUtils.isNotBlank(matchingEntry);
         } else {
             return true;
@@ -121,7 +123,8 @@ public class GAR1DEnseignantBuilder extends GAR1DIdentiteBuilder {
                     addEtabAndProfils(entity, garEnseignant, uai, profile, functionCodes);
                 } else {
                     jobActivity.setTrafficLight(ActivityTrafficLight.ORANGE);
-					log.warn("Entity '" + GARHelper.getInstance().getPersonEntityBlurId(entity) + "' has attribute 'ENTPersonFonctions' with not regular value");
+                    log.warn("Entity '" + GARHelper.getInstance().getPersonEntityBlurId(entity) + "' has attribute 'ENTPersonFonctions' with not " +
+                             "regular value");
                 }
             });
         } else {
@@ -129,7 +132,8 @@ public class GAR1DEnseignantBuilder extends GAR1DIdentiteBuilder {
             if (StringUtils.isNotBlank(structRattach)) {
                 addEtabAndProfils(entity, garEnseignant, structRattach.toUpperCase(), null, functionCodes);
             } else {
-                log.warn("Entity '" + GARHelper.getInstance().getPersonEntityBlurId(entity) + "' has no attribute 'ENTPersonFonctions' or 'ENTPersonStructRattach'");
+                log.warn("Entity '" + GARHelper.getInstance().getPersonEntityBlurId(entity) + "' has no attribute 'ENTPersonFonctions' or " +
+                         "'ENTPersonStructRattach'");
             }
         }
 
@@ -147,28 +151,33 @@ public class GAR1DEnseignantBuilder extends GAR1DIdentiteBuilder {
                     }
                 } else {
                     jobActivity.setTrafficLight(ActivityTrafficLight.ORANGE);
-					log.warn("Entity '" + GARHelper.getInstance().getPersonEntityBlurId(entity) + "' has no national profile that could be associated with the title '" +
-                            entity.get("title").get(0) + "' and ENTPersonNationalProfil '" + nationalProfil + "'");
+                    log.warn("Entity '" + GARHelper.getInstance().getPersonEntityBlurId(entity) + "' has no national profile that could be " +
+                             "associated with the title '" +
+                             entity.get("title").get(0) + "' and ENTPersonNationalProfil '" + nationalProfil + "'");
                 }
             }, () -> {
                 jobActivity.setTrafficLight(ActivityTrafficLight.ORANGE);
-				log.warn("Entity '" + GARHelper.getInstance().getPersonEntityBlurId(entity) + "' as it has no attribute 'ENTPersonNationalProfil' (or empty)");
+                log.warn("Entity '" + GARHelper.getInstance().getPersonEntityBlurId(entity) + "' as it has no attribute 'ENTPersonNationalProfil' " +
+                         "(or empty)");
             });
         }
 
         // Control presence of GARPersonProfil
         if (garEnseignant.getGARPersonProfils().isEmpty()) {
-            throw new MissingAttributeException("Skipping entity '" + GARHelper.getInstance().getPersonEntityBlurId(entity) + "' as it has no attribute 'GARPersonProfils' (mandatory)");
+            throw new MissingAttributeException("Skipping entity '" + GARHelper.getInstance().getPersonEntityBlurId(entity) + "' as it has no " +
+                                                "attribute 'GARPersonProfils' (mandatory)");
         }
 
         // GAREnsSpecialitesPostes
         Map<String, GAREnsSpecialitesPostes> garEnsSpecialitesPostesMap = new HashMap<>();
-        handleOptionalList(entity, "ENTAuxEnsDisciplinesPoste", poste -> addSpecialitesPoste(entity, functionCodes, garEnsSpecialitesPostesMap, poste));
+        handleOptionalList(entity, "ENTAuxEnsDisciplinesPoste", poste -> addSpecialitesPoste(entity, functionCodes, garEnsSpecialitesPostesMap,
+                poste));
         garEnseignant.getGAREnsSpecialitesPostes().addAll(garEnsSpecialitesPostesMap.values());
         return garEnseignant;
     }
 
-    private void addSpecialitesPoste(Map<String, List<String>> entity, List<String> functionCodes, Map<String, GAREnsSpecialitesPostes> garEnsSpecialitesPostesMap, String poste) {
+    private void addSpecialitesPoste(Map<String, List<String>> entity, List<String> functionCodes,
+                                     Map<String, GAREnsSpecialitesPostes> garEnsSpecialitesPostesMap, String poste) {
         if (StringUtils.isNotBlank(poste)) {
             String uai = GARHelper.getInstance().extractCodeGroup(poste, 0).toUpperCase();
             if (functionCodes.stream().anyMatch(item -> item.matches(uai.concat("\\$.+")))) {
@@ -182,17 +191,21 @@ public class GAR1DEnseignantBuilder extends GAR1DIdentiteBuilder {
                     GAREnsSpecialitesPostes postes = garEnsSpecialitesPostesMap.get(uai);
                     postes.getGAREnsSpecialitePosteCode().add(code);
                 } else {
-                    log.warn("Skipping entity '" + GARHelper.getInstance().getPersonEntityBlurId(entity) + "' as it has no code associated to one discipline (value is '" + poste + "') in attribute 'ENTAuxEnsDisciplinesPoste' (mandatory)");
+                    log.warn("Skipping entity '" + GARHelper.getInstance().getPersonEntityBlurId(entity) + "' as it has no code associated to one " +
+                             "discipline (value is '" + poste + "') in attribute 'ENTAuxEnsDisciplinesPoste' (mandatory)");
                 }
             } else {
-                log.info("Entity '" + GARHelper.getInstance().getPersonEntityBlurId(entity) + "' has attribute 'ENTAuxEnsDisciplinesPoste' pointing onto structure ('UAI:" + uai + "') that is not referenced by 'ENTPersonFonctions'");
+                log.info("Entity '" + GARHelper.getInstance().getPersonEntityBlurId(entity) + "' has attribute 'ENTAuxEnsDisciplinesPoste' pointing" +
+                         " onto structure ('UAI:" + uai + "') that is not referenced by 'ENTPersonFonctions'");
             }
         } else {
-            log.debug("Entity '" + GARHelper.getInstance().getPersonEntityBlurId(entity) + "' has attribute 'ENTAuxEnsDisciplinesPoste' with blank value");
+            log.debug("Entity '" + GARHelper.getInstance().getPersonEntityBlurId(entity) + "' has attribute 'ENTAuxEnsDisciplinesPoste' with blank " +
+                      "value");
         }
     }
 
-    private void addEtabAndProfils(Map<String, List<String>> entity, GAREnseignant garEnseignant, String uai, String profile, List<String> functionCodes) {
+    private void addEtabAndProfils(Map<String, List<String>> entity, GAREnseignant garEnseignant, String uai, String profile,
+                                   List<String> functionCodes) {
         String sdetcnpv = GARHelper.getInstance().getSDETCompliantProfileValue(entity.get("title").get(0), profile);
 
         if (StringUtils.isNotBlank(sdetcnpv) && !("X".equals(profile))) {
@@ -202,7 +215,7 @@ public class GAR1DEnseignantBuilder extends GAR1DIdentiteBuilder {
              */
             if (!GARHelper.NATIONAL_PROFILE_IDENTIFIER.valueOf(sdetcnpv).isSupported()) {
                 log.info("Entity '" + GARHelper.getInstance().getPersonEntityBlurId(entity) + "' is teaching but has a national profile '" + sdetcnpv + "' not supported by GAR. Is replaced by '" +
-                        GARHelper.NATIONAL_PROFILE_IDENTIFIER.National_ENS.toString() + "'");
+                         GARHelper.NATIONAL_PROFILE_IDENTIFIER.National_ENS + "'");
                 sdetcnpv = GARHelper.NATIONAL_PROFILE_IDENTIFIER.National_ENS.toString();
             }
 
@@ -222,18 +235,21 @@ public class GAR1DEnseignantBuilder extends GAR1DIdentiteBuilder {
                     garEnseignant.getGARPersonProfils().add(pf);
                 }
             } else {
-                log.info("Entity '" + GARHelper.getInstance().getPersonEntityBlurId(entity) + "' is member of a structure ('UAI:" + uai + "') out of the involved list");
+                log.info("Entity '" + GARHelper.getInstance().getPersonEntityBlurId(entity) + "' is member of a structure ('UAI:" + uai + "') out " +
+                         "of the involved list");
             }
         } else {
             jobActivity.setTrafficLight(ActivityTrafficLight.ORANGE);
-			log.warn("Entity '" + GARHelper.getInstance().getPersonEntityBlurId(entity) + "' has no national profile that could be associated with the profile '" + profile + "'");
+            log.warn("Entity '" + GARHelper.getInstance().getPersonEntityBlurId(entity) + "' has no national profile that could be associated with " +
+                     "the profile '" + profile + "'");
         }
     }
 
     private static class GARENTEnseignantWriter extends GAR1DENTWriter {
         private GARENTEnseignant container;
 
-        protected GARENTEnseignantWriter(ObjectFactory factory, String version, int page, int maxNodesCount, String output, String xsdFile) throws JAXBException, SAXException {
+        protected GARENTEnseignantWriter(ObjectFactory factory, String version, int page, int maxNodesCount, String output, String xsdFile)
+                throws JAXBException, SAXException {
             super(factory, version, page, maxNodesCount, output);
             container = factory.createGARENTEnseignant();
             container.setVersion(version);

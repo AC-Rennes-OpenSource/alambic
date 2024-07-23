@@ -16,13 +16,14 @@
  ******************************************************************************/
 package fr.gouv.education.acrennes.alambic.jobs;
 
-import java.util.concurrent.Callable;
 import fr.gouv.education.acrennes.alambic.monitoring.ActivityMBean;
+
+import java.util.concurrent.Callable;
 
 public interface CallableJob extends Callable<ActivityMBean> {
 
-	public boolean isAsynchronous();
-	
-	public String getName();
+    boolean isAsynchronous();
+
+    String getName();
 
 }

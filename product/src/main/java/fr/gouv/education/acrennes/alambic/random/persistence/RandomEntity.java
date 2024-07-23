@@ -20,10 +20,10 @@ import java.io.Serializable;
 
 public interface RandomEntity extends Serializable {
 
-	public String getHash();
+    String getHash();
 
-	public void setHash(String hash);
+    void setHash(String hash);
 
-	public String getJson();
+    String getJson();
 
 }

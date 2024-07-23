@@ -16,21 +16,22 @@
  ******************************************************************************/
 package fr.gouv.education.acrennes.alambic.jobs.extract.sources;
 
+import org.jdom2.Element;
+
 import java.util.List;
 import java.util.Map;
-import org.jdom2.Element;
 
 public class FakeSource extends AbstractSource {
 
-	public FakeSource(final String name, final int page, final List<Map<String, List<String>>> entries) {
-		super(entries);
-		this.name = name;
-		this.page = page;
-	}
+    public FakeSource(final String name, final int page, final List<Map<String, List<String>>> entries) {
+        super(entries);
+        this.name = name;
+        this.page = page;
+    }
 
-	@Override
-	public void initialize(final Element sourceNode) {
-		// no-op
-	}
+    @Override
+    public void initialize(final Element sourceNode) {
+        // no-op
+    }
 
 }

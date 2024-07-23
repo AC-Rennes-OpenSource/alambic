@@ -16,73 +16,65 @@
  ******************************************************************************/
 package fr.gouv.education.acrennes.alambic.jobs.transform;
 
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.OutputStream;
-import java.io.OutputStreamWriter;
-import java.io.Writer;
-import java.util.Map;
-
 import fr.gouv.education.acrennes.alambic.Constants;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-
 import freemarker.template.Configuration;
 import freemarker.template.DefaultObjectWrapper;
 import freemarker.template.Template;
 import freemarker.template.TemplateException;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+
+import java.io.*;
+import java.util.Map;
 
 public class XmlToFileByFtl {
-	private static final Log log = LogFactory.getLog(XmlToFileByFtl.class);
+    private static final Log log = LogFactory.getLog(XmlToFileByFtl.class);
 
-	private final Configuration cfg;
-	Template tpl;
+    private final Configuration cfg;
+    Template tpl;
 
-	public XmlToFileByFtl(final String templatePath) {
-		super();
+    public XmlToFileByFtl(final String templatePath) {
+        super();
 
-		cfg = new Configuration(Constants.FREEMARKER_VERSION);
-		try {
-			cfg.setDirectoryForTemplateLoading(new File(templatePath));
-		} catch (IOException e) {
-			log.error(e.getMessage());
-		}
-		// Specify how templates will see the data-model. This is an advanced topic...
-		// but just use this:
-		cfg.setObjectWrapper(new DefaultObjectWrapper());
-	}
+        cfg = new Configuration(Constants.FREEMARKER_VERSION);
+        try {
+            cfg.setDirectoryForTemplateLoading(new File(templatePath));
+        } catch (IOException e) {
+            log.error(e.getMessage());
+        }
+        // Specify how templates will see the data-model. This is an advanced topic...
+        // but just use this:
+        cfg.setObjectWrapper(new DefaultObjectWrapper());
+    }
 
-	public boolean convert(final Map<?, ?> model, final String templateFile, final String outputFile) {
-		Writer out;
-		if (outputFile != null) {
-			OutputStream outputStream;
-			try {
-				outputStream = new FileOutputStream(outputFile);
-				out = new OutputStreamWriter(outputStream);
-			} catch (FileNotFoundException e) {
-				log.error("Opening outputFile [" + outputFile + "] " + e.getMessage());
-				out = new OutputStreamWriter(System.out);
-			}
-		}
-		else {
-			out = new OutputStreamWriter(System.out);
-		}
-		try {
-			tpl = cfg.getTemplate(templateFile);
+    public boolean convert(final Map<?, ?> model, final String templateFile, final String outputFile) {
+        Writer out;
+        if (outputFile != null) {
+            OutputStream outputStream;
+            try {
+                outputStream = new FileOutputStream(outputFile);
+                out = new OutputStreamWriter(outputStream);
+            } catch (FileNotFoundException e) {
+                log.error("Opening outputFile [" + outputFile + "] " + e.getMessage());
+                out = new OutputStreamWriter(System.out);
+            }
+        } else {
+            out = new OutputStreamWriter(System.out);
+        }
+        try {
+            tpl = cfg.getTemplate(templateFile);
 
-			try {
-				tpl.process(model, out);
-			} catch (TemplateException e) {
-				log.error("Process convertion : " + e.getMessage());
-			}
-			out.flush();
-			return true;
-		} catch (IOException e) {
-			log.error("Opening template file : " + e.getMessage());
-		}
-		return false;
-	}
+            try {
+                tpl.process(model, out);
+            } catch (TemplateException e) {
+                log.error("Process convertion : " + e.getMessage());
+            }
+            out.flush();
+            return true;
+        } catch (IOException e) {
+            log.error("Opening template file : " + e.getMessage());
+        }
+        return false;
+    }
 
 }

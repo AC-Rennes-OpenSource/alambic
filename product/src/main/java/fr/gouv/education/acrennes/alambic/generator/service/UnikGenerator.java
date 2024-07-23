@@ -16,23 +16,21 @@
  ******************************************************************************/
 package fr.gouv.education.acrennes.alambic.generator.service;
 
-import java.util.Map;
-
-import javax.persistence.EntityManager;
-
 import fr.gouv.education.acrennes.alambic.Constants;
 import fr.gouv.education.acrennes.alambic.exception.AlambicException;
 import fr.gouv.education.acrennes.alambic.freemarker.FMFunctions;
 import fr.gouv.education.acrennes.alambic.freemarker.NormalizationPolicy;
-import org.apache.commons.lang.StringUtils;
-
 import fr.gouv.education.acrennes.alambic.random.persistence.RandomEntity;
 import fr.gouv.education.acrennes.alambic.random.persistence.RandomLambdaEntity;
+import org.apache.commons.lang.StringUtils;
+
+import javax.persistence.EntityManager;
+import java.util.Map;
 
 public class UnikGenerator extends AbstractRandomGenerator {
 
     private final FMFunctions fcts;
-    
+
     public UnikGenerator(final EntityManager em) throws AlambicException {
         super(em);
         this.fcts = new FMFunctions();
@@ -41,25 +39,25 @@ public class UnikGenerator extends AbstractRandomGenerator {
     @Override
     public RandomEntity getEntity(Map<String, Object> query, String processId, UNICITY_SCOPE scope)
             throws AlambicException {
-       
-    	RandomEntity entity;
 
-    	String firstName = (String) query.get("firstName");
-    	String lastName = (String) query.get("lastName");
-    	if (StringUtils.isBlank(firstName) || StringUtils.isBlank(lastName)) {
-    		throw new AlambicException("Both parameters 'firstName' and 'lastName' must be set");
-    	}
+        RandomEntity entity;
 
-    	String unik = this.fcts.normalize(String.format("%s%s", firstName.substring(0, 1), lastName), NormalizationPolicy.UNIK, true).toLowerCase();
-    	if(unik.length()>16){
-    		unik = unik.substring(0, 16);
-    	}
+        String firstName = (String) query.get("firstName");
+        String lastName = (String) query.get("lastName");
+        if (StringUtils.isBlank(firstName) || StringUtils.isBlank(lastName)) {
+            throw new AlambicException("Both parameters 'firstName' and 'lastName' must be set");
+        }
 
-    	// handle random generation iteration
-    	int iteration = (int) query.get(Constants.RANDOM_GENERATOR_INNER_ITERATION);
-    	if (1 < iteration) {
-    		unik = unik.concat(String.valueOf(iteration));
-    	}
+        String unik = this.fcts.normalize(String.format("%s%s", firstName.charAt(0), lastName), NormalizationPolicy.UNIK, true).toLowerCase();
+        if (unik.length() > 16) {
+            unik = unik.substring(0, 16);
+        }
+
+        // handle random generation iteration
+        int iteration = (int) query.get(Constants.RANDOM_GENERATOR_INNER_ITERATION);
+        if (1 < iteration) {
+            unik = unik.concat(String.valueOf(iteration));
+        }
 
         entity = new RandomLambdaEntity("{\"unik\":\"" + unik + "\"}");
 

@@ -16,63 +16,62 @@
  ******************************************************************************/
 package fr.gouv.education.acrennes.alambic.generator.service;
 
-import java.util.Map;
-
-import javax.persistence.EntityManager;
-
 import fr.gouv.education.acrennes.alambic.exception.AlambicException;
 import fr.gouv.education.acrennes.alambic.random.persistence.RandomEntity;
 import fr.gouv.education.acrennes.alambic.random.persistence.RandomLambdaEntity;
+
+import javax.persistence.EntityManager;
+import java.util.Map;
 
 public class RandomIntegerGenerator extends AbstractRandomGenerator {
 
 //	private static final Log log = LogFactory.getLog(RandomIntegerGenerator.class);
 
-	public RandomIntegerGenerator(final EntityManager em) throws AlambicException {
-		super(em);
-	}
+    public RandomIntegerGenerator(final EntityManager em) throws AlambicException {
+        super(em);
+    }
 
-	@Override
-	public RandomEntity getEntity(Map<String, Object> query, String processId, UNICITY_SCOPE scope) throws AlambicException {
-		RandomEntity entity = null;
+    @Override
+    public RandomEntity getEntity(Map<String, Object> query, String processId, UNICITY_SCOPE scope) throws AlambicException {
+        RandomEntity entity = null;
 
-		int minValue = (null != query.get("minValue")) ? (int) query.get("minValue") : 0;
-		int maxValue = (null != query.get("maxValue")) ? (int) query.get("maxValue") : 0;
-		if (maxValue != 0 && (maxValue >= minValue)) {
-			int randomValue = (int) (Math.round(minValue + (Math.random() * (maxValue - minValue))));
-			entity = new RandomLambdaEntity("{\"value\":\"" + randomValue + "\"}");
-		} else {
-			throw new AlambicException("Not consistent value of parameters 'minValue' and/or 'maxValue'");
-		}
-		
-		return entity;
-	}
+        int minValue = (null != query.get("minValue")) ? (int) query.get("minValue") : 0;
+        int maxValue = (null != query.get("maxValue")) ? (int) query.get("maxValue") : 0;
+        if (maxValue != 0 && (maxValue >= minValue)) {
+            int randomValue = (int) (Math.round(minValue + (Math.random() * (maxValue - minValue))));
+            entity = new RandomLambdaEntity("{\"value\":\"" + randomValue + "\"}");
+        } else {
+            throw new AlambicException("Not consistent value of parameters 'minValue' and/or 'maxValue'");
+        }
 
-	@Override
-	public RandomGeneratorService.GENERATOR_TYPE getType(final Map<String, Object> query) {
-		return RandomGeneratorService.GENERATOR_TYPE.INTEGER;
-	}
+        return entity;
+    }
 
-	@Override
-	public long getCapacity(final Map<String, Object> query) throws AlambicException {
-		long capacity = 0;
+    @Override
+    public RandomGeneratorService.GENERATOR_TYPE getType(final Map<String, Object> query) {
+        return RandomGeneratorService.GENERATOR_TYPE.INTEGER;
+    }
 
-		int minValue = (null != query.get("minValue")) ? (int) query.get("minValue") : 0;
-		int maxValue = (null != query.get("maxValue")) ? (int) query.get("maxValue") : 0;
-		if (maxValue != 0 && (maxValue >= minValue)) {
-			capacity = maxValue - minValue + 1;
-		} else {
-			throw new AlambicException("Not consistent value of parameters 'minValue' and/or 'maxValue'");
-		}
+    @Override
+    public long getCapacity(final Map<String, Object> query) throws AlambicException {
+        long capacity = 0;
 
-		return capacity;
-	}
+        int minValue = (null != query.get("minValue")) ? (int) query.get("minValue") : 0;
+        int maxValue = (null != query.get("maxValue")) ? (int) query.get("maxValue") : 0;
+        if (maxValue != 0 && (maxValue >= minValue)) {
+            capacity = maxValue - minValue + 1;
+        } else {
+            throw new AlambicException("Not consistent value of parameters 'minValue' and/or 'maxValue'");
+        }
 
-	@Override
-	public String getCapacityFilter(Map<String, Object> query) {
-		int minValue = (null != query.get("minValue")) ? (int) query.get("minValue") : 0;
-		int maxValue = (null != query.get("maxValue")) ? (int) query.get("maxValue") : 0;
-		return String.format("[%d-%d]", minValue, maxValue);
-	}
+        return capacity;
+    }
+
+    @Override
+    public String getCapacityFilter(Map<String, Object> query) {
+        int minValue = (null != query.get("minValue")) ? (int) query.get("minValue") : 0;
+        int maxValue = (null != query.get("maxValue")) ? (int) query.get("maxValue") : 0;
+        return String.format("[%d-%d]", minValue, maxValue);
+    }
 
 }

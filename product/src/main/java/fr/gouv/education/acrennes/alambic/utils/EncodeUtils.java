@@ -17,19 +17,19 @@
 package fr.gouv.education.acrennes.alambic.utils;
 
 
+import org.apache.commons.codec.binary.Base64;
+
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
-
-import org.apache.commons.codec.binary.Base64;
 
 
 public class EncodeUtils {
 
-	public static String fonctionBase64Sha1(final String s) throws NoSuchAlgorithmException{
-		MessageDigest md = MessageDigest.getInstance("SHA");
-		byte[] b = md.digest(s.getBytes());
-		
-		return new String(Base64.encodeBase64(b));
-	}
+    public static String fonctionBase64Sha1(final String s) throws NoSuchAlgorithmException {
+        MessageDigest md = MessageDigest.getInstance("SHA");
+        byte[] b = md.digest(s.getBytes());
+
+        return new String(Base64.encodeBase64(b));
+    }
 
 }

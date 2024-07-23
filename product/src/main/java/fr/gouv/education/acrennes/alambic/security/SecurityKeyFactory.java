@@ -16,56 +16,54 @@
  ******************************************************************************/
 package fr.gouv.education.acrennes.alambic.security;
 
-import java.security.Key;
-import java.security.KeyFactory;
-import java.security.NoSuchAlgorithmException;
-import java.security.PrivateKey;
-import java.security.PublicKey;
+import org.apache.commons.codec.binary.Base64;
+
+import javax.crypto.SecretKey;
+import javax.crypto.spec.SecretKeySpec;
+import java.security.*;
 import java.security.spec.InvalidKeySpecException;
 import java.security.spec.PKCS8EncodedKeySpec;
 import java.security.spec.X509EncodedKeySpec;
-import javax.crypto.SecretKey;
-import javax.crypto.spec.SecretKeySpec;
-import org.apache.commons.codec.binary.Base64;
 
 public class SecurityKeyFactory {
 
-	public static Key getKey(final String algorithm, final String keyStr, final String type) throws NoSuchAlgorithmException, InvalidKeySpecException {
-		Key key = null;
+    public static Key getKey(final String algorithm, final String keyStr, final String type)
+            throws NoSuchAlgorithmException, InvalidKeySpecException {
+        Key key = null;
 
-		if ("RSA".equals(algorithm) || "DSA".equals(algorithm)) {
-			if ("private".equalsIgnoreCase(type)) {
-				key = getPrivateKey(algorithm, keyStr);
-			} else {
-				key = getPublicKey(algorithm, keyStr);
-			}
-		} else {
-			key = getSecretKey(algorithm, keyStr);
-		}
+        if ("RSA".equals(algorithm) || "DSA".equals(algorithm)) {
+            if ("private".equalsIgnoreCase(type)) {
+                key = getPrivateKey(algorithm, keyStr);
+            } else {
+                key = getPublicKey(algorithm, keyStr);
+            }
+        } else {
+            key = getSecretKey(algorithm, keyStr);
+        }
 
-		return key;
-	}
+        return key;
+    }
 
-	private static Key getSecretKey(final String algorithm, final String key) {
-		byte[] encodedKey = Base64.decodeBase64(key);
-		SecretKey originalKey = new SecretKeySpec(encodedKey, 0, encodedKey.length, algorithm);
-		return originalKey;
-	}
+    private static Key getSecretKey(final String algorithm, final String key) {
+        byte[] encodedKey = Base64.decodeBase64(key);
+        SecretKey originalKey = new SecretKeySpec(encodedKey, 0, encodedKey.length, algorithm);
+        return originalKey;
+    }
 
-	private static Key getPublicKey(final String algorithm, final String key) throws NoSuchAlgorithmException, InvalidKeySpecException {
-		byte[] encodedKey = Base64.decodeBase64(key);
-		X509EncodedKeySpec X509publicKey = new X509EncodedKeySpec(encodedKey);
-		KeyFactory kf = KeyFactory.getInstance(algorithm);
-		PublicKey publicKey = kf.generatePublic(X509publicKey);
-		return publicKey;
-	}
+    private static Key getPublicKey(final String algorithm, final String key) throws NoSuchAlgorithmException, InvalidKeySpecException {
+        byte[] encodedKey = Base64.decodeBase64(key);
+        X509EncodedKeySpec X509publicKey = new X509EncodedKeySpec(encodedKey);
+        KeyFactory kf = KeyFactory.getInstance(algorithm);
+        PublicKey publicKey = kf.generatePublic(X509publicKey);
+        return publicKey;
+    }
 
-	private static Key getPrivateKey(final String algorithm, final String key) throws NoSuchAlgorithmException, InvalidKeySpecException {
-		byte[] encodedKey = Base64.decodeBase64(key);
-		PKCS8EncodedKeySpec PKCS8privateKey = new PKCS8EncodedKeySpec(encodedKey);
-		KeyFactory kf = KeyFactory.getInstance(algorithm);
-		PrivateKey privateKey = kf.generatePrivate(PKCS8privateKey);
-		return privateKey;
-	}
+    private static Key getPrivateKey(final String algorithm, final String key) throws NoSuchAlgorithmException, InvalidKeySpecException {
+        byte[] encodedKey = Base64.decodeBase64(key);
+        PKCS8EncodedKeySpec PKCS8privateKey = new PKCS8EncodedKeySpec(encodedKey);
+        KeyFactory kf = KeyFactory.getInstance(algorithm);
+        PrivateKey privateKey = kf.generatePrivate(PKCS8privateKey);
+        return privateKey;
+    }
 
 }

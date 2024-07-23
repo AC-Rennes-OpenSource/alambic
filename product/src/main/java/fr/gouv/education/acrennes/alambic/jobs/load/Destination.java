@@ -16,31 +16,31 @@
  ******************************************************************************/
 package fr.gouv.education.acrennes.alambic.jobs.load;
 
-import java.util.Map;
-
 import fr.gouv.education.acrennes.alambic.exception.AlambicException;
 import fr.gouv.education.acrennes.alambic.jobs.extract.sources.Source;
 import fr.gouv.education.acrennes.alambic.jobs.load.AbstractDestination.IsAnythingToDoStatus;
 
+import java.util.Map;
+
 public interface Destination {
 
-	public void setPage(final int page);
+    void setPage(final int page);
 
-	public String getType();
+    String getType();
 
-	public int getPage();
+    int getPage();
 
-	public boolean isDryMode();
+    boolean isDryMode();
 
-	public boolean isDryModeSupported();
+    boolean isDryModeSupported();
 
-	public void setSource(Source source);
+    void setSource(Source source);
 
-	public void setResources(Map<String, Source> resources);
+    void setResources(Map<String, Source> resources);
 
-	public void execute() throws AlambicException;
+    void execute() throws AlambicException;
 
-	public void close() throws AlambicException;
+    void close() throws AlambicException;
 
-	public IsAnythingToDoStatus isAnythingToDo();
+    IsAnythingToDoStatus isAnythingToDo();
 }

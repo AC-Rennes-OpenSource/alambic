@@ -4,10 +4,20 @@
         <variable name="plain">TextPlain</variable>
         <variable name="aes128" encrypted="AES" alias="aliasaes128">eKjeZoxUNDhoWkj6T/2NgQ==</variable>
         <variable name="aes256" encrypted="AES" alias="aliasaes256">tJzMsmj3d62RRxYEoSl7kg==</variable>
-        <variable name="rsa1024" encrypted="RSA" alias="aliasrsa1024">deMA8KrF88L+OXBGS+maHXHDT5hO5VggroGC1Q0Rr2W79yvvtAyU1o4QYAWngSAzZiwHaouutCyjktqMUl+gHq8Z+l3daFcqc5uqm/HZykn2RytpFuQWalCU4yHiUxjs6uLMFHXIKCeAB9WBFTFylSRS+2CenkJ/n4uU5IJqakE=</variable>
-        <variable name="rsa2048" encrypted="RSA" alias="aliasrsa2048">dDsMVtoV36C6c5PssvBnPrfhqybUb/vLjfdJMYsXZOF0T/dB7jCiKDJghC5bUtY7YBenKXdW1JbB0iQLBLUZWQXLSst4uANDNDPpuSBzCIH4/sK08Lfy8eFWJYisS4CT/Le2hWMfKG3cbpPIIAf4+KbW/8x1aafNENscoUyxXOy9JeJZRD7HccYe7vNtEknOoooVm75cGWOpqZPaIlLAe7+/xPRPlf1Edh3nYPI6isV2uQYPhG9hkt6cHq+AlEZ2y16C8s/qBRl+DbxX2ErTkygSInU/7WkvBpyglGYXExfzbFp3jpmhjhdG0Wu501hgPlVi6dNMi2CujrnCUAMcfw==</variable>
-        <variable name="login" encrypted="RSA" alias="aliasrsa2048">HgKpfEoVVmunrqhoutxCaYG0JG/D4XxANoN2hOa9dHGFTR8hN0YCug57SeMaY/lA+4iUdxWHtLS19JrdKR4UUyC1b8bXFh3TjtTS25AXPBAfl5o5tTDAtAIeWggClIXwrTrayP6tWXKwCp1b0mwAbAQ/70JHg9RetZFjKYIUIK/N4mbs5iHrot4AErml0+sCr/IB8AqxjETgSw+d8YIEvW9MkOPeW2WZsAgqgVofE7Bei1xK4PF6hRRYLHHOaY1f3iKRSsRmWmD7YzGdVcfEV3TkXSeFcbL6L17/U6Gk3YUcCyYyG1tQJRpvw0Nuvdx8AS5oxRMwl/jwbKe8CtgnYA==</variable>
-        <variable name="password" encrypted="RSA" alias="aliasrsa2048">OEwbfMGiv8qqTlsJvlUIY0uyIjn3lTB616+671gY/ZgaoKbr9y7TSJZbhZaRc1jWL6NEhvBvdfVSRoobyWPwEtuplLZ8deRyg8ONGgZ2smxWGevhMbMPDpXgtunrw1uROHOLVOauZ24mUjU0LjTRxb/ZutC4s8OJK2NeTbmBYip3HI8LXSPR8vDvwW9+dy04OXcOSZDO36o/zshg0S3dxsvnYft1zTW6OFXfBnxWiuP0YUtmeLa40/aTeeR/QmSXlRLT492SVvne/1VyYKN8oOe31VGNLRGQm/uY4MMBISWu81/pk7V43+ykPnD6X63MLizSIdHU2qbauje03yV4ig==</variable>
-        <variable name="credentials" encrypted="RSA" alias="aliasrsa2048">CHL1R7O8+cTlMw5tyUZPKoUhatBBvFJft4rJtSPQAD5s4vC+HkNoX1QXp+QFKmndNkW90hw4md/DOjR2kUqQqlAQRihq85dAw3nkscUGIpayTzFrTidQDDYlD5IgZ23wn+dlxt2XnOz0m49Sw5bzfL/EeSOCBq8symVJeojFaoBu1e0cH8ERpnCka7QK1Xxxh+8Mgb0Fa7I5MvrGZ6ID+bHbK1oFIzwCKcNkP8MWGKULZ4ewQt2B1PBZAgdjUBHBj6+AQ0LcWxi4TbsiZQatXBcW0Iw66bDG1sbYbi8JFkbaSzkYXeDae2lm5LpRun61+NTrktWcgFtzgONEFsiXVQ==</variable>
+        <variable name="rsa1024" encrypted="RSA" alias="aliasrsa1024">
+            deMA8KrF88L+OXBGS+maHXHDT5hO5VggroGC1Q0Rr2W79yvvtAyU1o4QYAWngSAzZiwHaouutCyjktqMUl+gHq8Z+l3daFcqc5uqm/HZykn2RytpFuQWalCU4yHiUxjs6uLMFHXIKCeAB9WBFTFylSRS+2CenkJ/n4uU5IJqakE=
+        </variable>
+        <variable name="rsa2048" encrypted="RSA" alias="aliasrsa2048">
+            dDsMVtoV36C6c5PssvBnPrfhqybUb/vLjfdJMYsXZOF0T/dB7jCiKDJghC5bUtY7YBenKXdW1JbB0iQLBLUZWQXLSst4uANDNDPpuSBzCIH4/sK08Lfy8eFWJYisS4CT/Le2hWMfKG3cbpPIIAf4+KbW/8x1aafNENscoUyxXOy9JeJZRD7HccYe7vNtEknOoooVm75cGWOpqZPaIlLAe7+/xPRPlf1Edh3nYPI6isV2uQYPhG9hkt6cHq+AlEZ2y16C8s/qBRl+DbxX2ErTkygSInU/7WkvBpyglGYXExfzbFp3jpmhjhdG0Wu501hgPlVi6dNMi2CujrnCUAMcfw==
+        </variable>
+        <variable name="login" encrypted="RSA" alias="aliasrsa2048">
+            HgKpfEoVVmunrqhoutxCaYG0JG/D4XxANoN2hOa9dHGFTR8hN0YCug57SeMaY/lA+4iUdxWHtLS19JrdKR4UUyC1b8bXFh3TjtTS25AXPBAfl5o5tTDAtAIeWggClIXwrTrayP6tWXKwCp1b0mwAbAQ/70JHg9RetZFjKYIUIK/N4mbs5iHrot4AErml0+sCr/IB8AqxjETgSw+d8YIEvW9MkOPeW2WZsAgqgVofE7Bei1xK4PF6hRRYLHHOaY1f3iKRSsRmWmD7YzGdVcfEV3TkXSeFcbL6L17/U6Gk3YUcCyYyG1tQJRpvw0Nuvdx8AS5oxRMwl/jwbKe8CtgnYA==
+        </variable>
+        <variable name="password" encrypted="RSA" alias="aliasrsa2048">
+            OEwbfMGiv8qqTlsJvlUIY0uyIjn3lTB616+671gY/ZgaoKbr9y7TSJZbhZaRc1jWL6NEhvBvdfVSRoobyWPwEtuplLZ8deRyg8ONGgZ2smxWGevhMbMPDpXgtunrw1uROHOLVOauZ24mUjU0LjTRxb/ZutC4s8OJK2NeTbmBYip3HI8LXSPR8vDvwW9+dy04OXcOSZDO36o/zshg0S3dxsvnYft1zTW6OFXfBnxWiuP0YUtmeLa40/aTeeR/QmSXlRLT492SVvne/1VyYKN8oOe31VGNLRGQm/uY4MMBISWu81/pk7V43+ykPnD6X63MLizSIdHU2qbauje03yV4ig==
+        </variable>
+        <variable name="credentials" encrypted="RSA" alias="aliasrsa2048">
+            CHL1R7O8+cTlMw5tyUZPKoUhatBBvFJft4rJtSPQAD5s4vC+HkNoX1QXp+QFKmndNkW90hw4md/DOjR2kUqQqlAQRihq85dAw3nkscUGIpayTzFrTidQDDYlD5IgZ23wn+dlxt2XnOz0m49Sw5bzfL/EeSOCBq8symVJeojFaoBu1e0cH8ERpnCka7QK1Xxxh+8Mgb0Fa7I5MvrGZ6ID+bHbK1oFIzwCKcNkP8MWGKULZ4ewQt2B1PBZAgdjUBHBj6+AQ0LcWxi4TbsiZQatXBcW0Iw66bDG1sbYbi8JFkbaSzkYXeDae2lm5LpRun61+NTrktWcgFtzgONEFsiXVQ==
+        </variable>
     </variables>
 </foo>

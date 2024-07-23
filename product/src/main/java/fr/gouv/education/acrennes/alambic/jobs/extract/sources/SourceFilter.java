@@ -16,63 +16,65 @@
  ******************************************************************************/
 package fr.gouv.education.acrennes.alambic.jobs.extract.sources;
 
+import org.apache.commons.lang.StringUtils;
+
 import java.text.Normalizer;
 import java.text.Normalizer.Form;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.apache.commons.lang.StringUtils;
-
 public class SourceFilter {
 
-	private Map<String, String> filters;
+    private Map<String, String> filters;
 
-	public Map<String, String> getFilters() {
-		return filters;
-	}
+    public Map<String, String> getFilters() {
+        return filters;
+    }
 
-	public void setFilters(Map<String, String> filters) {
-		this.filters = filters;
-	}
+    public void setFilters(Map<String, String> filters) {
+        this.filters = filters;
+    }
 
-	public SourceFilter(String... patterns) {
-		setFilters(new HashMap<String, String>());
-		for (String pattern : patterns) {
-			if (StringUtils.isNotBlank(pattern)) {
-				String[] tokens = pattern.split("=");
-				String key = tokens[0];
-				String value = tokens[1];
-				getFilters().put(key, value);
-			}
-		}
-	}
+    public SourceFilter(String... patterns) {
+        setFilters(new HashMap<String, String>());
+        for (String pattern : patterns) {
+            if (StringUtils.isNotBlank(pattern)) {
+                String[] tokens = pattern.split("=");
+                String key = tokens[0];
+                String value = tokens[1];
+                getFilters().put(key, value);
+            }
+        }
+    }
 
-	public boolean accept(Map<String, List<String>> entry) {
-		boolean status = true;
+    public boolean accept(Map<String, List<String>> entry) {
+        boolean status = true;
 
-		for (String key : getFilters().keySet()) {
-			String pattern = Normalizer.normalize(getFilters().get(key), Form.NFD).replaceAll("[^\\p{ASCII}]", ""); // get rid of accentuated characters
-			if (entry.containsKey(key)) {
-				List<String> entryValues = entry.get(key);
-				for (String entryValue : entryValues) {
-					String nEntryValue = Normalizer.normalize(entryValue, Form.NFD).replaceAll("[^\\p{ASCII}]", ""); // get rid of accentuated characters
-					status = nEntryValue.matches(pattern);
-					if (false == status) {
-						return false;
-					}
-				}
-			} else {
-				status = false;
-				break;
-			}
-		}
+        for (String key : getFilters().keySet()) {
+            String pattern = Normalizer.normalize(getFilters().get(key), Form.NFD).replaceAll("[^\\p{ASCII}]", ""); // get rid of accentuated
+            // characters
+            if (entry.containsKey(key)) {
+                List<String> entryValues = entry.get(key);
+                for (String entryValue : entryValues) {
+                    String nEntryValue = Normalizer.normalize(entryValue, Form.NFD).replaceAll("[^\\p{ASCII}]", ""); // get rid of accentuated
+                    // characters
+                    status = nEntryValue.matches(pattern);
+                    if (!status) {
+                        return false;
+                    }
+                }
+            } else {
+                status = false;
+                break;
+            }
+        }
 
-		return status;
-	}
+        return status;
+    }
 
-	public String toString() {
-		return getFilters().toString();
-	}
+    public String toString() {
+        return getFilters().toString();
+    }
 
 }

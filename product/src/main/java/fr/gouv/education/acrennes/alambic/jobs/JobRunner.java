@@ -16,19 +16,6 @@
  ******************************************************************************/
 package fr.gouv.education.acrennes.alambic.jobs;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.concurrent.Future;
-
-import org.apache.commons.lang.StringUtils;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-import org.jdom2.Attribute;
-import org.jdom2.Element;
-
 import fr.gouv.education.acrennes.alambic.Constants;
 import fr.gouv.education.acrennes.alambic.exception.AlambicException;
 import fr.gouv.education.acrennes.alambic.jobs.extract.sources.FakeSource;
@@ -43,364 +30,380 @@ import fr.gouv.education.acrennes.alambic.monitoring.ActivityMBean;
 import fr.gouv.education.acrennes.alambic.monitoring.ActivityMBean.ACTIVITY_STATUS;
 import fr.gouv.education.acrennes.alambic.monitoring.ActivityMBean.ACTIVITY_TYPE;
 import fr.gouv.education.acrennes.alambic.monitoring.ActivityTrafficLight;
+import org.apache.commons.lang.StringUtils;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.jdom2.Attribute;
+import org.jdom2.Element;
+
+import java.util.*;
+import java.util.concurrent.Future;
 
 public class JobRunner implements CallableJob {
 
-	private static final Log log = LogFactory.getLog(JobRunner.class);
+    private static final Log log = LogFactory.getLog(JobRunner.class);
 
-	private final Element job;
-	private Source source;
-	private Source pagedSource;
-	private Map<String, Source> resources;
-	private final boolean isAsynchronous;
-	private final CallableContext context;
-	private final ActivityMBean parentActivityBean;
-	private final String runId;
+    private final Element job;
+    private Source source;
+    private Source pagedSource;
+    private Map<String, Source> resources;
+    private final boolean isAsynchronous;
+    private final CallableContext context;
+    private final ActivityMBean parentActivityBean;
+    private final String runId;
 
-	public JobRunner(final CallableContext context, final Element job, final String runId) {
-		this(context, job, null, null, runId);
-	}
+    public JobRunner(final CallableContext context, final Element job, final String runId) {
+        this(context, job, null, null, runId);
+    }
 
-	public JobRunner(final CallableContext context, final Element job, final Source pagedSource, ActivityMBean parentActivityBean, final String runId) {
-		this.context = context;
-		this.job = job;
-		this.pagedSource = pagedSource;
-		this.isAsynchronous = Boolean.parseBoolean(job.getAttributeValue(Constants.JOB_ASYNCH_ATTRIBUTE_NAME));
-		this.parentActivityBean = parentActivityBean;
-		this.runId = runId;
-	}
+    public JobRunner(final CallableContext context, final Element job, final Source pagedSource, ActivityMBean parentActivityBean,
+                     final String runId) {
+        this.context = context;
+        this.job = job;
+        this.pagedSource = pagedSource;
+        this.isAsynchronous = Boolean.parseBoolean(job.getAttributeValue(Constants.JOB_ASYNCH_ATTRIBUTE_NAME));
+        this.parentActivityBean = parentActivityBean;
+        this.runId = runId;
+    }
 
-	@Override
-	public ActivityMBean call() {
-		ActivityMBean bean = null;
-		String jobName = getName();
-		
-		log.info("Start processing job '" + jobName + "'");
+    @Override
+    public ActivityMBean call() {
+        ActivityMBean bean = null;
+        String jobName = getName();
 
-		bean = execute(this.job, this.parentActivityBean, runId);
+        log.info("Start processing job '" + jobName + "'");
 
-		log.info("Finished processing job '" + jobName + "'");
+        bean = execute(this.job, this.parentActivityBean, runId);
 
-		return bean;
-	}
+        log.info("Finished processing job '" + jobName + "'");
 
-	public ActivityMBean execute(final Element job, final ActivityMBean parentActivityBean, final String runId) {
-		Destination destination = null;
-		
-		final ActivityMBean jobActivity = ActivityHelper.getMBean(getName(job), (null == parentActivityBean) ? ACTIVITY_TYPE.META : ACTIVITY_TYPE.INNER, runId);
-		jobActivity.setStatus(ACTIVITY_STATUS.RUNNING.toString());
-		jobActivity.setProcessing("Analyze job definition...");
-		if (null != parentActivityBean) {
-			parentActivityBean.registerInnerActivity(jobActivity);
-		}
+        return bean;
+    }
 
-		try {
-			final List<Element> jobList = job.getChildren("execute-job");
-			final List<Element> templateList = job.getChildren("execute-template");
+    public ActivityMBean execute(final Element job, final ActivityMBean parentActivityBean, final String runId) {
+        Destination destination = null;
 
-			if (!templateList.isEmpty()) {
-				executeSubJobTemplateList(templateList);
-			} else if (!jobList.isEmpty()) {
-				final List<Future<ActivityMBean>> futuresList = new ArrayList<>();
-				jobActivity.setInnerJobsCount(jobList.size());
-				final Iterator<Element> itr = jobList.iterator();
-				while (itr.hasNext() && doRunJob(job, jobActivity)) {
-					final Element node = itr.next();
-					JobDefinition jobDefinition = JobHelper.getJobDefinition(this.context, node);
-					if (null != jobDefinition) {
-						if (Boolean.parseBoolean(job.getAttributeValue(Constants.CHILD_JOBS_ASYNCH_ATTRIBUTE_NAME))) {
-							jobDefinition.getDefinition().setAttribute(Constants.JOB_ASYNCH_ATTRIBUTE_NAME, "true");
-						}
-						jobActivity.setProcessing("Submit job '" + jobDefinition.getDefinition().getAttributeValue("name") + "' for execution");
-						final Future<ActivityMBean> future = ExecutorFactory.submitJob(new JobRunner(jobDefinition.getContext(), jobDefinition.getDefinition(), null, jobActivity, runId));
-						futuresList.add(future);
-					} else {
-						throw new AlambicException("Failed to find the XML definition of the job '" + node.getAttributeValue("name") + "'");
-					}
-				}
+        final ActivityMBean jobActivity = ActivityHelper.getMBean(getName(job), (null == parentActivityBean)
+                                                                                ? ACTIVITY_TYPE.META
+                                                                                : ACTIVITY_TYPE.INNER, runId);
+        jobActivity.setStatus(ACTIVITY_STATUS.RUNNING.toString());
+        jobActivity.setProcessing("Analyze job definition...");
+        if (null != parentActivityBean) {
+            parentActivityBean.registerInnerActivity(jobActivity);
+        }
 
-				// Wait for all inner jobs to complete
-				for (final Future<ActivityMBean> future : futuresList) {
-					future.get(); // waiting for the job completion
-				}
-			} else {
-				final Element pagedResource = getPagedResource(job);
-				if ((null == pagedSource) && (null != pagedResource)) {
-					pagedSource = SourceFactory.getSource(context, pagedResource);
-					jobActivity.setProcessing("Handle paged source '" + pagedResource.getName() + "'...");
-					final Iterator<List<Map<String, List<String>>>> pageItr = pagedSource.getPageIterator();
-					int page = 1;
-					final List<Future<ActivityMBean>> futuresList = new ArrayList<>();
-					while (pageItr.hasNext() && doRunJob(job, jobActivity)) {
-						// Run a new job dealing with this page of results straight away (since multi-threaded) and go back to search for a new page of results
-						job.setAttribute(Constants.JOB_ASYNCH_ATTRIBUTE_NAME, "true");
-						final Future<ActivityMBean> future = ExecutorFactory.submitJob(new JobRunner(context, job, new FakeSource(pagedSource.getName(), page++, pageItr.next()), jobActivity, runId));
-						futuresList.add(future);
-					}
+        try {
+            final List<Element> jobList = job.getChildren("execute-job");
+            final List<Element> templateList = job.getChildren("execute-template");
 
-					// Wait for all paged jobs to complete
-					for (final Future<ActivityMBean> future : futuresList) {
-						future.get(); // waiting for the job completion
-					}
-				} else {
-					jobActivity.setProcessing("Initialize sources...");
-					// possible multiple resources
-					if (job.getChild("resources") != null) {
-						resources = new HashMap<>();
-						final Element resourcesElt = job.getChild("resources");
-						final List<Element> resourcesList = resourcesElt.getChildren("resource");
-						for (final Element resource : resourcesList) {
-							final String resourceName = resource.getAttributeValue("name");
-							if (StringUtils.isNotBlank(resourceName)) {
-								if ((null != pagedSource) && (pagedSource.getName().equals(resourceName))) {
-									resources.put(pagedSource.getName(), pagedSource);
-								} else {
-									final Source source = SourceFactory.getSource(context, resource);
-									if (null != source) {
-										resources.put(resourceName, source);
-									}
-								}
-							} else {
-								throw new AlambicException("L'attribut 'name' n'est pas renseigné sur une ressource.");
-							}
-						}
-					}
+            if (!templateList.isEmpty()) {
+                executeSubJobTemplateList(templateList);
+            } else if (!jobList.isEmpty()) {
+                final List<Future<ActivityMBean>> futuresList = new ArrayList<>();
+                jobActivity.setInnerJobsCount(jobList.size());
+                final Iterator<Element> itr = jobList.iterator();
+                while (itr.hasNext() && doRunJob(job, jobActivity)) {
+                    final Element node = itr.next();
+                    JobDefinition jobDefinition = JobHelper.getJobDefinition(this.context, node);
+                    if (null != jobDefinition) {
+                        if (Boolean.parseBoolean(job.getAttributeValue(Constants.CHILD_JOBS_ASYNCH_ATTRIBUTE_NAME))) {
+                            jobDefinition.getDefinition().setAttribute(Constants.JOB_ASYNCH_ATTRIBUTE_NAME, "true");
+                        }
+                        jobActivity.setProcessing("Submit job '" + jobDefinition.getDefinition().getAttributeValue("name") + "' for execution");
+                        final Future<ActivityMBean> future = ExecutorFactory.submitJob(new JobRunner(jobDefinition.getContext(),
+                                jobDefinition.getDefinition(), null, jobActivity, runId));
+                        futuresList.add(future);
+                    } else {
+                        throw new AlambicException("Failed to find the XML definition of the job '" + node.getAttributeValue("name") + "'");
+                    }
+                }
 
-					// single source
-					source = SourceFactory.getSource(context, job.getChild("source"));
-					if ((null != pagedSource) && (null != source) && (pagedSource.getName().equals(source.getName()))) {
-						source = pagedSource;
-					}
-					
-					// destination
-					destination = DestinationFactory.getDestination(context, job.getChild("destination"), jobActivity);
-					jobActivity.setProcessing("Start loading in destination...");
-					if (null != destination) {
-						destination.setResources(resources);
-						destination.setSource(source);
-						destination.setPage((null != pagedSource) ? pagedSource.getPage() : AbstractDestination.NOT_PAGED);
-						if (destination.isAnythingToDo().equals(IsAnythingToDoStatus.YES)) {
-							destination.execute();
-						} else {
-							log.info("Job '" + getName() + "' : no operations defined by the job input file");
-						}
-					}
-				}
-			}
-		} catch (final Exception e) {
-			log.error("Failed to run the job '" + getName() + "', error : " + e.getMessage());
-			if (null == e.getMessage()) {
-				e.printStackTrace();
-			}
-			
-			if (null != jobActivity) {
-				jobActivity.setTrafficLight(ActivityTrafficLight.RED);
-				jobActivity.addError(e);
-			}
-		} finally {
-			if (null != pagedSource) {
-				pagedSource.close();
-			}
+                // Wait for all inner jobs to complete
+                for (final Future<ActivityMBean> future : futuresList) {
+                    future.get(); // waiting for the job completion
+                }
+            } else {
+                final Element pagedResource = getPagedResource(job);
+                if ((null == pagedSource) && (null != pagedResource)) {
+                    pagedSource = SourceFactory.getSource(context, pagedResource);
+                    jobActivity.setProcessing("Handle paged source '" + pagedResource.getName() + "'...");
+                    final Iterator<List<Map<String, List<String>>>> pageItr = pagedSource.getPageIterator();
+                    int page = 1;
+                    final List<Future<ActivityMBean>> futuresList = new ArrayList<>();
+                    while (pageItr.hasNext() && doRunJob(job, jobActivity)) {
+                        // Run a new job dealing with this page of results straight away (since multi-threaded) and go back to search for a new
+                        // page of results
+                        job.setAttribute(Constants.JOB_ASYNCH_ATTRIBUTE_NAME, "true");
+                        final Future<ActivityMBean> future = ExecutorFactory.submitJob(new JobRunner(context, job,
+                                new FakeSource(pagedSource.getName(), page++, pageItr.next()), jobActivity, runId));
+                        futuresList.add(future);
+                    }
 
-			if ((null != source) && (source != pagedSource)) {
-				source.close();
-			}
+                    // Wait for all paged jobs to complete
+                    for (final Future<ActivityMBean> future : futuresList) {
+                        future.get(); // waiting for the job completion
+                    }
+                } else {
+                    jobActivity.setProcessing("Initialize sources...");
+                    // possible multiple resources
+                    if (job.getChild("resources") != null) {
+                        resources = new HashMap<>();
+                        final Element resourcesElt = job.getChild("resources");
+                        final List<Element> resourcesList = resourcesElt.getChildren("resource");
+                        for (final Element resource : resourcesList) {
+                            final String resourceName = resource.getAttributeValue("name");
+                            if (StringUtils.isNotBlank(resourceName)) {
+                                if ((null != pagedSource) && (pagedSource.getName().equals(resourceName))) {
+                                    resources.put(pagedSource.getName(), pagedSource);
+                                } else {
+                                    final Source source = SourceFactory.getSource(context, resource);
+                                    if (null != source) {
+                                        resources.put(resourceName, source);
+                                    }
+                                }
+                            } else {
+                                throw new AlambicException("L'attribut 'name' n'est pas renseigné sur une ressource.");
+                            }
+                        }
+                    }
 
-			if (null != resources) {
-				for (final String key : resources.keySet()) {
-					if (resources.get(key) != pagedSource) {
-						resources.get(key).close();
-					}
-				}
-			}
+                    // single source
+                    source = SourceFactory.getSource(context, job.getChild("source"));
+                    if ((null != pagedSource) && (null != source) && (pagedSource.getName().equals(source.getName()))) {
+                        source = pagedSource;
+                    }
 
-			pagedSource = null;
-			source = null;
-			resources = null;
+                    // destination
+                    destination = DestinationFactory.getDestination(context, job.getChild("destination"), jobActivity);
+                    jobActivity.setProcessing("Start loading in destination...");
+                    if (null != destination) {
+                        destination.setResources(resources);
+                        destination.setSource(source);
+                        destination.setPage((null != pagedSource) ? pagedSource.getPage() : AbstractDestination.NOT_PAGED);
+                        if (destination.isAnythingToDo().equals(IsAnythingToDoStatus.YES)) {
+                            destination.execute();
+                        } else {
+                            log.info("Job '" + getName() + "' : no operations defined by the job input file");
+                        }
+                    }
+                }
+            }
+        } catch (final Exception e) {
+            log.error("Failed to run the job '" + getName() + "', error : " + e.getMessage());
+            if (null == e.getMessage()) {
+                e.printStackTrace();
+            }
 
-			if (null != destination) {
-				try {
-					destination.close();
-					destination = null;
-				} catch (final AlambicException e) {
-					log.error("Failed to close the destination '" + destination.getType(), e);
-				}
-			}
+            if (null != jobActivity) {
+                jobActivity.setTrafficLight(ActivityTrafficLight.RED);
+                jobActivity.addError(e);
+            }
+        } finally {
+            if (null != pagedSource) {
+                pagedSource.close();
+            }
 
-			if (null != jobActivity) {
-				jobActivity.setStatus(ACTIVITY_STATUS.COMPLETED.toString());
-			}
-		}
-		
-		ActivityHelper.releaseMBean(jobActivity);
-		return jobActivity;
-	}
+            if ((null != source) && (source != pagedSource)) {
+                source.close();
+            }
 
-	@Override
-	public String getName() {
-		return getName(this.job);
-	}
+            if (null != resources) {
+                for (final String key : resources.keySet()) {
+                    if (resources.get(key) != pagedSource) {
+                        resources.get(key).close();
+                    }
+                }
+            }
 
-	private String getName(Element job) {
-		return job.getAttributeValue("name") + ((null != pagedSource) ? "-page-" + pagedSource.getPage() : "");
-	}
+            pagedSource = null;
+            source = null;
+            resources = null;
 
-	@Override
-	public boolean isAsynchronous() {
-		return isAsynchronous;
-	}
+            if (null != destination) {
+                try {
+                    destination.close();
+                    destination = null;
+                } catch (final AlambicException e) {
+                    log.error("Failed to close the destination '" + destination.getType(), e);
+                }
+            }
 
-	private Element getPagedResource(final Element job) {
-		Element pagedResource = null;
+            if (null != jobActivity) {
+                jobActivity.setStatus(ACTIVITY_STATUS.COMPLETED.toString());
+            }
+        }
 
-		// possible multiple resources
-		if (job.getChild("resources") != null) {
-			resources = new HashMap<>();
-			final Element resourcesElt = job.getChild("resources");
-			final List<Element> resourcesList = resourcesElt.getChildren("resource");
-			for (final Element resource : resourcesList) {
-				final String page = resource.getAttributeValue("page");
-				if (StringUtils.isNotBlank(page)) {
-					pagedResource = resource;
-					break; // a single paged source is possible
-				}
-			}
-		}
+        ActivityHelper.releaseMBean(jobActivity);
+        return jobActivity;
+    }
 
-		// single source
-		if (null == pagedResource) {
-			final Element sourceElt = job.getChild("source");
-			final String page = (null != sourceElt) ? sourceElt.getAttributeValue("page") : "";
-			if (StringUtils.isNotBlank(page)) {
-				pagedResource = sourceElt;
-			}
-		}
+    @Override
+    public String getName() {
+        return getName(this.job);
+    }
 
-		return pagedResource;
-	}
-	
-	private boolean doRunJob(final Element job, final ActivityMBean activityBean) {
-		boolean doRun = false;
-		
-		String jobFailureThreshold = job.getAttributeValue("failure-threshold");
-		if ( StringUtils.isBlank(jobFailureThreshold) || ActivityTrafficLight.valueOf(jobFailureThreshold).isGreaterThan(activityBean.getTrafficLight()) ) {
-			doRun = true;
-		} else {
-			activityBean.setStatus("COMPLETED");
-			log.warn("The failure threshold '" + jobFailureThreshold + "' is reached. Job '" + job.getAttributeValue("name") + "' is interrupted (report : " + activityBean + ").");
-		}
-		
-		return doRun;
-	}
+    private String getName(Element job) {
+        return job.getAttributeValue("name") + ((null != pagedSource) ? "-page-" + pagedSource.getPage() : "");
+    }
 
-	private void executeSubJobTemplateList(final List<Element> executeList) throws AlambicException {
-		int index = 0;
-		final Iterator<Element> i = executeList.iterator();
-		while (i.hasNext()) {
-			index++;
-			final Element node = i.next();
+    @Override
+    public boolean isAsynchronous() {
+        return isAsynchronous;
+    }
 
-			// Récupération de l'attribut parameters
-			final Attribute attrParameters = node.getAttribute("parameters");
-			if (attrParameters != null) {
-				log.debug("Chargement des parametres");
-				final String parameters = attrParameters.getValue();
+    private Element getPagedResource(final Element job) {
+        Element pagedResource = null;
 
-				if (parameters.matches("(.+ *)+")) {
-					log.debug("Liste des paramètres ");
-					final String[] params = parameters.split(" ");
-					for (int i1 = 0; i1 < params.length; i1++) {
-						context.getVariables().put("p" + (i1 + 1), params[i1]);
-					}
-				}
-			}
+        // possible multiple resources
+        if (job.getChild("resources") != null) {
+            resources = new HashMap<>();
+            final Element resourcesElt = job.getChild("resources");
+            final List<Element> resourcesList = resourcesElt.getChildren("resource");
+            for (final Element resource : resourcesList) {
+                final String page = resource.getAttributeValue("page");
+                if (StringUtils.isNotBlank(page)) {
+                    pagedResource = resource;
+                    break; // a single paged source is possible
+                }
+            }
+        }
 
-			// Récupération de l'attribut template
-			final Attribute attrTemplate = node.getAttribute("name");
-			Element jobTemplate = null;
-			if (attrTemplate != null) {
-				final String template = attrTemplate.getValue();
-				jobTemplate = JobHelper.getTemplateDefinition(this.context.getJobDocument(), template);
-				if (jobTemplate == null) {
-					throw new IllegalArgumentException("Il n'y a pas de template correspondant au nom["	+ template + "]");
-				}
-			} else {
-				log.debug("Chargement du template de job");
-				throw new IllegalArgumentException("Veuillez preciser un template de Job.'");
-			}
+        // single source
+        if (null == pagedResource) {
+            final Element sourceElt = job.getChild("source");
+            final String page = (null != sourceElt) ? sourceElt.getAttributeValue("page") : "";
+            if (StringUtils.isNotBlank(page)) {
+                pagedResource = sourceElt;
+            }
+        }
 
-			// Mode Iteratif
-			final Attribute attrIterator = node.getAttribute("iterator");
-			if (attrIterator != null) {
-				// get iterator
-				final String iter = attrIterator.getValue();
+        return pagedResource;
+    }
 
-				if (iter.matches("[a-z]+\\.\\.[a-z]+")) {
-					log.debug("Incrementation alphabetique");
-					final String start = iter.substring(0, iter.indexOf(".."));
-					final String end = iter.substring(iter.indexOf("..") + 2);
-					if (start.length() != end.length()) {
-						throw new IllegalArgumentException(
-								"Incrementation alphabetique: le nombre de carateres de debut et fin doivent être identiques !");
-					}
-					final int nStart = fromBase26(start);
-					final int nEnd = fromBase26(end);
-					if (nStart >= nEnd) {
-						throw new IllegalArgumentException(
-								"Incrementation alphabetique: les carateres de debut doivent etre superieur à ceux de fin !");
-					}
-					for (int pos = nStart; pos <= nEnd; pos++) {
-						final String iterator = toBase26(pos);
-						context.getVariables().put("i", iterator);
-						final Element job = jobTemplate.clone();
-						job.setAttribute("name", String.format("%s-%d-%d", job.getAttributeValue("name"), index, pos));
-						execute(job, null, runId);
-					}
-				} else if (iter.matches("[0-9]+\\.\\.[0-9]+")) {
-					log.debug("Incrementation numérique");
-					throw new IllegalArgumentException("Incrementation numérique n'est pas implémentée dans cette version.");
-				} else if (iter.matches("([A-Za-z\\-\\*\\.]+ *)+")) {
-					log.debug("Incrementation par liste ");
-					final String[] params = iter.split(" ");
-					for (int i1 = 0; i1 < params.length; i1++) {
-						context.getVariables().put("i", params[i1]);
-						final Element job = jobTemplate.clone();
-						job.setAttribute("name", String.format("%s-%d-%d", job.getAttributeValue("name"), index, i1));
-						execute(job, null, runId);
-					}
-				} else {
-					throw new IllegalArgumentException("La logique d'iteration exprimee n'est pas prise en charge. elle doit etre de type 'aa..zz' ou '045/AZT/adam.'");
-				}
-			} else {
-				final Element job = jobTemplate.clone();
-				job.setAttribute("name", String.format("%s-%d", job.getAttributeValue("name"), index));
-				execute(job, null, runId);
-			}
-		}
-	}
+    private boolean doRunJob(final Element job, final ActivityMBean activityBean) {
+        boolean doRun = false;
 
-	public static int fromBase26(final String number) {
-		int s = 0;
-		if ((number != null) && (number.length() > 0)) {
-			s = (number.charAt(0) - 'a');
-			for (int i = 1; i < number.length(); i++) {
-				s *= 26;
-				s += (number.charAt(i) - 'a');
-			}
-		}
-		return s;
-	}
+        String jobFailureThreshold = job.getAttributeValue("failure-threshold");
+        if (StringUtils.isBlank(jobFailureThreshold) || ActivityTrafficLight.valueOf(jobFailureThreshold).isGreaterThan(activityBean.getTrafficLight())) {
+            doRun = true;
+        } else {
+            activityBean.setStatus("COMPLETED");
+            log.warn("The failure threshold '" + jobFailureThreshold + "' is reached. Job '" + job.getAttributeValue("name") + "' is interrupted " +
+                     "(report : " + activityBean + ").");
+        }
 
-	public static String toBase26(int number) {
-		number = Math.abs(number);
-		String converted = "";
-		do {
-			final int remainder = number % 26;
-			converted = (char) (remainder + 'a') + converted;
-			number = (number - remainder) / 26;
-		} while (number > 0);
+        return doRun;
+    }
 
-		return converted;
-	}
-	
+    private void executeSubJobTemplateList(final List<Element> executeList) throws AlambicException {
+        int index = 0;
+        final Iterator<Element> i = executeList.iterator();
+        while (i.hasNext()) {
+            index++;
+            final Element node = i.next();
+
+            // Récupération de l'attribut parameters
+            final Attribute attrParameters = node.getAttribute("parameters");
+            if (attrParameters != null) {
+                log.debug("Chargement des parametres");
+                final String parameters = attrParameters.getValue();
+
+                if (parameters.matches("(.+ *)+")) {
+                    log.debug("Liste des paramètres ");
+                    final String[] params = parameters.split(" ");
+                    for (int i1 = 0; i1 < params.length; i1++) {
+                        context.getVariables().put("p" + (i1 + 1), params[i1]);
+                    }
+                }
+            }
+
+            // Récupération de l'attribut template
+            final Attribute attrTemplate = node.getAttribute("name");
+            Element jobTemplate = null;
+            if (attrTemplate != null) {
+                final String template = attrTemplate.getValue();
+                jobTemplate = JobHelper.getTemplateDefinition(this.context.getJobDocument(), template);
+                if (jobTemplate == null) {
+                    throw new IllegalArgumentException("Il n'y a pas de template correspondant au nom[" + template + "]");
+                }
+            } else {
+                log.debug("Chargement du template de job");
+                throw new IllegalArgumentException("Veuillez preciser un template de Job.'");
+            }
+
+            // Mode Iteratif
+            final Attribute attrIterator = node.getAttribute("iterator");
+            if (attrIterator != null) {
+                // get iterator
+                final String iter = attrIterator.getValue();
+
+                if (iter.matches("[a-z]+\\.\\.[a-z]+")) {
+                    log.debug("Incrementation alphabetique");
+                    final String start = iter.substring(0, iter.indexOf(".."));
+                    final String end = iter.substring(iter.indexOf("..") + 2);
+                    if (start.length() != end.length()) {
+                        throw new IllegalArgumentException(
+                                "Incrementation alphabetique: le nombre de carateres de debut et fin doivent être identiques !");
+                    }
+                    final int nStart = fromBase26(start);
+                    final int nEnd = fromBase26(end);
+                    if (nStart >= nEnd) {
+                        throw new IllegalArgumentException(
+                                "Incrementation alphabetique: les carateres de debut doivent etre superieur à ceux de fin !");
+                    }
+                    for (int pos = nStart; pos <= nEnd; pos++) {
+                        final String iterator = toBase26(pos);
+                        context.getVariables().put("i", iterator);
+                        final Element job = jobTemplate.clone();
+                        job.setAttribute("name", String.format("%s-%d-%d", job.getAttributeValue("name"), index, pos));
+                        execute(job, null, runId);
+                    }
+                } else if (iter.matches("[0-9]+\\.\\.[0-9]+")) {
+                    log.debug("Incrementation numérique");
+                    throw new IllegalArgumentException("Incrementation numérique n'est pas implémentée dans cette version.");
+                } else if (iter.matches("([A-Za-z\\-\\*\\.]+ *)+")) {
+                    log.debug("Incrementation par liste ");
+                    final String[] params = iter.split(" ");
+                    for (int i1 = 0; i1 < params.length; i1++) {
+                        context.getVariables().put("i", params[i1]);
+                        final Element job = jobTemplate.clone();
+                        job.setAttribute("name", String.format("%s-%d-%d", job.getAttributeValue("name"), index, i1));
+                        execute(job, null, runId);
+                    }
+                } else {
+                    throw new IllegalArgumentException("La logique d'iteration exprimee n'est pas prise en charge. elle doit etre de type 'aa..zz' " +
+                                                       "ou '045/AZT/adam.'");
+                }
+            } else {
+                final Element job = jobTemplate.clone();
+                job.setAttribute("name", String.format("%s-%d", job.getAttributeValue("name"), index));
+                execute(job, null, runId);
+            }
+        }
+    }
+
+    public static int fromBase26(final String number) {
+        int s = 0;
+        if ((number != null) && (number.length() > 0)) {
+            s = (number.charAt(0) - 'a');
+            for (int i = 1; i < number.length(); i++) {
+                s *= 26;
+                s += (number.charAt(i) - 'a');
+            }
+        }
+        return s;
+    }
+
+    public static String toBase26(int number) {
+        number = Math.abs(number);
+        String converted = "";
+        do {
+            final int remainder = number % 26;
+            converted = (char) (remainder + 'a') + converted;
+            number = (number - remainder) / 26;
+        } while (number > 0);
+
+        return converted;
+    }
+
 }

@@ -16,63 +16,64 @@
  ******************************************************************************/
 package fr.gouv.education.acrennes.alambic.jobs.extract.clients;
 
+import fr.gouv.education.acrennes.alambic.exception.AlambicException;
+import junit.framework.TestCase;
+import org.junit.Assert;
+import org.junit.Test;
+
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
-import org.junit.Assert;
-import org.junit.Test;
-
-import fr.gouv.education.acrennes.alambic.exception.AlambicException;
-import junit.framework.TestCase;
-
 public class FSToStateBaseTest extends TestCase {
 
-	@Test
-	public void test1() {
-		try {
-			FSToStateBase conn = new FSToStateBase();
-			Iterator<List<Map<String, List<String>>>> itr = conn.getPageIterator("{\"rootPath\":\"src/test/resources/data/fstest/\",\"filterRegex\":\".+\\\\.txt\"}", null, 2, null, null);
-			Assert.assertTrue(itr.hasNext());
-			List<Map<String, List<String>>> list = itr.next();			
-			Assert.assertEquals(2, list.size());
-			
-			Assert.assertTrue(itr.hasNext());
-			List<Map<String, List<String>>> listB = itr.next();
-			Assert.assertEquals(2, listB.size());
-			Assert.assertFalse(listB.containsAll(list));
-			
-			Assert.assertTrue(itr.hasNext());
-			list = itr.next();
-			Assert.assertEquals(1, list.size());
-			Assert.assertFalse(list.containsAll(listB));
-			
-			Assert.assertFalse(itr.hasNext());
-			conn.close();
-		} catch (AlambicException e) {
-			Assert.fail("Exception survenue pendant le test unitaire, erreur : " + e.getMessage());
-		}
-	}
+    @Test
+    public void test1() {
+        try {
+            FSToStateBase conn = new FSToStateBase();
+            Iterator<List<Map<String, List<String>>>> itr = conn.getPageIterator("{\"rootPath\":\"src/test/resources/data/fstest/\"," +
+                                                                                 "\"filterRegex\":\".+\\\\.txt\"}", null, 2, null, null);
+            Assert.assertTrue(itr.hasNext());
+            List<Map<String, List<String>>> list = itr.next();
+            Assert.assertEquals(2, list.size());
 
-	@Test
-	public void test2() {
-		try {
-			FSToStateBase conn = new FSToStateBase();
-			Iterator<List<Map<String, List<String>>>> itr = conn.getPageIterator("{\"rootPath\":\"src/test/resources/data/fstest/\",\"filterRegex\":\".+\\\\.csv\"}", null, 2, null, null);
-			Assert.assertTrue(itr.hasNext());
-			List<Map<String, List<String>>> list = itr.next();
-			Assert.assertEquals(2, list.size());
-			
-			Assert.assertTrue(itr.hasNext());
-			List<Map<String, List<String>>> listB = itr.next();
-			Assert.assertEquals(2, listB.size());
-			Assert.assertFalse(listB.containsAll(list));
-			
-			Assert.assertFalse(itr.hasNext());
-			conn.close();
-		} catch (AlambicException e) {
-			Assert.fail("Exception survenue pendant le test unitaire, erreur : " + e.getMessage());
-		}
-	}
+            Assert.assertTrue(itr.hasNext());
+            List<Map<String, List<String>>> listB = itr.next();
+            Assert.assertEquals(2, listB.size());
+            Assert.assertFalse(listB.containsAll(list));
+
+            Assert.assertTrue(itr.hasNext());
+            list = itr.next();
+            Assert.assertEquals(1, list.size());
+            Assert.assertFalse(list.containsAll(listB));
+
+            Assert.assertFalse(itr.hasNext());
+            conn.close();
+        } catch (AlambicException e) {
+            Assert.fail("Exception survenue pendant le test unitaire, erreur : " + e.getMessage());
+        }
+    }
+
+    @Test
+    public void test2() {
+        try {
+            FSToStateBase conn = new FSToStateBase();
+            Iterator<List<Map<String, List<String>>>> itr = conn.getPageIterator("{\"rootPath\":\"src/test/resources/data/fstest/\"," +
+                                                                                 "\"filterRegex\":\".+\\\\.csv\"}", null, 2, null, null);
+            Assert.assertTrue(itr.hasNext());
+            List<Map<String, List<String>>> list = itr.next();
+            Assert.assertEquals(2, list.size());
+
+            Assert.assertTrue(itr.hasNext());
+            List<Map<String, List<String>>> listB = itr.next();
+            Assert.assertEquals(2, listB.size());
+            Assert.assertFalse(listB.containsAll(list));
+
+            Assert.assertFalse(itr.hasNext());
+            conn.close();
+        } catch (AlambicException e) {
+            Assert.fail("Exception survenue pendant le test unitaire, erreur : " + e.getMessage());
+        }
+    }
 
 }

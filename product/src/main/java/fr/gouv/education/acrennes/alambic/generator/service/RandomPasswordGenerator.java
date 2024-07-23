@@ -16,131 +16,128 @@
  ******************************************************************************/
 package fr.gouv.education.acrennes.alambic.generator.service;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
-import javax.persistence.EntityManager;
-
 import fr.gouv.education.acrennes.alambic.exception.AlambicException;
+import fr.gouv.education.acrennes.alambic.random.persistence.RandomEntity;
+import fr.gouv.education.acrennes.alambic.random.persistence.RandomLambdaEntity;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
-import fr.gouv.education.acrennes.alambic.random.persistence.RandomEntity;
-import fr.gouv.education.acrennes.alambic.random.persistence.RandomLambdaEntity;
+import javax.persistence.EntityManager;
+import java.util.*;
 
 public class RandomPasswordGenerator extends AbstractRandomGenerator {
 
-	private static final Log log = LogFactory.getLog(RandomPasswordGenerator.class);
+    private static final Log log = LogFactory.getLog(RandomPasswordGenerator.class);
 
-	private static final String[] SYMBOLS_LETTER_m = { "a", "b", "c", "d", "e", "f", "g", "h", "i", "j", "k", "l", "m", "n", "o", "p", "q", "r", "s", "t", "u", "v", "w", "x", "y", "z" };
-	private static final String[] SYMBOLS_LETTER_M = { "A", "B", "C", "D", "E", "F", "G", "H", "I", "J", "K", "L", "M", "N", "O", "P", "Q", "R", "S", "T", "U", "V", "W", "X", "Y", "Z" };
-	private static final String[] SYMBOLS_DIGIT = { "0", "1", "2", "3", "4", "5", "6", "7", "8", "9" };
-	private static final String[] SYMBOLS_SPECIAL = { "!", "*", "?", "#", "-", "@", "[", "]", "&", "(", ")", "%", "$" };
+    private static final String[] SYMBOLS_LETTER_m = { "a", "b", "c", "d", "e", "f", "g", "h", "i", "j", "k", "l", "m", "n", "o", "p", "q", "r", "s"
+            , "t", "u", "v", "w", "x", "y", "z" };
+    private static final String[] SYMBOLS_LETTER_M = { "A", "B", "C", "D", "E", "F", "G", "H", "I", "J", "K", "L", "M", "N", "O", "P", "Q", "R", "S"
+            , "T", "U", "V", "W", "X", "Y", "Z" };
+    private static final String[] SYMBOLS_DIGIT = { "0", "1", "2", "3", "4", "5", "6", "7", "8", "9" };
+    private static final String[] SYMBOLS_SPECIAL = { "!", "*", "?", "#", "-", "@", "[", "]", "&", "(", ")", "%", "$" };
 
-	private static final Map<String, String[]> DICTIONARY;
-	static {
-		DICTIONARY = new HashMap<String, String[]>();
-		DICTIONARY.put("LETTER_MAJ", SYMBOLS_LETTER_M);
-		DICTIONARY.put("LETTER_MIN", SYMBOLS_LETTER_m);
-		DICTIONARY.put("DIGIT", SYMBOLS_DIGIT);
-		DICTIONARY.put("SPECIAL", SYMBOLS_SPECIAL);
-	}
+    private static final Map<String, String[]> DICTIONARY;
 
-	public RandomPasswordGenerator(final EntityManager em) throws AlambicException {
-		super(em);
-	}
+    static {
+        DICTIONARY = new HashMap<String, String[]>();
+        DICTIONARY.put("LETTER_MAJ", SYMBOLS_LETTER_M);
+        DICTIONARY.put("LETTER_MIN", SYMBOLS_LETTER_m);
+        DICTIONARY.put("DIGIT", SYMBOLS_DIGIT);
+        DICTIONARY.put("SPECIAL", SYMBOLS_SPECIAL);
+    }
 
-	@Override
-	public RandomEntity getEntity(final Map<String, Object> query, final String processId, final UNICITY_SCOPE scope) throws AlambicException {
-		RandomLambdaEntity entity = null;
+    public RandomPasswordGenerator(final EntityManager em) throws AlambicException {
+        super(em);
+    }
 
-		// Get the dictionary according to the parameters
-		List<String> dico = getQueryDictionary(query);
+    @Override
+    public RandomEntity getEntity(final Map<String, Object> query, final String processId, final UNICITY_SCOPE scope) throws AlambicException {
+        RandomLambdaEntity entity = null;
 
-		// Build the random password
-		int pwssdLength = (int) query.get("length");
-		StringBuffer pwssd = new StringBuffer();
-		for (int i = 0; i < pwssdLength; i++) {
-			long randomSymbolIndex = getRandomNumber(0, dico.size() - 1);
-			String randomSymbolName = dico.get((int) randomSymbolIndex);
-			String[] randomSymbolCharacters = DICTIONARY.get(randomSymbolName);
-			long randomElementIndex = getRandomNumber(0, randomSymbolCharacters.length - 1);
-			pwssd.append(randomSymbolCharacters[(int) randomElementIndex]);
-		}
+        // Get the dictionary according to the parameters
+        List<String> dico = getQueryDictionary(query);
 
-		// Build entity object
-		entity = new RandomLambdaEntity("{\"password\":\"" + pwssd + "\"}");
+        // Build the random password
+        int pwssdLength = (int) query.get("length");
+        StringBuffer pwssd = new StringBuffer();
+        for (int i = 0; i < pwssdLength; i++) {
+            long randomSymbolIndex = getRandomNumber(0, dico.size() - 1);
+            String randomSymbolName = dico.get((int) randomSymbolIndex);
+            String[] randomSymbolCharacters = DICTIONARY.get(randomSymbolName);
+            long randomElementIndex = getRandomNumber(0, randomSymbolCharacters.length - 1);
+            pwssd.append(randomSymbolCharacters[(int) randomElementIndex]);
+        }
 
-		return entity;
-	}
+        // Build entity object
+        entity = new RandomLambdaEntity("{\"password\":\"" + pwssd + "\"}");
 
-	@Override
-	public RandomGeneratorService.GENERATOR_TYPE getType(final Map<String, Object> query) {
-		return RandomGeneratorService.GENERATOR_TYPE.PASSWORD;
-	}
+        return entity;
+    }
 
-	@Override
-	public long getCapacity(final Map<String, Object> query) throws AlambicException {
-		long capacity = 0;
+    @Override
+    public RandomGeneratorService.GENERATOR_TYPE getType(final Map<String, Object> query) {
+        return RandomGeneratorService.GENERATOR_TYPE.PASSWORD;
+    }
 
-		// Get the dictionary according to the parameters
-		List<String> dico = getQueryDictionary(query);
+    @Override
+    public long getCapacity(final Map<String, Object> query) throws AlambicException {
+        long capacity = 0;
 
-		// Get the longest symbol dictionary
-		int len = 0;
-		for (int i = 0; i < dico.size(); i++) {
-			String[] symbolCharacters = DICTIONARY.get(dico.get(i));
-			len = (len < symbolCharacters.length ? symbolCharacters.length : len);
-		}
+        // Get the dictionary according to the parameters
+        List<String> dico = getQueryDictionary(query);
 
-		/*
-		 * Capacity is the possible number of symbols combinations
-		 * ("optimistic" case is taken into consideration: the same longest symbol list is systematically used)
-		 */
-		int pwssdLength = (int) query.get("length");
-		capacity = (long) Math.pow(len, pwssdLength);
-		return capacity;
-	}
+        // Get the longest symbol dictionary
+        int len = 0;
+        for (int i = 0; i < dico.size(); i++) {
+            String[] symbolCharacters = DICTIONARY.get(dico.get(i));
+            len = (len < symbolCharacters.length ? symbolCharacters.length : len);
+        }
 
-	@Override
-	public String getCapacityFilter(final Map<String, Object> query) {
-		String filter = "{length=%s,symbols=[%s]}";
+        /*
+         * Capacity is the possible number of symbols combinations
+         * ("optimistic" case is taken into consideration: the same longest symbol list is systematically used)
+         */
+        int pwssdLength = (int) query.get("length");
+        capacity = (long) Math.pow(len, pwssdLength);
+        return capacity;
+    }
 
-		// Get the dictionary according to the parameters
-		List<String> dico = getQueryDictionary(query);
-		Collections.sort(dico, new Comparator<String>() {
+    @Override
+    public String getCapacityFilter(final Map<String, Object> query) {
+        String filter = "{length=%s,symbols=[%s]}";
 
-			@Override
-			public int compare(final String o1, final String o2) {
-				return o1.toLowerCase().compareTo(o2.toLowerCase());
-			}
-		});
+        // Get the dictionary according to the parameters
+        List<String> dico = getQueryDictionary(query);
+        Collections.sort(dico, new Comparator<String>() {
 
-		return String.format(filter, query.get("length"), StringUtils.join(dico, ","));
-	}
+            @Override
+            public int compare(final String o1, final String o2) {
+                return o1.toLowerCase().compareTo(o2.toLowerCase());
+            }
+        });
 
-	private List<String> getQueryDictionary(final Map<String, Object> query) {
-		List<String> keys = new ArrayList<>();
+        return String.format(filter, query.get("length"), StringUtils.join(dico, ","));
+    }
 
-		String symbols = (String) query.get("symbols");
-		if (StringUtils.isNotBlank(symbols)) {
-			for (String symbol : symbols.split(",")) {
-				if (DICTIONARY.containsKey(symbol.toUpperCase())) {
-					keys.add(symbol.toUpperCase());
-				} else {
-					log.error("The dictionary doesn't support the symbol '" + symbol + "', only '" + StringUtils.join(DICTIONARY.keySet(), ",") + "'");
-				}
-			}
-		} else {
-			keys.addAll(DICTIONARY.keySet());
-		}
+    private List<String> getQueryDictionary(final Map<String, Object> query) {
+        List<String> keys = new ArrayList<>();
 
-		return keys;
-	}
+        String symbols = (String) query.get("symbols");
+        if (StringUtils.isNotBlank(symbols)) {
+            for (String symbol : symbols.split(",")) {
+                if (DICTIONARY.containsKey(symbol.toUpperCase())) {
+                    keys.add(symbol.toUpperCase());
+                } else {
+                    log.error("The dictionary doesn't support the symbol '" + symbol + "', only '" + StringUtils.join(DICTIONARY.keySet(), ",") +
+                              "'");
+                }
+            }
+        } else {
+            keys.addAll(DICTIONARY.keySet());
+        }
+
+        return keys;
+    }
 
 }

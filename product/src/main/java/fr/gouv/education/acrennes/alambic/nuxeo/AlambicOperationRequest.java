@@ -16,32 +16,33 @@
  ******************************************************************************/
 package fr.gouv.education.acrennes.alambic.nuxeo;
 
-import java.util.Map;
 import org.nuxeo.ecm.automation.client.Session;
 import org.nuxeo.ecm.automation.client.jaxrs.spi.DefaultOperationRequest;
 import org.nuxeo.ecm.automation.client.jaxrs.spi.DefaultSession;
 import org.nuxeo.ecm.automation.client.model.OperationDocumentation;
 
+import java.util.Map;
+
 public class AlambicOperationRequest extends DefaultOperationRequest {
 
-	public AlambicOperationRequest(final Session session, final OperationDocumentation operation, final Map<String, Object> ctx) {
-		super((DefaultSession) session, operation, ctx);
-	}
+    public AlambicOperationRequest(final Session session, final OperationDocumentation operation, final Map<String, Object> ctx) {
+        super((DefaultSession) session, operation, ctx);
+    }
 
-	@Override
-	public Object execute() throws Exception {
-		Object obj = getInput();
+    @Override
+    public Object execute() throws Exception {
+        Object obj = getInput();
 
-		OperationDocumentation operation = getOperation();
-		if (operation.getUrl().matches("fr.gouv.education.acrennes.alambic.*")) {
-			String clazz = operation.getUrl();
-			AlambicOperation runner = (AlambicOperation) Class.forName(clazz).newInstance();
-			obj = runner.execute(this);
-		} else {
-			obj = super.execute();
-		}
+        OperationDocumentation operation = getOperation();
+        if (operation.getUrl().matches("fr.gouv.education.acrennes.alambic.*")) {
+            String clazz = operation.getUrl();
+            AlambicOperation runner = (AlambicOperation) Class.forName(clazz).newInstance();
+            obj = runner.execute(this);
+        } else {
+            obj = super.execute();
+        }
 
-		return obj;
-	}
+        return obj;
+    }
 
 }

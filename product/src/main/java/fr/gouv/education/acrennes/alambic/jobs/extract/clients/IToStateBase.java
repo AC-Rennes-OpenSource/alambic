@@ -16,25 +16,27 @@
  ******************************************************************************/
 package fr.gouv.education.acrennes.alambic.jobs.extract.clients;
 
+import fr.gouv.education.acrennes.alambic.exception.AlambicException;
+
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import fr.gouv.education.acrennes.alambic.exception.AlambicException;
 
 public interface IToStateBase {
 
-	public void executeQuery(String query) throws AlambicException;
+    void executeQuery(String query) throws AlambicException;
 
-	public void executeQuery(String query, String scope) throws AlambicException;
+    void executeQuery(String query, String scope) throws AlambicException;
 
-	public List<Map<String, List<String>>> getStateBase();
+    List<Map<String, List<String>>> getStateBase();
 
-	public int getCountResults();
+    int getCountResults();
 
-	public void clear();
+    void clear();
 
-	public void close();
+    void close();
 
-	public Iterator<List<Map<String, List<String>>>> getPageIterator(String query, String scope, int pageSize, String sortBy, String orderBy) throws AlambicException;
+    Iterator<List<Map<String, List<String>>>> getPageIterator(String query, String scope, int pageSize, String sortBy, String orderBy)
+            throws AlambicException;
 
 }

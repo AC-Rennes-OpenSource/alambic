@@ -16,73 +16,72 @@
  ******************************************************************************/
 package fr.gouv.education.acrennes.alambic.ldap;
 
-import java.sql.SQLException;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
 import fr.gouv.education.acrennes.alambic.exception.AlambicException;
 import fr.gouv.education.acrennes.alambic.jobs.extract.clients.SqlToStateBase;
 import fr.gouv.education.acrennes.alambic.utils.Variables;
 import org.jdom2.Element;
 
+import java.sql.SQLException;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
 public class Datasources {
-	private final Map<String, Object> dataSourceList = new HashMap<String, Object>();
-	private Variables variables = null;
-	private Element xmlNode = null;
+    private final Map<String, Object> dataSourceList = new HashMap<String, Object>();
+    private Variables variables = null;
+    private Element xmlNode = null;
 
-	/*
-	 * Methode pour nettoyer les datasources ouverts
-	 */
-	public Datasources(final Element xmlNode, final Variables variables) throws SQLException, ClassNotFoundException, AlambicException {
-		this.variables = variables;
-		this.xmlNode = xmlNode;
-		loadDataSourceList();
-	}
+    /*
+     * Methode pour nettoyer les datasources ouverts
+     */
+    public Datasources(final Element xmlNode, final Variables variables) throws SQLException, ClassNotFoundException, AlambicException {
+        this.variables = variables;
+        this.xmlNode = xmlNode;
+        loadDataSourceList();
+    }
 
-	public void close() {
-		// Fermeture des datasources ouverts
+    public void close() {
+        // Fermeture des datasources ouverts
 
-		for (Object objet : dataSourceList.values()) {
-			// Traitement des datasources SQL
-			if (objet instanceof SqlToStateBase) {
-				((SqlToStateBase) objet).close();
-			}
-		}
+        for (Object objet : dataSourceList.values()) {
+            // Traitement des datasources SQL
+            if (objet instanceof SqlToStateBase) {
+                ((SqlToStateBase) objet).close();
+            }
+        }
 
-	}
+    }
 
-	private void loadDataSourceList() throws SQLException, ClassNotFoundException, AlambicException {
-		if (xmlNode.getChild("datasources") != null) {
-			List<Element> children = xmlNode.getChild("datasources").getChildren();
-			for (Element dataSource : children) {
-				// Instantiation de l'objet ExtractionSql
-				if ("sql".equalsIgnoreCase(dataSource.getAttributeValue("type"))) {
-					String login = dataSource.getChildText("login");
-					if (login != null) {
-						login = variables.resolvString(login);
-					}
+    private void loadDataSourceList() throws SQLException, ClassNotFoundException, AlambicException {
+        if (xmlNode.getChild("datasources") != null) {
+            List<Element> children = xmlNode.getChild("datasources").getChildren();
+            for (Element dataSource : children) {
+                // Instantiation de l'objet ExtractionSql
+                if ("sql".equalsIgnoreCase(dataSource.getAttributeValue("type"))) {
+                    String login = dataSource.getChildText("login");
+                    if (login != null) {
+                        login = variables.resolvString(login);
+                    }
 
-					String pwd = dataSource.getChildText("passwd");
-					if (pwd != null) {
-						pwd = variables.resolvString(pwd);
-					}
-					SqlToStateBase sb = null;
-					if (pwd != null && login != null) {
-						sb = new SqlToStateBase(variables.resolvString(dataSource.getChildText("driver")),
-								variables.resolvString(dataSource.getChildText("uri")), "NONE", login, pwd);
-					}
-					else {
-						sb = new SqlToStateBase(variables.resolvString(dataSource.getChildText("driver")),
-								variables.resolvString(dataSource.getChildText("uri")), "NONE");
-					}
-					dataSourceList.put(dataSource.getAttributeValue("name"), sb);
-				}
-			}
-		}
-	}
+                    String pwd = dataSource.getChildText("passwd");
+                    if (pwd != null) {
+                        pwd = variables.resolvString(pwd);
+                    }
+                    SqlToStateBase sb = null;
+                    if (pwd != null && login != null) {
+                        sb = new SqlToStateBase(variables.resolvString(dataSource.getChildText("driver")),
+                                variables.resolvString(dataSource.getChildText("uri")), "NONE", login, pwd);
+                    } else {
+                        sb = new SqlToStateBase(variables.resolvString(dataSource.getChildText("driver")),
+                                variables.resolvString(dataSource.getChildText("uri")), "NONE");
+                    }
+                    dataSourceList.put(dataSource.getAttributeValue("name"), sb);
+                }
+            }
+        }
+    }
 
-	public Object getDatasource(final String name) {
-		return dataSourceList.get(name);
-	}
+    public Object getDatasource(final String name) {
+        return dataSourceList.get(name);
+    }
 }

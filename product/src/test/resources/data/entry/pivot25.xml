@@ -1,12 +1,12 @@
 <entry verifyIfExist="(&amp;(objectClass=ENTProfil)(cn=%RDN%))">
-	<variables>
-		<variable name="RDN">profil-lambda</variable>
-		<variable name="RNE">0350063D</variable>
-	</variables>
-	<dn>cn=%RDN%,ou=profils,ou=groupes,dc=ent-bretagne,dc=fr</dn>
-	<attributes>
-		<attr modifyMode="replace" name="member" relation="ENTPersonProfils" explicit="ExplicitMember">
-			<value>%LDAP_ENT_URI_%ALAMBIC_TARGET_ENVIRONMENT%%/%LDAP_ENT_ouPersonnesDn%?uid?one?(ENTPersonFonctions=%RNE%$ADF)</value>
-		</attr>
-	</attributes>
+    <variables>
+        <variable name="RDN">profil-lambda</variable>
+        <variable name="RNE">0350063D</variable>
+    </variables>
+    <dn>cn=%RDN%,ou=profils,ou=groupes,dc=ent-bretagne,dc=fr</dn>
+    <attributes>
+        <attr modifyMode="replace" name="member" relation="ENTPersonProfils" explicit="ExplicitMember">
+            <value>%LDAP_ENT_URI_%ALAMBIC_TARGET_ENVIRONMENT%%/%LDAP_ENT_ouPersonnesDn%?uid?one?(ENTPersonFonctions=%RNE%$ADF)</value>
+        </attr>
+    </attributes>
 </entry>

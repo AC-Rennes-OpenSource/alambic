@@ -16,65 +16,64 @@
  ******************************************************************************/
 package fr.gouv.education.acrennes.alambic.nuxeo.marshaller;
 
-import java.util.List;
-
 import javax.xml.bind.annotation.XmlRootElement;
+import java.util.List;
 
 @XmlRootElement
 public class ActivityStack {
-	private String job_name;
-	private String status;
-	private String traffic_light;
-	private long duration;
-	private int progress;
-	private List<ActivityStack> inner_jobs;
-	
-	public String getJob_name() {
-		return job_name;
-	}
-	
-	public void setJob_name(String job_name) {
-		this.job_name = job_name;
-	}
-	
-	public String getStatus() {
-		return status;
-	}
-	
-	public void setStatus(String status) {
-		this.status = status;
-	}
-	
-	public String getTraffic_light() {
-		return traffic_light;
-	}
-	
-	public void setTraffic_light(String traffic_light) {
-		this.traffic_light = traffic_light;
-	}
-	
-	public long getDuration() {
-		return duration;
-	}
-	
-	public void setDuration(long duration) {
-		this.duration = duration;
-	}
-	
-	public int getProgress() {
-		return progress;
-	}
-	
-	public void setProgress(int progress) {
-		this.progress = progress;
-	}
-	
-	public List<ActivityStack> getInner_jobs() {
-		return inner_jobs;
-	}
-	
-	public void setInner_jobs(List<ActivityStack> inner_jobs) {
-		this.inner_jobs = inner_jobs;
-	}
-	
+    private String job_name;
+    private String status;
+    private String traffic_light;
+    private long duration;
+    private int progress;
+    private List<ActivityStack> inner_jobs;
+
+    public String getJob_name() {
+        return job_name;
+    }
+
+    public void setJob_name(String job_name) {
+        this.job_name = job_name;
+    }
+
+    public String getStatus() {
+        return status;
+    }
+
+    public void setStatus(String status) {
+        this.status = status;
+    }
+
+    public String getTraffic_light() {
+        return traffic_light;
+    }
+
+    public void setTraffic_light(String traffic_light) {
+        this.traffic_light = traffic_light;
+    }
+
+    public long getDuration() {
+        return duration;
+    }
+
+    public void setDuration(long duration) {
+        this.duration = duration;
+    }
+
+    public int getProgress() {
+        return progress;
+    }
+
+    public void setProgress(int progress) {
+        this.progress = progress;
+    }
+
+    public List<ActivityStack> getInner_jobs() {
+        return inner_jobs;
+    }
+
+    public void setInner_jobs(List<ActivityStack> inner_jobs) {
+        this.inner_jobs = inner_jobs;
+    }
+
 }

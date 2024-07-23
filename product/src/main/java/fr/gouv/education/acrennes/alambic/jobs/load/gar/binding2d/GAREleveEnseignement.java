@@ -32,9 +32,9 @@ import javax.xml.bind.annotation.XmlType;
 
 /**
  * <p>Classe Java pour GAREleveEnseignement complex type.
- * 
+ *
  * <p>Le fragment de schéma suivant indique le contenu attendu figurant dans cette classe.
- * 
+ *
  * <pre>
  * &lt;complexType name="GAREleveEnseignement">
  *   &lt;complexContent>
@@ -48,14 +48,14 @@ import javax.xml.bind.annotation.XmlType;
  *   &lt;/complexContent>
  * &lt;/complexType>
  * </pre>
- * 
- * 
+ *
+ *
  */
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlType(name = "GAREleveEnseignement", propOrder = {
-    "garStructureUAI",
-    "garPersonIdentifiant",
-    "garMatiereCode"
+        "garStructureUAI",
+        "garPersonIdentifiant",
+        "garMatiereCode"
 })
 public class GAREleveEnseignement {
 
@@ -68,11 +68,11 @@ public class GAREleveEnseignement {
 
     /**
      * Obtient la valeur de la propriété garStructureUAI.
-     * 
+     *
      * @return
      *     possible object is
      *     {@link String }
-     *     
+     *
      */
     public String getGARStructureUAI() {
         return garStructureUAI;
@@ -80,11 +80,11 @@ public class GAREleveEnseignement {
 
     /**
      * Définit la valeur de la propriété garStructureUAI.
-     * 
+     *
      * @param value
      *     allowed object is
      *     {@link String }
-     *     
+     *
      */
     public void setGARStructureUAI(String value) {
         this.garStructureUAI = value;
@@ -92,11 +92,11 @@ public class GAREleveEnseignement {
 
     /**
      * Obtient la valeur de la propriété garPersonIdentifiant.
-     * 
+     *
      * @return
      *     possible object is
      *     {@link String }
-     *     
+     *
      */
     public String getGARPersonIdentifiant() {
         return garPersonIdentifiant;
@@ -104,11 +104,11 @@ public class GAREleveEnseignement {
 
     /**
      * Définit la valeur de la propriété garPersonIdentifiant.
-     * 
+     *
      * @param value
      *     allowed object is
      *     {@link String }
-     *     
+     *
      */
     public void setGARPersonIdentifiant(String value) {
         this.garPersonIdentifiant = value;
@@ -116,11 +116,11 @@ public class GAREleveEnseignement {
 
     /**
      * Obtient la valeur de la propriété garMatiereCode.
-     * 
+     *
      * @return
      *     possible object is
      *     {@link String }
-     *     
+     *
      */
     public String getGARMatiereCode() {
         return garMatiereCode;
@@ -128,11 +128,11 @@ public class GAREleveEnseignement {
 
     /**
      * Définit la valeur de la propriété garMatiereCode.
-     * 
+     *
      * @param value
      *     allowed object is
      *     {@link String }
-     *     
+     *
      */
     public void setGARMatiereCode(String value) {
         this.garMatiereCode = value;

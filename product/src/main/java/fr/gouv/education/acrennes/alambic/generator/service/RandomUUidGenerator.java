@@ -16,43 +16,42 @@
  ******************************************************************************/
 package fr.gouv.education.acrennes.alambic.generator.service;
 
-import java.util.Map;
-import java.util.UUID;
-
-import javax.persistence.EntityManager;
-
 import fr.gouv.education.acrennes.alambic.Constants;
 import fr.gouv.education.acrennes.alambic.exception.AlambicException;
 import fr.gouv.education.acrennes.alambic.generator.service.RandomGeneratorService.GENERATOR_TYPE;
 import fr.gouv.education.acrennes.alambic.random.persistence.RandomEntity;
 import fr.gouv.education.acrennes.alambic.random.persistence.RandomLambdaEntity;
 
+import javax.persistence.EntityManager;
+import java.util.Map;
+import java.util.UUID;
+
 public class RandomUUidGenerator extends AbstractRandomGenerator {
 
 //	private static final Log log = LogFactory.getLog(RandomUUidGenerator.class);
 
-	public RandomUUidGenerator(final EntityManager em) throws AlambicException {
-		super(em);
-	}
+    public RandomUUidGenerator(final EntityManager em) throws AlambicException {
+        super(em);
+    }
 
-	@Override
-	public RandomEntity getEntity(Map<String, Object> query, String processId, UNICITY_SCOPE scope) throws AlambicException {
-		return new RandomLambdaEntity("{\"uuid\":\"" + UUID.randomUUID() + "\"}");
-	}
+    @Override
+    public RandomEntity getEntity(Map<String, Object> query, String processId, UNICITY_SCOPE scope) throws AlambicException {
+        return new RandomLambdaEntity("{\"uuid\":\"" + UUID.randomUUID() + "\"}");
+    }
 
-	@Override
-	public GENERATOR_TYPE getType(final Map<String, Object> query) {
-		return RandomGeneratorService.GENERATOR_TYPE.UUID;
-	}
+    @Override
+    public GENERATOR_TYPE getType(final Map<String, Object> query) {
+        return RandomGeneratorService.GENERATOR_TYPE.UUID;
+    }
 
-	@Override
-	public String getCapacityFilter(Map<String, Object> query) {
-		return Constants.UNLIMITED_GENERATOR_FILTER;
-	}
+    @Override
+    public String getCapacityFilter(Map<String, Object> query) {
+        return Constants.UNLIMITED_GENERATOR_FILTER;
+    }
 
-	@Override
-	public boolean isAlreadyUsed(final Map<String, Object> query, final RandomEntity entity, final String processId, final UNICITY_SCOPE scope) {
-		return false;
-	}
+    @Override
+    public boolean isAlreadyUsed(final Map<String, Object> query, final RandomEntity entity, final String processId, final UNICITY_SCOPE scope) {
+        return false;
+    }
 
 }

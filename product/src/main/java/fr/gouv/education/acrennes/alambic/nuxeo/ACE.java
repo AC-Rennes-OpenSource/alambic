@@ -20,35 +20,35 @@ import org.jdom2.Element;
 
 /*
  * Structure XML à décoder dans le
- * 
+ *
  *     <ace granted="true" permission="Everything" principal="Administrator"/>
- *     
+ *
  */
 public class ACE {
-	private static final String GRANTED = "granted";
-	private static final String PERMISSION = "permission";
-	private static final String PRINCIPAL = "principal";
-	private static final String TRUE = "true";
-	private Element aceElement; 
+    private static final String GRANTED = "granted";
+    private static final String PERMISSION = "permission";
+    private static final String PRINCIPAL = "principal";
+    private static final String TRUE = "true";
+    private final Element aceElement;
 
-	public ACE(Element aceElement) {
-		this.aceElement = aceElement;
-	}
-	
-	public boolean getGranted(){
-		boolean granted = true;
-		if(aceElement.getAttribute(GRANTED)!=null){
-			granted = aceElement.getAttributeValue(GRANTED).equalsIgnoreCase(TRUE);
-		}
-		return granted;
-	}
-	
-	public String getPermission(){
-		return aceElement.getAttributeValue(PERMISSION);
-	}
-	
-	public String getPrincipal(){
-		return aceElement.getAttributeValue(PRINCIPAL);
-	}
+    public ACE(Element aceElement) {
+        this.aceElement = aceElement;
+    }
+
+    public boolean getGranted() {
+        boolean granted = true;
+        if (aceElement.getAttribute(GRANTED) != null) {
+            granted = aceElement.getAttributeValue(GRANTED).equalsIgnoreCase(TRUE);
+        }
+        return granted;
+    }
+
+    public String getPermission() {
+        return aceElement.getAttributeValue(PERMISSION);
+    }
+
+    public String getPrincipal() {
+        return aceElement.getAttributeValue(PRINCIPAL);
+    }
 
 }

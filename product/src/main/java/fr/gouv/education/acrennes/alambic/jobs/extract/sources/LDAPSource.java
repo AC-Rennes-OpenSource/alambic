@@ -16,10 +16,6 @@
  ******************************************************************************/
 package fr.gouv.education.acrennes.alambic.jobs.extract.sources;
 
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-
 import fr.gouv.education.acrennes.alambic.exception.AlambicException;
 import fr.gouv.education.acrennes.alambic.jobs.CallableContext;
 import fr.gouv.education.acrennes.alambic.jobs.extract.clients.LdapToStateBase;
@@ -29,80 +25,86 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.jdom2.Element;
 
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+
 public class LDAPSource extends AbstractSource {
 
-	private static final Log log = LogFactory.getLog(LDAPSource.class);
+    private static final Log log = LogFactory.getLog(LDAPSource.class);
 
-	private int pageSize;
-	private String sortBy;
+    private int pageSize;
+    private String sortBy;
 
-	public LDAPSource(final CallableContext context, final Element sourceNode) throws AlambicException {
-		super(context, sourceNode);
-	}
+    public LDAPSource(final CallableContext context, final Element sourceNode) throws AlambicException {
+        super(context, sourceNode);
+    }
 
-	@Override
-	public void initialize(final Element sourceNode) throws AlambicException {
-		query = sourceNode.getChildText("query");
-		query = Functions.getInstance().executeAllFunctions(context.resolveString(query));
-		if (StringUtils.isBlank(query) && !isDynamic()) {
-			log.error("Requete non définie.");
-		} else if (!isDynamic()) {
-			log.info("  Requete LDAP : " + query);
-			log.info("  -> lecture de l'annuaire [" + sourceNode.getAttributeValue("name") + "], requete = " + query);
-			query = context.resolveString(query);
-		}
+    @Override
+    public void initialize(final Element sourceNode) throws AlambicException {
+        query = sourceNode.getChildText("query");
+        query = Functions.getInstance().executeAllFunctions(context.resolveString(query));
+        if (StringUtils.isBlank(query) && !isDynamic()) {
+            log.error("Requete non définie.");
+        } else if (!isDynamic()) {
+            log.info("  Requete LDAP : " + query);
+            log.info("  -> lecture de l'annuaire [" + sourceNode.getAttributeValue("name") + "], requete = " + query);
+            query = context.resolveString(query);
+        }
 
-		String[] listeAttributs = null;
-		if (sourceNode.getChild("attributeList") != null) {
-			String attributesString = context.resolveString(sourceNode.getChildText("attributeList"));
-			listeAttributs = attributesString.split(",");
-		}
+        String[] listeAttributs = null;
+        if (sourceNode.getChild("attributeList") != null) {
+            String attributesString = context.resolveString(sourceNode.getChildText("attributeList"));
+            listeAttributs = attributesString.split(",");
+        }
 
-		String driver = sourceNode.getChildText("driver") == null ? "com.sun.jndi.ldap.LdapCtxFactory" : context.resolveString(sourceNode.getChildText("driver"));
+        String driver = sourceNode.getChildText("driver") == null
+                        ? "com.sun.jndi.ldap.LdapCtxFactory"
+                        : context.resolveString(sourceNode.getChildText("driver"));
 
-		String uri = sourceNode.getChildText("uri");
-		if (uri == null) {
-			log.error("l'uri de l'annuaire n'est pas precisee");
-		} else {
-			uri = context.resolveString(uri);
-		}
+        String uri = sourceNode.getChildText("uri");
+        if (uri == null) {
+            log.error("l'uri de l'annuaire n'est pas precisee");
+        } else {
+            uri = context.resolveString(uri);
+        }
 
-		String login = sourceNode.getChildText("login");
-		if (login == null) {
-			log.error("le login de l'annuaire n'est pas precise");
-		} else {
-			login = context.resolveString(login);
-		}
+        String login = sourceNode.getChildText("login");
+        if (login == null) {
+            log.error("le login de l'annuaire n'est pas precise");
+        } else {
+            login = context.resolveString(login);
+        }
 
-		String pwd = sourceNode.getChildText("passwd");
-		if (pwd == null) {
-			log.error("le mot de passe de l'annuaire n'est pas precise");
-		} else {
-			pwd = context.resolveString(pwd);
-		}
+        String pwd = sourceNode.getChildText("passwd");
+        if (pwd == null) {
+            log.error("le mot de passe de l'annuaire n'est pas precise");
+        } else {
+            pwd = context.resolveString(pwd);
+        }
 
-		scope = sourceNode.getChildText("scope");
-		if (StringUtils.isNotBlank(scope)) {
-			scope = context.resolveString(scope);
-		}
+        scope = sourceNode.getChildText("scope");
+        if (StringUtils.isNotBlank(scope)) {
+            scope = context.resolveString(scope);
+        }
 
-		String page = sourceNode.getAttributeValue("page");
-		if (StringUtils.isNotBlank(page)) {
-			pageSize = Integer.parseInt(context.resolveString(page));
-			sortBy = sourceNode.getChildText("sortBy");
-			if (StringUtils.isNotBlank(sortBy)) {
-				sortBy = context.resolveString(sortBy);
-			} else {
-				log.error("Le critère de tri est obligatoire pour les recherches paginées, ex : <sortBy>sn</sortBy>");
-			}
-		}
+        String page = sourceNode.getAttributeValue("page");
+        if (StringUtils.isNotBlank(page)) {
+            pageSize = Integer.parseInt(context.resolveString(page));
+            sortBy = sourceNode.getChildText("sortBy");
+            if (StringUtils.isNotBlank(sortBy)) {
+                sortBy = context.resolveString(sortBy);
+            } else {
+                log.error("Le critère de tri est obligatoire pour les recherches paginées, ex : <sortBy>sn</sortBy>");
+            }
+        }
 
-		setClient(new LdapToStateBase(driver, uri, login, pwd, listeAttributs));
-	}
+        setClient(new LdapToStateBase(driver, uri, login, pwd, listeAttributs));
+    }
 
-	@Override
-	public Iterator<List<Map<String, List<String>>>> getPageIterator() throws AlambicException {
-		return getClient().getPageIterator(query, scope, pageSize, sortBy, null);
-	}
+    @Override
+    public Iterator<List<Map<String, List<String>>>> getPageIterator() throws AlambicException {
+        return getClient().getPageIterator(query, scope, pageSize, sortBy, null);
+    }
 
 }

@@ -17,44 +17,43 @@
 package fr.gouv.education.acrennes.alambic.jobs;
 
 import fr.gouv.education.acrennes.alambic.exception.AlambicException;
+import fr.gouv.education.acrennes.alambic.utils.Variables;
 import org.jdom2.Document;
 
-import fr.gouv.education.acrennes.alambic.utils.Variables;
-
 public interface CallableContext {
-	
-	public final String TARGET_ENVIRONMENT = "ALAMBIC_TARGET_ENVIRONMENT";
-	public final String KEYSTORE_PATH = "ALAMBIC_KEYSTORE_PATH";
-	public final String DEFAULT_KEYSTORE_RELATIVE_PATH = "data/security/alambic.keystore";
-	public final String ETL_JDBC_DRIVER = "ALAMBIC_ETL_JDBC_DRIVER";
-	public final String ETL_JDBC_URL = "ALAMBIC_ETL_JDBC_URL";
-	public final String ETL_JDBC_LOGIN = "ALAMBIC_ETL_JDBC_LOGIN";
-	public final String ETL_JDBC_PASSWORD = "ALAMBIC_ETL_JDBC_PASSWORD";
 
-	public final String ETL_CFG_JDBC_DRIVER = "etl.jdbc.driver";
-	public final String ETL_CFG_JDBC_URL = "etl.jdbc.url";
-	public final String ETL_CFG_JDBC_LOGIN = "etl.jdbc.user";
-	public final String ETL_CFG_JDBC_PASSWORD = "etl.jdbc.password";
-	public final String ETL_CFG_PERSISTENCE_UNIT = "etl.persistence.unit";
+    String TARGET_ENVIRONMENT = "ALAMBIC_TARGET_ENVIRONMENT";
+    String KEYSTORE_PATH = "ALAMBIC_KEYSTORE_PATH";
+    String DEFAULT_KEYSTORE_RELATIVE_PATH = "data/security/alambic.keystore";
+    String ETL_JDBC_DRIVER = "ALAMBIC_ETL_JDBC_DRIVER";
+    String ETL_JDBC_URL = "ALAMBIC_ETL_JDBC_URL";
+    String ETL_JDBC_LOGIN = "ALAMBIC_ETL_JDBC_LOGIN";
+    String ETL_JDBC_PASSWORD = "ALAMBIC_ETL_JDBC_PASSWORD";
 
-	public Float getVersion();
+    String ETL_CFG_JDBC_DRIVER = "etl.jdbc.driver";
+    String ETL_CFG_JDBC_URL = "etl.jdbc.url";
+    String ETL_CFG_JDBC_LOGIN = "etl.jdbc.user";
+    String ETL_CFG_JDBC_PASSWORD = "etl.jdbc.password";
+    String ETL_CFG_PERSISTENCE_UNIT = "etl.persistence.unit";
 
-	public void setExecutionPath(String path);
-	
-	public String getExecutionPath();
+    Float getVersion();
 
-	public void setVariables(Variables variables);
-	
-	public Variables getVariables();
+    void setExecutionPath(String path);
 
-	public void setJobDocument(Document document);
-	
-	public Document getJobDocument();
+    String getExecutionPath();
 
-	public String resolvePath(final String path) throws AlambicException;
+    void setVariables(Variables variables);
 
-	public String resolveString(final String name) throws AlambicException;
+    Variables getVariables();
 
-	public CallableContext clone();
+    void setJobDocument(Document document);
+
+    Document getJobDocument();
+
+    String resolvePath(final String path) throws AlambicException;
+
+    String resolveString(final String name) throws AlambicException;
+
+    CallableContext clone();
 
 }

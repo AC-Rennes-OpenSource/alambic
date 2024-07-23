@@ -25,121 +25,122 @@ import org.opengis.referencing.operation.CoordinateOperation;
 import org.opengis.util.FactoryException;
 
 public class GeoConvert {
-	private static final Log log = LogFactory.getLog(GeoConvert.class);
-	
-	final CoordinateReferenceSystem targetCRS = CommonCRS.WGS84.geographic();
+    private static final Log log = LogFactory.getLog(GeoConvert.class);
 
-	final CoordinateOperation lambert93ToWgs84;
-	/** La Réunion */
-	final CoordinateOperation rgr92ToWgs84;
-	final CoordinateOperation guadeloupeToWgs84;
-	final CoordinateOperation guyaneToWgs84;
-	final CoordinateOperation mayotteToWgs84;
-	final CoordinateOperation stPierreEtMiquelonToWgs84;
+    final CoordinateReferenceSystem targetCRS = CommonCRS.WGS84.geographic();
 
-	/**
-	 * Récupère le système qui permet de convertir des coordonnées géographiques en fonction du référentiel propre à chaque département. Tous les département de Métropole ont le
-	 * même référentiel {@link #getLambert93ToWgs84()}
-	 *
-	 * @param codeDepartement
-	 *            code du département sur 3 chiffres
-	 * @return par défaut {@link #getLambert93ToWgs84()}
-	 */
-	public CoordinateOperation getOperationFromCodeDepartement(String codeDepartement) {
-		switch (codeDepartement) {
-		case "971":
-		case "972":
-			// Martinique et Guadeloupe :
-			return guadeloupeToWgs84;
-		case "973":
-			return guyaneToWgs84;
-		case "974":
-			return rgr92ToWgs84;
-		case "975":
-			return stPierreEtMiquelonToWgs84;
-		case "976":
-			return mayotteToWgs84;
-		default:
-			return lambert93ToWgs84;
-		}
-	}
+    final CoordinateOperation lambert93ToWgs84;
+    /** La Réunion */
+    final CoordinateOperation rgr92ToWgs84;
+    final CoordinateOperation guadeloupeToWgs84;
+    final CoordinateOperation guyaneToWgs84;
+    final CoordinateOperation mayotteToWgs84;
+    final CoordinateOperation stPierreEtMiquelonToWgs84;
 
-	public GeoConvert() {
-		log.info("Initialisation du convertisseur de coordonnées géographiques...");
-		try {
-		// RGF93 / Lambert-93
-		final CoordinateReferenceSystem lambert93 = CRS.forCode("EPSG:2154");
-		lambert93ToWgs84 = CRS.findOperation(lambert93, targetCRS, null);
+    /**
+     * Récupère le système qui permet de convertir des coordonnées géographiques en fonction du référentiel propre à chaque département. Tous les
+     * département de Métropole ont le
+     * même référentiel {@link #getLambert93ToWgs84()}
+     *
+     * @param codeDepartement
+     *            code du département sur 3 chiffres
+     * @return par défaut {@link #getLambert93ToWgs84()}
+     */
+    public CoordinateOperation getOperationFromCodeDepartement(String codeDepartement) {
+        switch (codeDepartement) {
+            case "971":
+            case "972":
+                // Martinique et Guadeloupe :
+                return guadeloupeToWgs84;
+            case "973":
+                return guyaneToWgs84;
+            case "974":
+                return rgr92ToWgs84;
+            case "975":
+                return stPierreEtMiquelonToWgs84;
+            case "976":
+                return mayotteToWgs84;
+            default:
+                return lambert93ToWgs84;
+        }
+    }
 
-		// La Réunion - EPSG:2975 RGR92 / UTM zone 40S
-		final CoordinateReferenceSystem rgr92 = CRS.forCode("EPSG:2975");
-		rgr92ToWgs84 = CRS.findOperation(rgr92, targetCRS, null);
+    public GeoConvert() {
+        log.info("Initialisation du convertisseur de coordonnées géographiques...");
+        try {
+            // RGF93 / Lambert-93
+            final CoordinateReferenceSystem lambert93 = CRS.forCode("EPSG:2154");
+            lambert93ToWgs84 = CRS.findOperation(lambert93, targetCRS, null);
 
-		// Guadeloupe - WSG84 / UTM zone 20N
-		final CoordinateReferenceSystem guadeloupe = CommonCRS.WGS84.universal(15, -63);
-		guadeloupeToWgs84 = CRS.findOperation(guadeloupe, targetCRS, null);
+            // La Réunion - EPSG:2975 RGR92 / UTM zone 40S
+            final CoordinateReferenceSystem rgr92 = CRS.forCode("EPSG:2975");
+            rgr92ToWgs84 = CRS.findOperation(rgr92, targetCRS, null);
 
-		// Guyane - RGFG95 - UTM Nord fuseau 22, aussi référencé sous EPSG:2972
-		final CoordinateReferenceSystem guyane = CommonCRS.WGS84.universal(4, (22 * 6) - 183); // -53
-		guyaneToWgs84 = CRS.findOperation(guyane, targetCRS, null);
+            // Guadeloupe - WSG84 / UTM zone 20N
+            final CoordinateReferenceSystem guadeloupe = CommonCRS.WGS84.universal(15, -63);
+            guadeloupeToWgs84 = CRS.findOperation(guadeloupe, targetCRS, null);
 
-		// Mayotte - UTM Sud fuseau 38
-		final CoordinateReferenceSystem mayotte = CommonCRS.WGS84.universal(-12, 45);
-		mayotteToWgs84 = CRS.findOperation(mayotte, targetCRS, null);
+            // Guyane - RGFG95 - UTM Nord fuseau 22, aussi référencé sous EPSG:2972
+            final CoordinateReferenceSystem guyane = CommonCRS.WGS84.universal(4, (22 * 6) - 183); // -53
+            guyaneToWgs84 = CRS.findOperation(guyane, targetCRS, null);
 
-		// Saint Pierre et Miquelon - UTM Nord fuseau 21
-		final CoordinateReferenceSystem stPierreEtMiquelon = CommonCRS.WGS84.universal(46, -56);
-		stPierreEtMiquelonToWgs84 = CRS.findOperation(stPierreEtMiquelon, targetCRS, null);
+            // Mayotte - UTM Sud fuseau 38
+            final CoordinateReferenceSystem mayotte = CommonCRS.WGS84.universal(-12, 45);
+            mayotteToWgs84 = CRS.findOperation(mayotte, targetCRS, null);
 
-		// Aucune données géographique dans Ramses, ni sur http://www.education.gouv.fr/acce_public
-		// Nouvelle Calédonie - RGNC91-93
-		// Wallis et Futuna
-		// Polynésie
-		} catch (final FactoryException ex) {
-			log.error("problème à l'initialisation du convertisseur de coordonnées géographiques.", ex);
-			throw new GeoConvertInitException(ex);
-		}
-		log.info("Initialisation du convertisseur de coordonnées géographiques terminé.");
-	}
+            // Saint Pierre et Miquelon - UTM Nord fuseau 21
+            final CoordinateReferenceSystem stPierreEtMiquelon = CommonCRS.WGS84.universal(46, -56);
+            stPierreEtMiquelonToWgs84 = CRS.findOperation(stPierreEtMiquelon, targetCRS, null);
 
-	public CoordinateOperation getLambert93ToWgs84() {
-		return lambert93ToWgs84;
-	}
+            // Aucune données géographique dans Ramses, ni sur http://www.education.gouv.fr/acce_public
+            // Nouvelle Calédonie - RGNC91-93
+            // Wallis et Futuna
+            // Polynésie
+        } catch (final FactoryException ex) {
+            log.error("problème à l'initialisation du convertisseur de coordonnées géographiques.", ex);
+            throw new GeoConvertInitException(ex);
+        }
+        log.info("Initialisation du convertisseur de coordonnées géographiques terminé.");
+    }
 
-	/**
-	 * La Réunion - EPSG:2975 RGR92 / UTM zone 40S
-	 */
-	public CoordinateOperation getRgr92ToWgs84() {
-		return rgr92ToWgs84;
-	}
+    public CoordinateOperation getLambert93ToWgs84() {
+        return lambert93ToWgs84;
+    }
 
-	/**
-	 * Guadeloupe - WSG84 / UTM zone 20N
-	 */
-	public CoordinateOperation getGuadeloupeToWgs84() {
-		return guadeloupeToWgs84;
-	}
+    /**
+     * La Réunion - EPSG:2975 RGR92 / UTM zone 40S
+     */
+    public CoordinateOperation getRgr92ToWgs84() {
+        return rgr92ToWgs84;
+    }
 
-	/**
-	 * Guyane - RGFG95 - UTM Nord fuseau 22, aussi référencé sous EPSG:2972
-	 */
-	public CoordinateOperation getGuyaneToWgs84() {
-		return guyaneToWgs84;
-	}
+    /**
+     * Guadeloupe - WSG84 / UTM zone 20N
+     */
+    public CoordinateOperation getGuadeloupeToWgs84() {
+        return guadeloupeToWgs84;
+    }
 
-	/**
-	 * Mayotte - UTM Sud fuseau 38
-	 */
-	public CoordinateOperation getMayotteToWgs84() {
-		return mayotteToWgs84;
-	}
+    /**
+     * Guyane - RGFG95 - UTM Nord fuseau 22, aussi référencé sous EPSG:2972
+     */
+    public CoordinateOperation getGuyaneToWgs84() {
+        return guyaneToWgs84;
+    }
 
-	/**
-	 * Saint Pierre et Miquelon - UTM Nord fuseau 21
-	 */
-	public CoordinateOperation getStPierreEtMiquelonToWgs84() {
-		return stPierreEtMiquelonToWgs84;
-	}
+    /**
+     * Mayotte - UTM Sud fuseau 38
+     */
+    public CoordinateOperation getMayotteToWgs84() {
+        return mayotteToWgs84;
+    }
+
+    /**
+     * Saint Pierre et Miquelon - UTM Nord fuseau 21
+     */
+    public CoordinateOperation getStPierreEtMiquelonToWgs84() {
+        return stPierreEtMiquelonToWgs84;
+    }
 
 
 }

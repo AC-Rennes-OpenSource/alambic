@@ -32,9 +32,9 @@ import javax.xml.bind.annotation.XmlType;
 
 /**
  * <p>Classe Java pour GARMatiere complex type.
- * 
+ *
  * <p>Le fragment de schéma suivant indique le contenu attendu figurant dans cette classe.
- * 
+ *
  * <pre>
  * &lt;complexType name="GARMatiere">
  *   &lt;complexContent>
@@ -48,14 +48,14 @@ import javax.xml.bind.annotation.XmlType;
  *   &lt;/complexContent>
  * &lt;/complexType>
  * </pre>
- * 
- * 
+ *
+ *
  */
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlType(name = "GARMatiere", propOrder = {
-    "garStructureUAI",
-    "garMatiereCode",
-    "garMatiereLibelle"
+        "garStructureUAI",
+        "garMatiereCode",
+        "garMatiereLibelle"
 })
 public class GARMatiere {
 
@@ -68,11 +68,11 @@ public class GARMatiere {
 
     /**
      * Obtient la valeur de la propriété garStructureUAI.
-     * 
+     *
      * @return
      *     possible object is
      *     {@link String }
-     *     
+     *
      */
     public String getGARStructureUAI() {
         return garStructureUAI;
@@ -80,11 +80,11 @@ public class GARMatiere {
 
     /**
      * Définit la valeur de la propriété garStructureUAI.
-     * 
+     *
      * @param value
      *     allowed object is
      *     {@link String }
-     *     
+     *
      */
     public void setGARStructureUAI(String value) {
         this.garStructureUAI = value;
@@ -92,11 +92,11 @@ public class GARMatiere {
 
     /**
      * Obtient la valeur de la propriété garMatiereCode.
-     * 
+     *
      * @return
      *     possible object is
      *     {@link String }
-     *     
+     *
      */
     public String getGARMatiereCode() {
         return garMatiereCode;
@@ -104,11 +104,11 @@ public class GARMatiere {
 
     /**
      * Définit la valeur de la propriété garMatiereCode.
-     * 
+     *
      * @param value
      *     allowed object is
      *     {@link String }
-     *     
+     *
      */
     public void setGARMatiereCode(String value) {
         this.garMatiereCode = value;
@@ -116,11 +116,11 @@ public class GARMatiere {
 
     /**
      * Obtient la valeur de la propriété garMatiereLibelle.
-     * 
+     *
      * @return
      *     possible object is
      *     {@link String }
-     *     
+     *
      */
     public String getGARMatiereLibelle() {
         return garMatiereLibelle;
@@ -128,11 +128,11 @@ public class GARMatiere {
 
     /**
      * Définit la valeur de la propriété garMatiereLibelle.
-     * 
+     *
      * @param value
      *     allowed object is
      *     {@link String }
-     *     
+     *
      */
     public void setGARMatiereLibelle(String value) {
         this.garMatiereLibelle = value;

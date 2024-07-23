@@ -16,55 +16,53 @@
  ******************************************************************************/
 package fr.gouv.education.acrennes.alambic.generator.service;
 
-import java.util.Map;
-
-import javax.persistence.EntityManager;
-
 import fr.gouv.education.acrennes.alambic.exception.AlambicException;
+import fr.gouv.education.acrennes.alambic.random.persistence.RandomEntity;
+import fr.gouv.education.acrennes.alambic.random.persistence.RandomLambdaEntity;
 import org.apache.commons.lang.RandomStringUtils;
 import org.apache.commons.lang.StringUtils;
 
-import fr.gouv.education.acrennes.alambic.random.persistence.RandomEntity;
-import fr.gouv.education.acrennes.alambic.random.persistence.RandomLambdaEntity;
+import javax.persistence.EntityManager;
+import java.util.Map;
 
 public class RandomUAIGenerator extends AbstractRandomGenerator {
 
-//	private static final Log log = LogFactory.getLog(RandomUAIGenerator.class);
-	private static final String DEFAULT_UAI_ROOT = "035";
-	private static final int UAI_DIGIT_LENGTH = 7;
+    //	private static final Log log = LogFactory.getLog(RandomUAIGenerator.class);
+    private static final String DEFAULT_UAI_ROOT = "035";
+    private static final int UAI_DIGIT_LENGTH = 7;
 
-	public RandomUAIGenerator(final EntityManager em) throws AlambicException {
-		super(em);
-	}
+    public RandomUAIGenerator(final EntityManager em) throws AlambicException {
+        super(em);
+    }
 
-	@Override
-	public RandomEntity getEntity(Map<String, Object> query, String processId, UNICITY_SCOPE scope) throws AlambicException {
-		RandomEntity entity;
-		
-		String root = (String) query.getOrDefault("root", DEFAULT_UAI_ROOT);
-		int randomRange = UAI_DIGIT_LENGTH - root.length();
-		int maxValue = Integer.parseUnsignedInt(StringUtils.rightPad("9", randomRange, "9"));
-		int randomNumeric = (int) (Math.round(1 + (Math.random() * (maxValue - 1))));
-		String randomEndingCharacter =  RandomStringUtils.randomAlphabetic(1);
-		String uai = String.format("%s%0" + randomRange + "d%s", root, randomNumeric, randomEndingCharacter).toUpperCase();
-		entity = new RandomLambdaEntity("{\"uai\":\"" + uai + "\"}");
-		return entity;
-	}
+    @Override
+    public RandomEntity getEntity(Map<String, Object> query, String processId, UNICITY_SCOPE scope) throws AlambicException {
+        RandomEntity entity;
 
-	@Override
-	public RandomGeneratorService.GENERATOR_TYPE getType(final Map<String, Object> query) {
-		return RandomGeneratorService.GENERATOR_TYPE.UAI;
-	}
+        String root = (String) query.getOrDefault("root", DEFAULT_UAI_ROOT);
+        int randomRange = UAI_DIGIT_LENGTH - root.length();
+        int maxValue = Integer.parseUnsignedInt(StringUtils.rightPad("9", randomRange, "9"));
+        int randomNumeric = (int) (Math.round(1 + (Math.random() * (maxValue - 1))));
+        String randomEndingCharacter = RandomStringUtils.randomAlphabetic(1);
+        String uai = String.format("%s%0" + randomRange + "d%s", root, randomNumeric, randomEndingCharacter).toUpperCase();
+        entity = new RandomLambdaEntity("{\"uai\":\"" + uai + "\"}");
+        return entity;
+    }
 
-	@Override
-	public String getCapacityFilter(Map<String, Object> query) throws AlambicException {
-		return String.format("[%s]", (String) query.getOrDefault("root", DEFAULT_UAI_ROOT));
-	}
-	
-	@Override
-	public long getCapacity(final Map<String, Object> query) throws AlambicException {
-		String root = (String) query.getOrDefault("root", DEFAULT_UAI_ROOT);
-		return (long) (Math.pow(10, root.trim().length()) * 26);
-	}
+    @Override
+    public RandomGeneratorService.GENERATOR_TYPE getType(final Map<String, Object> query) {
+        return RandomGeneratorService.GENERATOR_TYPE.UAI;
+    }
+
+    @Override
+    public String getCapacityFilter(Map<String, Object> query) throws AlambicException {
+        return String.format("[%s]", query.getOrDefault("root", DEFAULT_UAI_ROOT));
+    }
+
+    @Override
+    public long getCapacity(final Map<String, Object> query) throws AlambicException {
+        String root = (String) query.getOrDefault("root", DEFAULT_UAI_ROOT);
+        return (long) (Math.pow(10, root.trim().length()) * 26);
+    }
 
 }

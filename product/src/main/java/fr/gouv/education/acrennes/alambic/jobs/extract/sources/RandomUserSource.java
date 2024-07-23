@@ -25,23 +25,23 @@ import org.jdom2.Element;
 
 public class RandomUserSource extends AbstractSource {
 
-	private static final Log log = LogFactory.getLog(RandomUserSource.class);
+    private static final Log log = LogFactory.getLog(RandomUserSource.class);
 
-	private final String DEFAULT_PROCESS_ID = "SOURCE_ID_%s_%s";
+    private final String DEFAULT_PROCESS_ID = "SOURCE_ID_%s_%s";
 
-	public RandomUserSource(final CallableContext context, final Element sourceNode) throws AlambicException {
-		super(context, sourceNode);
-	}
+    public RandomUserSource(final CallableContext context, final Element sourceNode) throws AlambicException {
+        super(context, sourceNode);
+    }
 
-	@Override
-	public void initialize(final Element sourceNode) {
+    @Override
+    public void initialize(final Element sourceNode) {
 
-		try {
-			long currentThread = Thread.currentThread().getId();
-			setClient(new RandomUserToStateBase(String.format(DEFAULT_PROCESS_ID, getName(), currentThread)));
-		} catch (Exception e) {
-			log.error("Failed to instanciate the client of source '" + getName() + "', error:" + e.getMessage());
-		}
-	}
+        try {
+            long currentThread = Thread.currentThread().getId();
+            setClient(new RandomUserToStateBase(String.format(DEFAULT_PROCESS_ID, getName(), currentThread)));
+        } catch (Exception e) {
+            log.error("Failed to instanciate the client of source '" + getName() + "', error:" + e.getMessage());
+        }
+    }
 
 }

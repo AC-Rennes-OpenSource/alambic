@@ -16,19 +16,7 @@
  ******************************************************************************/
 package fr.gouv.education.acrennes.alambic.jobs.extract.clients;
 
-import java.io.IOException;
-import java.io.UnsupportedEncodingException;
-import java.net.URLEncoder;
-import java.nio.charset.StandardCharsets;
-import java.util.ArrayList;
-import java.util.Base64;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.StringJoiner;
-
+import fr.gouv.education.acrennes.alambic.api.WebServiceApi;
 import fr.gouv.education.acrennes.alambic.exception.AlambicException;
 import org.apache.commons.codec.Charsets;
 import org.apache.commons.io.IOUtils;
@@ -46,26 +34,32 @@ import org.apache.http.impl.client.HttpClientBuilder;
 import org.apache.http.util.EntityUtils;
 import org.json.JSONObject;
 
-import fr.gouv.education.acrennes.alambic.api.WebServiceApi;
+import java.io.IOException;
+import java.io.UnsupportedEncodingException;
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
+import java.util.*;
 
 public class WSToStateBase implements IToStateBase {
 
     private static final Log LOG = LogFactory.getLog(WSToStateBase.class);
-    private static int DEFAULT_TIME_OUT = 5_000; // 5 seconds
+    private static final int DEFAULT_TIME_OUT = 5_000; // 5 seconds
 
     public enum AUTH_SCHEMES {
         BASIC_AUTH
     }
 
     private List<Map<String, List<String>>> stateBase = new ArrayList<>();
-    private List<Integer> successResponseCodes;
+    private final List<Integer> successResponseCodes;
     private CloseableHttpClient httpClient;
     private String authHeader;
-    private String url;
-    private String method;
-    private Map<String, String> headers;
+    private final String url;
+    private final String method;
+    private final Map<String, String> headers;
 
-    public WSToStateBase(final String url, final String method, final Map<String, String> headers, final String proxy_host, final String proxy_port, final String connection_timeout, final String auth_scheme, final String auth_login, final String auth_password, List<Integer> successResponseCodes) {
+    public WSToStateBase(final String url, final String method, final Map<String, String> headers, final String proxy_host, final String proxy_port
+            , final String connection_timeout, final String auth_scheme, final String auth_login, final String auth_password,
+                         List<Integer> successResponseCodes) {
         this.url = url;
         this.method = method;
         this.headers = headers;
@@ -141,14 +135,15 @@ public class WSToStateBase implements IToStateBase {
                 query_payload = (query.has("payload")) ? query.get("payload").toString() : null;
             }
 
-            WebServiceApi wsapi = new WebServiceApi(getFullAPIURL(this.url, query_api, query_parameters), this.method, this.headers, query_payload, this.successResponseCodes);
+            WebServiceApi wsapi = new WebServiceApi(getFullAPIURL(this.url, query_api, query_parameters), this.method, this.headers, query_payload,
+                    this.successResponseCodes);
             HttpUriRequest request = wsapi.getRequest();
             if (StringUtils.isNotBlank(this.authHeader)) {
                 request.setHeader(HttpHeaders.AUTHORIZATION, this.authHeader);
             }
-            
+
             try (CloseableHttpResponse response = this.httpClient.execute(request)) {
-            	if (wsapi.isSuccessful(response)) {
+                if (wsapi.isSuccessful(response)) {
                     if (response.getEntity() != null && response.getEntity().getContent() != null) {
                         String body = IOUtils.toString(response.getEntity().getContent(), Charsets.UTF_8);
                         if (StringUtils.isNotBlank(body)) {
@@ -158,13 +153,13 @@ public class WSToStateBase implements IToStateBase {
                         }
                     }
                 } else {
-            		LOG.error(String.format("Réponse en erreur sur la requête '%s' (codes attendus : '%s'), réponse reçue : code=%d, phrase=%s",
-            				wsapi,
-            				wsapi.getSuccessResponseCodes(),
-            				response.getStatusLine().getStatusCode(),
-            				response.getStatusLine().getReasonPhrase()));
-            	}
-            	EntityUtils.consume(response.getEntity()); // consume the response content to avoid connection leaks
+                    LOG.error(String.format("Réponse en erreur sur la requête '%s' (codes attendus : '%s'), réponse reçue : code=%d, phrase=%s",
+                            wsapi,
+                            wsapi.getSuccessResponseCodes(),
+                            response.getStatusLine().getStatusCode(),
+                            response.getStatusLine().getReasonPhrase()));
+                }
+                EntityUtils.consume(response.getEntity()); // consume the response content to avoid connection leaks
             }
         } catch (IOException | AlambicException e) {
             LOG.error("Echec de traitement de la requête '" + jsonquery + "', cause : " + e.getMessage(), e);
@@ -185,9 +180,9 @@ public class WSToStateBase implements IToStateBase {
             hasQuestionMark = api.endsWith("?");
         }
         if (StringUtils.isNotBlank(queryParams)) {
-        	if (!hasQuestionMark) {
-        		builder.append("?");
-        	}
+            if (!hasQuestionMark) {
+                builder.append("?");
+            }
             builder.append(encodeQueryParams(queryParams));
         }
         final String fullURL = builder.toString();

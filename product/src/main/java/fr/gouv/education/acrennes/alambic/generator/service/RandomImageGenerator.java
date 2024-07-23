@@ -16,86 +16,84 @@
  ******************************************************************************/
 package fr.gouv.education.acrennes.alambic.generator.service;
 
+import fr.gouv.education.acrennes.alambic.Constants;
+import fr.gouv.education.acrennes.alambic.exception.AlambicException;
+import fr.gouv.education.acrennes.alambic.generator.service.RandomGeneratorService.GENERATOR_TYPE;
+import fr.gouv.education.acrennes.alambic.random.persistence.RandomEntity;
+import fr.gouv.education.acrennes.alambic.random.persistence.RandomLambdaEntity;
+import org.apache.commons.io.FileUtils;
+import org.apache.commons.lang.StringUtils;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+
+import javax.persistence.EntityManager;
 import java.io.File;
 import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Map;
 
-import javax.persistence.EntityManager;
-
-import org.apache.commons.io.FileUtils;
-import org.apache.commons.lang.StringUtils;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-
-import fr.gouv.education.acrennes.alambic.Constants;
-import fr.gouv.education.acrennes.alambic.exception.AlambicException;
-import fr.gouv.education.acrennes.alambic.generator.service.RandomGeneratorService.GENERATOR_TYPE;
-import fr.gouv.education.acrennes.alambic.random.persistence.RandomEntity;
-import fr.gouv.education.acrennes.alambic.random.persistence.RandomLambdaEntity;
-
 public class RandomImageGenerator extends AbstractRandomGenerator {
 
-	private static final Log log = LogFactory.getLog(RandomImageGenerator.class);
-	public static final String LOREM_IPSUM_IMAGE_URL_PATTERN = "https://picsum.photos/%s/%s";
-	public static final int CONNECTION_TIMEOUT = 5000; // ms
-	public static final int READ_TIMEOUT = 60000; // ms
+    private static final Log log = LogFactory.getLog(RandomImageGenerator.class);
+    public static final String LOREM_IPSUM_IMAGE_URL_PATTERN = "https://picsum.photos/%s/%s";
+    public static final int CONNECTION_TIMEOUT = 5000; // ms
+    public static final int READ_TIMEOUT = 60000; // ms
 
-	public RandomImageGenerator(final EntityManager em) throws AlambicException{
-		super(em);
-	}
+    public RandomImageGenerator(final EntityManager em) throws AlambicException {
+        super(em);
+    }
 
-	@Override
-	public RandomEntity getEntity(Map<String, Object> query, String processId, UNICITY_SCOPE scope) throws AlambicException {
-		RandomEntity entity;
-		Path imageFile = null;
+    @Override
+    public RandomEntity getEntity(Map<String, Object> query, String processId, UNICITY_SCOPE scope) throws AlambicException {
+        RandomEntity entity;
+        Path imageFile = null;
 
-		String height = (String) query.get("height");
-		String width = (String) query.get("width");
-		String path = (String) query.get("path");
-		if (StringUtils.isBlank(height) || StringUtils.isBlank(width)) {
-			throw new AlambicException("The two parameters 'height' and 'width' must be set");
-		}
+        String height = (String) query.get("height");
+        String width = (String) query.get("width");
+        String path = (String) query.get("path");
+        if (StringUtils.isBlank(height) || StringUtils.isBlank(width)) {
+            throw new AlambicException("The two parameters 'height' and 'width' must be set");
+        }
 
-		File target_directory;
-		if (StringUtils.isBlank(path)) {
-			target_directory = FileUtils.getTempDirectory();
-			log.info("Use the system temporary path '" + target_directory.getPath() + "'");
-		} else {
-			target_directory = new File(path);
-		}
+        File target_directory;
+        if (StringUtils.isBlank(path)) {
+            target_directory = FileUtils.getTempDirectory();
+            log.info("Use the system temporary path '" + target_directory.getPath() + "'");
+        } else {
+            target_directory = new File(path);
+        }
 
-		if (target_directory.exists() && target_directory.isDirectory()) {
-			try {
-				// create the image file
-				imageFile = Files.createTempFile(target_directory.toPath(), null, ".jpg");
+        if (target_directory.exists() && target_directory.isDirectory()) {
+            try {
+                // create the image file
+                imageFile = Files.createTempFile(target_directory.toPath(), null, ".jpg");
 
-				// download a lorem ipsum image
-				FileUtils.copyURLToFile(
-						new URL(String.format(LOREM_IPSUM_IMAGE_URL_PATTERN, width, height)), 
-						imageFile.toFile(), 
-						CONNECTION_TIMEOUT, 
-						READ_TIMEOUT);			
-			} catch (Exception e) {
-				throw new AlambicException("Failed to generate a random image, error : " + e.getMessage());
-			}
-		} else {
-			throw new AlambicException("The path '" + target_directory.getPath() + "' doesn't deal with a directory");
-		}
+                // download a lorem ipsum image
+                FileUtils.copyURLToFile(
+                        new URL(String.format(LOREM_IPSUM_IMAGE_URL_PATTERN, width, height)),
+                        imageFile.toFile(),
+                        CONNECTION_TIMEOUT,
+                        READ_TIMEOUT);
+            } catch (Exception e) {
+                throw new AlambicException("Failed to generate a random image, error : " + e.getMessage());
+            }
+        } else {
+            throw new AlambicException("The path '" + target_directory.getPath() + "' doesn't deal with a directory");
+        }
 
-		entity = new RandomLambdaEntity("{\"file\":\"" + imageFile + "\"}");
-		return entity;
-	}
+        entity = new RandomLambdaEntity("{\"file\":\"" + imageFile + "\"}");
+        return entity;
+    }
 
-	@Override
-	public GENERATOR_TYPE getType(final Map<String, Object> query) {
-		return RandomGeneratorService.GENERATOR_TYPE.IMAGE;
-	}
+    @Override
+    public GENERATOR_TYPE getType(final Map<String, Object> query) {
+        return RandomGeneratorService.GENERATOR_TYPE.IMAGE;
+    }
 
-	@Override
-	public String getCapacityFilter(Map<String, Object> query) {
-		return Constants.UNLIMITED_GENERATOR_FILTER;
-	}
+    @Override
+    public String getCapacityFilter(Map<String, Object> query) {
+        return Constants.UNLIMITED_GENERATOR_FILTER;
+    }
 
 }

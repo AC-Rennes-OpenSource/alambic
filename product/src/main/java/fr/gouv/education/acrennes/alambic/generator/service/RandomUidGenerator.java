@@ -16,100 +16,99 @@
  ******************************************************************************/
 package fr.gouv.education.acrennes.alambic.generator.service;
 
-import java.util.Map;
-
-import javax.persistence.EntityManager;
-
 import fr.gouv.education.acrennes.alambic.Constants;
 import fr.gouv.education.acrennes.alambic.exception.AlambicException;
 import fr.gouv.education.acrennes.alambic.freemarker.FMFunctions;
 import fr.gouv.education.acrennes.alambic.freemarker.NormalizationPolicy;
-import org.apache.commons.lang.StringUtils;
-
 import fr.gouv.education.acrennes.alambic.random.persistence.RandomEntity;
 import fr.gouv.education.acrennes.alambic.random.persistence.RandomLambdaEntity;
+import org.apache.commons.lang.StringUtils;
+
+import javax.persistence.EntityManager;
+import java.util.Map;
 
 public class RandomUidGenerator extends AbstractRandomGenerator {
 
-//	private static final Log log = LogFactory.getLog(RandomUidGenerator.class);
-	private static enum RANDOM_UID_FORMAT {
-		SHORT,
-		LONG
-	}
-	
-	private final FMFunctions fcts;
+    //	private static final Log log = LogFactory.getLog(RandomUidGenerator.class);
+    private enum RANDOM_UID_FORMAT {
+        SHORT,
+        LONG
+    }
 
-	public RandomUidGenerator(final EntityManager em) throws AlambicException {
-		super(em);
-		this.fcts = new FMFunctions();
-	}
+    private final FMFunctions fcts;
 
-	@Override
-	public RandomEntity getEntity(Map<String, Object> query, String processId, UNICITY_SCOPE scope) throws AlambicException {
-		RandomEntity entity;
-		RANDOM_UID_FORMAT format = RANDOM_UID_FORMAT.LONG;
-		
-		String firstName = (String) query.get("firstName");
-		String lastName = (String) query.get("lastName");
-		if (StringUtils.isBlank(firstName) || StringUtils.isBlank(lastName)) {
-			throw new AlambicException("Both parameters 'firstName' and 'lastName' must be set");
-		}
+    public RandomUidGenerator(final EntityManager em) throws AlambicException {
+        super(em);
+        this.fcts = new FMFunctions();
+    }
 
-		if (StringUtils.isNotBlank((String) query.get("format"))) {
-			if ( ((String) query.get("format")).equals(RANDOM_UID_FORMAT.SHORT.toString()) ||
-				((String) query.get("format")).equals(RANDOM_UID_FORMAT.LONG.toString()) ) {
-				format = RANDOM_UID_FORMAT.valueOf((String) query.get("format"));
-			} else {
-				throw new AlambicException("Not relevant format value '" + (String) query.get("format") + "'. Supported values are 'SHORT' and 'LONG'");
-			}
-		}
+    @Override
+    public RandomEntity getEntity(Map<String, Object> query, String processId, UNICITY_SCOPE scope) throws AlambicException {
+        RandomEntity entity;
+        RANDOM_UID_FORMAT format = RANDOM_UID_FORMAT.LONG;
 
-		String uid;
-		if (RANDOM_UID_FORMAT.LONG.equals(format) ) {
-			uid = this.fcts.normalize(String.format("%s.%s", firstName, lastName), NormalizationPolicy.UID, true).toLowerCase();
-		} else {
-			uid = this.fcts.normalize(String.format("%s%s", firstName.substring(0, 1), lastName), NormalizationPolicy.UID, true).toLowerCase();
-		}
-		
-		// handle random generation iteration
-		int iteration = (int) query.get(Constants.RANDOM_GENERATOR_INNER_ITERATION);
-		if (1 < iteration) {
-			uid = uid.concat(String.valueOf(iteration));
-		}
+        String firstName = (String) query.get("firstName");
+        String lastName = (String) query.get("lastName");
+        if (StringUtils.isBlank(firstName) || StringUtils.isBlank(lastName)) {
+            throw new AlambicException("Both parameters 'firstName' and 'lastName' must be set");
+        }
 
-		entity = new RandomLambdaEntity("{\"uid\":\"" + uid + "\"}");
+        if (StringUtils.isNotBlank((String) query.get("format"))) {
+            if (query.get("format").equals(RANDOM_UID_FORMAT.SHORT.toString()) ||
+                query.get("format").equals(RANDOM_UID_FORMAT.LONG.toString())) {
+                format = RANDOM_UID_FORMAT.valueOf((String) query.get("format"));
+            } else {
+                throw new AlambicException("Not relevant format value '" + query.get("format") + "'. Supported values are 'SHORT' and " +
+                                           "'LONG'");
+            }
+        }
 
-		return entity;
-	}
+        String uid;
+        if (RANDOM_UID_FORMAT.LONG.equals(format)) {
+            uid = this.fcts.normalize(String.format("%s.%s", firstName, lastName), NormalizationPolicy.UID, true).toLowerCase();
+        } else {
+            uid = this.fcts.normalize(String.format("%s%s", firstName.charAt(0), lastName), NormalizationPolicy.UID, true).toLowerCase();
+        }
 
-	@Override
-	public RandomGeneratorService.GENERATOR_TYPE getType(final Map<String, Object> query) {
-		return RandomGeneratorService.GENERATOR_TYPE.UID;
-	}
+        // handle random generation iteration
+        int iteration = (int) query.get(Constants.RANDOM_GENERATOR_INNER_ITERATION);
+        if (1 < iteration) {
+            uid = uid.concat(String.valueOf(iteration));
+        }
 
-	@Override
-	public String getCapacityFilter(Map<String, Object> query) throws AlambicException {
-		RANDOM_UID_FORMAT format = RANDOM_UID_FORMAT.LONG;
+        entity = new RandomLambdaEntity("{\"uid\":\"" + uid + "\"}");
 
-		String firstName = (String) query.get("firstName");
-		String lastName = (String) query.get("lastName");
-		if (StringUtils.isNotBlank(firstName) && StringUtils.isNotBlank(lastName)) {
-			firstName = fcts.normalize(firstName, NormalizationPolicy.UID);
-			lastName = fcts.normalize(lastName, NormalizationPolicy.UID);			
-		} else {
-			throw new AlambicException("Both parameters 'firstName' and 'lastName' must be set");
-		}
+        return entity;
+    }
 
-		if (StringUtils.isNotBlank((String) query.get("format"))) {
-			if ( ((String) query.get("format")).equals(RANDOM_UID_FORMAT.SHORT.toString()) ||
-				((String) query.get("format")).equals(RANDOM_UID_FORMAT.LONG.toString()) ) {
-				format = RANDOM_UID_FORMAT.valueOf((String) query.get("format"));
-			} else {
-				throw new AlambicException("Not relevant format value '" + format + "'. Supported values are 'SHORT' and 'LONG'");
-			}
-		}
+    @Override
+    public RandomGeneratorService.GENERATOR_TYPE getType(final Map<String, Object> query) {
+        return RandomGeneratorService.GENERATOR_TYPE.UID;
+    }
 
-		return String.format("[%s-%s-%s]", format, firstName, lastName);
-	}
+    @Override
+    public String getCapacityFilter(Map<String, Object> query) throws AlambicException {
+        RANDOM_UID_FORMAT format = RANDOM_UID_FORMAT.LONG;
+
+        String firstName = (String) query.get("firstName");
+        String lastName = (String) query.get("lastName");
+        if (StringUtils.isNotBlank(firstName) && StringUtils.isNotBlank(lastName)) {
+            firstName = fcts.normalize(firstName, NormalizationPolicy.UID);
+            lastName = fcts.normalize(lastName, NormalizationPolicy.UID);
+        } else {
+            throw new AlambicException("Both parameters 'firstName' and 'lastName' must be set");
+        }
+
+        if (StringUtils.isNotBlank((String) query.get("format"))) {
+            if (query.get("format").equals(RANDOM_UID_FORMAT.SHORT.toString()) ||
+                query.get("format").equals(RANDOM_UID_FORMAT.LONG.toString())) {
+                format = RANDOM_UID_FORMAT.valueOf((String) query.get("format"));
+            } else {
+                throw new AlambicException("Not relevant format value '" + format + "'. Supported values are 'SHORT' and 'LONG'");
+            }
+        }
+
+        return String.format("[%s-%s-%s]", format, firstName, lastName);
+    }
 
 }

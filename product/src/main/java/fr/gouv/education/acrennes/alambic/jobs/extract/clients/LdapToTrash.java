@@ -16,7 +16,9 @@
  ******************************************************************************/
 package fr.gouv.education.acrennes.alambic.jobs.extract.clients;
 
-import java.util.Hashtable;
+import fr.gouv.education.acrennes.alambic.jobs.load.StateBaseToLdapDelete;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 
 import javax.naming.Context;
 import javax.naming.NamingEnumeration;
@@ -25,11 +27,7 @@ import javax.naming.directory.DirContext;
 import javax.naming.directory.InitialDirContext;
 import javax.naming.directory.SearchControls;
 import javax.naming.directory.SearchResult;
-
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-
-import fr.gouv.education.acrennes.alambic.jobs.load.StateBaseToLdapDelete;
+import java.util.Hashtable;
 
 /**
  * @deprecated
@@ -38,65 +36,65 @@ import fr.gouv.education.acrennes.alambic.jobs.load.StateBaseToLdapDelete;
  */
 @Deprecated
 public class LdapToTrash {
-	private static final Log log = LogFactory.getLog(LdapToTrash.class);
+    private static final Log log = LogFactory.getLog(LdapToTrash.class);
 
-	private int countEntriesDeleted = 0;
+    private int countEntriesDeleted = 0;
 
-	private final Hashtable<String, String> confLdap = new Hashtable<>(5);
-	private final SearchControls contraintes = new SearchControls();
-	protected DirContext ctx = null;
-	protected NamingEnumeration<SearchResult> searchRes;
+    private final Hashtable<String, String> confLdap = new Hashtable<>(5);
+    private final SearchControls contraintes = new SearchControls();
+    protected DirContext ctx = null;
+    protected NamingEnumeration<SearchResult> searchRes;
 
-	public LdapToTrash(final String driver, final String url, final String login, final String pwd, final String query) {
-		confLdap.put(Context.INITIAL_CONTEXT_FACTORY, driver);
-		confLdap.put(Context.PROVIDER_URL, url);
-		confLdap.put(Context.SECURITY_PRINCIPAL, login);
-		confLdap.put(Context.SECURITY_CREDENTIALS, pwd);
-		contraintes.setSearchScope(SearchControls.ONELEVEL_SCOPE);
-		contraintes.setReturningAttributes(new String[] { "uid" });
-		
-		// Execution de la requète LDAP
-		try {
-			ctx = new InitialDirContext(confLdap);
-			searchRes = ctx.search("", query, contraintes);
-		} catch (final NamingException e) {
-			log.error("Erreur ouverture du contexte : " + e.getMessage());
-		}
-	}
+    public LdapToTrash(final String driver, final String url, final String login, final String pwd, final String query) {
+        confLdap.put(Context.INITIAL_CONTEXT_FACTORY, driver);
+        confLdap.put(Context.PROVIDER_URL, url);
+        confLdap.put(Context.SECURITY_PRINCIPAL, login);
+        confLdap.put(Context.SECURITY_CREDENTIALS, pwd);
+        contraintes.setSearchScope(SearchControls.ONELEVEL_SCOPE);
+        contraintes.setReturningAttributes(new String[] { "uid" });
 
-	public void executeDeleteAction() {
-		// tranfo vers format extration générique
-		countEntriesDeleted = 0;
-		try {
-			while (searchRes.hasMore()) {
-				final SearchResult sR = searchRes.next();
-				final String rdn = new String(sR.getName());
-				ctx.unbind(rdn);
-				log.info("Effacement de l'entree [" + rdn + "]");
-				countEntriesDeleted++;
-			}
-			searchRes.close();
-		} catch (final NamingException e) {
-			// Erreur à l'effacement
-			log.error("Effacement de l'entree : " + e.getMessage(), e);
-		}
-	}
+        // Execution de la requète LDAP
+        try {
+            ctx = new InitialDirContext(confLdap);
+            searchRes = ctx.search("", query, contraintes);
+        } catch (final NamingException e) {
+            log.error("Erreur ouverture du contexte : " + e.getMessage());
+        }
+    }
 
-	public int getCountEntriesDeleted() {
-		return countEntriesDeleted;
-	}
+    public void executeDeleteAction() {
+        // tranfo vers format extration générique
+        countEntriesDeleted = 0;
+        try {
+            while (searchRes.hasMore()) {
+                final SearchResult sR = searchRes.next();
+                final String rdn = sR.getName();
+                ctx.unbind(rdn);
+                log.info("Effacement de l'entree [" + rdn + "]");
+                countEntriesDeleted++;
+            }
+            searchRes.close();
+        } catch (final NamingException e) {
+            // Erreur à l'effacement
+            log.error("Effacement de l'entree : " + e.getMessage(), e);
+        }
+    }
 
-	public void close() {
-		try {
-			searchRes.close();
-		} catch (final NamingException e) {
-			log.error("Fermeture du contexte : " + e.getMessage(), e);
-		}
-		try {
-			ctx.close();
-		} catch (final NamingException e) {
-			log.error("Fermeture du contexte : " + e.getMessage(), e);
-		}
-	}
+    public int getCountEntriesDeleted() {
+        return countEntriesDeleted;
+    }
+
+    public void close() {
+        try {
+            searchRes.close();
+        } catch (final NamingException e) {
+            log.error("Fermeture du contexte : " + e.getMessage(), e);
+        }
+        try {
+            ctx.close();
+        } catch (final NamingException e) {
+            log.error("Fermeture du contexte : " + e.getMessage(), e);
+        }
+    }
 
 }

@@ -1,51 +1,51 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <alambic>
-	<entries>
-		<entry verifyIfExist="(&amp;(cn=%RDN%)(objectClass=ENTProfilCollaboratif))">
-			<variables>
-				<variable name="RDN">espace-collaboratif-triskell-0011084q_reader</variable>
-			</variables>
-			<dn>cn=%RDN%,%LDAP_ENT_ouProfilsCollaboratifsDn%</dn>
-			<attributes>
-				<attr name="member" modifyMode="append">
-					<value>uid=abbie.fletcher001@ATEN,%LDAP_ENT_ouPersonnesDn%</value>
-				</attr>
-			</attributes>
-		</entry>
-		<entry verifyIfExist="(&amp;(cn=%RDN%)(objectClass=ENTProfilCollaboratif))">
-			<variables>
-				<variable name="RDN">espace-collaboratif-triskell-0011084q_members</variable>
-			</variables>
-			<dn>cn=%RDN%,%LDAP_ENT_ouProfilsCollaboratifsDn%</dn>
-			<attributes>
-				<attr name="member" modifyMode="append">
-					<value>uid=abbie.fletcher001@ATEN,%LDAP_ENT_ouPersonnesDn%</value>
-				</attr>
-			</attributes>
-		</entry>
-		<entry verifyIfExist="(&amp;(cn=%RDN%)(objectClass=ENTProfilCollaboratif))">
-			<variables>
-				<variable name="RDN">espace-collaboratif-triskell-0011084q_legal_resp_ds-aa2</variable>
-			</variables>
-			<dn>cn=%RDN%,%LDAP_ENT_ouProfilsCollaboratifsDn%</dn>
-			<attributes>
-				<attr name="member" modifyMode="append">
-					<value>uid=abbie.fletcher001@ATEN,%LDAP_ENT_ouPersonnesDn%</value>
-				</attr>
-			</attributes>
-		</entry>
-		<entry verifyIfExist="(&amp;(uid=%RDN%)(objectClass=ENTPerson))">
-			<variables>
-			        <variable name="RDN">abbie.fletcher001@ATEN</variable>
-			</variables>
-			<dn>uid=%RDN%,%LDAP_ENT_ouPersonnesDn%</dn>
-			<attributes>
-				<attr name="ENTPersonProfils" modifyMode="append">
-					<value>cn=espace-collaboratif-triskell-0011084q_reader,%LDAP_ENT_ouProfilsCollaboratifsDn%</value>
-					<value>cn=espace-collaboratif-triskell-0011084q_members,%LDAP_ENT_ouProfilsCollaboratifsDn%</value>
-					<value>cn=espace-collaboratif-triskell-0011084q_legal_resp_ds-aa2,%LDAP_ENT_ouProfilsCollaboratifsDn%</value>
-				</attr>
-			</attributes>
-		</entry>
-	</entries>
+    <entries>
+        <entry verifyIfExist="(&amp;(cn=%RDN%)(objectClass=ENTProfilCollaboratif))">
+            <variables>
+                <variable name="RDN">espace-collaboratif-triskell-0011084q_reader</variable>
+            </variables>
+            <dn>cn=%RDN%,%LDAP_ENT_ouProfilsCollaboratifsDn%</dn>
+            <attributes>
+                <attr name="member" modifyMode="append">
+                    <value>uid=abbie.fletcher001@ATEN,%LDAP_ENT_ouPersonnesDn%</value>
+                </attr>
+            </attributes>
+        </entry>
+        <entry verifyIfExist="(&amp;(cn=%RDN%)(objectClass=ENTProfilCollaboratif))">
+            <variables>
+                <variable name="RDN">espace-collaboratif-triskell-0011084q_members</variable>
+            </variables>
+            <dn>cn=%RDN%,%LDAP_ENT_ouProfilsCollaboratifsDn%</dn>
+            <attributes>
+                <attr name="member" modifyMode="append">
+                    <value>uid=abbie.fletcher001@ATEN,%LDAP_ENT_ouPersonnesDn%</value>
+                </attr>
+            </attributes>
+        </entry>
+        <entry verifyIfExist="(&amp;(cn=%RDN%)(objectClass=ENTProfilCollaboratif))">
+            <variables>
+                <variable name="RDN">espace-collaboratif-triskell-0011084q_legal_resp_ds-aa2</variable>
+            </variables>
+            <dn>cn=%RDN%,%LDAP_ENT_ouProfilsCollaboratifsDn%</dn>
+            <attributes>
+                <attr name="member" modifyMode="append">
+                    <value>uid=abbie.fletcher001@ATEN,%LDAP_ENT_ouPersonnesDn%</value>
+                </attr>
+            </attributes>
+        </entry>
+        <entry verifyIfExist="(&amp;(uid=%RDN%)(objectClass=ENTPerson))">
+            <variables>
+                <variable name="RDN">abbie.fletcher001@ATEN</variable>
+            </variables>
+            <dn>uid=%RDN%,%LDAP_ENT_ouPersonnesDn%</dn>
+            <attributes>
+                <attr name="ENTPersonProfils" modifyMode="append">
+                    <value>cn=espace-collaboratif-triskell-0011084q_reader,%LDAP_ENT_ouProfilsCollaboratifsDn%</value>
+                    <value>cn=espace-collaboratif-triskell-0011084q_members,%LDAP_ENT_ouProfilsCollaboratifsDn%</value>
+                    <value>cn=espace-collaboratif-triskell-0011084q_legal_resp_ds-aa2,%LDAP_ENT_ouProfilsCollaboratifsDn%</value>
+                </attr>
+            </attributes>
+        </entry>
+    </entries>
 </alambic>

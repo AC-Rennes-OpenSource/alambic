@@ -17,9 +17,9 @@
 package fr.gouv.education.acrennes.alambic.utils.geo;
 
 public class GeoConvertException extends RuntimeException {
-	private static final long serialVersionUID = -6874379947901479504L;
+    private static final long serialVersionUID = -6874379947901479504L;
 
-	public GeoConvertException(String message, Exception ex) {
-		super(message, ex);
-	}
+    public GeoConvertException(String message, Exception ex) {
+        super(message, ex);
+    }
 }

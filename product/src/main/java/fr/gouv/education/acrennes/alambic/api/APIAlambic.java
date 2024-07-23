@@ -16,34 +16,15 @@
  ******************************************************************************/
 package fr.gouv.education.acrennes.alambic.api;
 
-import static org.eclipse.persistence.config.PersistenceUnitProperties.JDBC_DRIVER;
-import static org.eclipse.persistence.config.PersistenceUnitProperties.JDBC_PASSWORD;
-import static org.eclipse.persistence.config.PersistenceUnitProperties.JDBC_URL;
-import static org.eclipse.persistence.config.PersistenceUnitProperties.JDBC_USER;
-import static org.eclipse.persistence.config.PersistenceUnitProperties.TARGET_SERVER;
-
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.nio.file.attribute.PosixFilePermission;
-import java.nio.file.attribute.PosixFilePermissions;
-import java.security.MessageDigest;
-import java.security.NoSuchAlgorithmException;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Properties;
-import java.util.Set;
-import java.util.concurrent.Future;
-
-import javax.persistence.EntityManager;
-
 import fr.gouv.education.acrennes.alambic.exception.AlambicException;
+import fr.gouv.education.acrennes.alambic.generator.service.RandomGeneratorService;
+import fr.gouv.education.acrennes.alambic.jobs.CallableContext;
+import fr.gouv.education.acrennes.alambic.jobs.ExecutorFactory;
+import fr.gouv.education.acrennes.alambic.jobs.Jobs;
+import fr.gouv.education.acrennes.alambic.monitoring.ActivityMBean;
+import fr.gouv.education.acrennes.alambic.persistence.EntityManagerHelper;
 import fr.gouv.education.acrennes.alambic.utils.Config;
+import fr.gouv.education.acrennes.alambic.utils.Variables;
 import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
@@ -54,13 +35,21 @@ import org.jdom2.JDOMException;
 import org.jdom2.input.SAXBuilder;
 import org.xml.sax.InputSource;
 
-import fr.gouv.education.acrennes.alambic.generator.service.RandomGeneratorService;
-import fr.gouv.education.acrennes.alambic.jobs.CallableContext;
-import fr.gouv.education.acrennes.alambic.jobs.ExecutorFactory;
-import fr.gouv.education.acrennes.alambic.jobs.Jobs;
-import fr.gouv.education.acrennes.alambic.monitoring.ActivityMBean;
-import fr.gouv.education.acrennes.alambic.persistence.EntityManagerHelper;
-import fr.gouv.education.acrennes.alambic.utils.Variables;
+import javax.persistence.EntityManager;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.nio.file.attribute.PosixFilePermission;
+import java.nio.file.attribute.PosixFilePermissions;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
+import java.util.*;
+import java.util.concurrent.Future;
+
+import static org.eclipse.persistence.config.PersistenceUnitProperties.*;
 
 public class APIAlambic implements IAPIAlambic {
 
@@ -81,7 +70,7 @@ public class APIAlambic implements IAPIAlambic {
     private static final String DEFAULT_RUN_ID = "DEFAULT_CONTEXT";
 
     private static final Log log = LogFactory.getLog(APIAlambic.class);
-    private static final Variables fileStaticVariables = new Variables();;
+    private static final Variables fileStaticVariables = new Variables();
     private static String repositoryPath = "";
     private static String executionPath = "./";
     private static Properties properties;
@@ -110,9 +99,9 @@ public class APIAlambic implements IAPIAlambic {
     }
 
     public static void init(final String ep) throws IOException, AlambicException {
-    	init(ep, null);
+        init(ep, null);
     }
-    
+
     public static void init(final String ep, final String threadCount) throws IOException, AlambicException {
         executionPath = ep;
         if (!executionPath.matches(".+/$")) {
@@ -125,24 +114,24 @@ public class APIAlambic implements IAPIAlambic {
 
         // Override the thread count configuration according to the count passed-in parameter (if not 0)
         if (StringUtils.isNotBlank(threadCount) && Integer.valueOf(threadCount) > 0) {
-        	properties.setProperty(ExecutorFactory.THREAD_POOL_SIZE, threadCount);
+            properties.setProperty(ExecutorFactory.THREAD_POOL_SIZE, threadCount);
         }
 
         // Initialize the config object to access properties later
         Config.setProperties(properties);
-        
+
         // Load the static variables (file 'variables.xml')
         try {
-        	InputSource staticVariablesFile = new InputSource(properties.getProperty(REPOSITORY_VARIABLES));
-        	SAXBuilder saxBuilder = new SAXBuilder();
-        	Element staticVariables = saxBuilder.build(staticVariablesFile).getRootElement();
-        	Element varEntries = staticVariables.getChild("variables");
-        	if (varEntries != null) {
-        		APIAlambic.fileStaticVariables.loadFromXmlNode(varEntries.getChildren());
-        	}
+            InputSource staticVariablesFile = new InputSource(properties.getProperty(REPOSITORY_VARIABLES));
+            SAXBuilder saxBuilder = new SAXBuilder();
+            Element staticVariables = saxBuilder.build(staticVariablesFile).getRootElement();
+            Element varEntries = staticVariables.getChild("variables");
+            if (varEntries != null) {
+                APIAlambic.fileStaticVariables.loadFromXmlNode(varEntries.getChildren());
+            }
         } catch (JDOMException | IOException e) {
-        	log.error("Failed to load the file of static variables, error : " + e.getMessage(), e);
-        	throw new AlambicException(e);
+            log.error("Failed to load the file of static variables, error : " + e.getMessage(), e);
+            throw new AlambicException(e);
         }
 
         // Initialize the persistence unit
@@ -172,9 +161,9 @@ public class APIAlambic implements IAPIAlambic {
     }
 
     public static void close() throws AlambicException {
-    	// Close the random generator service
-    	RandomGeneratorService.close();
-    	
+        // Close the random generator service
+        RandomGeneratorService.close();
+
         // Close multi-threading factory
         ExecutorFactory.close();
 
@@ -230,7 +219,9 @@ public class APIAlambic implements IAPIAlambic {
                 jobFileName = jobFileName.concat(".xml");
             }
 
-            String addonJobFilePath = (StringUtils.isNotBlank(addonName)) ? String.format("%s%s/%s", repositoryPath, addonName, jobFileName) : String.format("%s%s", repositoryPath, jobFileName);
+            String addonJobFilePath = (StringUtils.isNotBlank(addonName))
+                                      ? String.format("%s%s/%s", repositoryPath, addonName, jobFileName)
+                                      : String.format("%s%s", repositoryPath, jobFileName);
 
             // Exécuter le job s'il est défini en mode "read only" ou si aucun autre processus ETL correspondant est en cours
             if (isReadOnlyJob || isRunnableJob(addonJobFilePath)) {
@@ -239,7 +230,7 @@ public class APIAlambic implements IAPIAlambic {
 
                     // Chargement des paramètres d'exécution
                     if (null != parameters) {
-                    	APIAlambic.fileStaticVariables.loadFromMap(parameters);
+                        APIAlambic.fileStaticVariables.loadFromMap(parameters);
                     }
 
                     // Instantiation et exécution
@@ -271,16 +262,16 @@ public class APIAlambic implements IAPIAlambic {
         }
 
         if (StringUtils.isNotBlank(addonName)) {
-        	final String addonPath = repositoryPath.concat(addonName);
-        	variables.put(AlambicVariables.ALAMBIC_ADDONPATH, addonPath);
-        	final Path outputPath = Paths.get(addonPath, "output", runId);
-        	variables.put(AlambicVariables.ALAMBIC_ADDON_OUTPUTPATH, outputPath.toString());
-        	
-        	if (!Files.exists(outputPath)) {
-        		// TODO les permissions ne semblent pas appliquées sur le dossier créé ?
-        		final Set<PosixFilePermission> permissions = PosixFilePermissions.fromString("rwxr-xr-x");
-        		Files.createDirectory(outputPath, PosixFilePermissions.asFileAttribute(permissions));
-        	}
+            final String addonPath = repositoryPath.concat(addonName);
+            variables.put(AlambicVariables.ALAMBIC_ADDONPATH, addonPath);
+            final Path outputPath = Paths.get(addonPath, "output", runId);
+            variables.put(AlambicVariables.ALAMBIC_ADDON_OUTPUTPATH, outputPath.toString());
+
+            if (!Files.exists(outputPath)) {
+                // TODO les permissions ne semblent pas appliquées sur le dossier créé ?
+                final Set<PosixFilePermission> permissions = PosixFilePermissions.fromString("rwxr-xr-x");
+                Files.createDirectory(outputPath, PosixFilePermissions.asFileAttribute(permissions));
+            }
         }
 
         return runId;

@@ -20,6 +20,6 @@ import fr.gouv.education.acrennes.alambic.exception.AlambicException;
 
 public interface GARTypeBuilder {
 
-	void execute() throws AlambicException;
+    void execute() throws AlambicException;
 
 }

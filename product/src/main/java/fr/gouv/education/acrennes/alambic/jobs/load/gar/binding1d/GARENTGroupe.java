@@ -8,20 +8,16 @@
 
 package fr.gouv.education.acrennes.alambic.jobs.load.gar.binding1d;
 
+import javax.xml.bind.annotation.*;
 import java.util.ArrayList;
 import java.util.List;
-import javax.xml.bind.annotation.XmlAccessType;
-import javax.xml.bind.annotation.XmlAccessorType;
-import javax.xml.bind.annotation.XmlAttribute;
-import javax.xml.bind.annotation.XmlElement;
-import javax.xml.bind.annotation.XmlType;
 
 
 /**
  * <p>Classe Java pour GAR-ENT-Groupe complex type.
- * 
+ *
  * <p>Le fragment de schéma suivant indique le contenu attendu figurant dans cette classe.
- * 
+ *
  * <pre>
  * &lt;complexType name="GAR-ENT-Groupe">
  *   &lt;complexContent>
@@ -35,13 +31,13 @@ import javax.xml.bind.annotation.XmlType;
  *   &lt;/complexContent>
  * &lt;/complexType>
  * </pre>
- * 
- * 
+ *
+ *
  */
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlType(name = "GAR-ENT-Groupe", propOrder = {
-    "garGroupe",
-    "garPersonGroupe"
+        "garGroupe",
+        "garPersonGroupe"
 })
 public class GARENTGroupe {
 
@@ -54,25 +50,25 @@ public class GARENTGroupe {
 
     /**
      * Gets the value of the garGroupe property.
-     * 
+     *
      * <p>
      * This accessor method returns a reference to the live list,
      * not a snapshot. Therefore any modification you make to the
      * returned list will be present inside the JAXB object.
      * This is why there is not a <CODE>set</CODE> method for the garGroupe property.
-     * 
+     *
      * <p>
      * For example, to add a new item, do as follows:
      * <pre>
      *    getGARGroupe().add(newItem);
      * </pre>
-     * 
-     * 
+     *
+     *
      * <p>
      * Objects of the following type(s) are allowed in the list
      * {@link GARGroupe }
-     * 
-     * 
+     *
+     *
      */
     public List<GARGroupe> getGARGroupe() {
         if (garGroupe == null) {
@@ -83,25 +79,25 @@ public class GARENTGroupe {
 
     /**
      * Gets the value of the garPersonGroupe property.
-     * 
+     *
      * <p>
      * This accessor method returns a reference to the live list,
      * not a snapshot. Therefore any modification you make to the
      * returned list will be present inside the JAXB object.
      * This is why there is not a <CODE>set</CODE> method for the garPersonGroupe property.
-     * 
+     *
      * <p>
      * For example, to add a new item, do as follows:
      * <pre>
      *    getGARPersonGroupe().add(newItem);
      * </pre>
-     * 
-     * 
+     *
+     *
      * <p>
      * Objects of the following type(s) are allowed in the list
      * {@link GARPersonGroupe }
-     * 
-     * 
+     *
+     *
      */
     public List<GARPersonGroupe> getGARPersonGroupe() {
         if (garPersonGroupe == null) {
@@ -112,11 +108,11 @@ public class GARENTGroupe {
 
     /**
      * Obtient la valeur de la propriété version.
-     * 
+     *
      * @return
      *     possible object is
      *     {@link String }
-     *     
+     *
      */
     public String getVersion() {
         return version;
@@ -124,11 +120,11 @@ public class GARENTGroupe {
 
     /**
      * Définit la valeur de la propriété version.
-     * 
+     *
      * @param value
      *     allowed object is
      *     {@link String }
-     *     
+     *
      */
     public void setVersion(String value) {
         this.version = value;

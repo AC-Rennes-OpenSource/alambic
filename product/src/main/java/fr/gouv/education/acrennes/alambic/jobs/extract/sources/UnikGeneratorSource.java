@@ -25,23 +25,23 @@ import org.jdom2.Element;
 
 public class UnikGeneratorSource extends AbstractSource {
 
-	private static final Log log = LogFactory.getLog(UnikGeneratorSource.class);
+    private static final Log log = LogFactory.getLog(UnikGeneratorSource.class);
 
-	private final String DEFAULT_PROCESS_ID = "SOURCE_ID_%s_%s";
+    private final String DEFAULT_PROCESS_ID = "SOURCE_ID_%s_%s";
 
-	public UnikGeneratorSource(final CallableContext context, final Element sourceNode) throws AlambicException {
-		super(context, sourceNode);
-	}
+    public UnikGeneratorSource(final CallableContext context, final Element sourceNode) throws AlambicException {
+        super(context, sourceNode);
+    }
 
-	@Override
-	public void initialize(Element sourceNode) {
-		
-		try {
-			long currentThread = Thread.currentThread().getId();
-			setClient(new UnikGeneratorToStateBase(String.format(DEFAULT_PROCESS_ID, getName(), currentThread)));
-		} catch (Exception e) {
-			log.error("Failed to instanciate the client of source '" + getName() + "', error:" + e.getMessage());
-		}		
-	}
+    @Override
+    public void initialize(Element sourceNode) {
+
+        try {
+            long currentThread = Thread.currentThread().getId();
+            setClient(new UnikGeneratorToStateBase(String.format(DEFAULT_PROCESS_ID, getName(), currentThread)));
+        } catch (Exception e) {
+            log.error("Failed to instanciate the client of source '" + getName() + "', error:" + e.getMessage());
+        }
+    }
 
 }

@@ -16,9 +16,9 @@ import javax.xml.bind.annotation.XmlType;
 
 /**
  * <p>Classe Java pour GAREtab complex type.
- * 
+ *
  * <p>Le fragment de schéma suivant indique le contenu attendu figurant dans cette classe.
- * 
+ *
  * <pre>
  * &lt;complexType name="GAREtab">
  *   &lt;complexContent>
@@ -34,16 +34,16 @@ import javax.xml.bind.annotation.XmlType;
  *   &lt;/complexContent>
  * &lt;/complexType>
  * </pre>
- * 
- * 
+ *
+ *
  */
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlType(name = "GAREtab", propOrder = {
-    "garStructureUAI",
-    "garStructureNomCourant",
-    "garStructureContrat",
-    "garStructureTelephone",
-    "garStructureEmail"
+        "garStructureUAI",
+        "garStructureNomCourant",
+        "garStructureContrat",
+        "garStructureTelephone",
+        "garStructureEmail"
 })
 public class GAREtab {
 
@@ -60,11 +60,11 @@ public class GAREtab {
 
     /**
      * Obtient la valeur de la propriété garStructureUAI.
-     * 
+     *
      * @return
      *     possible object is
      *     {@link String }
-     *     
+     *
      */
     public String getGARStructureUAI() {
         return garStructureUAI;
@@ -72,11 +72,11 @@ public class GAREtab {
 
     /**
      * Définit la valeur de la propriété garStructureUAI.
-     * 
+     *
      * @param value
      *     allowed object is
      *     {@link String }
-     *     
+     *
      */
     public void setGARStructureUAI(String value) {
         this.garStructureUAI = value;
@@ -84,11 +84,11 @@ public class GAREtab {
 
     /**
      * Obtient la valeur de la propriété garStructureNomCourant.
-     * 
+     *
      * @return
      *     possible object is
      *     {@link String }
-     *     
+     *
      */
     public String getGARStructureNomCourant() {
         return garStructureNomCourant;
@@ -96,11 +96,11 @@ public class GAREtab {
 
     /**
      * Définit la valeur de la propriété garStructureNomCourant.
-     * 
+     *
      * @param value
      *     allowed object is
      *     {@link String }
-     *     
+     *
      */
     public void setGARStructureNomCourant(String value) {
         this.garStructureNomCourant = value;
@@ -108,11 +108,11 @@ public class GAREtab {
 
     /**
      * Obtient la valeur de la propriété garStructureContrat.
-     * 
+     *
      * @return
      *     possible object is
      *     {@link String }
-     *     
+     *
      */
     public String getGARStructureContrat() {
         return garStructureContrat;
@@ -120,11 +120,11 @@ public class GAREtab {
 
     /**
      * Définit la valeur de la propriété garStructureContrat.
-     * 
+     *
      * @param value
      *     allowed object is
      *     {@link String }
-     *     
+     *
      */
     public void setGARStructureContrat(String value) {
         this.garStructureContrat = value;
@@ -132,11 +132,11 @@ public class GAREtab {
 
     /**
      * Obtient la valeur de la propriété garStructureTelephone.
-     * 
+     *
      * @return
      *     possible object is
      *     {@link String }
-     *     
+     *
      */
     public String getGARStructureTelephone() {
         return garStructureTelephone;
@@ -144,11 +144,11 @@ public class GAREtab {
 
     /**
      * Définit la valeur de la propriété garStructureTelephone.
-     * 
+     *
      * @param value
      *     allowed object is
      *     {@link String }
-     *     
+     *
      */
     public void setGARStructureTelephone(String value) {
         this.garStructureTelephone = value;
@@ -156,11 +156,11 @@ public class GAREtab {
 
     /**
      * Obtient la valeur de la propriété garStructureEmail.
-     * 
+     *
      * @return
      *     possible object is
      *     {@link String }
-     *     
+     *
      */
     public String getGARStructureEmail() {
         return garStructureEmail;
@@ -168,11 +168,11 @@ public class GAREtab {
 
     /**
      * Définit la valeur de la propriété garStructureEmail.
-     * 
+     *
      * @param value
      *     allowed object is
      *     {@link String }
-     *     
+     *
      */
     public void setGARStructureEmail(String value) {
         this.garStructureEmail = value;

@@ -16,39 +16,40 @@
  ******************************************************************************/
 package fr.gouv.education.acrennes.alambic.generator.service;
 
+import fr.gouv.education.acrennes.alambic.exception.AlambicException;
+import fr.gouv.education.acrennes.alambic.random.persistence.RandomEntity;
+
 import java.io.Serializable;
 import java.util.List;
 import java.util.Map;
 
-import fr.gouv.education.acrennes.alambic.exception.AlambicException;
-import fr.gouv.education.acrennes.alambic.random.persistence.RandomEntity;
-
 public interface RandomGenerator {
 
-	public enum UNICITY_SCOPE {
-		NONE,
-		PROCESS,
-		PROCESS_ALL
-	}
+    enum UNICITY_SCOPE {
+        NONE,
+        PROCESS,
+        PROCESS_ALL
+    }
 
-	public List<RandomEntity> getEntities(final String query, final String processId, final UNICITY_SCOPE scope) throws AlambicException;
+    List<RandomEntity> getEntities(final String query, final String processId, final UNICITY_SCOPE scope) throws AlambicException;
 
-	public RandomEntity getEntity(final Map<String, Object> query, String processId, final UNICITY_SCOPE scope) throws AlambicException;
-	
-	public boolean isAlreadyUsed(final Map<String, Object> query, final RandomEntity entity, final String processId, final UNICITY_SCOPE scope) throws AlambicException;
+    RandomEntity getEntity(final Map<String, Object> query, String processId, final UNICITY_SCOPE scope) throws AlambicException;
 
-	public long getCapacity(final Map<String, Object> query) throws AlambicException;
+    boolean isAlreadyUsed(final Map<String, Object> query, final RandomEntity entity, final String processId, final UNICITY_SCOPE scope)
+            throws AlambicException;
 
-	public String getCapacityFilter(final Map<String, Object> query) throws AlambicException;
+    long getCapacity(final Map<String, Object> query) throws AlambicException;
 
-	public RandomGeneratorService.GENERATOR_TYPE getType(final Map<String, Object> query) throws AlambicException;
+    String getCapacityFilter(final Map<String, Object> query) throws AlambicException;
 
-	public String getPersistanceEntityType(final Map<String, Object> query) throws AlambicException;
-	
-	public void persist(final Serializable entity);
+    RandomGeneratorService.GENERATOR_TYPE getType(final Map<String, Object> query) throws AlambicException;
 
-	public void auditEntity(final Map<String, Object> query, final RandomEntity entity, final String processId) throws AlambicException;
-	
-	public void close();
+    String getPersistanceEntityType(final Map<String, Object> query) throws AlambicException;
+
+    void persist(final Serializable entity);
+
+    void auditEntity(final Map<String, Object> query, final RandomEntity entity, final String processId) throws AlambicException;
+
+    void close();
 
 }

@@ -31,77 +31,77 @@ import java.util.Map;
 
 public class SQLSource extends AbstractSource {
 
-	private static final Log log = LogFactory.getLog(SQLSource.class);
+    private static final Log log = LogFactory.getLog(SQLSource.class);
 
-	private int pageSize;
+    private int pageSize;
 
-	public SQLSource(final CallableContext context, final Element sourceNode) throws AlambicException {
-		super(context, sourceNode);
-	}
+    public SQLSource(final CallableContext context, final Element sourceNode) throws AlambicException {
+        super(context, sourceNode);
+    }
 
-	@Override
-	public void initialize(final Element sourceNode) throws AlambicException {
-		String login = sourceNode.getChildText("login");
-		if (login != null) {
-			login = context.resolveString(login);
-		}
+    @Override
+    public void initialize(final Element sourceNode) throws AlambicException {
+        String login = sourceNode.getChildText("login");
+        if (login != null) {
+            login = context.resolveString(login);
+        }
 
-		String pwd = sourceNode.getChildText("passwd");
-		if (pwd != null) {
-			pwd = context.resolveString(pwd);
-		}
+        String pwd = sourceNode.getChildText("passwd");
+        if (pwd != null) {
+            pwd = context.resolveString(pwd);
+        }
 
-		String uri = sourceNode.getChildText("uri");
-		if (uri == null) {
-			log.error("l'uri de la base de donnée n'est pas precisee");
-		} else {
-			uri = context.resolveString(uri);
-		}
+        String uri = sourceNode.getChildText("uri");
+        if (uri == null) {
+            log.error("l'uri de la base de donnée n'est pas precisee");
+        } else {
+            uri = context.resolveString(uri);
+        }
 
-		String driver = sourceNode.getChildText("driver");
-		if (driver == null) {
-			log.error("le driver SQL n'est pas precise");
-		} else {
-			driver = context.resolveString(sourceNode.getChildText("driver"));
-		}
+        String driver = sourceNode.getChildText("driver");
+        if (driver == null) {
+            log.error("le driver SQL n'est pas precise");
+        } else {
+            driver = context.resolveString(sourceNode.getChildText("driver"));
+        }
 
-		query = sourceNode.getChildText("query");
-		query = Functions.getInstance().executeAllFunctions(context.resolveString(query));
-		if (StringUtils.isBlank(query) && !isDynamic()) {
-			log.error("Requete non définie.");
-		} else {
-			query = context.resolveString(query);
-		}
+        query = sourceNode.getChildText("query");
+        query = Functions.getInstance().executeAllFunctions(context.resolveString(query));
+        if (StringUtils.isBlank(query) && !isDynamic()) {
+            log.error("Requete non définie.");
+        } else {
+            query = context.resolveString(query);
+        }
 
-		String page = sourceNode.getAttributeValue("page");
-		if (StringUtils.isNotBlank(page)) {
-			this.pageSize = Integer.parseInt(context.resolveString(page));
-		} else {
-			this.pageSize = 0;
-		}
+        String page = sourceNode.getAttributeValue("page");
+        if (StringUtils.isNotBlank(page)) {
+            this.pageSize = Integer.parseInt(context.resolveString(page));
+        } else {
+            this.pageSize = 0;
+        }
 
-		String paginationMethod = sourceNode.getAttributeValue("paginationMethod");
-		if (StringUtils.isNotBlank(paginationMethod)) {
-			paginationMethod = context.resolveString(paginationMethod);
-		} else {
-			paginationMethod = "NONE";
-		}
+        String paginationMethod = sourceNode.getAttributeValue("paginationMethod");
+        if (StringUtils.isNotBlank(paginationMethod)) {
+            paginationMethod = context.resolveString(paginationMethod);
+        } else {
+            paginationMethod = "NONE";
+        }
 
-		try {
-			if (login != null && pwd != null) {
-				setClient(new SqlToStateBase(driver, uri, paginationMethod, login, pwd));
-			} else {
-				setClient(new SqlToStateBase(driver, uri, paginationMethod));
-			}
-		} catch (Exception e) {
-			log.error("Failed to instanciate the SQL client, error:" + e.getMessage());
-			e.printStackTrace();
-		}
-	}
+        try {
+            if (login != null && pwd != null) {
+                setClient(new SqlToStateBase(driver, uri, paginationMethod, login, pwd));
+            } else {
+                setClient(new SqlToStateBase(driver, uri, paginationMethod));
+            }
+        } catch (Exception e) {
+            log.error("Failed to instanciate the SQL client, error:" + e.getMessage());
+            e.printStackTrace();
+        }
+    }
 
-	@Override
-	public Iterator<List<Map<String, List<String>>>> getPageIterator() throws AlambicException {
-		return getClient().getPageIterator(this.query, null, this.pageSize, null, null);
-	}
+    @Override
+    public Iterator<List<Map<String, List<String>>>> getPageIterator() throws AlambicException {
+        return getClient().getPageIterator(this.query, null, this.pageSize, null, null);
+    }
 
 }

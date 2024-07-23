@@ -16,17 +16,17 @@
  ******************************************************************************/
 package fr.gouv.education.acrennes.alambic.ldap;
 
+import org.jdom2.Content;
+import org.jdom2.Element;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-import org.jdom2.Content;
-import org.jdom2.Element;
-
 public class ForeachElement {
 
-    private Map<String, List<Map<String, List<String>>>> stateBaseList;
-    private Element foreachStateBaseElement;
+    private final Map<String, List<Map<String, List<String>>>> stateBaseList;
+    private final Element foreachStateBaseElement;
 
     public ForeachElement(Element foreachStateBaseElement, Map<String, List<Map<String, List<String>>>> stateBaseList) {
         this.stateBaseList = stateBaseList;

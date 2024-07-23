@@ -27,29 +27,29 @@ import org.jdom2.Element;
 
 public class GREPSource extends AbstractSource {
 
-	private static final Log log = LogFactory.getLog(GREPSource.class);
+    private static final Log log = LogFactory.getLog(GREPSource.class);
 
-	public GREPSource(final CallableContext context, final Element sourceNode) throws AlambicException {
-		super(context, sourceNode);
-	}
+    public GREPSource(final CallableContext context, final Element sourceNode) throws AlambicException {
+        super(context, sourceNode);
+    }
 
-	@Override
-	public void initialize(final Element sourceNode) throws AlambicException {
-		String input = sourceNode.getChildText("input");
-		if (StringUtils.isBlank(input)) {
-			log.error("'input' parameter cannot be null");
-		} else {
-			input = context.resolvePath(input);
-		}
+    @Override
+    public void initialize(final Element sourceNode) throws AlambicException {
+        String input = sourceNode.getChildText("input");
+        if (StringUtils.isBlank(input)) {
+            log.error("'input' parameter cannot be null");
+        } else {
+            input = context.resolvePath(input);
+        }
 
-		query = sourceNode.getChildText("query");
-		if (StringUtils.isBlank(query) && !isDynamic()) {
-			log.error("regex request is missing");
-		} else if (StringUtils.isNotBlank(query)) {
-			query = Functions.getInstance().executeAllFunctions(context.resolveString(query));
-		}
+        query = sourceNode.getChildText("query");
+        if (StringUtils.isBlank(query) && !isDynamic()) {
+            log.error("regex request is missing");
+        } else if (StringUtils.isNotBlank(query)) {
+            query = Functions.getInstance().executeAllFunctions(context.resolveString(query));
+        }
 
-		setClient((StringUtils.isNotBlank(input)) ? new GrepToStateBase(input) : null);
-	}
+        setClient((StringUtils.isNotBlank(input)) ? new GrepToStateBase(input) : null);
+    }
 
 }

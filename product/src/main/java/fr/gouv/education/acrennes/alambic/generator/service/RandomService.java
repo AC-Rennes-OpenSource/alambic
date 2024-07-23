@@ -18,7 +18,7 @@ package fr.gouv.education.acrennes.alambic.generator.service;
 
 public class RandomService {
 
-	public RandomService() {
-	}
+    public RandomService() {
+    }
 
 }

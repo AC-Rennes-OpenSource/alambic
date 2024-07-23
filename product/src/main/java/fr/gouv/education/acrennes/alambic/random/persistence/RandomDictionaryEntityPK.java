@@ -16,84 +16,82 @@
  ******************************************************************************/
 package fr.gouv.education.acrennes.alambic.random.persistence;
 
-import java.io.Serializable;
-
 import javax.persistence.Column;
 import javax.persistence.Embeddable;
 import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
+import java.io.Serializable;
 
 @Embeddable
 public class RandomDictionaryEntityPK implements Serializable {
 
-	private static final long serialVersionUID = 1L;
+    private static final long serialVersionUID = 1L;
 
-	public enum IDENTITY_ELEMENT {
-		FIRSTNAME_FEMALE,
-		FIRSTNAME_MALE,
-		LASTNAME,
-		ADDRESS_TYPE,
-		ADDRESS_LABEL,
-		ADDRESS_CITY
-	}
+    public enum IDENTITY_ELEMENT {
+        FIRSTNAME_FEMALE,
+        FIRSTNAME_MALE,
+        LASTNAME,
+        ADDRESS_TYPE,
+        ADDRESS_LABEL,
+        ADDRESS_CITY
+    }
 
-	@Column(name = "id")
-	private long id;
+    @Column(name = "id")
+    private long id;
 
-	@Enumerated(EnumType.STRING)
-	@Column(name = "elementname")
-	private IDENTITY_ELEMENT elementname;
+    @Enumerated(EnumType.STRING)
+    @Column(name = "elementname")
+    private IDENTITY_ELEMENT elementname;
 
-	public RandomDictionaryEntityPK() {
-	}
+    public RandomDictionaryEntityPK() {
+    }
 
-	public RandomDictionaryEntityPK(final IDENTITY_ELEMENT elementname, final long id) {
-		this.elementname = elementname;
-		this.id = id;
-	}
+    public RandomDictionaryEntityPK(final IDENTITY_ELEMENT elementname, final long id) {
+        this.elementname = elementname;
+        this.id = id;
+    }
 
-	public long getId() {
-		return id;
-	}
+    public long getId() {
+        return id;
+    }
 
-	public void setId(final long id) {
-		this.id = id;
-	}
+    public void setId(final long id) {
+        this.id = id;
+    }
 
-	public IDENTITY_ELEMENT getElementname() {
-		return this.elementname;
-	}
+    public IDENTITY_ELEMENT getElementname() {
+        return this.elementname;
+    }
 
-	public void setElementname(final IDENTITY_ELEMENT elementname) {
-		this.elementname = elementname;
-	}
+    public void setElementname(final IDENTITY_ELEMENT elementname) {
+        this.elementname = elementname;
+    }
 
-	@Override
-	public int hashCode() {
-		return "RandomDictionaryEntityPK::".concat(toString()).hashCode();
-	}
+    @Override
+    public int hashCode() {
+        return "RandomDictionaryEntityPK::".concat(toString()).hashCode();
+    }
 
-	@Override
-	public boolean equals(final Object obj) {
-		boolean isEqual = false;
+    @Override
+    public boolean equals(final Object obj) {
+        boolean isEqual = false;
 
-		if (obj == this) {
-			isEqual = true;
-		} else if (null != obj) {
-			if (obj instanceof RandomDictionaryEntityPK) {
-				RandomDictionaryEntityPK other = (RandomDictionaryEntityPK) obj;
-				if (this.id == other.getId() && this.elementname == other.getElementname()) {
-					isEqual = true;
-				}
-			}
-		}
+        if (obj == this) {
+            isEqual = true;
+        } else if (null != obj) {
+            if (obj instanceof final RandomDictionaryEntityPK other) {
+                if (this.id == other.getId() && this.elementname == other.getElementname()) {
+                    isEqual = true;
+                }
+            }
+        }
 
-		return isEqual;
-	}
+        return isEqual;
+    }
 
-	@Override
-	public String toString() {
-		return "{\"element\":\"" + this.elementname + "\", \"id\":" + id + "}";
-	}
+    @Override
+    public String toString() {
+        return "{\"element\":\"" + this.elementname + "\", \"id\":" + id + "}";
+    }
 
 }

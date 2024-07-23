@@ -16,25 +16,19 @@
  ******************************************************************************/
 package fr.gouv.education.acrennes.alambic.jobs.transform;
 
-import java.io.File;
-import java.io.IOException;
+import fr.gouv.education.acrennes.alambic.exception.AlambicException;
+import org.w3c.dom.Document;
+import org.xml.sax.SAXException;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
-import javax.xml.transform.OutputKeys;
-import javax.xml.transform.Result;
-import javax.xml.transform.Source;
-import javax.xml.transform.Transformer;
-import javax.xml.transform.TransformerException;
-import javax.xml.transform.TransformerFactory;
+import javax.xml.transform.*;
 import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
 import javax.xml.transform.stream.StreamSource;
-
-import fr.gouv.education.acrennes.alambic.exception.AlambicException;
-import org.w3c.dom.Document;
-import org.xml.sax.SAXException;
+import java.io.File;
+import java.io.IOException;
 
 public class XmlToFileByXslt {
 
@@ -60,8 +54,8 @@ public class XmlToFileByXslt {
             // Transformation
             transformer.transform(domSource, resultat);
 
-        } catch (ParserConfigurationException|SAXException|IOException|TransformerException e) {
-        	throw new AlambicException(e);
+        } catch (ParserConfigurationException | SAXException | IOException | TransformerException e) {
+            throw new AlambicException(e);
         }
     }
 

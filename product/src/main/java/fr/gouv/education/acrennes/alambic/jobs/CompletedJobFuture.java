@@ -16,43 +16,44 @@
  ******************************************************************************/
 package fr.gouv.education.acrennes.alambic.jobs;
 
+import fr.gouv.education.acrennes.alambic.monitoring.ActivityMBean;
+
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
-import fr.gouv.education.acrennes.alambic.monitoring.ActivityMBean;
 
 public class CompletedJobFuture implements Future<ActivityMBean> {
 
-	private final ActivityMBean bean;
+    private final ActivityMBean bean;
 
-	public CompletedJobFuture(final ActivityMBean bean) {
-		this.bean = bean;
-	}
+    public CompletedJobFuture(final ActivityMBean bean) {
+        this.bean = bean;
+    }
 
-	@Override
-	public boolean cancel(final boolean mayInterruptIfRunning) {
-		return true; // already completed - nothing to cancel
-	}
+    @Override
+    public boolean cancel(final boolean mayInterruptIfRunning) {
+        return true; // already completed - nothing to cancel
+    }
 
-	@Override
-	public boolean isCancelled() {
-		return false; // no since completed
-	}
+    @Override
+    public boolean isCancelled() {
+        return false; // no since completed
+    }
 
-	@Override
-	public boolean isDone() {
-		return true; // yes since completed
-	}
+    @Override
+    public boolean isDone() {
+        return true; // yes since completed
+    }
 
-	@Override
-	public ActivityMBean get() throws InterruptedException, ExecutionException {
-		return bean;
-	}
+    @Override
+    public ActivityMBean get() throws InterruptedException, ExecutionException {
+        return bean;
+    }
 
-	@Override
-	public ActivityMBean get(final long timeout, final TimeUnit unit) throws InterruptedException, ExecutionException, TimeoutException {
-		return bean; // ignore timeout parameters since completed
-	}
+    @Override
+    public ActivityMBean get(final long timeout, final TimeUnit unit) throws InterruptedException, ExecutionException, TimeoutException {
+        return bean; // ignore timeout parameters since completed
+    }
 
 }

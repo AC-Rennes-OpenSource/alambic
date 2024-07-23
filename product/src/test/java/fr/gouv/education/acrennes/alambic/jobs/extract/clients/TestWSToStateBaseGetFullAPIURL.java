@@ -16,20 +16,20 @@
  ******************************************************************************/
 package fr.gouv.education.acrennes.alambic.jobs.extract.clients;
 
-import java.util.Arrays;
-import java.util.Collection;
-
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
+
+import java.util.Arrays;
+import java.util.Collection;
 
 @RunWith(Parameterized.class)
 public class TestWSToStateBaseGetFullAPIURL {
 
     @Parameterized.Parameters
     public static Collection<Object[]> data() {
-        return Arrays.asList(new Object[][]{
+        return Arrays.asList(new Object[][] {
                 {
                         "http://localhost", "/api?", "test",
                         "http://localhost/api?test"
@@ -77,6 +77,6 @@ public class TestWSToStateBaseGetFullAPIURL {
 
     @Test
     public void getFullAPIURL() throws Exception {
-    	Assert.assertEquals(exp, WSToStateBase.getFullAPIURL(baseUrl, path, queryParams));
+        Assert.assertEquals(exp, WSToStateBase.getFullAPIURL(baseUrl, path, queryParams));
     }
 }

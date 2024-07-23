@@ -16,37 +16,31 @@
  ******************************************************************************/
 package fr.gouv.education.acrennes.alambic.freemarker;
 
+import freemarker.template.*;
 import org.json.JSONArray;
-
-import freemarker.template.AdapterTemplateModel;
-import freemarker.template.ObjectWrapper;
-import freemarker.template.TemplateModel;
-import freemarker.template.TemplateModelException;
-import freemarker.template.TemplateSequenceModel;
-import freemarker.template.WrappingTemplateModel;
 
 public class JSONArrayAdapter extends WrappingTemplateModel implements TemplateSequenceModel, AdapterTemplateModel {
 
-	private final JSONArray jsonObj;
-	
-	public JSONArrayAdapter(JSONArray jsonObj, ObjectWrapper ow) {
-		super(ow);
-		this.jsonObj = jsonObj;
-	}
+    private final JSONArray jsonObj;
 
-	@Override
-	public Object getAdaptedObject(Class<?> hint) {
-		return this.jsonObj;
-	}
+    public JSONArrayAdapter(JSONArray jsonObj, ObjectWrapper ow) {
+        super(ow);
+        this.jsonObj = jsonObj;
+    }
 
-	@Override
-	public TemplateModel get(int index) throws TemplateModelException {
-		return wrap(this.jsonObj.get(index));
-	}
+    @Override
+    public Object getAdaptedObject(Class<?> hint) {
+        return this.jsonObj;
+    }
 
-	@Override
-	public int size() throws TemplateModelException {
-		return this.jsonObj.length();
-	}
-	
+    @Override
+    public TemplateModel get(int index) throws TemplateModelException {
+        return wrap(this.jsonObj.get(index));
+    }
+
+    @Override
+    public int size() throws TemplateModelException {
+        return this.jsonObj.length();
+    }
+
 }

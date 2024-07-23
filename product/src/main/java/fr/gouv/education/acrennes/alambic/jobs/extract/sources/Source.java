@@ -16,34 +16,34 @@
  ******************************************************************************/
 package fr.gouv.education.acrennes.alambic.jobs.extract.sources;
 
+import fr.gouv.education.acrennes.alambic.exception.AlambicException;
+
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
-import fr.gouv.education.acrennes.alambic.exception.AlambicException;
-
 public interface Source {
 
-	public String getName();
+    String getName();
 
-	public void setPage(final int page);
+    void setPage(final int page);
 
-	public int getPage();
+    int getPage();
 
-	public List<Map<String, List<String>>> query() throws AlambicException;
+    List<Map<String, List<String>>> query() throws AlambicException;
 
-	public List<Map<String, List<String>>> query(String query) throws AlambicException;
+    List<Map<String, List<String>>> query(String query) throws AlambicException;
 
-	public List<Map<String, List<String>>> query(String query, String scope) throws AlambicException;
+    List<Map<String, List<String>>> query(String query, String scope) throws AlambicException;
 
-	public List<Map<String, List<String>>> getEntries();
+    List<Map<String, List<String>>> getEntries();
 
-	public List<Map<String, List<String>>> getEntries(boolean distinct, String orderby, SourceFilter filter);
+    List<Map<String, List<String>>> getEntries(boolean distinct, String orderby, SourceFilter filter);
 
-	public Iterator<List<Map<String, List<String>>>> getPageIterator() throws AlambicException;
+    Iterator<List<Map<String, List<String>>>> getPageIterator() throws AlambicException;
 
-	public int size();
+    int size();
 
-	public void close();
+    void close();
 
 }

@@ -32,19 +32,21 @@ public class GARBuilderParameters {
     private final int maxNodesCount;
     private final String version;
     private final String territoryCode;
-	private final String output;
+    private final String output;
     private final String xsdFile;
     private final EntityManager em;
     private final Map<String, Document> exportFiles;
 
-    public GARBuilderParameters(CallableContext context, Map<String, Source> resources, int page, ActivityMBean jobActivity, int maxNodesCount, String version, String territoryCode, String output, String xsdFile, EntityManager em, Map<String, Document> exportFiles) {
+    public GARBuilderParameters(CallableContext context, Map<String, Source> resources, int page, ActivityMBean jobActivity, int maxNodesCount,
+                                String version, String territoryCode, String output, String xsdFile, EntityManager em,
+                                Map<String, Document> exportFiles) {
         this.context = context;
         this.resources = resources;
         this.page = page;
         this.jobActivity = jobActivity;
         this.maxNodesCount = maxNodesCount;
         this.version = version;
-        this.territoryCode= territoryCode;
+        this.territoryCode = territoryCode;
         this.output = output;
         this.xsdFile = xsdFile;
         this.em = em;
@@ -76,9 +78,9 @@ public class GARBuilderParameters {
     }
 
     public String getTerritoryCode() {
-		return territoryCode;
-	}
-    
+        return territoryCode;
+    }
+
     public String getOutput() {
         return output;
     }

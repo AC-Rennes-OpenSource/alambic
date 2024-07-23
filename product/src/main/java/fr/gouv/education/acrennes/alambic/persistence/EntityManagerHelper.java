@@ -16,61 +16,60 @@
  ******************************************************************************/
 package fr.gouv.education.acrennes.alambic.persistence;
 
-import java.util.Map;
-
-import javax.persistence.EntityManager;
-import javax.persistence.EntityManagerFactory;
-import javax.persistence.Persistence;
-
 import fr.gouv.education.acrennes.alambic.exception.AlambicException;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
+import javax.persistence.EntityManager;
+import javax.persistence.EntityManagerFactory;
+import javax.persistence.Persistence;
+import java.util.Map;
+
 public class EntityManagerHelper {
 
-	 private static final Log log = LogFactory.getLog(EntityManagerHelper.class);
+    private static final Log log = LogFactory.getLog(EntityManagerHelper.class);
 
-	private final EntityManagerFactory emFactory;
-	private static EntityManagerHelper instance;
+    private final EntityManagerFactory emFactory;
+    private static EntityManagerHelper instance;
 
-	private EntityManagerHelper(final String persistenceUnit, final Map<String, String> properties) {
-		emFactory = Persistence.createEntityManagerFactory(persistenceUnit, properties);
-	}
+    private EntityManagerHelper(final String persistenceUnit, final Map<String, String> properties) {
+        emFactory = Persistence.createEntityManagerFactory(persistenceUnit, properties);
+    }
 
-	public static void getInstance(final String persistenceUnit, final Map<String, String> properties) {
-		if (null == instance) {
-			instance = new EntityManagerHelper(persistenceUnit, properties);
-		}
-	}
+    public static void getInstance(final String persistenceUnit, final Map<String, String> properties) {
+        if (null == instance) {
+            instance = new EntityManagerHelper(persistenceUnit, properties);
+        }
+    }
 
-	private static EntityManagerHelper getInstance() throws AlambicException {
-		if (null == instance) {
-			throw new AlambicException("Not initialized persistence unit");
-		}
-		return instance;
-	}
+    private static EntityManagerHelper getInstance() throws AlambicException {
+        if (null == instance) {
+            throw new AlambicException("Not initialized persistence unit");
+        }
+        return instance;
+    }
 
-	private EntityManager createEntityManager() {
-		return emFactory.createEntityManager();
-	}
-	
-	private void closeFactory() {
-		if (null != emFactory && emFactory.isOpen()) {
-			emFactory.close();
-			instance = null;
-		}
-	}
+    private EntityManager createEntityManager() {
+        return emFactory.createEntityManager();
+    }
 
-	public static EntityManager getEntityManager() throws AlambicException {
-		return getInstance().createEntityManager();
-	}
+    private void closeFactory() {
+        if (null != emFactory && emFactory.isOpen()) {
+            emFactory.close();
+            instance = null;
+        }
+    }
 
-	public static void close() {
-		try {
-			getInstance().closeFactory();
-		} catch (AlambicException e) {
-			log.error("Failed to close the persistence unit, error : " + e.getMessage());
-		}
-	}
+    public static EntityManager getEntityManager() throws AlambicException {
+        return getInstance().createEntityManager();
+    }
+
+    public static void close() {
+        try {
+            getInstance().closeFactory();
+        } catch (AlambicException e) {
+            log.error("Failed to close the persistence unit, error : " + e.getMessage());
+        }
+    }
 
 }

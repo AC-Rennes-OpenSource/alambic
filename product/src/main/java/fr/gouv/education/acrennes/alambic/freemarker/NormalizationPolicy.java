@@ -23,30 +23,39 @@ package fr.gouv.education.acrennes.alambic.freemarker;
  */
 public enum NormalizationPolicy {
 
-	UID(new String[] { NormalizationToolbox.NORMALIZE_REGEX_SHRINK_QUOTES_WITH_WS, NormalizationToolbox.NORMALIZE_REGEX_TRIM_SPECIAL_CHARACTERS, NormalizationToolbox.NORMALIZE_REGEX_REPLACE_WHITESPACES_AND_QUOTES_BY_HYPHEN, NormalizationToolbox.NORMALIZE_REGEX_SHRINK_HYPHENS }),
-	UNIK(new String[] { NormalizationToolbox.NORMALIZE_REGEX_REMOVE_SPECIAL_CHARACTERS }),
-	EMAIL(new String[] { NormalizationToolbox.NORMALIZE_REGEX_REMOVE_QUOTES, NormalizationToolbox.NORMALIZE_REGEX_REPLACE_WHITESPACES_AND_QUOTES_BY_HYPHEN, NormalizationToolbox.NORMALIZE_REGEX_SHRINK_HYPHENS }),
-	VOCABULARY(new String[] { NormalizationToolbox.NORMALIZE_REGEX_REPLACE_WHITESPACES_AND_QUOTES_BY_HYPHEN, NormalizationToolbox.NORMALIZE_REGEX_SHRINK_HYPHENS }),
-	NOM(new String[] { NormalizationToolbox.NORMALIZE_REGEX_REMOVE_BRACKETS, NormalizationToolbox.NORMALIZE_REGEX_SHRINK_WHITESPACES, NormalizationToolbox.NORMALIZE_REGEX_GATHER_WORDS, NormalizationToolbox.NORMALIZE_REGEX_SHRINK_QUOTES_WITH_WS, NormalizationToolbox.NORMALIZE_REGEX_TRIM_SPECIAL_CHARACTERS, NormalizationToolbox.NORMALIZE_REGEX_REPLACE_WHITESPACES_AND_QUOTES_BY_HYPHEN, NormalizationToolbox.NORMALIZE_REGEX_SHRINK_HYPHENS }),
-	NUXEO_ECM_NAME(new String[] { NormalizationToolbox.NORMALIZE_REGEX_REPLACE_SPECIAL_CHARACTERS_BY_HYPHENS, NormalizationToolbox.NORMALIZE_REGEX_TRIM_SPECIAL_CHARACTERS }),
-	JSON(new String[] { NormalizationToolbox.NORMALIZE_REGEX_REPLACE_SPECIAL_QUOTE_MARK_BY_QUOTES, NormalizationToolbox.NORMALIZE_REGEX_SHRINK_QUOTES }),
-	CIVILITE(new String[] { NormalizationToolbox.NORMALIZE_REGEX_CIVILITY_MALE, NormalizationToolbox.NORMALIZE_REGEX_CIVILITY_FEMALE }),
-	WORD_ONLY(new String[] { NormalizationToolbox.NORMALIZE_REGEX_REMOVE_SPECIAL_CHARACTERS }),
-	DEFAULT(new String[] { NormalizationToolbox.NORMALIZE_REGEX_REMOVE_BRACKETS, NormalizationToolbox.NORMALIZE_REGEX_SHRINK_WHITESPACES, NormalizationToolbox.NORMALIZE_REGEX_GATHER_WORDS });
+    UID(new String[] { NormalizationToolbox.NORMALIZE_REGEX_SHRINK_QUOTES_WITH_WS, NormalizationToolbox.NORMALIZE_REGEX_TRIM_SPECIAL_CHARACTERS,
+            NormalizationToolbox.NORMALIZE_REGEX_REPLACE_WHITESPACES_AND_QUOTES_BY_HYPHEN, NormalizationToolbox.NORMALIZE_REGEX_SHRINK_HYPHENS }),
+    UNIK(new String[] { NormalizationToolbox.NORMALIZE_REGEX_REMOVE_SPECIAL_CHARACTERS }),
+    EMAIL(new String[] { NormalizationToolbox.NORMALIZE_REGEX_REMOVE_QUOTES,
+            NormalizationToolbox.NORMALIZE_REGEX_REPLACE_WHITESPACES_AND_QUOTES_BY_HYPHEN, NormalizationToolbox.NORMALIZE_REGEX_SHRINK_HYPHENS }),
+    VOCABULARY(new String[] { NormalizationToolbox.NORMALIZE_REGEX_REPLACE_WHITESPACES_AND_QUOTES_BY_HYPHEN,
+            NormalizationToolbox.NORMALIZE_REGEX_SHRINK_HYPHENS }),
+    NOM(new String[] { NormalizationToolbox.NORMALIZE_REGEX_REMOVE_BRACKETS, NormalizationToolbox.NORMALIZE_REGEX_SHRINK_WHITESPACES,
+            NormalizationToolbox.NORMALIZE_REGEX_GATHER_WORDS, NormalizationToolbox.NORMALIZE_REGEX_SHRINK_QUOTES_WITH_WS,
+            NormalizationToolbox.NORMALIZE_REGEX_TRIM_SPECIAL_CHARACTERS,
+            NormalizationToolbox.NORMALIZE_REGEX_REPLACE_WHITESPACES_AND_QUOTES_BY_HYPHEN, NormalizationToolbox.NORMALIZE_REGEX_SHRINK_HYPHENS }),
+    NUXEO_ECM_NAME(new String[] { NormalizationToolbox.NORMALIZE_REGEX_REPLACE_SPECIAL_CHARACTERS_BY_HYPHENS,
+            NormalizationToolbox.NORMALIZE_REGEX_TRIM_SPECIAL_CHARACTERS }),
+    JSON(new String[] { NormalizationToolbox.NORMALIZE_REGEX_REPLACE_SPECIAL_QUOTE_MARK_BY_QUOTES,
+            NormalizationToolbox.NORMALIZE_REGEX_SHRINK_QUOTES }),
+    CIVILITE(new String[] { NormalizationToolbox.NORMALIZE_REGEX_CIVILITY_MALE, NormalizationToolbox.NORMALIZE_REGEX_CIVILITY_FEMALE }),
+    WORD_ONLY(new String[] { NormalizationToolbox.NORMALIZE_REGEX_REMOVE_SPECIAL_CHARACTERS }),
+    DEFAULT(new String[] { NormalizationToolbox.NORMALIZE_REGEX_REMOVE_BRACKETS, NormalizationToolbox.NORMALIZE_REGEX_SHRINK_WHITESPACES,
+            NormalizationToolbox.NORMALIZE_REGEX_GATHER_WORDS });
 
-	private String[] rules;
+    private final String[] rules;
 
-	private NormalizationPolicy(final String[] rules) {
-		this.rules = rules;
-	}
+    NormalizationPolicy(final String[] rules) {
+        this.rules = rules;
+    }
 
-	@Override
-	public String toString() {
-		return rules.toString();
-	}
+    @Override
+    public String toString() {
+        return rules.toString();
+    }
 
-	public String[] getRules() {
-		return rules;
-	}
-	
+    public String[] getRules() {
+        return rules;
+    }
+
 }

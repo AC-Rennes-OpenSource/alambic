@@ -16,24 +16,7 @@
  ******************************************************************************/
 package fr.gouv.education.acrennes.alambic.jobs.load;
 
-import java.util.Hashtable;
-import java.util.List;
-import java.util.Map;
-
-import javax.naming.Context;
-import javax.naming.NamingException;
-import javax.naming.directory.DirContext;
-import javax.naming.directory.InitialDirContext;
-import javax.naming.directory.SearchControls;
-
 import fr.gouv.education.acrennes.alambic.exception.AlambicException;
-import org.apache.commons.lang.StringUtils;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-import org.jdom2.Element;
-import org.jdom2.input.SAXBuilder;
-import org.xml.sax.InputSource;
-
 import fr.gouv.education.acrennes.alambic.jobs.CallableContext;
 import fr.gouv.education.acrennes.alambic.jobs.JobHelper;
 import fr.gouv.education.acrennes.alambic.ldap.Datasources;
@@ -41,6 +24,21 @@ import fr.gouv.education.acrennes.alambic.ldap.Entry;
 import fr.gouv.education.acrennes.alambic.monitoring.ActivityMBean;
 import fr.gouv.education.acrennes.alambic.monitoring.ActivityTrafficLight;
 import fr.gouv.education.acrennes.alambic.utils.Variables;
+import org.apache.commons.lang.StringUtils;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.jdom2.Element;
+import org.jdom2.input.SAXBuilder;
+import org.xml.sax.InputSource;
+
+import javax.naming.Context;
+import javax.naming.NamingException;
+import javax.naming.directory.DirContext;
+import javax.naming.directory.InitialDirContext;
+import javax.naming.directory.SearchControls;
+import java.util.Hashtable;
+import java.util.List;
+import java.util.Map;
 
 /**
  * ETL export Générique -&gt; LDAP Paramétres pivot de transformation extraction générique LDAP info connexion (url,
@@ -49,188 +47,188 @@ import fr.gouv.education.acrennes.alambic.utils.Variables;
 
 public class StateBaseToLdap extends AbstractDestination {
 
-	private static final Log log = LogFactory.getLog(StateBaseToLdap.class);
+    private static final Log log = LogFactory.getLog(StateBaseToLdap.class);
 
-	private List<Map<String, List<String>>> extraction = null;
-	private Datasources datasources;
-	private Element pivot;
-	private SearchControls contraintes = new SearchControls();
-	private DirContext ctx;
-	private String fichierPivot;
+    private List<Map<String, List<String>>> extraction = null;
+    private Datasources datasources;
+    private Element pivot;
+    private SearchControls contraintes = new SearchControls();
+    private DirContext ctx;
+    private String fichierPivot;
 
-	public Variables variables = new Variables();
+    public Variables variables = new Variables();
 
-	public StateBaseToLdap(final CallableContext context, final Element destinationNode, final ActivityMBean jobActivity) throws AlambicException {
-		super(context, destinationNode, jobActivity);
+    public StateBaseToLdap(final CallableContext context, final Element destinationNode, final ActivityMBean jobActivity) throws AlambicException {
+        super(context, destinationNode, jobActivity);
 
-		String driver = destinationNode.getChildText("driver");
-		if (StringUtils.isNotBlank(driver)) {
-			driver = context.resolveString(driver);
-		} else {
-			driver = "com.sun.jndi.ldap.LdapCtxFactory";
-		}
-
-		String uri = destinationNode.getChildText("uri");
-		if (StringUtils.isNotBlank(uri)) {
-			uri = context.resolveString(uri);
-		} else {
-			throw new AlambicException("l'uri de l'annuaire n'est pas precisée");
-		}
-
-		String login = destinationNode.getChildText("login");
-		if (StringUtils.isNotBlank(login)) {
-			login = context.resolveString(login);
-		} else {
-			throw new AlambicException("le login de l'annuaire n'est pas precisé");
-		}
-
-		String pwd = destinationNode.getChildText("passwd");
-		if (StringUtils.isNotBlank(pwd)) {
-			pwd = context.resolveString(pwd);
-		} else {
-			throw new AlambicException("le mot de passe de l'annuaire n'est pas precisé");
-		}
-
-		this.fichierPivot = destinationNode.getChildText("pivot");
-		if (StringUtils.isNotBlank(this.fichierPivot)) {
-			this.fichierPivot = context.resolvePath(this.fichierPivot);
-		} else {
-			throw new AlambicException("le pivot n'est pas precisé");
-		}
-
-		// LDAP configuration & context initialization (uniquement si nécessaire)
-		try {
-			if (isAnythingToDo().equals(IsAnythingToDoStatus.YES)) {
-				final Hashtable<String, String> confLdap = new Hashtable<>(5);
-				confLdap.put(Context.INITIAL_CONTEXT_FACTORY, driver);
-				confLdap.put(Context.PROVIDER_URL, uri);
-				confLdap.put(Context.SECURITY_PRINCIPAL, login);
-				confLdap.put(Context.SECURITY_CREDENTIALS, pwd);
-				confLdap.put("com.sun.jndi.ldap.connect.pool", "true");
-				ctx = new InitialDirContext(confLdap);
-				contraintes.setSearchScope(SearchControls.ONELEVEL_SCOPE);
-				// Configuration du pivot
-				final InputSource fPivot = new InputSource(fichierPivot);
-				pivot = (new SAXBuilder()).build(fPivot).getRootElement();
-				// Chargement des variables de la liste de jobs
-				reloadVariablesList();
-				// Lecture des sources de données du pivot
-				datasources = new Datasources(pivot, context.getVariables());
-			}
-		} catch (final Exception e) {
-			throw new AlambicException(e);
-		}
-	}
-
-	/*
-	 * Methode pour nettoyer les datasources ouverts
-	 */
-	@Override
-	public void close() throws AlambicException {
-		super.close();
-		
-        if (null != datasources) {
-        	datasources.close();
+        String driver = destinationNode.getChildText("driver");
+        if (StringUtils.isNotBlank(driver)) {
+            driver = context.resolveString(driver);
+        } else {
+            driver = "com.sun.jndi.ldap.LdapCtxFactory";
         }
 
-		// Fermeture du contexte LDAP ouvert
-		if (null != ctx) {
-			try {
-				ctx.close();
-				ctx = null;
-			} catch (final NamingException e) {
-				log.error("Erreur", e);
-			}
-		}
-	}
+        String uri = destinationNode.getChildText("uri");
+        if (StringUtils.isNotBlank(uri)) {
+            uri = context.resolveString(uri);
+        } else {
+            throw new AlambicException("l'uri de l'annuaire n'est pas precisée");
+        }
 
-	/*
-	 * Chargement ds l'annuaire
-	 */
-	@Override
-	public void execute() throws AlambicException {
-		extraction = source.getEntries();
-		final int pivotEntriesCount = pivot.getChild("entries").getChildren().size();
-		int currentPivotEntriesIndex = 1;
+        String login = destinationNode.getChildText("login");
+        if (StringUtils.isNotBlank(login)) {
+            login = context.resolveString(login);
+        } else {
+            throw new AlambicException("le login de l'annuaire n'est pas precisé");
+        }
 
-		// Itération sur l'exportation générique
-		for (final Map<String, List<String>> currentResult : extraction) {
-			// MAJ de la liste de variables par rapport à l'extract courant
-			loadVariablesList(currentResult);
+        String pwd = destinationNode.getChildText("passwd");
+        if (StringUtils.isNotBlank(pwd)) {
+            pwd = context.resolveString(pwd);
+        } else {
+            throw new AlambicException("le mot de passe de l'annuaire n'est pas precisé");
+        }
 
-			// Itération sur la liste des entrées du pivot
-			for (final Element xmlNode : pivot.getChild("entries").getChildren()) {
-				// activity monitoring
-				jobActivity.setProgress((currentPivotEntriesIndex * 100) / (pivotEntriesCount * extraction.size()));
-				jobActivity.setProcessing("processing entry " + currentPivotEntriesIndex + "/" + (pivotEntriesCount * extraction.size()));
+        this.fichierPivot = destinationNode.getChildText("pivot");
+        if (StringUtils.isNotBlank(this.fichierPivot)) {
+            this.fichierPivot = context.resolvePath(this.fichierPivot);
+        } else {
+            throw new AlambicException("le pivot n'est pas precisé");
+        }
 
-				// Création d'un objet Entrée de pivot
-				try {
-					final Entry entry = new Entry(xmlNode, ctx, contraintes, variables, currentResult, datasources);
-					try {
-						entry.update();
-					} finally {
-						entry.close();
-					}
-				} catch (final Exception e) {
-					jobActivity.setTrafficLight(ActivityTrafficLight.RED);
-					log.error("MAJ de l'entrée [" + currentResult.toString() + "] ERREUR LDAP");
-					log.error("Erreur ldap sur l'élément " + xmlNode.getText(), e);
-				}
-				currentPivotEntriesIndex++;
-			}
-		}
-	}
+        // LDAP configuration & context initialization (uniquement si nécessaire)
+        try {
+            if (isAnythingToDo().equals(IsAnythingToDoStatus.YES)) {
+                final Hashtable<String, String> confLdap = new Hashtable<>(5);
+                confLdap.put(Context.INITIAL_CONTEXT_FACTORY, driver);
+                confLdap.put(Context.PROVIDER_URL, uri);
+                confLdap.put(Context.SECURITY_PRINCIPAL, login);
+                confLdap.put(Context.SECURITY_CREDENTIALS, pwd);
+                confLdap.put("com.sun.jndi.ldap.connect.pool", "true");
+                ctx = new InitialDirContext(confLdap);
+                contraintes.setSearchScope(SearchControls.ONELEVEL_SCOPE);
+                // Configuration du pivot
+                final InputSource fPivot = new InputSource(fichierPivot);
+                pivot = (new SAXBuilder()).build(fPivot).getRootElement();
+                // Chargement des variables de la liste de jobs
+                reloadVariablesList();
+                // Lecture des sources de données du pivot
+                datasources = new Datasources(pivot, context.getVariables());
+            }
+        } catch (final Exception e) {
+            throw new AlambicException(e);
+        }
+    }
+
+    /*
+     * Methode pour nettoyer les datasources ouverts
+     */
+    @Override
+    public void close() throws AlambicException {
+        super.close();
+
+        if (null != datasources) {
+            datasources.close();
+        }
+
+        // Fermeture du contexte LDAP ouvert
+        if (null != ctx) {
+            try {
+                ctx.close();
+                ctx = null;
+            } catch (final NamingException e) {
+                log.error("Erreur", e);
+            }
+        }
+    }
+
+    /*
+     * Chargement ds l'annuaire
+     */
+    @Override
+    public void execute() throws AlambicException {
+        extraction = source.getEntries();
+        final int pivotEntriesCount = pivot.getChild("entries").getChildren().size();
+        int currentPivotEntriesIndex = 1;
+
+        // Itération sur l'exportation générique
+        for (final Map<String, List<String>> currentResult : extraction) {
+            // MAJ de la liste de variables par rapport à l'extract courant
+            loadVariablesList(currentResult);
+
+            // Itération sur la liste des entrées du pivot
+            for (final Element xmlNode : pivot.getChild("entries").getChildren()) {
+                // activity monitoring
+                jobActivity.setProgress((currentPivotEntriesIndex * 100) / (pivotEntriesCount * extraction.size()));
+                jobActivity.setProcessing("processing entry " + currentPivotEntriesIndex + "/" + (pivotEntriesCount * extraction.size()));
+
+                // Création d'un objet Entrée de pivot
+                try {
+                    final Entry entry = new Entry(xmlNode, ctx, contraintes, variables, currentResult, datasources);
+                    try {
+                        entry.update();
+                    } finally {
+                        entry.close();
+                    }
+                } catch (final Exception e) {
+                    jobActivity.setTrafficLight(ActivityTrafficLight.RED);
+                    log.error("MAJ de l'entrée [" + currentResult.toString() + "] ERREUR LDAP");
+                    log.error("Erreur ldap sur l'élément " + xmlNode.getText(), e);
+                }
+                currentPivotEntriesIndex++;
+            }
+        }
+    }
 
     @Override
     public IsAnythingToDoStatus isAnythingToDo() {
-    	if (this.isAnythingToDo.equals(IsAnythingToDoStatus.UNDEFINED)) {
-    		this.isAnythingToDo = IsAnythingToDoStatus.NO;
-    		try {
-    			org.jdom2.Document inputFileXMLDocument = JobHelper.parse(this.fichierPivot);
-    			List<Element> rset = JobHelper.evaluateExpressionForElements(inputFileXMLDocument, "/*/entries/entry");
-    			if (rset.size() != 0) {
-    				this.isAnythingToDo = IsAnythingToDoStatus.YES;
-    			}
-    		} catch (AlambicException e) {
-    			log.error("Failed to check whether anything has to be done, error : " + e.getMessage());
-    		}
-    	}
-    	return this.isAnythingToDo;
+        if (this.isAnythingToDo.equals(IsAnythingToDoStatus.UNDEFINED)) {
+            this.isAnythingToDo = IsAnythingToDoStatus.NO;
+            try {
+                org.jdom2.Document inputFileXMLDocument = JobHelper.parse(this.fichierPivot);
+                List<Element> rset = JobHelper.evaluateExpressionForElements(inputFileXMLDocument, "/*/entries/entry");
+                if (rset.size() != 0) {
+                    this.isAnythingToDo = IsAnythingToDoStatus.YES;
+                }
+            } catch (AlambicException e) {
+                log.error("Failed to check whether anything has to be done, error : " + e.getMessage());
+            }
+        }
+        return this.isAnythingToDo;
     }
 
-	private void loadVariablesList(final Map<String, List<String>> map) throws AlambicException {
-		reloadVariablesList();
-		variables.loadFromExtraction(map);
-	}
+    private void loadVariablesList(final Map<String, List<String>> map) throws AlambicException {
+        reloadVariablesList();
+        variables.loadFromExtraction(map);
+    }
 
-	private void reloadVariablesList() throws AlambicException {
-		variables.clearTable();
-		if (context.getVariables() != null) {
-			variables.loadFromMap(context.getVariables().getHashMap());
-		}
+    private void reloadVariablesList() throws AlambicException {
+        variables.clearTable();
+        if (context.getVariables() != null) {
+            variables.loadFromMap(context.getVariables().getHashMap());
+        }
 
-		if (pivot.getChild("variables") != null) {
-			variables.loadFromXmlNode(pivot.getChild("variables").getChildren());
-		}
-		// execution des éventuelles fonctions chargées dans la table de
-		variables.executeFunctions();
-	}
+        if (pivot.getChild("variables") != null) {
+            variables.loadFromXmlNode(pivot.getChild("variables").getChildren());
+        }
+        // execution des éventuelles fonctions chargées dans la table de
+        variables.executeFunctions();
+    }
 
-	public SearchControls getContraintes() {
-		return contraintes;
-	}
+    public SearchControls getContraintes() {
+        return contraintes;
+    }
 
-	public void setContraintes(final SearchControls contraintes) {
-		this.contraintes = contraintes;
-	}
+    public void setContraintes(final SearchControls contraintes) {
+        this.contraintes = contraintes;
+    }
 
-	public DirContext getCtx() {
-		return ctx;
-	}
+    public DirContext getCtx() {
+        return ctx;
+    }
 
-	public void setCtx(final DirContext ctx) {
-		this.ctx = ctx;
-	}
+    public void setCtx(final DirContext ctx) {
+        this.ctx = ctx;
+    }
 
 }

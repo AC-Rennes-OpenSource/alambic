@@ -16,78 +16,78 @@
  ******************************************************************************/
 package fr.gouv.education.acrennes.alambic.jobs;
 
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Properties;
-import java.util.concurrent.Future;
-
 import fr.gouv.education.acrennes.alambic.exception.AlambicException;
+import fr.gouv.education.acrennes.alambic.monitoring.ActivityMBean;
+import fr.gouv.education.acrennes.alambic.utils.Variables;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.jdom2.Document;
 import org.jdom2.Element;
 import org.jdom2.JDOMException;
 
-import fr.gouv.education.acrennes.alambic.monitoring.ActivityMBean;
-import fr.gouv.education.acrennes.alambic.utils.Variables;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Properties;
+import java.util.concurrent.Future;
 
 public class Jobs {
-	
-	private static final Log log = LogFactory.getLog(Jobs.class);
-	private CallableContext ctxt;
 
-	public Jobs(final String executionPath, final String fichierXml, final Variables variables, final Properties configuration) throws IOException, AlambicException, JDOMException {
-		Document jobsDocument = JobHelper.parse(fichierXml);
-				
-		// load the file local variables (added to the variables previously loaded from the file variables.xml) 
-		List<Element> varEntries = JobHelper.getVariables(jobsDocument);
-		if (varEntries != null && !varEntries.isEmpty()) {
-			variables.loadFromXmlNode(varEntries);
-		}
-		
-		// initialize the execution context of the jobs
-		ctxt = new JobContext(executionPath, jobsDocument, variables, configuration);
-	}
+    private static final Log log = LogFactory.getLog(Jobs.class);
+    private final CallableContext ctxt;
 
-	public List<Future<ActivityMBean>> executeAllJobs(final String runId) throws AlambicException {
-		final List<Future<ActivityMBean>> list = new ArrayList<Future<ActivityMBean>>();
-		List<Element> jobsList = JobHelper.getJobs(this.ctxt.getJobDocument());
-		for (final Element job : jobsList) {
-			list.add(executeJob(ctxt, job, runId));
-		}
-		return list;
-	}
+    public Jobs(final String executionPath, final String fichierXml, final Variables variables, final Properties configuration)
+            throws IOException, AlambicException, JDOMException {
+        Document jobsDocument = JobHelper.parse(fichierXml);
 
-	public List<Future<ActivityMBean>> executeJobList(final List<String> tasksList, final String runId) {
-		final List<Future<ActivityMBean>> list = new ArrayList<>();
-		for (String task : tasksList) {
-			try {
-				Element jobDefinition = JobHelper.getJobDefinition(this.ctxt.getJobDocument(), task);
-				if (null != jobDefinition) {
-					list.add(executeJob(ctxt, jobDefinition, runId));
-				} else {
-					log.error("Tache [" + task + "] inconnue");					
-				}
-			} catch (final Exception e) {
-				log.error("Erreur à l'execution de la tache [" + task + "] ", e);
-			}
-		}
+        // load the file local variables (added to the variables previously loaded from the file variables.xml)
+        List<Element> varEntries = JobHelper.getVariables(jobsDocument);
+        if (varEntries != null && !varEntries.isEmpty()) {
+            variables.loadFromXmlNode(varEntries);
+        }
 
-		return list;
-	}
+        // initialize the execution context of the jobs
+        ctxt = new JobContext(executionPath, jobsDocument, variables, configuration);
+    }
 
-	private Future<ActivityMBean> executeJob(final CallableContext context, final Element job, final String runId) throws AlambicException {
-		Future<ActivityMBean> jobFuture = null;
+    public List<Future<ActivityMBean>> executeAllJobs(final String runId) throws AlambicException {
+        final List<Future<ActivityMBean>> list = new ArrayList<Future<ActivityMBean>>();
+        List<Element> jobsList = JobHelper.getJobs(this.ctxt.getJobDocument());
+        for (final Element job : jobsList) {
+            list.add(executeJob(ctxt, job, runId));
+        }
+        return list;
+    }
 
-		try {
-			final JobRunner runnableJob = new JobRunner(context, job, runId);
-			jobFuture = ExecutorFactory.submitJob(runnableJob);
-		} catch (final Exception e) {
-			throw new AlambicException(e);
-		}
+    public List<Future<ActivityMBean>> executeJobList(final List<String> tasksList, final String runId) {
+        final List<Future<ActivityMBean>> list = new ArrayList<>();
+        for (String task : tasksList) {
+            try {
+                Element jobDefinition = JobHelper.getJobDefinition(this.ctxt.getJobDocument(), task);
+                if (null != jobDefinition) {
+                    list.add(executeJob(ctxt, jobDefinition, runId));
+                } else {
+                    log.error("Tache [" + task + "] inconnue");
+                }
+            } catch (final Exception e) {
+                log.error("Erreur à l'execution de la tache [" + task + "] ", e);
+            }
+        }
 
-		return jobFuture;
-	}
+        return list;
+    }
+
+    private Future<ActivityMBean> executeJob(final CallableContext context, final Element job, final String runId) throws AlambicException {
+        Future<ActivityMBean> jobFuture = null;
+
+        try {
+            final JobRunner runnableJob = new JobRunner(context, job, runId);
+            jobFuture = ExecutorFactory.submitJob(runnableJob);
+        } catch (final Exception e) {
+            throw new AlambicException(e);
+        }
+
+        return jobFuture;
+    }
 
 }

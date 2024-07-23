@@ -18,12 +18,12 @@ package fr.gouv.education.acrennes.alambic.jobs.stats;
 
 import fr.gouv.education.acrennes.alambic.ldap.LdapExtraction;
 
-public class LdapStatsProfilsOrga extends LdapExtraction{
+public class LdapStatsProfilsOrga extends LdapExtraction {
 
-	public LdapStatsProfilsOrga(String driver, String url, String login,
-			String pwd, String query, String[] attributeList, String[] profileList) {
-		super(driver, url, login, pwd, query, attributeList);
-		// TODO Auto-generated constructor stub
-	}
+    public LdapStatsProfilsOrga(String driver, String url, String login,
+                                String pwd, String query, String[] attributeList, String[] profileList) {
+        super(driver, url, login, pwd, query, attributeList);
+        // TODO Auto-generated constructor stub
+    }
 
 }

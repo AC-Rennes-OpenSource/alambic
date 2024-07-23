@@ -16,80 +16,75 @@
  ******************************************************************************/
 package fr.gouv.education.acrennes.alambic.random.persistence;
 
-import java.io.Serializable;
-
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
-
 import org.eclipse.persistence.annotations.Index;
 import org.eclipse.persistence.annotations.Indexes;
 
+import javax.persistence.*;
+import java.io.Serializable;
+
 /**
  * This entity may be used to store the blur identifier used to anonymise an entry.
- * 
+ *
  * @author mberhaut1
  */
 
 @Entity
 @Indexes({
-		@Index(name = "randombluridentity_pk_idx", unique = true, columnNames = { "id" }),
-		@Index(name = "randombluridentity_signature_idx", columnNames = { "signature" })
+        @Index(name = "randombluridentity_pk_idx", unique = true, columnNames = { "id" }),
+        @Index(name = "randombluridentity_signature_idx", columnNames = { "signature" })
 })
 public class RandomBlurIDEntity implements Serializable {
 
-	private static final long serialVersionUID = 1L;
+    private static final long serialVersionUID = 1L;
 
 //	private static final Log log = LogFactory.getLog(RandomBlurIDEntity.class);
 
-	@Id
-	@GeneratedValue(strategy = GenerationType.SEQUENCE)
-	@Column(name = "id")
-	private Long id;
+    @Id
+    @GeneratedValue(strategy = GenerationType.SEQUENCE)
+    @Column(name = "id")
+    private Long id;
 
-	@Column(name = "signature")
-	private String signature;
+    @Column(name = "signature")
+    private String signature;
 
-	@Column(name = "blurid")
-	private String blurid;
-	
-	public RandomBlurIDEntity() {
-	}
+    @Column(name = "blurid")
+    private String blurid;
 
-	public RandomBlurIDEntity(final String signature, final String blur_id) {
-		this.signature = signature;
-		this.blurid = blur_id;
-	}
+    public RandomBlurIDEntity() {
+    }
 
-	public Long getId() {
-		return id;
-	}
+    public RandomBlurIDEntity(final String signature, final String blur_id) {
+        this.signature = signature;
+        this.blurid = blur_id;
+    }
 
-	public void setId(final Long id) {
-		this.id = id;
-	}
+    public Long getId() {
+        return id;
+    }
 
-	public String getSignature() {
-		return signature;
-	}
+    public void setId(final Long id) {
+        this.id = id;
+    }
 
-	public void setSignature(String signature) {
-		this.signature = signature;
-	}
+    public String getSignature() {
+        return signature;
+    }
 
-	public String getBlurid() {
-		return blurid;
-	}
+    public void setSignature(String signature) {
+        this.signature = signature;
+    }
 
-	public void setBlurid(String blurid) {
-		this.blurid = blurid;
-	}
+    public String getBlurid() {
+        return blurid;
+    }
 
-	@Override
-	public String toString() {
-		return "{\"id\":" + this.id + ", \"signature\":\"" + this.signature + "\", \"blurid\":\"" + this.blurid + "\"}";
-	}
+    public void setBlurid(String blurid) {
+        this.blurid = blurid;
+    }
+
+    @Override
+    public String toString() {
+        return "{\"id\":" + this.id + ", \"signature\":\"" + this.signature + "\", \"blurid\":\"" + this.blurid + "\"}";
+    }
 
 }

@@ -18,7 +18,6 @@ package fr.gouv.education.acrennes.alambic.jobs.extract.sources;
 
 import fr.gouv.education.acrennes.alambic.exception.AlambicException;
 import fr.gouv.education.acrennes.alambic.jobs.CallableContext;
-import fr.gouv.education.acrennes.alambic.jobs.extract.clients.BlurIdToStateBase;
 import fr.gouv.education.acrennes.alambic.jobs.extract.clients.GecirBlurIdToStateBase;
 import fr.gouv.education.acrennes.alambic.utils.Functions;
 import org.apache.commons.lang.StringUtils;
@@ -28,25 +27,25 @@ import org.jdom2.Element;
 
 public class GecirBlurIdSource extends AbstractSource {
 
-	private static final Log log = LogFactory.getLog(GecirBlurIdSource.class);
+    private static final Log log = LogFactory.getLog(GecirBlurIdSource.class);
 
-	public GecirBlurIdSource(final CallableContext context, final Element sourceNode) throws AlambicException {
-		super(context, sourceNode);
-	}
+    public GecirBlurIdSource(final CallableContext context, final Element sourceNode) throws AlambicException {
+        super(context, sourceNode);
+    }
 
-	@Override
-	public void initialize(Element sourceNode) {
-		String salt = sourceNode.getChildText("salt");
-		if (StringUtils.isBlank(salt)) {
-			log.error("l'élément de configuration <salt> est absent");
-		} else {
-			try {
-				salt = Functions.getInstance().executeAllFunctions(context.resolveString(salt));
-				setClient(new GecirBlurIdToStateBase(salt));
-			} catch (Exception e) {
-				log.error("Failed to instanciate the client of source '" + getName() + "', error:" + e.getMessage());
-			}		
-		}
-	}
+    @Override
+    public void initialize(Element sourceNode) {
+        String salt = sourceNode.getChildText("salt");
+        if (StringUtils.isBlank(salt)) {
+            log.error("l'élément de configuration <salt> est absent");
+        } else {
+            try {
+                salt = Functions.getInstance().executeAllFunctions(context.resolveString(salt));
+                setClient(new GecirBlurIdToStateBase(salt));
+            } catch (Exception e) {
+                log.error("Failed to instanciate the client of source '" + getName() + "', error:" + e.getMessage());
+            }
+        }
+    }
 
 }

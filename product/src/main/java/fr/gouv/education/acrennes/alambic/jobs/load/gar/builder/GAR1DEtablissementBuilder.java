@@ -63,7 +63,8 @@ public class GAR1DEtablissementBuilder extends GAR1DBuilder {
 
         garEtab.setGARStructureUAI(getMandatoryAttribute(entity, "ENTStructureUAI"));
         garEtab.setGARStructureNomCourant(getMandatoryAttribute(entity, "ENTDisplayName"));
-        handleOptionalAttribute(entity, "ENTEtablissementContrat", contrat -> garEtab.setGARStructureContrat(GARHelper.getInstance().getSDETCompliantContractValue(contrat)));
+        handleOptionalAttribute(entity, "ENTEtablissementContrat",
+                contrat -> garEtab.setGARStructureContrat(GARHelper.getInstance().getSDETCompliantContractValue(contrat)));
         handleOptionalAttribute(entity, "telephoneNumber", garEtab::setGARStructureTelephone);
         garEtab.setGARStructureEmail(String.format("ce.%s@ac-rennes.fr", garEtab.getGARStructureUAI()));
 
@@ -74,7 +75,8 @@ public class GAR1DEtablissementBuilder extends GAR1DBuilder {
 
         private GARENTEtab container;
 
-        protected GARENTEtabWriter(ObjectFactory factory, String version, int page, int maxNodesCount, String output, String xsdFile) throws JAXBException, SAXException {
+        protected GARENTEtabWriter(ObjectFactory factory, String version, int page, int maxNodesCount, String output, String xsdFile)
+                throws JAXBException, SAXException {
             super(factory, version, page, maxNodesCount, output);
             container = factory.createGARENTEtab();
             container.setVersion(version);

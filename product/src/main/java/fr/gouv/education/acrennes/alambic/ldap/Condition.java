@@ -16,38 +16,38 @@
  ******************************************************************************/
 package fr.gouv.education.acrennes.alambic.ldap;
 
+import fr.gouv.education.acrennes.alambic.utils.Variables;
+import org.mvel2.MVEL;
+
 import java.io.Serializable;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import fr.gouv.education.acrennes.alambic.utils.Variables;
-import org.mvel2.MVEL;
-
 public class Condition {
-    private String condition;
+    private final String condition;
     @SuppressWarnings("rawtypes")
-	private Map vars = new HashMap();
+    private final Map vars = new HashMap();
 
     @SuppressWarnings("unchecked")
-	public Condition(String condition,
-		             Map<String, List<Map<String, List<String>>>> stateBaseList,
-			         Variables variables) {
+    public Condition(String condition,
+                     Map<String, List<Map<String, List<String>>>> stateBaseList,
+                     Variables variables) {
         this.condition = condition;
-		if (condition!=null){
-          vars.put("variables", variables.getHashMap());
-          vars.put("statebases", stateBaseList);
-		}
+        if (condition != null) {
+            vars.put("variables", variables.getHashMap());
+            vars.put("statebases", stateBaseList);
+        }
     }
-	
-	public boolean eval(){
-		if (condition==null){
-			return true;
-		}
+
+    public boolean eval() {
+        if (condition == null) {
+            return true;
+        }
         Serializable expression = MVEL.compileExpression(condition);
-		Boolean result = (Boolean) MVEL.executeExpression(expression, vars);
+        Boolean result = (Boolean) MVEL.executeExpression(expression, vars);
         return result;
-	}
-	
+    }
+
 
 }

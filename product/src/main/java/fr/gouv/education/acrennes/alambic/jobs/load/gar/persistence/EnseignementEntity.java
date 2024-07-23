@@ -16,126 +16,120 @@
  ******************************************************************************/
 package fr.gouv.education.acrennes.alambic.jobs.load.gar.persistence;
 
-import java.io.Serializable;
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.EnumType;
-import javax.persistence.Enumerated;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
 import org.eclipse.persistence.annotations.Index;
 import org.eclipse.persistence.annotations.Indexes;
 
+import javax.persistence.*;
+import java.io.Serializable;
+
 @Entity
 @Indexes({
-		@Index(name = "enseignemententity_pk_idx", unique = true, columnNames = { "id" })
+        @Index(name = "enseignemententity_pk_idx", unique = true, columnNames = { "id" })
 })
 public class EnseignementEntity implements Serializable {
 
-	private static final long serialVersionUID = 1L;
+    private static final long serialVersionUID = 1L;
 
-	public enum ENSEIGNEMENT_TYPE {
-		DISCIPLINE,
-		GROUPE_MATIERE,
-		CLASSE_MATIERE,
-		MEF
-	}
-	
-	@Id
-	@GeneratedValue(strategy = GenerationType.SEQUENCE)
-	@Column(name = "id")
-	private Long id;
+    public enum ENSEIGNEMENT_TYPE {
+        DISCIPLINE,
+        GROUPE_MATIERE,
+        CLASSE_MATIERE,
+        MEF
+    }
 
-	@Column(name = "sourceSI")
-	private String sourceSI;
+    @Id
+    @GeneratedValue(strategy = GenerationType.SEQUENCE)
+    @Column(name = "id")
+    private Long id;
 
-	@Enumerated(EnumType.STRING)
-	@Column(name = "type")
-	private ENSEIGNEMENT_TYPE type;
+    @Column(name = "sourceSI")
+    private String sourceSI;
 
-	@Column(name = "code")
-	private String code;
+    @Enumerated(EnumType.STRING)
+    @Column(name = "type")
+    private ENSEIGNEMENT_TYPE type;
 
-	@Column(name = "divOrGrpCode")
-	private String divOrGrpCode;
+    @Column(name = "code")
+    private String code;
 
-	public EnseignementEntity() {
-	}
+    @Column(name = "divOrGrpCode")
+    private String divOrGrpCode;
 
-	public EnseignementEntity(final String sourceSI, final String code, final String divOrGrpCode, final ENSEIGNEMENT_TYPE type) {
-		setSourceSI(sourceSI);
-		setCode(code);
-		setDivOrGrpCode(divOrGrpCode);
-		setType(type);
-	}
+    public EnseignementEntity() {
+    }
 
-	public Long getId() {
-		return id;
-	}
+    public EnseignementEntity(final String sourceSI, final String code, final String divOrGrpCode, final ENSEIGNEMENT_TYPE type) {
+        setSourceSI(sourceSI);
+        setCode(code);
+        setDivOrGrpCode(divOrGrpCode);
+        setType(type);
+    }
 
-	public void setId(final Long id) {
-		this.id = id;
-	}
+    public Long getId() {
+        return id;
+    }
 
-	public String getSourceSI() {
-		return sourceSI;
-	}
+    public void setId(final Long id) {
+        this.id = id;
+    }
 
-	public void setSourceSI(String sourceSI) {
-		this.sourceSI = sourceSI;
-	}
+    public String getSourceSI() {
+        return sourceSI;
+    }
 
-	public String getCode() {
-		return code;
-	}
+    public void setSourceSI(String sourceSI) {
+        this.sourceSI = sourceSI;
+    }
 
-	public void setCode(final String code) {
-		this.code = code;
-	}
+    public String getCode() {
+        return code;
+    }
 
-	public String getDivOrGrpCode() {
-		return divOrGrpCode;
-	}
+    public void setCode(final String code) {
+        this.code = code;
+    }
 
-	public void setDivOrGrpCode(final String libelle) {
-		this.divOrGrpCode = libelle;
-	}
+    public String getDivOrGrpCode() {
+        return divOrGrpCode;
+    }
 
-	public ENSEIGNEMENT_TYPE getType() {
-		return type;
-	}
+    public void setDivOrGrpCode(final String libelle) {
+        this.divOrGrpCode = libelle;
+    }
 
-	public void setType(final ENSEIGNEMENT_TYPE type) {
-		this.type = type;
-	}
+    public ENSEIGNEMENT_TYPE getType() {
+        return type;
+    }
 
-	@Override
-	public boolean equals(final Object obj) {
-		boolean isEqual = false;
+    public void setType(final ENSEIGNEMENT_TYPE type) {
+        this.type = type;
+    }
 
-		if (obj == this) {
-			isEqual = true;
-		} else if (null != obj) {
-			if (obj instanceof EnseignementEntity) {
-				EnseignementEntity other = (EnseignementEntity) obj;
-				isEqual = type.equals(other.getType()) 
-						&& ((null != code) ? code.equals(other.getCode()) : null == other.getCode()) 
-						&& divOrGrpCode.equals(other.getDivOrGrpCode());
-			}
-		}
+    @Override
+    public boolean equals(final Object obj) {
+        boolean isEqual = false;
 
-		return isEqual;
-	}
+        if (obj == this) {
+            isEqual = true;
+        } else if (null != obj) {
+            if (obj instanceof final EnseignementEntity other) {
+                isEqual = type.equals(other.getType())
+                          && ((null != code) ? code.equals(other.getCode()) : null == other.getCode())
+                          && divOrGrpCode.equals(other.getDivOrGrpCode());
+            }
+        }
 
-	@Override
-	public String toString() {
-		return "{\"type\":\"" + type + "\",\"code\":\"" + code + "\",\"divOrGrpCode\":\"" + divOrGrpCode + "\"}";
-	}
+        return isEqual;
+    }
 
-	@Override
-	public int hashCode() {
-		return "EnseignementEntity::".concat(toString()).hashCode();
-	}
+    @Override
+    public String toString() {
+        return "{\"type\":\"" + type + "\",\"code\":\"" + code + "\",\"divOrGrpCode\":\"" + divOrGrpCode + "\"}";
+    }
+
+    @Override
+    public int hashCode() {
+        return "EnseignementEntity::".concat(toString()).hashCode();
+    }
 
 }

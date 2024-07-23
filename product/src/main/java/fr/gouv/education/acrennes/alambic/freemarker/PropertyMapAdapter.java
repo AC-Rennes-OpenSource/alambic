@@ -16,64 +16,59 @@
  ******************************************************************************/
 package fr.gouv.education.acrennes.alambic.freemarker;
 
+import freemarker.ext.beans.BeansWrapper;
+import freemarker.ext.beans.CollectionModel;
+import freemarker.template.*;
+import org.nuxeo.ecm.automation.client.model.PropertyMap;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
-import org.nuxeo.ecm.automation.client.model.PropertyMap;
-import freemarker.ext.beans.BeansWrapper;
-import freemarker.ext.beans.CollectionModel;
-import freemarker.template.AdapterTemplateModel;
-import freemarker.template.ObjectWrapper;
-import freemarker.template.TemplateCollectionModel;
-import freemarker.template.TemplateHashModelEx;
-import freemarker.template.TemplateModel;
-import freemarker.template.TemplateModelException;
-import freemarker.template.WrappingTemplateModel;
 
 public class PropertyMapAdapter extends WrappingTemplateModel implements
-		TemplateHashModelEx, AdapterTemplateModel {
+        TemplateHashModelEx, AdapterTemplateModel {
 
-	private final PropertyMap propertyMap;
+    private final PropertyMap propertyMap;
 
-	public PropertyMapAdapter(final PropertyMap propertyMap, final ObjectWrapper ow) {
-		super(ow);
-		this.propertyMap = propertyMap;
-	}
+    public PropertyMapAdapter(final PropertyMap propertyMap, final ObjectWrapper ow) {
+        super(ow);
+        this.propertyMap = propertyMap;
+    }
 
-	@SuppressWarnings("rawtypes")
-	@Override
-	public Object getAdaptedObject(final Class hint) {
-		return propertyMap;
-	}
+    @SuppressWarnings("rawtypes")
+    @Override
+    public Object getAdaptedObject(final Class hint) {
+        return propertyMap;
+    }
 
-	@Override
-	public TemplateModel get(final String key) throws TemplateModelException {
-		return wrap(propertyMap.get(key));
-	}
+    @Override
+    public TemplateModel get(final String key) throws TemplateModelException {
+        return wrap(propertyMap.get(key));
+    }
 
-	@Override
-	public boolean isEmpty() throws TemplateModelException {
-		return propertyMap.isEmpty();
-	}
+    @Override
+    public boolean isEmpty() throws TemplateModelException {
+        return propertyMap.isEmpty();
+    }
 
-	@Override
-	public int size() throws TemplateModelException {
-		return propertyMap.size();
-	}
+    @Override
+    public int size() throws TemplateModelException {
+        return propertyMap.size();
+    }
 
-	@Override
-	public TemplateCollectionModel keys() throws TemplateModelException {
-		Set<String> keys = propertyMap.getKeys();
-		return new CollectionModel(keys, (BeansWrapper) getObjectWrapper());
-	}
+    @Override
+    public TemplateCollectionModel keys() throws TemplateModelException {
+        Set<String> keys = propertyMap.getKeys();
+        return new CollectionModel(keys, (BeansWrapper) getObjectWrapper());
+    }
 
-	@Override
-	public TemplateCollectionModel values() throws TemplateModelException {
-		List<String> values = new ArrayList<>();
-		Set<String> keys = propertyMap.getKeys();
-		for (String key : keys) {
-			values.add(propertyMap.get(key).toString());
-		}
-		return new CollectionModel(values, (BeansWrapper) getObjectWrapper());
-	}
+    @Override
+    public TemplateCollectionModel values() throws TemplateModelException {
+        List<String> values = new ArrayList<>();
+        Set<String> keys = propertyMap.getKeys();
+        for (String key : keys) {
+            values.add(propertyMap.get(key).toString());
+        }
+        return new CollectionModel(values, (BeansWrapper) getObjectWrapper());
+    }
 }

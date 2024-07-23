@@ -40,7 +40,8 @@ public class GAR1DRespAffBuilderTest extends GAR1DBuilderTestUtils {
         Source mockedStructures = PowerMockito.mock(LDAPSource.class);
         Source mockedEntries = PowerMockito.mock(LDAPSource.class);
         List<Map<String, List<String>>> structuresMaps = new ArrayList<>();
-        Stream.of("0351234A", "0354321B", "0352143C").forEach(uai -> structuresMaps.add(Collections.singletonMap("ENTStructureUAI", Collections.singletonList(uai))));
+        Stream.of("0351234A", "0354321B", "0352143C").forEach(uai -> structuresMaps.add(Collections.singletonMap("ENTStructureUAI",
+                Collections.singletonList(uai))));
         PowerMockito.when(mockedStructures.getEntries()).thenReturn(structuresMaps);
         PowerMockito.when(mockedEntries.getEntries()).thenReturn(null);
         Map<String, Source> resources = new HashMap<>();
@@ -119,11 +120,11 @@ public class GAR1DRespAffBuilderTest extends GAR1DBuilderTestUtils {
 
     private boolean garRespAffEquals(GARRespAff expected, GARRespAff actual) {
         return StringUtils.equals(expected.getGARPersonIdentifiant(), actual.getGARPersonIdentifiant()) &&
-                StringUtils.equals(expected.getGARPersonNom(), actual.getGARPersonNom()) &&
-                StringUtils.equals(expected.getGARPersonPrenom(), actual.getGARPersonPrenom()) &&
-                StringUtils.equals(expected.getGARPersonCivilite(), actual.getGARPersonCivilite()) &&
-                listsEquals(expected.getGARRespAffEtab(), actual.getGARRespAffEtab(), this::stringListsEquals) &&
-                listsEquals(expected.getGARPersonMail(), actual.getGARPersonMail(), this::stringListsEquals);
+               StringUtils.equals(expected.getGARPersonNom(), actual.getGARPersonNom()) &&
+               StringUtils.equals(expected.getGARPersonPrenom(), actual.getGARPersonPrenom()) &&
+               StringUtils.equals(expected.getGARPersonCivilite(), actual.getGARPersonCivilite()) &&
+               listsEquals(expected.getGARRespAffEtab(), actual.getGARRespAffEtab(), this::stringListsEquals) &&
+               listsEquals(expected.getGARPersonMail(), actual.getGARPersonMail(), this::stringListsEquals);
     }
 
 }

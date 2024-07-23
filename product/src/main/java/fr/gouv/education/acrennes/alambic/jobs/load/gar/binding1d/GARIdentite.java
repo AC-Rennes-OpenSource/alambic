@@ -8,20 +8,16 @@
 
 package fr.gouv.education.acrennes.alambic.jobs.load.gar.binding1d;
 
+import javax.xml.bind.annotation.*;
 import java.util.ArrayList;
 import java.util.List;
-import javax.xml.bind.annotation.XmlAccessType;
-import javax.xml.bind.annotation.XmlAccessorType;
-import javax.xml.bind.annotation.XmlElement;
-import javax.xml.bind.annotation.XmlSeeAlso;
-import javax.xml.bind.annotation.XmlType;
 
 
 /**
  * <p>Classe Java pour GARIdentite complex type.
- * 
+ *
  * <p>Le fragment de schéma suivant indique le contenu attendu figurant dans cette classe.
- * 
+ *
  * <pre>
  * &lt;complexType name="GARIdentite">
  *   &lt;complexContent>
@@ -41,24 +37,24 @@ import javax.xml.bind.annotation.XmlType;
  *   &lt;/complexContent>
  * &lt;/complexType>
  * </pre>
- * 
- * 
+ *
+ *
  */
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlType(name = "GARIdentite", propOrder = {
-    "garPersonIdentifiant",
-    "garPersonProfils",
-    "garPersonIdSecondaire",
-    "garPersonNomPatro",
-    "garPersonNom",
-    "garPersonPrenom",
-    "garPersonAutresPrenoms",
-    "garPersonCivilite",
-    "garPersonStructRattach"
+        "garPersonIdentifiant",
+        "garPersonProfils",
+        "garPersonIdSecondaire",
+        "garPersonNomPatro",
+        "garPersonNom",
+        "garPersonPrenom",
+        "garPersonAutresPrenoms",
+        "garPersonCivilite",
+        "garPersonStructRattach"
 })
 @XmlSeeAlso({
-    GAREnseignant.class,
-    GAREleve.class
+        GAREnseignant.class,
+        GAREleve.class
 })
 public class GARIdentite {
 
@@ -83,11 +79,11 @@ public class GARIdentite {
 
     /**
      * Obtient la valeur de la propriété garPersonIdentifiant.
-     * 
+     *
      * @return
      *     possible object is
      *     {@link String }
-     *     
+     *
      */
     public String getGARPersonIdentifiant() {
         return garPersonIdentifiant;
@@ -95,11 +91,11 @@ public class GARIdentite {
 
     /**
      * Définit la valeur de la propriété garPersonIdentifiant.
-     * 
+     *
      * @param value
      *     allowed object is
      *     {@link String }
-     *     
+     *
      */
     public void setGARPersonIdentifiant(String value) {
         this.garPersonIdentifiant = value;
@@ -107,25 +103,25 @@ public class GARIdentite {
 
     /**
      * Gets the value of the garPersonProfils property.
-     * 
+     *
      * <p>
      * This accessor method returns a reference to the live list,
      * not a snapshot. Therefore any modification you make to the
      * returned list will be present inside the JAXB object.
      * This is why there is not a <CODE>set</CODE> method for the garPersonProfils property.
-     * 
+     *
      * <p>
      * For example, to add a new item, do as follows:
      * <pre>
      *    getGARPersonProfils().add(newItem);
      * </pre>
-     * 
-     * 
+     *
+     *
      * <p>
      * Objects of the following type(s) are allowed in the list
      * {@link GARPersonProfils }
-     * 
-     * 
+     *
+     *
      */
     public List<GARPersonProfils> getGARPersonProfils() {
         if (garPersonProfils == null) {
@@ -136,11 +132,11 @@ public class GARIdentite {
 
     /**
      * Obtient la valeur de la propriété garPersonIdSecondaire.
-     * 
+     *
      * @return
      *     possible object is
      *     {@link String }
-     *     
+     *
      */
     public String getGARPersonIdSecondaire() {
         return garPersonIdSecondaire;
@@ -148,11 +144,11 @@ public class GARIdentite {
 
     /**
      * Définit la valeur de la propriété garPersonIdSecondaire.
-     * 
+     *
      * @param value
      *     allowed object is
      *     {@link String }
-     *     
+     *
      */
     public void setGARPersonIdSecondaire(String value) {
         this.garPersonIdSecondaire = value;
@@ -160,11 +156,11 @@ public class GARIdentite {
 
     /**
      * Obtient la valeur de la propriété garPersonNomPatro.
-     * 
+     *
      * @return
      *     possible object is
      *     {@link String }
-     *     
+     *
      */
     public String getGARPersonNomPatro() {
         return garPersonNomPatro;
@@ -172,11 +168,11 @@ public class GARIdentite {
 
     /**
      * Définit la valeur de la propriété garPersonNomPatro.
-     * 
+     *
      * @param value
      *     allowed object is
      *     {@link String }
-     *     
+     *
      */
     public void setGARPersonNomPatro(String value) {
         this.garPersonNomPatro = value;
@@ -184,11 +180,11 @@ public class GARIdentite {
 
     /**
      * Obtient la valeur de la propriété garPersonNom.
-     * 
+     *
      * @return
      *     possible object is
      *     {@link String }
-     *     
+     *
      */
     public String getGARPersonNom() {
         return garPersonNom;
@@ -196,11 +192,11 @@ public class GARIdentite {
 
     /**
      * Définit la valeur de la propriété garPersonNom.
-     * 
+     *
      * @param value
      *     allowed object is
      *     {@link String }
-     *     
+     *
      */
     public void setGARPersonNom(String value) {
         this.garPersonNom = value;
@@ -208,11 +204,11 @@ public class GARIdentite {
 
     /**
      * Obtient la valeur de la propriété garPersonPrenom.
-     * 
+     *
      * @return
      *     possible object is
      *     {@link String }
-     *     
+     *
      */
     public String getGARPersonPrenom() {
         return garPersonPrenom;
@@ -220,11 +216,11 @@ public class GARIdentite {
 
     /**
      * Définit la valeur de la propriété garPersonPrenom.
-     * 
+     *
      * @param value
      *     allowed object is
      *     {@link String }
-     *     
+     *
      */
     public void setGARPersonPrenom(String value) {
         this.garPersonPrenom = value;
@@ -232,25 +228,25 @@ public class GARIdentite {
 
     /**
      * Gets the value of the garPersonAutresPrenoms property.
-     * 
+     *
      * <p>
      * This accessor method returns a reference to the live list,
      * not a snapshot. Therefore any modification you make to the
      * returned list will be present inside the JAXB object.
      * This is why there is not a <CODE>set</CODE> method for the garPersonAutresPrenoms property.
-     * 
+     *
      * <p>
      * For example, to add a new item, do as follows:
      * <pre>
      *    getGARPersonAutresPrenoms().add(newItem);
      * </pre>
-     * 
-     * 
+     *
+     *
      * <p>
      * Objects of the following type(s) are allowed in the list
      * {@link String }
-     * 
-     * 
+     *
+     *
      */
     public List<String> getGARPersonAutresPrenoms() {
         if (garPersonAutresPrenoms == null) {
@@ -261,11 +257,11 @@ public class GARIdentite {
 
     /**
      * Obtient la valeur de la propriété garPersonCivilite.
-     * 
+     *
      * @return
      *     possible object is
      *     {@link String }
-     *     
+     *
      */
     public String getGARPersonCivilite() {
         return garPersonCivilite;
@@ -273,11 +269,11 @@ public class GARIdentite {
 
     /**
      * Définit la valeur de la propriété garPersonCivilite.
-     * 
+     *
      * @param value
      *     allowed object is
      *     {@link String }
-     *     
+     *
      */
     public void setGARPersonCivilite(String value) {
         this.garPersonCivilite = value;
@@ -285,11 +281,11 @@ public class GARIdentite {
 
     /**
      * Obtient la valeur de la propriété garPersonStructRattach.
-     * 
+     *
      * @return
      *     possible object is
      *     {@link String }
-     *     
+     *
      */
     public String getGARPersonStructRattach() {
         return garPersonStructRattach;
@@ -297,11 +293,11 @@ public class GARIdentite {
 
     /**
      * Définit la valeur de la propriété garPersonStructRattach.
-     * 
+     *
      * @param value
      *     allowed object is
      *     {@link String }
-     *     
+     *
      */
     public void setGARPersonStructRattach(String value) {
         this.garPersonStructRattach = value;

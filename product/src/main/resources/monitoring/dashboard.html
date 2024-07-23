@@ -1,319 +1,321 @@
 <html>
 <header>
-	<meta charset="UTF-8">
-	<title>Monitoring Dashboard</title>
-	<style>
-   body {
-      background-color: #1a0600;
-   }
+    <meta charset="UTF-8">
+    <title>Monitoring Dashboard</title>
+    <style>
+        body {
+            background-color: #1a0600;
+        }
 
-   .dashboard-header {
-     height: 100px;
-   }
+        .dashboard-header {
+            height: 100px;
+        }
 
-   .dashboard-picto {
-     width: 10%;
-     float: left;
-   }
+        .dashboard-picto {
+            width: 10%;
+            float: left;
+        }
 
-   .dashboard-title {
-#     width: 70%;
-     float: left;
-#     text-align: left;
-     color: lightgray;
-     font-size: 50px;
-   }
+        .dashboard-title {
+            # width: 70%;
+            float: left;
+            # text-align: left;
+            color: lightgray;
+            font-size: 50px;
+        }
 
-	 .dashboard-selector {
-     float: right;
-		 margin: 10px;
-   }
+        .dashboard-selector {
+            float: right;
+            margin: 10px;
+        }
 
-	 .platform-selector-title {
-		 font-size: 20px;
-		 vertical-align: text-top;
-		 color: grey;
-		 padding-right: 10px;
-	 }
+        .platform-selector-title {
+            font-size: 20px;
+            vertical-align: text-top;
+            color: grey;
+            padding-right: 10px;
+        }
 
-	 .platform-select-style {
-		 color: grey;
-     height: 40px;
-     width: 300px;
-     background-color: transparent;
-     background: url(https://maxcdn.icons8.com/Color/PNG/24/User_Interface/menu-24.png) 96% / 15% no-repeat;
-     font-size: 20px;
-     padding-left: 10px;
-	 }
+        .platform-select-style {
+            color: grey;
+            height: 40px;
+            width: 300px;
+            background-color: transparent;
+            background: url(https://maxcdn.icons8.com/Color/PNG/24/User_Interface/menu-24.png) 96% / 15% no-repeat;
+            font-size: 20px;
+            padding-left: 10px;
+        }
 
-   .job-activity {
-     background-color: 404040;
-     margin: 10 10 10 10;
-   }
+        .job-activity {
+            background-color: 404040;
+            margin: 10 10 10 10;
+        }
 
-   .div-dashboard {
-      width: 100%;
-   }
+        .div-dashboard {
+            width: 100%;
+        }
 
-   .progress {
-     width: 100%;
-     height: 20px;
-     background-color: green;
-   }
+        .progress {
+            width: 100%;
+            height: 20px;
+            background-color: green;
+        }
 
-   .label {
-     color: lightgray;
-   }
+        .label {
+            color: lightgray;
+        }
 
-   .mbeanlabel {
-     color: #BF881B;
-     text-transform: uppercase;
-   }
+        .mbeanlabel {
+            color: #BF881B;
+            text-transform: uppercase;
+        }
 
-   .progress-percent {
-     width: 20%;
-     text-align: center;
-   }
+        .progress-percent {
+            width: 20%;
+            text-align: center;
+        }
 
-   .div-processing {
-     height: 20px;
-   }
+        .div-processing {
+            height: 20px;
+        }
 
-   .div-jobname {
-     float: left;
-     width: 60%;
-   }
+        .div-jobname {
+            float: left;
+            width: 60%;
+        }
 
-   .div-duration {
-     float: left;
-     width: 10%;
-     text-align: center;
-     background-color: 595959;
-   }
+        .div-duration {
+            float: left;
+            width: 10%;
+            text-align: center;
+            background-color: 595959;
+        }
 
-   .div-thread {
-     float: left;
-     width: 10%;
-     text-align: center;
-     background-color: 595959;
-   }
+        .div-thread {
+            float: left;
+            width: 10%;
+            text-align: center;
+            background-color: 595959;
+        }
 
-   .div-progress-percent {
-     float: left;
-     width: 10%;
-     text-align: center;
-     background-color: 595959;
-   }
+        .div-progress-percent {
+            float: left;
+            width: 10%;
+            text-align: center;
+            background-color: 595959;
+        }
 
-   .div-status {
-     float: right;
-     width: 10%;
-     text-align: center;
-   }
+        .div-status {
+            float: right;
+            width: 10%;
+            text-align: center;
+        }
 
-   .greenlight {
-     background-color: #3498db;
-   }
+        .greenlight {
+            background-color: #3498db;
+        }
 
-   .orangelight {
-     background-color: #db8733;
-   }
+        .orangelight {
+            background-color: #db8733;
+        }
 
-   .redlight {
-     background-color: #db3333;
-   }
+        .redlight {
+            background-color: #db3333;
+        }
 
-   .processing {
-     text-transform: lowercase;
-     font-style: italic;
-   }
+        .processing {
+            text-transform: lowercase;
+            font-style: italic;
+        }
 
-   .licence {
-     color: lightgray;
-     margin-right: 10;
-     text-align: right;
-   }
-	</style>
+        .licence {
+            color: lightgray;
+            margin-right: 10;
+            text-align: right;
+        }
+    </style>
 </header>
 <body>
-	<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.8.3/jquery.js"></script>
-	<script src="https://ajax.googleapis.com/ajax/libs/jqueryui/1.9.2/jquery-ui.js"></script>
-	<script type="text/javascript" src="jolokia-min.js"></script>
-	<script type="text/javascript" src="jolokia-simple-min.js"></script>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.8.3/jquery.js"></script>
+<script src="https://ajax.googleapis.com/ajax/libs/jqueryui/1.9.2/jquery-ui.js"></script>
+<script type="text/javascript" src="jolokia-min.js"></script>
+<script type="text/javascript" src="jolokia-simple-min.js"></script>
 
-	<script id="source" type="text/javascript">
-	var jolokia = new Jolokia("http://localhost:8778/jolokia");
+<script id="source" type="text/javascript">
+    var jolokia = new Jolokia("http://localhost:8778/jolokia");
 
-  function initialize() {
-		var targetsList = {
-		    'http://localhost:8778/jolokia' : 'Local'
-		};
-		var selectComponent = document.getElementById("target-etl-selector");
-		for(index in targetsList) {
-		    selectComponent.options[selectComponent.options.length] = new Option(targetsList[index], index);
-		}
-	}
+    function initialize() {
+        var targetsList = {
+            'http://localhost:8778/jolokia': 'Local'
+        };
+        var selectComponent = document.getElementById("target-etl-selector");
+        for (index in targetsList) {
+            selectComponent.options[selectComponent.options.length] = new Option(targetsList[index], index);
+        }
+    }
 
-	function setTargetETL(target) {
-		jolokia.stop();
-		jolokia = new Jolokia(target);
-		refreshDashboard = true;
-		completedJobs = [];
-	}
+    function setTargetETL(target) {
+        jolokia.stop();
+        jolokia = new Jolokia(target);
+        refreshDashboard = true;
+        completedJobs = [];
+    }
 
-	function durationFormat(starttime, endtime) {
-		if (typeof endtime == 'undefined' || 0 == endtime) {
-			endtime = (new Date()).getTime();
-		}
-		duration = parseInt((endtime - starttime) / 1000);
-		var fm = [
-		          Math.floor(duration / 60 / 60) % 24, // HOURS
-		          Math.floor(duration / 60) % 60, // MINUTES
-		          duration % 60 // SECONDS
-		  ];
-	      return fm[0] + "h:" + fm[1] + "m:" + fm[2] + "s";
-	}
+    function durationFormat(starttime, endtime) {
+        if (typeof endtime == 'undefined' || 0 == endtime) {
+            endtime = (new Date()).getTime();
+        }
+        duration = parseInt((endtime - starttime) / 1000);
+        var fm = [
+            Math.floor(duration / 60 / 60) % 24, // HOURS
+            Math.floor(duration / 60) % 60, // MINUTES
+            duration % 60 // SECONDS
+        ];
+        return fm[0] + "h:" + fm[1] + "m:" + fm[2] + "s";
+    }
 
-	$(document).ready(function() {
-			initialize();
-	    var completedJobs = [];
-	    var refreshDashboard = true;
-	    var template = document.getElementById("job-activity-template");
-	    var dashboard = document.getElementById("activity-dashboard");
+    $(document).ready(function () {
+        initialize();
+        var completedJobs = [];
+        var refreshDashboard = true;
+        var template = document.getElementById("job-activity-template");
+        var dashboard = document.getElementById("activity-dashboard");
 
-	    setInterval(function() {
-	      <!-- Add newly instanciated jobs into the dashboard -->
-	      jolokia.request(
-			  { type: "read", mbean: "fr.toutatice.alambic.jmx.*:type=Activity" },
-			  { success: function(mbeanList) {
-				  if (refreshDashboard) {
-					refreshDashboard = false;
-					var activities = dashboard.querySelectorAll("div .job-activity");
-					for (var i = 0; i < activities.length; ++i) {
-						dashboard.removeChild(activities[i]);
-					}
-				  }
+        setInterval(function () {
+                <!-- Add newly instanciated jobs into the dashboard -->
+                jolokia.request(
+                    {type: "read", mbean: "fr.toutatice.alambic.jmx.*:type=Activity"},
+                    {
+                        success: function (mbeanList) {
+                            if (refreshDashboard) {
+                                refreshDashboard = false;
+                                var activities = dashboard.querySelectorAll("div .job-activity");
+                                for (var i = 0; i < activities.length; ++i) {
+                                    dashboard.removeChild(activities[i]);
+                                }
+                            }
 
-			      for (var id in mbeanList.value) {
-			    	  var nJobName = mbeanList.value[id].JobName.replace(new RegExp("[^a-zA-Z0-9]+", "g"), '-').toUpperCase();
-			          var jatcID = "JOB" + "-" + nJobName;
-			          if (!document.querySelector("#" + jatcID)) {
-			            console.log("Instrumenting dashboard with the mbean " + id + " : " + JSON.stringify(mbeanList.value[id]));
+                            for (var id in mbeanList.value) {
+                                var nJobName = mbeanList.value[id].JobName.replace(new RegExp("[^a-zA-Z0-9]+", "g"), '-').toUpperCase();
+                                var jatcID = "JOB" + "-" + nJobName;
+                                if (!document.querySelector("#" + jatcID)) {
+                                    console.log("Instrumenting dashboard with the mbean " + id + " : " + JSON.stringify(mbeanList.value[id]));
 
-			            var jatc = template.cloneNode(true);
-			            jatc.id = jatcID;
-			            jatc.removeAttribute("style");
-			            dashboard.appendChild(jatc);
-			            jatcspan = document.querySelector("#" + jatcID + " .jobname");
-			            jatcspan.innerText = nJobName;
-			          }
-			        }
+                                    var jatc = template.cloneNode(true);
+                                    jatc.id = jatcID;
+                                    jatc.removeAttribute("style");
+                                    dashboard.appendChild(jatc);
+                                    jatcspan = document.querySelector("#" + jatcID + " .jobname");
+                                    jatcspan.innerText = nJobName;
+                                }
+                            }
 
-			        <!-- Update the progress board of each active (not completed) job -->
-			        for (var id in mbeanList.value) {
-			          if ($.inArray(id, completedJobs)) { <!-- Effectively check that current bean is NOT completed -->
-			            var nJobName = mbeanList.value[id].JobName.replace(new RegExp("[^a-zA-Z0-9]+", "g"), '-').toUpperCase();
-			            var jatcID = "JOB" + "-" + nJobName;
-			            req1 =   { type: "read", mbean: id, attribute: "Progress" };
-			            req2 =   { type: "read", mbean: id, attribute: "Processing" };
-			            req3 =   { type: "read", mbean: id, attribute: "Status" };
-			            req4 =   { type: "read", mbean: id, attribute: "StartTime" };
-			            req5 =   { type: "read", mbean: id, attribute: "EndTime" };
-			            req6 =   { type: "read", mbean: id, attribute: "Thread" };
-			            req7 =   { type: "read", mbean: id, attribute: "TrafficLight" };
-			            var responses = jolokia.request([req1, req2, req3, req4, req5, req6, req7]); <!-- bulk request -->
-			            console.log("JMX Bean response is : " + JSON.stringify(responses));
-			            jobProgress = document.querySelector("#" + jatcID + " .progress");
-			            console.log("JMX Bean response[0] value is : " + JSON.stringify(responses[0].value));
-			            jobProgress.value = parseInt(responses[0].value);
-			            jobProgressPercent = document.querySelector("#" + jatcID + " .progress-percent");
-			            jobProgressPercent.innerText = responses[0].value + "%";
-			            jobProcessing = document.querySelector("#" + jatcID + " .processing");
-			            jobProcessing.innerText = responses[1].value;
-			            jobStatus = document.querySelector("#" + jatcID + " .status");
-			            jobStatus.innerText = responses[2].value;
-			            jobDivStatus = document.querySelector("#" + jatcID + " .div-status");
-			            if ("RED" == responses[6].value) {
-			            	jobDivStatus.className = "div-status redlight";
-			            } else if ("ORANGE" == responses[6].value) {
-			            	jobDivStatus.className = "div-status orangelight";
-			            } else {
-			            	jobDivStatus.className = "div-status greenlight";
-			            }
-			            jobDuration = document.querySelector("#" + jatcID + " .duration");
-			            jobDuration.innerText = durationFormat(responses[3].value, responses[4].value);
-			            jobThread = document.querySelector("#" + jatcID + " .thread");
-			            jobThread.innerText = responses[5].value;
+                            <!-- Update the progress board of each active (not completed) job -->
+                            for (var id in mbeanList.value) {
+                                if ($.inArray(id, completedJobs)) { <!-- Effectively check that current bean is NOT completed -->
+                                    var nJobName = mbeanList.value[id].JobName.replace(new RegExp("[^a-zA-Z0-9]+", "g"), '-').toUpperCase();
+                                    var jatcID = "JOB" + "-" + nJobName;
+                                    req1 = {type: "read", mbean: id, attribute: "Progress"};
+                                    req2 = {type: "read", mbean: id, attribute: "Processing"};
+                                    req3 = {type: "read", mbean: id, attribute: "Status"};
+                                    req4 = {type: "read", mbean: id, attribute: "StartTime"};
+                                    req5 = {type: "read", mbean: id, attribute: "EndTime"};
+                                    req6 = {type: "read", mbean: id, attribute: "Thread"};
+                                    req7 = {type: "read", mbean: id, attribute: "TrafficLight"};
+                                    var responses = jolokia.request([req1, req2, req3, req4, req5, req6, req7]); <!-- bulk request -->
+                                    console.log("JMX Bean response is : " + JSON.stringify(responses));
+                                    jobProgress = document.querySelector("#" + jatcID + " .progress");
+                                    console.log("JMX Bean response[0] value is : " + JSON.stringify(responses[0].value));
+                                    jobProgress.value = parseInt(responses[0].value);
+                                    jobProgressPercent = document.querySelector("#" + jatcID + " .progress-percent");
+                                    jobProgressPercent.innerText = responses[0].value + "%";
+                                    jobProcessing = document.querySelector("#" + jatcID + " .processing");
+                                    jobProcessing.innerText = responses[1].value;
+                                    jobStatus = document.querySelector("#" + jatcID + " .status");
+                                    jobStatus.innerText = responses[2].value;
+                                    jobDivStatus = document.querySelector("#" + jatcID + " .div-status");
+                                    if ("RED" == responses[6].value) {
+                                        jobDivStatus.className = "div-status redlight";
+                                    } else if ("ORANGE" == responses[6].value) {
+                                        jobDivStatus.className = "div-status orangelight";
+                                    } else {
+                                        jobDivStatus.className = "div-status greenlight";
+                                    }
+                                    jobDuration = document.querySelector("#" + jatcID + " .duration");
+                                    jobDuration.innerText = durationFormat(responses[3].value, responses[4].value);
+                                    jobThread = document.querySelector("#" + jatcID + " .thread");
+                                    jobThread.innerText = responses[5].value;
 
-			            <!-- register the job among those to not monitor any more (reduce network traffic and JVM overload) -->
-			            if ("COMPLETED" == mbeanList.value[id].Status) {
-			              completedJobs.push(id);
-			            }
-			          }
-			        }
-			  	 },
-			  	ajaxError: function(status) {
-			  		refreshDashboard = true;
-			  		completedJobs = [];
-			  	}
-			  }
-	    	);
-	    },
-	    500);
+                                    <!-- register the job among those to not monitor any more (reduce network traffic and JVM overload) -->
+                                    if ("COMPLETED" == mbeanList.value[id].Status) {
+                                        completedJobs.push(id);
+                                    }
+                                }
+                            }
+                        },
+                        ajaxError: function (status) {
+                            refreshDashboard = true;
+                            completedJobs = [];
+                        }
+                    }
+                );
+            },
+            500);
 
-   });
-	</script>
+    });
+</script>
 
-	<div id="activity-dashboard" class="div-dashboard">
-		<div class="dashboard-header">
-			<div class="dashboard-picto">
-				<img class="icon icons8-Whisky-Still"
-					src="data:image/png;base64,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"
-					width="100"
-					height="100">
-			</div>
-			<div class="dashboard-title">
-				<label>Alambic Monitoring Dashboard</label>
-			</div>
-			<div class="dashboard-selector">
-				<span class="platform-selector-title">TARGET PLATFORM</span>
-				<select name="target-etl-selector" id="target-etl-selector" class="platform-select-style" onchange="javascript:setTargetETL(this.options[this.selectedIndex].value)"></select>
-			</div>
-		</div>
-	</div>
+<div id="activity-dashboard" class="div-dashboard">
+    <div class="dashboard-header">
+        <div class="dashboard-picto">
+            <img class="icon icons8-Whisky-Still"
+                 src="data:image/png;base64,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"
+                 width="100"
+                 height="100">
+        </div>
+        <div class="dashboard-title">
+            <label>Alambic Monitoring Dashboard</label>
+        </div>
+        <div class="dashboard-selector">
+            <span class="platform-selector-title">TARGET PLATFORM</span>
+            <select name="target-etl-selector" id="target-etl-selector" class="platform-select-style"
+                    onchange="setTargetETL(this.options[this.selectedIndex].value)"></select>
+        </div>
+    </div>
+</div>
 
-	<hr/>
+<hr/>
 
-	<div class="licence">
-		(Icons powered by : <a href="https://icons8.com" target="_blank">Icon pack by Icons8</a>)
-	</div>
+<div class="licence">
+    (Icons powered by : <a href="https://icons8.com" target="_blank">Icon pack by Icons8</a>)
+</div>
 
-	<!-- template activity dashboard structure -->
-	<div id="job-activity-template" class="job-activity" style="display: none">
-		<div class="div-header">
-			<div class="div-jobname">
-				<label class="label">JOB NAME : </label><span class="jobname mbeanlabel"></span>
-			</div>
-			<div class="div-duration">
-				<span class="duration label"></span>
-			</div>
-			<div class="div-thread">
-				<span class="thread label"></span>
-			</div>
-			<div class="div-progress-percent">
-				<span class="progress-percent label"></span>
-			</div>
-			<div class="div-status greenlight">
-				<span class="status label"></span>
-			</div>
-		</div>
-		<div class="div-progress">
-			<progress class="progress" value="0" max="100"></progress>
-		</div>
-		<div class="div-processing">
-			<label class="label">PROCESSING : </label><span class="processing mbeanlabel">none</span>
-		</div>
-	</div>
+<!-- template activity dashboard structure -->
+<div id="job-activity-template" class="job-activity" style="display: none">
+    <div class="div-header">
+        <div class="div-jobname">
+            <label class="label">JOB NAME : </label><span class="jobname mbeanlabel"></span>
+        </div>
+        <div class="div-duration">
+            <span class="duration label"></span>
+        </div>
+        <div class="div-thread">
+            <span class="thread label"></span>
+        </div>
+        <div class="div-progress-percent">
+            <span class="progress-percent label"></span>
+        </div>
+        <div class="div-status greenlight">
+            <span class="status label"></span>
+        </div>
+    </div>
+    <div class="div-progress">
+        <progress class="progress" value="0" max="100"></progress>
+    </div>
+    <div class="div-processing">
+        <label class="label">PROCESSING : </label><span class="processing mbeanlabel">none</span>
+    </div>
+</div>
 
 </body>
 </html>

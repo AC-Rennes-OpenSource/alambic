@@ -16,58 +16,57 @@
  ******************************************************************************/
 package fr.gouv.education.acrennes.alambic.random.persistence;
 
-import java.io.Serializable;
+import org.eclipse.persistence.annotations.Index;
+import org.eclipse.persistence.annotations.Indexes;
 
 import javax.persistence.Column;
 import javax.persistence.EmbeddedId;
 import javax.persistence.Entity;
-
-import org.eclipse.persistence.annotations.Index;
-import org.eclipse.persistence.annotations.Indexes;
+import java.io.Serializable;
 
 @Entity
 @Indexes({
-	@Index(name = "randomdictionaryentity_pk_idx", unique = true, columnNames = { "id", "elementname" }),
-	@Index(name = "randomdictionaryentity_elementname_idx", columnNames = { "elementname" }),
-	@Index(name = "randomdictionaryentity_id_idx", columnNames = { "id" })
+        @Index(name = "randomdictionaryentity_pk_idx", unique = true, columnNames = { "id", "elementname" }),
+        @Index(name = "randomdictionaryentity_elementname_idx", columnNames = { "elementname" }),
+        @Index(name = "randomdictionaryentity_id_idx", columnNames = { "id" })
 })
 public class RandomDictionaryEntity implements Serializable {
 
-	private static final long serialVersionUID = 1L;
+    private static final long serialVersionUID = 1L;
 
-	@EmbeddedId
-	private RandomDictionaryEntityPK primaryKey;
+    @EmbeddedId
+    private RandomDictionaryEntityPK primaryKey;
 
-	@Column(name = "elementvalue")
-	private String elementvalue;
+    @Column(name = "elementvalue")
+    private String elementvalue;
 
-	public RandomDictionaryEntity() {
-	}
+    public RandomDictionaryEntity() {
+    }
 
-	public RandomDictionaryEntity(final RandomDictionaryEntityPK pk, final String value) {
-		this.primaryKey = pk;
-		this.elementvalue = value;
-	}
+    public RandomDictionaryEntity(final RandomDictionaryEntityPK pk, final String value) {
+        this.primaryKey = pk;
+        this.elementvalue = value;
+    }
 
-	public RandomDictionaryEntityPK getPrimaryKey() {
-		return primaryKey;
-	}
+    public RandomDictionaryEntityPK getPrimaryKey() {
+        return primaryKey;
+    }
 
-	public void setPrimaryKey(final RandomDictionaryEntityPK primaryKey) {
-		this.primaryKey = primaryKey;
-	}
+    public void setPrimaryKey(final RandomDictionaryEntityPK primaryKey) {
+        this.primaryKey = primaryKey;
+    }
 
-	public String getElementvalue() {
-		return elementvalue;
-	}
+    public String getElementvalue() {
+        return elementvalue;
+    }
 
-	public void setElementvalue(String value) {
-		this.elementvalue = value;
-	}
-	
-	@Override
-	public String toString() {
-		return "{\"PK\":" + ((null != this.primaryKey) ? this.primaryKey.toString() : "{}") + ",\"value\":\"" + this.elementvalue + "\"}";
-	}
-	
+    public void setElementvalue(String value) {
+        this.elementvalue = value;
+    }
+
+    @Override
+    public String toString() {
+        return "{\"PK\":" + ((null != this.primaryKey) ? this.primaryKey.toString() : "{}") + ",\"value\":\"" + this.elementvalue + "\"}";
+    }
+
 }

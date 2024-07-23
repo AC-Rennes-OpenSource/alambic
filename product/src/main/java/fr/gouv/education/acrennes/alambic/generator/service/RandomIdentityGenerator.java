@@ -29,125 +29,127 @@ import java.util.Map;
 import java.util.Random;
 
 public class RandomIdentityGenerator extends AbstractRandomGenerator {
-	private static final String QUERY_TOTAL_COUNT_OF_ITEMS = "SELECT count(rie.primaryKey.id) FROM RandomDictionaryEntity rie WHERE rie.primaryKey.elementname = :elementname";
+    private static final String QUERY_TOTAL_COUNT_OF_ITEMS = "SELECT count(rie.primaryKey.id) FROM RandomDictionaryEntity rie WHERE rie.primaryKey" +
+                                                             ".elementname = :elementname";
 
-	public enum IDENTITY_GENDER {
-		FEMALE("FEMALE"),
-		MALE("MALE"),
-		RANDOM("");
+    public enum IDENTITY_GENDER {
+        FEMALE("FEMALE"),
+        MALE("MALE"),
+        RANDOM("");
 
-		private final String capacityFilter;
+        private final String capacityFilter;
 
-		IDENTITY_GENDER(String capacityFilter) {
-			this.capacityFilter = capacityFilter;
-		}
+        IDENTITY_GENDER(String capacityFilter) {
+            this.capacityFilter = capacityFilter;
+        }
 
-		public static IDENTITY_GENDER getRandomGender() {
-			if (rand.nextInt(2) == 0) {
-				return MALE;
-			} else {
-				return FEMALE;
-			}
-		}
+        public static IDENTITY_GENDER getRandomGender() {
+            if (rand.nextInt(2) == 0) {
+                return MALE;
+            } else {
+                return FEMALE;
+            }
+        }
 
-		public String getCapacityFilter() {
-			return capacityFilter;
-		}
-	}
+        public String getCapacityFilter() {
+            return capacityFilter;
+        }
+    }
 
-	private long maleFirstNameCount;
-	private long femaleFirstNameCount;
-	private long lastNameCount;
-	private static final Random rand = new Random();
+    private long maleFirstNameCount;
+    private long femaleFirstNameCount;
+    private long lastNameCount;
+    private static final Random rand = new Random();
 
-	public RandomIdentityGenerator(final EntityManager em) throws AlambicException{
-		super(em);
-		initialize();
-	}
+    public RandomIdentityGenerator(final EntityManager em) throws AlambicException {
+        super(em);
+        initialize();
+    }
 
-	@Override
-	public RandomEntity getEntity(final Map<String, Object> query, final String processId, final UNICITY_SCOPE scope) throws AlambicException {
-		RandomEntity entity;
-		
-		String randomFirstName;
-		String randomLastName;
-		long randomDictionaryIndex;
-		RandomDictionaryEntity rde;
-		RandomDictionaryEntityPK rdepk;
+    @Override
+    public RandomEntity getEntity(final Map<String, Object> query, final String processId, final UNICITY_SCOPE scope) throws AlambicException {
+        RandomEntity entity;
 
-		// Define the queried gender and handle the random case
-		IDENTITY_GENDER chosenGender = getQueriedGender(query);
-		if (IDENTITY_GENDER.RANDOM.equals(chosenGender)) {
-			chosenGender = IDENTITY_GENDER.getRandomGender();
-		}
+        String randomFirstName;
+        String randomLastName;
+        long randomDictionaryIndex;
+        RandomDictionaryEntity rde;
+        RandomDictionaryEntityPK rdepk;
 
-		// Get a random first name
-		if (IDENTITY_GENDER.FEMALE.equals(chosenGender)) {
-			randomDictionaryIndex = getRandomNumber(1, femaleFirstNameCount);
-			rdepk = new RandomDictionaryEntityPK(RandomDictionaryEntityPK.IDENTITY_ELEMENT.FIRSTNAME_FEMALE, randomDictionaryIndex);
-		} else {
-			randomDictionaryIndex = getRandomNumber(1, maleFirstNameCount);
-			rdepk = new RandomDictionaryEntityPK(RandomDictionaryEntityPK.IDENTITY_ELEMENT.FIRSTNAME_MALE, randomDictionaryIndex);
-		}
-		rde = em.find(RandomDictionaryEntity.class, rdepk);
-		randomFirstName = rde.getElementvalue();
-		
-		// Get a random last name
-		randomDictionaryIndex = getRandomNumber(1, lastNameCount);
-		rdepk = new RandomDictionaryEntityPK(RandomDictionaryEntityPK.IDENTITY_ELEMENT.LASTNAME, randomDictionaryIndex);
-		rde = em.find(RandomDictionaryEntity.class, rdepk);
-		randomLastName = rde.getElementvalue();
+        // Define the queried gender and handle the random case
+        IDENTITY_GENDER chosenGender = getQueriedGender(query);
+        if (IDENTITY_GENDER.RANDOM.equals(chosenGender)) {
+            chosenGender = IDENTITY_GENDER.getRandomGender();
+        }
 
-		entity = new RandomLambdaEntity(String.format("{\"gender\":\"%s\", \"name\":{\"first\":\"%s\", \"last\":\"%s\"}}", chosenGender.toString().toLowerCase(), randomFirstName, randomLastName));
-		return entity;
-	}
+        // Get a random first name
+        if (IDENTITY_GENDER.FEMALE.equals(chosenGender)) {
+            randomDictionaryIndex = getRandomNumber(1, femaleFirstNameCount);
+            rdepk = new RandomDictionaryEntityPK(RandomDictionaryEntityPK.IDENTITY_ELEMENT.FIRSTNAME_FEMALE, randomDictionaryIndex);
+        } else {
+            randomDictionaryIndex = getRandomNumber(1, maleFirstNameCount);
+            rdepk = new RandomDictionaryEntityPK(RandomDictionaryEntityPK.IDENTITY_ELEMENT.FIRSTNAME_MALE, randomDictionaryIndex);
+        }
+        rde = em.find(RandomDictionaryEntity.class, rdepk);
+        randomFirstName = rde.getElementvalue();
 
-	private void initialize() {
-		this.femaleFirstNameCount = countElement(RandomDictionaryEntityPK.IDENTITY_ELEMENT.FIRSTNAME_FEMALE);
-		this.maleFirstNameCount = countElement(RandomDictionaryEntityPK.IDENTITY_ELEMENT.FIRSTNAME_MALE);
-		this.lastNameCount = countElement(RandomDictionaryEntityPK.IDENTITY_ELEMENT.LASTNAME);
+        // Get a random last name
+        randomDictionaryIndex = getRandomNumber(1, lastNameCount);
+        rdepk = new RandomDictionaryEntityPK(RandomDictionaryEntityPK.IDENTITY_ELEMENT.LASTNAME, randomDictionaryIndex);
+        rde = em.find(RandomDictionaryEntity.class, rdepk);
+        randomLastName = rde.getElementvalue();
 
-	}
+        entity = new RandomLambdaEntity(String.format("{\"gender\":\"%s\", \"name\":{\"first\":\"%s\", \"last\":\"%s\"}}",
+                chosenGender.toString().toLowerCase(), randomFirstName, randomLastName));
+        return entity;
+    }
 
-	private long countElement(RandomDictionaryEntityPK.IDENTITY_ELEMENT element) {
-		Query emQuery = em.createQuery(QUERY_TOTAL_COUNT_OF_ITEMS);
-		emQuery.setParameter("elementname", element);
-		return (long) emQuery.getSingleResult();
-	}
+    private void initialize() {
+        this.femaleFirstNameCount = countElement(RandomDictionaryEntityPK.IDENTITY_ELEMENT.FIRSTNAME_FEMALE);
+        this.maleFirstNameCount = countElement(RandomDictionaryEntityPK.IDENTITY_ELEMENT.FIRSTNAME_MALE);
+        this.lastNameCount = countElement(RandomDictionaryEntityPK.IDENTITY_ELEMENT.LASTNAME);
 
-	@Override
-	public GENERATOR_TYPE getType(final Map<String, Object> query) throws AlambicException {
-		return RandomGeneratorService.GENERATOR_TYPE.IDENTITY;
-	}
+    }
 
-	@Override
-	public long getCapacity(final Map<String, Object> query) throws AlambicException {
-		long capacity = 0;
+    private long countElement(RandomDictionaryEntityPK.IDENTITY_ELEMENT element) {
+        Query emQuery = em.createQuery(QUERY_TOTAL_COUNT_OF_ITEMS);
+        emQuery.setParameter("elementname", element);
+        return (long) emQuery.getSingleResult();
+    }
 
-		switch (getQueriedGender(query)) {
-			case MALE:
-				capacity = maleFirstNameCount * lastNameCount;
-				break;
-			case FEMALE:
-				capacity = femaleFirstNameCount * lastNameCount;
-				break;
-			case RANDOM:
-				capacity = Math.min(maleFirstNameCount, femaleFirstNameCount) * lastNameCount;
-				break;
-		}
+    @Override
+    public GENERATOR_TYPE getType(final Map<String, Object> query) throws AlambicException {
+        return RandomGeneratorService.GENERATOR_TYPE.IDENTITY;
+    }
 
-		return capacity;
-	}
+    @Override
+    public long getCapacity(final Map<String, Object> query) throws AlambicException {
+        long capacity = 0;
 
-	@Override
-	public String getCapacityFilter(final Map<String, Object> query) {
-		return getQueriedGender(query).getCapacityFilter();
-	}
-	
-	// Define the queried gender (or define randomly one if free)
-	protected IDENTITY_GENDER getQueriedGender(final Map<String, Object> query) {
-		String gender = (String) query.get("gender");
-		return IDENTITY_GENDER.valueOf(gender.toUpperCase());
-	}
+        switch (getQueriedGender(query)) {
+            case MALE:
+                capacity = maleFirstNameCount * lastNameCount;
+                break;
+            case FEMALE:
+                capacity = femaleFirstNameCount * lastNameCount;
+                break;
+            case RANDOM:
+                capacity = Math.min(maleFirstNameCount, femaleFirstNameCount) * lastNameCount;
+                break;
+        }
+
+        return capacity;
+    }
+
+    @Override
+    public String getCapacityFilter(final Map<String, Object> query) {
+        return getQueriedGender(query).getCapacityFilter();
+    }
+
+    // Define the queried gender (or define randomly one if free)
+    protected IDENTITY_GENDER getQueriedGender(final Map<String, Object> query) {
+        String gender = (String) query.get("gender");
+        return IDENTITY_GENDER.valueOf(gender.toUpperCase());
+    }
 
 }

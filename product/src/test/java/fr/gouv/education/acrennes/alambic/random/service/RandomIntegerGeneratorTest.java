@@ -16,13 +16,15 @@
  ******************************************************************************/
 package fr.gouv.education.acrennes.alambic.random.service;
 
-import java.util.List;
-import java.util.Map;
-
-import javax.persistence.EntityManager;
-import javax.persistence.FlushModeType;
-
 import fr.gouv.education.acrennes.alambic.exception.AlambicException;
+import fr.gouv.education.acrennes.alambic.generator.service.RandomGenerator;
+import fr.gouv.education.acrennes.alambic.generator.service.RandomGenerator.UNICITY_SCOPE;
+import fr.gouv.education.acrennes.alambic.generator.service.RandomGeneratorService;
+import fr.gouv.education.acrennes.alambic.generator.service.RandomGeneratorService.GENERATOR_TYPE;
+import fr.gouv.education.acrennes.alambic.generator.service.RandomIntegerGenerator;
+import fr.gouv.education.acrennes.alambic.persistence.EntityManagerHelper;
+import fr.gouv.education.acrennes.alambic.random.persistence.RandomEntity;
+import fr.gouv.education.acrennes.alambic.random.persistence.RandomLambdaEntity;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
@@ -33,281 +35,291 @@ import org.powermock.core.classloader.annotations.PowerMockIgnore;
 import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.modules.junit4.PowerMockRunner;
 
-import fr.gouv.education.acrennes.alambic.generator.service.RandomGenerator;
-import fr.gouv.education.acrennes.alambic.generator.service.RandomGenerator.UNICITY_SCOPE;
-import fr.gouv.education.acrennes.alambic.generator.service.RandomGeneratorService;
-import fr.gouv.education.acrennes.alambic.generator.service.RandomGeneratorService.GENERATOR_TYPE;
-import fr.gouv.education.acrennes.alambic.generator.service.RandomIntegerGenerator;
-import fr.gouv.education.acrennes.alambic.persistence.EntityManagerHelper;
-import fr.gouv.education.acrennes.alambic.random.persistence.RandomEntity;
-import fr.gouv.education.acrennes.alambic.random.persistence.RandomLambdaEntity;
+import javax.persistence.EntityManager;
+import javax.persistence.FlushModeType;
+import java.util.List;
+import java.util.Map;
 
 @RunWith(PowerMockRunner.class)
 @PrepareForTest({ RandomGeneratorService.class })
 @PowerMockIgnore("javax.management.*")
 public class RandomIntegerGeneratorTest {
 
-	private static final String UNIT_TEST_PERSISTENCE_UNIT = "TEST_PERSISTENCE_UNIT";
+    private static final String UNIT_TEST_PERSISTENCE_UNIT = "TEST_PERSISTENCE_UNIT";
 
-	private RandomGenerator rg;
+    private RandomGenerator rg;
 
-	@Before
-	public void setUp() throws Exception {
-		// Mock the entity manager helper so that the embedded persistence unit (derby) is used
-		EntityManagerHelper.getInstance(UNIT_TEST_PERSISTENCE_UNIT, null);
-		rg = RandomGeneratorService.getRandomGenerator(GENERATOR_TYPE.INTEGER);
-	}
+    @Before
+    public void setUp() throws Exception {
+        // Mock the entity manager helper so that the embedded persistence unit (derby) is used
+        EntityManagerHelper.getInstance(UNIT_TEST_PERSISTENCE_UNIT, null);
+        rg = RandomGeneratorService.getRandomGenerator(GENERATOR_TYPE.INTEGER);
+    }
 
-	/**
-	 * Request one random integer with range [not defined - 1000]
-	 */
-	@Test
-	public void test1() {
-		try {
-			List<RandomEntity> entities = rg.getEntities("{\"blurid\":\"1\",\"count\":1,\"maxValue\":1000}", "PROCESS_TESTU", UNICITY_SCOPE.PROCESS);
-			Assert.assertTrue(1 == entities.size());
-			Map<String, List<String>> sb = RandomGeneratorService.toStateBaseEntry(entities.get(0));
-			int value = Integer.parseInt(((String) sb.get("value").get(0)));
-			Assert.assertTrue(0 <= value && value <= 1000);
-		} catch (AlambicException e) {
-			Assert.fail(e.getMessage());
-		}
-	}
+    /**
+     * Request one random integer with range [not defined - 1000]
+     */
+    @Test
+    public void test1() {
+        try {
+            List<RandomEntity> entities = rg.getEntities("{\"blurid\":\"1\",\"count\":1,\"maxValue\":1000}", "PROCESS_TESTU", UNICITY_SCOPE.PROCESS);
+            Assert.assertEquals(1, entities.size());
+            Map<String, List<String>> sb = RandomGeneratorService.toStateBaseEntry(entities.get(0));
+            int value = Integer.parseInt(sb.get("value").get(0));
+            Assert.assertTrue(0 <= value && value <= 1000);
+        } catch (AlambicException e) {
+            Assert.fail(e.getMessage());
+        }
+    }
 
-	/**
-	 * Request one random integer with range [500 - 1000]
-	 */
-	@Test
-	public void test2() {
-		try {
-			rg = RandomGeneratorService.getRandomGenerator(GENERATOR_TYPE.INTEGER);
-			List<RandomEntity> entities = rg.getEntities("{\"blurid\":\"1\",\"count\":1,\"minValue\":500,\"maxValue\":1000}", "PROCESS_TESTU", UNICITY_SCOPE.PROCESS);
-			Assert.assertTrue(1 == entities.size());
-			Map<String, List<String>> sb = RandomGeneratorService.toStateBaseEntry(entities.get(0));
-			int value = Integer.parseInt(((String) sb.get("value").get(0)));
-			Assert.assertTrue(500 <= value && value <= 1000);
-		} catch (AlambicException e) {
-			Assert.fail(e.getMessage());
-		}
-	}
+    /**
+     * Request one random integer with range [500 - 1000]
+     */
+    @Test
+    public void test2() {
+        try {
+            rg = RandomGeneratorService.getRandomGenerator(GENERATOR_TYPE.INTEGER);
+            List<RandomEntity> entities = rg.getEntities("{\"blurid\":\"1\",\"count\":1,\"minValue\":500,\"maxValue\":1000}", "PROCESS_TESTU",
+                    UNICITY_SCOPE.PROCESS);
+            Assert.assertEquals(1, entities.size());
+            Map<String, List<String>> sb = RandomGeneratorService.toStateBaseEntry(entities.get(0));
+            int value = Integer.parseInt(sb.get("value").get(0));
+            Assert.assertTrue(500 <= value && value <= 1000);
+        } catch (AlambicException e) {
+            Assert.fail(e.getMessage());
+        }
+    }
 
-	/**
-	 * Request one random integer with range [2 - 2]
-	 */
-	@Test
-	public void test3() {
-		try {
-			List<RandomEntity> entities = rg.getEntities("{\"blurid\":\"1\",\"count\":1,\"minValue\":2,\"maxValue\":2}", "PROCESS_TESTU", UNICITY_SCOPE.PROCESS);
-			Assert.assertTrue(1 == entities.size());
-			Map<String, List<String>> sb = RandomGeneratorService.toStateBaseEntry(entities.get(0));
-			int value = Integer.parseInt(((String) sb.get("value").get(0)));
-			Assert.assertTrue(value == 2);
-		} catch (AlambicException e) {
-			Assert.fail(e.getMessage());
-		}
-	}
+    /**
+     * Request one random integer with range [2 - 2]
+     */
+    @Test
+    public void test3() {
+        try {
+            List<RandomEntity> entities = rg.getEntities("{\"blurid\":\"1\",\"count\":1,\"minValue\":2,\"maxValue\":2}", "PROCESS_TESTU",
+                    UNICITY_SCOPE.PROCESS);
+            Assert.assertEquals(1, entities.size());
+            Map<String, List<String>> sb = RandomGeneratorService.toStateBaseEntry(entities.get(0));
+            int value = Integer.parseInt(sb.get("value").get(0));
+            Assert.assertEquals(2, value);
+        } catch (AlambicException e) {
+            Assert.fail(e.getMessage());
+        }
+    }
 
-	/**
-	 * Request 4 random integer with range [2 - 5]
-	 * Check the generator capacity is NOT overlaid.
-	 */
-	@Test
-	public void test4() {
-		try {
-			String resultStg = "";
-			List<RandomEntity> entities = rg.getEntities("{\"blurid\":\"1\",\"count\":4,\"minValue\":2,\"maxValue\":5}", "PROCESS_TESTU", UNICITY_SCOPE.PROCESS);
-			Assert.assertTrue(4 == entities.size());
-			for (RandomEntity entity : entities) {
-				Map<String, List<String>> sb = RandomGeneratorService.toStateBaseEntry(entity);
-				resultStg = resultStg.concat((String) sb.get("value").get(0));
-			}
-			Assert.assertTrue(resultStg.matches("[2345]{4}"));				
-		} catch (AlambicException e) {
-			Assert.fail(e.getMessage());
-		}
-	}
+    /**
+     * Request 4 random integer with range [2 - 5]
+     * Check the generator capacity is NOT overlaid.
+     */
+    @Test
+    public void test4() {
+        try {
+            String resultStg = "";
+            List<RandomEntity> entities = rg.getEntities("{\"blurid\":\"1\",\"count\":4,\"minValue\":2,\"maxValue\":5}", "PROCESS_TESTU",
+                    UNICITY_SCOPE.PROCESS);
+            Assert.assertEquals(4, entities.size());
+            for (RandomEntity entity : entities) {
+                Map<String, List<String>> sb = RandomGeneratorService.toStateBaseEntry(entity);
+                resultStg = resultStg.concat(sb.get("value").get(0));
+            }
+            Assert.assertTrue(resultStg.matches("[2345]{4}"));
+        } catch (AlambicException e) {
+            Assert.fail(e.getMessage());
+        }
+    }
 
-	/**
-	 * Request 5 random integer with range [2 - 5]
-	 * Check the generator capacity IS overlaid.
-	 */
-	@Test
-	public void test5() {
-		try {
-			rg.getEntities("{\"blurid\":\"1\",\"count\":5,\"minValue\":2,\"maxValue\":5}", "PROCESS_TESTU", UNICITY_SCOPE.PROCESS);
-			Assert.fail();
-		} catch (AlambicException e) {
-			Assert.assertTrue(Boolean.TRUE);				
-		}
-	}
+    /**
+     * Request 5 random integer with range [2 - 5]
+     * Check the generator capacity IS overlaid.
+     */
+    @Test
+    public void test5() {
+        try {
+            rg.getEntities("{\"blurid\":\"1\",\"count\":5,\"minValue\":2,\"maxValue\":5}", "PROCESS_TESTU", UNICITY_SCOPE.PROCESS);
+            Assert.fail();
+        } catch (AlambicException e) {
+            Assert.assertTrue(Boolean.TRUE);
+        }
+    }
 
-	/**
-	 * Request 4 random integer with range [2 - 5] with one process
-	 * Request 4 random integer with range [2 - 5] with a different process
-	 * Check the generator capacity is NOT overlaid.
-	 */
-	@Test
-	public void test6() {
-		try {
-			List<RandomEntity> entities = rg.getEntities("{\"blurid\":\"1\",\"count\":4,\"minValue\":2,\"maxValue\":5}", "PROCESS_TESTU", UNICITY_SCOPE.PROCESS);
-			Assert.assertTrue(4 == entities.size());
+    /**
+     * Request 4 random integer with range [2 - 5] with one process
+     * Request 4 random integer with range [2 - 5] with a different process
+     * Check the generator capacity is NOT overlaid.
+     */
+    @Test
+    public void test6() {
+        try {
+            List<RandomEntity> entities = rg.getEntities("{\"blurid\":\"1\",\"count\":4,\"minValue\":2,\"maxValue\":5}", "PROCESS_TESTU",
+                    UNICITY_SCOPE.PROCESS);
+            Assert.assertEquals(4, entities.size());
 
-			entities = rg.getEntities("{\"blurid\":\"1\",\"count\":4,\"minValue\":2,\"maxValue\":5}", "PROCESS_TESTU_2", UNICITY_SCOPE.PROCESS);
-			Assert.assertTrue(4 == entities.size());
-		} catch (AlambicException e) {
-			Assert.fail(e.getMessage());
-		}
-	}
+            entities = rg.getEntities("{\"blurid\":\"1\",\"count\":4,\"minValue\":2,\"maxValue\":5}", "PROCESS_TESTU_2", UNICITY_SCOPE.PROCESS);
+            Assert.assertEquals(4, entities.size());
+        } catch (AlambicException e) {
+            Assert.fail(e.getMessage());
+        }
+    }
 
-	/**
-	 * Request 4 random integer with range [0 - 10 000] with one process
-	 * Request 4 random integer with range [0 - 10 000] with the same process and reuse enabled and same blur identifier
-	 * Check the same values are returned
-	 */
-	@Test
-	public void test7() {
-		try {
-			List<RandomEntity> entitiesA = rg.getEntities("{\"count\":4,\"minValue\":0,\"maxValue\":10000,\"reuse\":\"true\",\"blurid\":\"56\"}", "PROCESS_TESTU", UNICITY_SCOPE.PROCESS);
-			Assert.assertTrue(4 == entitiesA.size());
+    /**
+     * Request 4 random integer with range [0 - 10 000] with one process
+     * Request 4 random integer with range [0 - 10 000] with the same process and reuse enabled and same blur identifier
+     * Check the same values are returned
+     */
+    @Test
+    public void test7() {
+        try {
+            List<RandomEntity> entitiesA = rg.getEntities("{\"count\":4,\"minValue\":0,\"maxValue\":10000,\"reuse\":\"true\",\"blurid\":\"56\"}",
+                    "PROCESS_TESTU", UNICITY_SCOPE.PROCESS);
+            Assert.assertEquals(4, entitiesA.size());
 
-			List<RandomEntity> entitiesB = rg.getEntities("{\"count\":4,\"minValue\":0,\"maxValue\":10000,\"reuse\":\"true\",\"blurid\":\"56\"}", "PROCESS_TESTU", UNICITY_SCOPE.PROCESS);
-			Assert.assertTrue(4 == entitiesB.size());
-			Assert.assertTrue(entitiesA.equals(entitiesB));
-		} catch (AlambicException e) {
-			Assert.fail(e.getMessage());
-		}
-	}
+            List<RandomEntity> entitiesB = rg.getEntities("{\"count\":4,\"minValue\":0,\"maxValue\":10000,\"reuse\":\"true\",\"blurid\":\"56\"}",
+                    "PROCESS_TESTU", UNICITY_SCOPE.PROCESS);
+            Assert.assertEquals(4, entitiesB.size());
+            Assert.assertEquals(entitiesA, entitiesB);
+        } catch (AlambicException e) {
+            Assert.fail(e.getMessage());
+        }
+    }
 
-	/**
-	 * Request 4 random integer with range [0 - 10 000] with one process
-	 * Request 4 random integer with range [0 - 10 000] with the same process and reuse enabled and different blur identifier
-	 * Check different values are returned
-	 */
-	@Test
-	public void test8() {
-		try {
-			List<RandomEntity> entitiesA = rg.getEntities("{\"count\":4,\"minValue\":0,\"maxValue\":10000,\"reuse\":\"true\",\"blurid\":\"56\"}", "PROCESS_TESTU", UNICITY_SCOPE.PROCESS);
-			Assert.assertTrue(4 == entitiesA.size());
+    /**
+     * Request 4 random integer with range [0 - 10 000] with one process
+     * Request 4 random integer with range [0 - 10 000] with the same process and reuse enabled and different blur identifier
+     * Check different values are returned
+     */
+    @Test
+    public void test8() {
+        try {
+            List<RandomEntity> entitiesA = rg.getEntities("{\"count\":4,\"minValue\":0,\"maxValue\":10000,\"reuse\":\"true\",\"blurid\":\"56\"}",
+                    "PROCESS_TESTU", UNICITY_SCOPE.PROCESS);
+            Assert.assertEquals(4, entitiesA.size());
 
-			List<RandomEntity> entitiesB = rg.getEntities("{\"count\":4,\"minValue\":0,\"maxValue\":10000,\"reuse\":\"true\",\"blurid\":\"29\"}", "PROCESS_TESTU", UNICITY_SCOPE.PROCESS);
-			Assert.assertTrue(4 == entitiesB.size());
-			Assert.assertTrue(!entitiesA.equals(entitiesB));
-		} catch (AlambicException e) {
-			Assert.fail(e.getMessage());
-		}
-	}
+            List<RandomEntity> entitiesB = rg.getEntities("{\"count\":4,\"minValue\":0,\"maxValue\":10000,\"reuse\":\"true\",\"blurid\":\"29\"}",
+                    "PROCESS_TESTU", UNICITY_SCOPE.PROCESS);
+            Assert.assertEquals(4, entitiesB.size());
+            Assert.assertNotEquals(entitiesA, entitiesB);
+        } catch (AlambicException e) {
+            Assert.fail(e.getMessage());
+        }
+    }
 
-	/**
-	 * Request one random integer with range [5 - 2]
-	 * Check an exception is raised.
-	 */
-	@Test
-	public void test9() {
-		try {
-			rg.getEntities("{\"blurid\":\"1\",\"count\":1,\"minValue\":5,\"maxValue\":2}", "PROCESS_TESTU", UNICITY_SCOPE.PROCESS);
-			Assert.fail();
-		} catch (AlambicException e) {
-			Assert.assertTrue(Boolean.TRUE);
-		}
-	}
+    /**
+     * Request one random integer with range [5 - 2]
+     * Check an exception is raised.
+     */
+    @Test
+    public void test9() {
+        try {
+            rg.getEntities("{\"blurid\":\"1\",\"count\":1,\"minValue\":5,\"maxValue\":2}", "PROCESS_TESTU", UNICITY_SCOPE.PROCESS);
+            Assert.fail();
+        } catch (AlambicException e) {
+            Assert.assertTrue(Boolean.TRUE);
+        }
+    }
 
-	/**
-	 * Request 1 random integer with range [100 - 900] with one process
-	 * Request 1 random integer with range [500 - 800] with the same process and reuse enabled and same blur identifier
-	 * Check different values are returned
-	 */
-	@Test
-	public void test10() {
-		try {
-			List<RandomEntity> entitiesA = rg.getEntities("{\"count\":1,\"minValue\":100,\"maxValue\":900,\"reuse\":\"true\",\"blurid\":\"56\"}", "PROCESS_TESTU", UNICITY_SCOPE.PROCESS);
-			Assert.assertTrue(1 == entitiesA.size());
+    /**
+     * Request 1 random integer with range [100 - 900] with one process
+     * Request 1 random integer with range [500 - 800] with the same process and reuse enabled and same blur identifier
+     * Check different values are returned
+     */
+    @Test
+    public void test10() {
+        try {
+            List<RandomEntity> entitiesA = rg.getEntities("{\"count\":1,\"minValue\":100,\"maxValue\":900,\"reuse\":\"true\",\"blurid\":\"56\"}",
+                    "PROCESS_TESTU", UNICITY_SCOPE.PROCESS);
+            Assert.assertEquals(1, entitiesA.size());
 
-			List<RandomEntity> entitiesB = rg.getEntities("{\"count\":1,\"minValue\":500,\"maxValue\":800,\"reuse\":\"true\",\"blurid\":\"56\"}", "PROCESS_TESTU", UNICITY_SCOPE.PROCESS);
-			Assert.assertTrue(1 == entitiesB.size());
-			Assert.assertTrue(!entitiesA.equals(entitiesB));
-		} catch (AlambicException e) {
-			Assert.fail(e.getMessage());
-		}
-	}
+            List<RandomEntity> entitiesB = rg.getEntities("{\"count\":1,\"minValue\":500,\"maxValue\":800,\"reuse\":\"true\",\"blurid\":\"56\"}",
+                    "PROCESS_TESTU", UNICITY_SCOPE.PROCESS);
+            Assert.assertEquals(1, entitiesB.size());
+            Assert.assertNotEquals(entitiesA, entitiesB);
+        } catch (AlambicException e) {
+            Assert.fail(e.getMessage());
+        }
+    }
 
-	@Test
-	public void test11() {
-		RandomGenerator rgA=null;
-		RandomGenerator rgB=null;
-		
-		try {
-			PowerMockito.whenNew(RandomIntegerGenerator.class).withAnyArguments().thenReturn(new RandomTestGenerator(EntityManagerHelper.getEntityManager()));
-			rgA = RandomGeneratorService.getRandomGenerator(GENERATOR_TYPE.INTEGER);
+    @Test
+    public void test11() {
+        RandomGenerator rgA = null;
+        RandomGenerator rgB = null;
 
-			PowerMockito.whenNew(RandomIntegerGenerator.class).withAnyArguments().thenReturn(new RandomTestGenerator(EntityManagerHelper.getEntityManager()));
-			rgB = RandomGeneratorService.getRandomGenerator(GENERATOR_TYPE.INTEGER);
+        try {
+            PowerMockito.whenNew(RandomIntegerGenerator.class).withAnyArguments().thenReturn(new RandomTestGenerator(EntityManagerHelper.getEntityManager()));
+            rgA = RandomGeneratorService.getRandomGenerator(GENERATOR_TYPE.INTEGER);
 
-			List<RandomEntity> entitiesA = rgA.getEntities("{\"blurid\":\"1\",\"count\":10,\"minValue\":1,\"maxValue\":10}", "PROCESS_TESTU", UNICITY_SCOPE.NONE);
-			Assert.assertTrue(10 == entitiesA.size());
+            PowerMockito.whenNew(RandomIntegerGenerator.class).withAnyArguments().thenReturn(new RandomTestGenerator(EntityManagerHelper.getEntityManager()));
+            rgB = RandomGeneratorService.getRandomGenerator(GENERATOR_TYPE.INTEGER);
 
-			List<RandomEntity> entitiesB = rgB.getEntities("{\"blurid\":\"1\",\"count\":10,\"minValue\":1,\"maxValue\":10}", "PROCESS_TESTU", UNICITY_SCOPE.NONE);
-			Assert.assertTrue(10 == entitiesB.size());
-			Assert.assertTrue(!entitiesA.equals(entitiesB));
-		} catch (Exception e) {
-			Assert.fail(e.getMessage());
-		} finally {
-			if (null != rgA) {
-				rgA.close();
-			}
-			
-			if (null != rgB) {
-				rgB.close();
-			}
-		}
-	}
+            List<RandomEntity> entitiesA = rgA.getEntities("{\"blurid\":\"1\",\"count\":10,\"minValue\":1,\"maxValue\":10}", "PROCESS_TESTU",
+                    UNICITY_SCOPE.NONE);
+            Assert.assertEquals(10, entitiesA.size());
 
-	/**
-	 * Request 1 random integer with range [1 - 100 000] with no unicity control with blurid
-	 * Request 1 random integer with range [1 - 100 000] with no unicity control with blurid and reuse enabled
-	 * Check the same values are returned
-	 */
-	@Test
-	public void test12() {
-		try {
-			List<RandomEntity> entitiesA = rg.getEntities("{\"count\":1,\"minValue\":1,\"maxValue\":100000,\"blurid\":\"56\"}", "PROCESS_TESTU", UNICITY_SCOPE.NONE);
-			Assert.assertTrue(1 == entitiesA.size());
+            List<RandomEntity> entitiesB = rgB.getEntities("{\"blurid\":\"1\",\"count\":10,\"minValue\":1,\"maxValue\":10}", "PROCESS_TESTU",
+                    UNICITY_SCOPE.NONE);
+            Assert.assertEquals(10, entitiesB.size());
+            Assert.assertNotEquals(entitiesA, entitiesB);
+        } catch (Exception e) {
+            Assert.fail(e.getMessage());
+        } finally {
+            if (null != rgA) {
+                rgA.close();
+            }
 
-			List<RandomEntity> entitiesB = rg.getEntities("{\"count\":1,\"minValue\":1,\"maxValue\":100000,\"reuse\":\"true\",\"blurid\":\"56\"}", "PROCESS_TESTU", UNICITY_SCOPE.NONE);
-			Assert.assertTrue(1 == entitiesB.size());
-			Assert.assertTrue(entitiesA.equals(entitiesB));
-		} catch (AlambicException e) {
-			Assert.fail(e.getMessage());
-		}
-	}
+            if (null != rgB) {
+                rgB.close();
+            }
+        }
+    }
 
-	@After
-	public void tearDown() {
-		RandomGeneratorService.close();
-		if (null != rg) {
-			rg.close();
-		}
+    /**
+     * Request 1 random integer with range [1 - 100 000] with no unicity control with blurid
+     * Request 1 random integer with range [1 - 100 000] with no unicity control with blurid and reuse enabled
+     * Check the same values are returned
+     */
+    @Test
+    public void test12() {
+        try {
+            List<RandomEntity> entitiesA = rg.getEntities("{\"count\":1,\"minValue\":1,\"maxValue\":100000,\"blurid\":\"56\"}", "PROCESS_TESTU",
+                    UNICITY_SCOPE.NONE);
+            Assert.assertEquals(1, entitiesA.size());
 
-		/**
-		 * Shutdown the derby system so that other unit tests don't run into exception because the database was not
-		 * released.
-		 * This is not visible when running the tests within Eclipse environment (launcher) but it is when packaging
-		 * the project with maven.
-		 */
-		EntityManagerHelper.close();
-	}
+            List<RandomEntity> entitiesB = rg.getEntities("{\"count\":1,\"minValue\":1,\"maxValue\":100000,\"reuse\":\"true\",\"blurid\":\"56\"}",
+                    "PROCESS_TESTU", UNICITY_SCOPE.NONE);
+            Assert.assertEquals(1, entitiesB.size());
+            Assert.assertEquals(entitiesA, entitiesB);
+        } catch (AlambicException e) {
+            Assert.fail(e.getMessage());
+        }
+    }
 
-	private class RandomTestGenerator extends RandomIntegerGenerator {
+    @After
+    public void tearDown() {
+        RandomGeneratorService.close();
+        if (null != rg) {
+            rg.close();
+        }
 
-		public RandomTestGenerator(EntityManager em) throws AlambicException {
-			super(em);
-			em.setFlushMode(FlushModeType.AUTO);
-		}
+        /**
+         * Shutdown the derby system so that other unit tests don't run into exception because the database was not
+         * released.
+         * This is not visible when running the tests within Eclipse environment (launcher) but it is when packaging
+         * the project with maven.
+         */
+        EntityManagerHelper.close();
+    }
 
-		@Override
-		public RandomEntity getEntity(Map<String, Object> query, String processId, UNICITY_SCOPE scope)	throws AlambicException {
-			return new RandomLambdaEntity("{\"value\":\"9\"}");
-		}
+    private class RandomTestGenerator extends RandomIntegerGenerator {
 
-	}
+        public RandomTestGenerator(EntityManager em) throws AlambicException {
+            super(em);
+            em.setFlushMode(FlushModeType.AUTO);
+        }
+
+        @Override
+        public RandomEntity getEntity(Map<String, Object> query, String processId, UNICITY_SCOPE scope) throws AlambicException {
+            return new RandomLambdaEntity("{\"value\":\"9\"}");
+        }
+
+    }
 
 }

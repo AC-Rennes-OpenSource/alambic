@@ -30,57 +30,57 @@ import org.jdom2.Element;
  */
 
 public class ACP {
-	private static final String LOCAL = "local";
-	private static final String TRUE = "true";
-	private static final String ACLNAME = "name";
-	private static final String ACL = "acl";
-	private static final String OVERWRITE = "overwrite";
-	private static final String BLOCKINHERITANCE = "block-inheritance";
-	private static final String TTC = "ttc"; // true par défault, indique s'il faut utiliser l'opération opentoutatice
-	private Element acpElement;
+    private static final String LOCAL = "local";
+    private static final String TRUE = "true";
+    private static final String ACLNAME = "name";
+    private static final String ACL = "acl";
+    private static final String OVERWRITE = "overwrite";
+    private static final String BLOCKINHERITANCE = "block-inheritance";
+    private static final String TTC = "ttc"; // true par défault, indique s'il faut utiliser l'opération opentoutatice
+    private final Element acpElement;
 
-	public ACP(final Element acpElement) {
-		this.acpElement = acpElement;
+    public ACP(final Element acpElement) {
+        this.acpElement = acpElement;
 
-	}
+    }
 
-	public String getName() {
-		String name = LOCAL;
-		if (acpElement.getChild(ACL) != null) {
-			if (acpElement.getChild(ACL).getAttributeValue(ACLNAME) != null) {
-				name = acpElement.getAttributeValue(ACLNAME);
-			}
-		}
-		return name;
-	}
+    public String getName() {
+        String name = LOCAL;
+        if (acpElement.getChild(ACL) != null) {
+            if (acpElement.getChild(ACL).getAttributeValue(ACLNAME) != null) {
+                name = acpElement.getAttributeValue(ACLNAME);
+            }
+        }
+        return name;
+    }
 
-	public boolean getOverwrite() {
-		boolean overwrite = true;
-		if (acpElement.getAttributeValue(OVERWRITE) != null) {
-			overwrite = acpElement.getAttributeValue(OVERWRITE).equalsIgnoreCase(TRUE);
-		}
-		return overwrite;
-	}
+    public boolean getOverwrite() {
+        boolean overwrite = true;
+        if (acpElement.getAttributeValue(OVERWRITE) != null) {
+            overwrite = acpElement.getAttributeValue(OVERWRITE).equalsIgnoreCase(TRUE);
+        }
+        return overwrite;
+    }
 
-	public boolean getTtc() {
-		boolean ttc = true;
-		if (acpElement.getAttributeValue(TTC) != null) {
-			ttc = acpElement.getAttributeValue(TTC).equalsIgnoreCase(TRUE);
-		}
-		return ttc;
-	}
+    public boolean getTtc() {
+        boolean ttc = true;
+        if (acpElement.getAttributeValue(TTC) != null) {
+            ttc = acpElement.getAttributeValue(TTC).equalsIgnoreCase(TRUE);
+        }
+        return ttc;
+    }
 
-	public boolean getBlock() {
-		boolean block = true;
-		if (acpElement.getAttributeValue(BLOCKINHERITANCE) != null) {
-			block = acpElement.getAttributeValue(BLOCKINHERITANCE).equalsIgnoreCase(TRUE);
-		}
-		return block;
-	}
+    public boolean getBlock() {
+        boolean block = true;
+        if (acpElement.getAttributeValue(BLOCKINHERITANCE) != null) {
+            block = acpElement.getAttributeValue(BLOCKINHERITANCE).equalsIgnoreCase(TRUE);
+        }
+        return block;
+    }
 
-	public ACL getACL() {
-		final Element aclElement = acpElement.getChild(ACL);
-		return (null != aclElement) ? new ACL(aclElement) : null;
-	}
+    public ACL getACL() {
+        final Element aclElement = acpElement.getChild(ACL);
+        return (null != aclElement) ? new ACL(aclElement) : null;
+    }
 
 }

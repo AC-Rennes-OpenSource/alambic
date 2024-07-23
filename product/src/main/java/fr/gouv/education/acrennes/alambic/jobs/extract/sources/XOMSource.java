@@ -27,29 +27,29 @@ import org.jdom2.Element;
 
 public class XOMSource extends AbstractSource {
 
-	private static final Log log = LogFactory.getLog(XOMSource.class);
+    private static final Log log = LogFactory.getLog(XOMSource.class);
 
-	public XOMSource(final CallableContext context, final Element sourceNode) throws AlambicException {
-		super(context, sourceNode);
-	}
+    public XOMSource(final CallableContext context, final Element sourceNode) throws AlambicException {
+        super(context, sourceNode);
+    }
 
-	@Override
-	public void initialize(final Element sourceNode) throws AlambicException {
-		String xml = sourceNode.getChildText("xml");
-		if (StringUtils.isBlank(xml)) {
-			log.error("'xml' parameter cannot be null");
-		} else {
-			xml = context.resolvePath(xml);
-		}
+    @Override
+    public void initialize(final Element sourceNode) throws AlambicException {
+        String xml = sourceNode.getChildText("xml");
+        if (StringUtils.isBlank(xml)) {
+            log.error("'xml' parameter cannot be null");
+        } else {
+            xml = context.resolvePath(xml);
+        }
 
-		query = sourceNode.getChildText("query");
-		if (StringUtils.isBlank(query) && !isDynamic()) {
-			log.error("XPath request is missing");
-		} else if (StringUtils.isNotBlank(query)) {
-			query = Functions.getInstance().executeAllFunctions(context.resolveString(query));
-		}
+        query = sourceNode.getChildText("query");
+        if (StringUtils.isBlank(query) && !isDynamic()) {
+            log.error("XPath request is missing");
+        } else if (StringUtils.isNotBlank(query)) {
+            query = Functions.getInstance().executeAllFunctions(context.resolveString(query));
+        }
 
-		setClient((StringUtils.isNotBlank(xml)) ? new XOMToStateBase(xml) : null);
-	}
+        setClient((StringUtils.isNotBlank(xml)) ? new XOMToStateBase(xml) : null);
+    }
 
 }

@@ -32,9 +32,9 @@ import javax.xml.bind.annotation.XmlType;
 
 /**
  * <p>Classe Java pour GARMEF complex type.
- * 
+ *
  * <p>Le fragment de schéma suivant indique le contenu attendu figurant dans cette classe.
- * 
+ *
  * <pre>
  * &lt;complexType name="GARMEF">
  *   &lt;complexContent>
@@ -50,16 +50,16 @@ import javax.xml.bind.annotation.XmlType;
  *   &lt;/complexContent>
  * &lt;/complexType>
  * </pre>
- * 
- * 
+ *
+ *
  */
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlType(name = "GARMEF", propOrder = {
-    "garStructureUAI",
-    "garmefCode",
-    "garmefLibelle",
-    "garmefRattach",
-    "garmefstat11"
+        "garStructureUAI",
+        "garmefCode",
+        "garmefLibelle",
+        "garmefRattach",
+        "garmefstat11"
 })
 public class GARMEF {
 
@@ -76,11 +76,11 @@ public class GARMEF {
 
     /**
      * Obtient la valeur de la propriété garStructureUAI.
-     * 
+     *
      * @return
      *     possible object is
      *     {@link String }
-     *     
+     *
      */
     public String getGARStructureUAI() {
         return garStructureUAI;
@@ -88,11 +88,11 @@ public class GARMEF {
 
     /**
      * Définit la valeur de la propriété garStructureUAI.
-     * 
+     *
      * @param value
      *     allowed object is
      *     {@link String }
-     *     
+     *
      */
     public void setGARStructureUAI(String value) {
         this.garStructureUAI = value;
@@ -100,11 +100,11 @@ public class GARMEF {
 
     /**
      * Obtient la valeur de la propriété garmefCode.
-     * 
+     *
      * @return
      *     possible object is
      *     {@link String }
-     *     
+     *
      */
     public String getGARMEFCode() {
         return garmefCode;
@@ -112,11 +112,11 @@ public class GARMEF {
 
     /**
      * Définit la valeur de la propriété garmefCode.
-     * 
+     *
      * @param value
      *     allowed object is
      *     {@link String }
-     *     
+     *
      */
     public void setGARMEFCode(String value) {
         this.garmefCode = value;
@@ -124,11 +124,11 @@ public class GARMEF {
 
     /**
      * Obtient la valeur de la propriété garmefLibelle.
-     * 
+     *
      * @return
      *     possible object is
      *     {@link String }
-     *     
+     *
      */
     public String getGARMEFLibelle() {
         return garmefLibelle;
@@ -136,11 +136,11 @@ public class GARMEF {
 
     /**
      * Définit la valeur de la propriété garmefLibelle.
-     * 
+     *
      * @param value
      *     allowed object is
      *     {@link String }
-     *     
+     *
      */
     public void setGARMEFLibelle(String value) {
         this.garmefLibelle = value;
@@ -148,11 +148,11 @@ public class GARMEF {
 
     /**
      * Obtient la valeur de la propriété garmefRattach.
-     * 
+     *
      * @return
      *     possible object is
      *     {@link String }
-     *     
+     *
      */
     public String getGARMEFRattach() {
         return garmefRattach;
@@ -160,11 +160,11 @@ public class GARMEF {
 
     /**
      * Définit la valeur de la propriété garmefRattach.
-     * 
+     *
      * @param value
      *     allowed object is
      *     {@link String }
-     *     
+     *
      */
     public void setGARMEFRattach(String value) {
         this.garmefRattach = value;
@@ -172,11 +172,11 @@ public class GARMEF {
 
     /**
      * Obtient la valeur de la propriété garmefstat11.
-     * 
+     *
      * @return
      *     possible object is
      *     {@link String }
-     *     
+     *
      */
     public String getGARMEFSTAT11() {
         return garmefstat11;
@@ -184,11 +184,11 @@ public class GARMEF {
 
     /**
      * Définit la valeur de la propriété garmefstat11.
-     * 
+     *
      * @param value
      *     allowed object is
      *     {@link String }
-     *     
+     *
      */
     public void setGARMEFSTAT11(String value) {
         this.garmefstat11 = value;

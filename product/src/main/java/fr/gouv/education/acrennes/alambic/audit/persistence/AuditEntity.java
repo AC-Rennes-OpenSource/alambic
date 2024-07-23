@@ -16,116 +16,107 @@
  ******************************************************************************/
 package fr.gouv.education.acrennes.alambic.audit.persistence;
 
-import java.io.Serializable;
-import java.util.Date;
-import javax.persistence.Basic;
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.FetchType;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
-import javax.persistence.Lob;
-import javax.persistence.Temporal;
-import javax.persistence.TemporalType;
-
 import org.apache.commons.codec.Charsets;
 import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.lang.SerializationUtils;
 import org.eclipse.persistence.annotations.Index;
 import org.eclipse.persistence.annotations.Indexes;
 
+import javax.persistence.*;
+import java.io.Serializable;
+import java.util.Date;
+
 @Entity
 @Indexes({
-		@Index(name = "auditentity_pk_idx", unique = true, columnNames = { "id" }),
-		@Index(name = "auditentity_pk_source", columnNames = { "source" })
+        @Index(name = "auditentity_pk_idx", unique = true, columnNames = { "id" }),
+        @Index(name = "auditentity_pk_source", columnNames = { "source" })
 })
 public class AuditEntity implements Serializable {
 
-	private static final long serialVersionUID = 1L;
+    private static final long serialVersionUID = 1L;
 
-	// private static final Log log = LogFactory.getLog(AuditEntity.class);
+    // private static final Log log = LogFactory.getLog(AuditEntity.class);
 
-	@Id
-	@GeneratedValue(strategy = GenerationType.SEQUENCE)
-	@Column(name = "id")
-	private Long id;
+    @Id
+    @GeneratedValue(strategy = GenerationType.SEQUENCE)
+    @Column(name = "id")
+    private Long id;
 
-	@Temporal(TemporalType.TIMESTAMP)
-	@Column(name = "date")
-	private Date date;
+    @Temporal(TemporalType.TIMESTAMP)
+    @Column(name = "date")
+    private Date date;
 
-	@Column(name = "fulltext")
-	private String fulltext;
+    @Column(name = "fulltext")
+    private String fulltext;
 
-	@Column(name = "source")
-	private String source;
+    @Column(name = "source")
+    private String source;
 
-	@Lob
-	@Basic(fetch = FetchType.LAZY)
-	@Column(name = "object")
-	private Serializable object;
+    @Lob
+    @Basic(fetch = FetchType.LAZY)
+    @Column(name = "object")
+    private Serializable object;
 
-	public AuditEntity() {
-		setDate(new Date());
-	}
+    public AuditEntity() {
+        setDate(new Date());
+    }
 
-	public AuditEntity(final String source, final String fulltext) {
-		this();
-		setSource(source);
-		setFulltext(fulltext);
-	}
+    public AuditEntity(final String source, final String fulltext) {
+        this();
+        setSource(source);
+        setFulltext(fulltext);
+    }
 
-	public AuditEntity(final String source, final String fulltext, final Serializable object) {
-		this(source, fulltext);
-		setObject(object);
-	}
+    public AuditEntity(final String source, final String fulltext, final Serializable object) {
+        this(source, fulltext);
+        setObject(object);
+    }
 
-	public Long getId() {
-		return id;
-	}
+    public Long getId() {
+        return id;
+    }
 
-	public void setId(final Long id) {
-		this.id = id;
-	}
+    public void setId(final Long id) {
+        this.id = id;
+    }
 
-	public String getFulltext() {
-		return fulltext;
-	}
+    public String getFulltext() {
+        return fulltext;
+    }
 
-	public void setFulltext(final String fulltext) {
-		this.fulltext = fulltext;
-	}
+    public void setFulltext(final String fulltext) {
+        this.fulltext = fulltext;
+    }
 
-	public Date getDate() {
-		return date;
-	}
+    public Date getDate() {
+        return date;
+    }
 
-	public void setDate(final Date date) {
-		this.date = date;
-	}
+    public void setDate(final Date date) {
+        this.date = date;
+    }
 
-	public Serializable getObject() {
-		return object;
-	}
+    public Serializable getObject() {
+        return object;
+    }
 
-	public void setObject(final Serializable object) {
-		byte[] bytes = SerializationUtils.serialize(object);
-		byte[] b64rep = Base64.encodeBase64(bytes);
-		this.object = new String(b64rep, Charsets.UTF_8);
-	}
+    public void setObject(final Serializable object) {
+        byte[] bytes = SerializationUtils.serialize(object);
+        byte[] b64rep = Base64.encodeBase64(bytes);
+        this.object = new String(b64rep, Charsets.UTF_8);
+    }
 
-	public String getSource() {
-		return source;
-	}
+    public String getSource() {
+        return source;
+    }
 
-	public void setSource(final String source) {
-		this.source = source;
-	}
+    public void setSource(final String source) {
+        this.source = source;
+    }
 
-	@Override
-	public String toString() {
-		return "{\"id\":\"" + id + "\",\"source\":\"" + source + "\",\"date\":\"" + date.toString() + "\",\"fulltext\":\"" + fulltext + "\"}";
-	}
+    @Override
+    public String toString() {
+        return "{\"id\":\"" + id + "\",\"source\":\"" + source + "\",\"date\":\"" + date.toString() + "\",\"fulltext\":\"" + fulltext + "\"}";
+    }
 
 }

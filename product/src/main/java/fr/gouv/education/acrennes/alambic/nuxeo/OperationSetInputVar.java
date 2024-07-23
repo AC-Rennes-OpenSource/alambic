@@ -16,38 +16,41 @@
  ******************************************************************************/
 package fr.gouv.education.acrennes.alambic.nuxeo;
 
-import java.util.Map;
 import org.nuxeo.ecm.automation.client.OperationRequest;
+
+import java.util.Map;
 
 public class OperationSetInputVar implements AlambicOperation {
 
-	private static final String jsonDescription = "{"
-			+ "\"id\":\"Context.SetInputAsVar\","
-			+ "\"label\":\"Set Context Variable From Input\","
-			+ "\"category\":\"Execution Context\","
-			+ "\"requires\":null,"
-			+ "\"description\":\"Set a context variable that points to the current input object. You must give a name for the variable. This operation works on any input type and return back the input as the output.\","
-			+ "\"url\":\"" + OperationSetInputVar.class.getName() + "\","
-			+ "\"signature\":[\"void\",\"void\"],"
-			+ "\"params\":[{"
-			+ "\"name\":\"name\","
-			+ "\"description\":\"\","
-			+ "\"type\":\"string\","
-			+ "\"required\":true,"
-			+ "\"widget\":null,"
-			+ "\"order\":0,"
-			+ "\"values\":[]}]"
-			+ "}";
+    private static final String jsonDescription = "{"
+                                                  + "\"id\":\"Context.SetInputAsVar\","
+                                                  + "\"label\":\"Set Context Variable From Input\","
+                                                  + "\"category\":\"Execution Context\","
+                                                  + "\"requires\":null,"
+                                                  + "\"description\":\"Set a context variable that points to the current input object. You must " +
+                                                  "give a name for the variable. This operation works on any input type and return back the input " +
+                                                  "as the output.\","
+                                                  + "\"url\":\"" + OperationSetInputVar.class.getName() + "\","
+                                                  + "\"signature\":[\"void\",\"void\"],"
+                                                  + "\"params\":[{"
+                                                  + "\"name\":\"name\","
+                                                  + "\"description\":\"\","
+                                                  + "\"type\":\"string\","
+                                                  + "\"required\":true,"
+                                                  + "\"widget\":null,"
+                                                  + "\"order\":0,"
+                                                  + "\"values\":[]}]"
+                                                  + "}";
 
-	public static String getJSONDescription() {
-		return jsonDescription;
-	}
+    public static String getJSONDescription() {
+        return jsonDescription;
+    }
 
-	@Override
-	public Object execute(final OperationRequest request) {
-		Map<String, Object> parameters = request.getParameters();
-		request.getContextParameters().put((String) parameters.get("name"), request.getInput());
-		return request.getInput();
-	}
+    @Override
+    public Object execute(final OperationRequest request) {
+        Map<String, Object> parameters = request.getParameters();
+        request.getContextParameters().put((String) parameters.get("name"), request.getInput());
+        return request.getInput();
+    }
 
 }

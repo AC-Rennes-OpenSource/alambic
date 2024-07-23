@@ -55,7 +55,7 @@ public class GAR1DRespAffBuilder extends GAR1DBuilder {
         pattern = Pattern.compile("cn=(\\d+\\w)_GAR1dRespAff(Deleg)?,.+", Pattern.CASE_INSENSITIVE);
         exportFiles = parameters.getExportFiles();
         XPathFactory xpf = XPathFactory.newInstance();
-		xpath = xpf.newXPath();
+        xpath = xpf.newXPath();
         responsables = parameters.getResources().get("Entries").getEntries();
         memberStructuresList = new ArrayList<>();
         // Chaque structure possédant un unique UAI est ajoutée à la liste
@@ -80,7 +80,8 @@ public class GAR1DRespAffBuilder extends GAR1DBuilder {
     protected boolean checkRestriction(Map<String, List<String>> entity) throws MissingAttributeException, XPathExpressionException {
         if (null != exportFiles.get("restrictionList")) {
             Element root = exportFiles.get("restrictionList").getDocumentElement();
-            String matchingEntry = (String) xpath.evaluate("//id[.='" + getMandatoryAttribute(entity, "ENTPersonJointure") + "']", root, XPathConstants.STRING);
+            String matchingEntry = (String) xpath.evaluate("//id[.='" + getMandatoryAttribute(entity, "ENTPersonJointure") + "']", root,
+                    XPathConstants.STRING);
             return StringUtils.isNotBlank(matchingEntry);
         } else {
             return true;
@@ -98,7 +99,8 @@ public class GAR1DRespAffBuilder extends GAR1DBuilder {
         garRespAff.setGARPersonIdentifiant(getMandatoryAttribute(entity, "ENTPersonUid"));
         garRespAff.setGARPersonNom(getMandatoryAttribute(entity, "sn"));
         garRespAff.setGARPersonPrenom(getMandatoryAttribute(entity, "givenName"));
-        handleOptionalAttribute(entity, "personalTitle", title -> garRespAff.setGARPersonCivilite(GARHelper.getInstance().getSDETCompliantTitleValue(title)));
+        handleOptionalAttribute(entity, "personalTitle",
+                title -> garRespAff.setGARPersonCivilite(GARHelper.getInstance().getSDETCompliantTitleValue(title)));
         handleOptionalList(entity, "mail", mail -> {
             if (StringUtils.isNotBlank(mail)) {
                 garRespAff.getGARPersonMail().add(mail);
@@ -107,7 +109,8 @@ public class GAR1DRespAffBuilder extends GAR1DBuilder {
 
         // At least one mail should be present
         if (garRespAff.getGARPersonMail().isEmpty()) {
-            throw new MissingAttributeException("Skipping entity '" + GARHelper.getInstance().getPersonEntityBlurId(entity) + "' as it has no attribute 'mail' (mandatory)");
+            throw new MissingAttributeException("Skipping entity '" + GARHelper.getInstance().getPersonEntityBlurId(entity) + "' as it has no " +
+                                                "attribute 'mail' (mandatory)");
         }
 
         handleOptionalList(entity, "ENTPersonProfils", profil -> {
@@ -117,14 +120,16 @@ public class GAR1DRespAffBuilder extends GAR1DBuilder {
                 if (memberStructuresList.contains(uai)) {
                     garRespAff.getGARRespAffEtab().add(uai);
                 } else {
-                    log.info("Responsible with blur identifier '"+ GARHelper.getInstance().getPersonEntityBlurId(entity) +"' is affected in structure ('UAI:" + uai + "') out of the involved list");
+                    log.info("Responsible with blur identifier '" + GARHelper.getInstance().getPersonEntityBlurId(entity) + "' is affected in " +
+                             "structure ('UAI:" + uai + "') out of the involved list");
                 }
             }
         });
 
         // At least one etab should be present
         if (garRespAff.getGARRespAffEtab().isEmpty()) {
-            throw new MissingAttributeException("Skipping entity '" + GARHelper.getInstance().getPersonEntityBlurId(entity) + "' as it might not have profile 'GARRespAff' (mandatory)");
+            throw new MissingAttributeException("Skipping entity '" + GARHelper.getInstance().getPersonEntityBlurId(entity) + "' as it might not " +
+                                                "have profile 'GARRespAff' (mandatory)");
         }
 
         return garRespAff;
@@ -134,7 +139,8 @@ public class GAR1DRespAffBuilder extends GAR1DBuilder {
 
         private GARENTRespAff container;
 
-        protected GARENTRespAffWriter(ObjectFactory factory, String version, int page, int maxNodesCount, String output, String xsdFile) throws JAXBException, SAXException {
+        protected GARENTRespAffWriter(ObjectFactory factory, String version, int page, int maxNodesCount, String output, String xsdFile)
+                throws JAXBException, SAXException {
             super(factory, version, page, maxNodesCount, output);
             container = factory.createGARENTRespAff();
             container.setVersion(version);

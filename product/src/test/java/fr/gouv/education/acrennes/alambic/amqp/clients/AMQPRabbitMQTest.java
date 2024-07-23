@@ -16,97 +16,91 @@
  ******************************************************************************/
 package fr.gouv.education.acrennes.alambic.amqp.clients;
 
-import java.io.IOException;
-
-import org.junit.AfterClass;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.Test;
-
 import com.rabbitmq.client.Channel;
 import com.rabbitmq.client.Connection;
 import com.rabbitmq.client.ConnectionFactory;
 import com.rabbitmq.client.GetResponse;
-
 import fr.gouv.education.acrennes.alambic.amqp.broker.EmbeddedBroker;
+import org.junit.*;
+
+import java.io.IOException;
 
 public class AMQPRabbitMQTest {
 
-	private static EmbeddedBroker brokerStarter;
+    private static EmbeddedBroker brokerStarter;
 
-	@BeforeClass
-	public static void startup() throws Exception {
-		brokerStarter = new EmbeddedBroker();
-		brokerStarter.startBroker();
-	}
+    @BeforeClass
+    public static void startup() throws Exception {
+        brokerStarter = new EmbeddedBroker();
+        brokerStarter.startBroker();
+    }
 
-	@AfterClass
-	public static void tearDown() throws Exception {
-		brokerStarter.stopBroker();
-	}
+    @AfterClass
+    public static void tearDown() throws Exception {
+        brokerStarter.stopBroker();
+    }
 
-	@Before
-	public void setUp() throws IOException {
-	}
+    @Before
+    public void setUp() throws IOException {
+    }
 
-	/**
-	 * - QPID embedded Broker
-	 * - RabbitMQ client
-	 * */
-	@Test
-	public void test() throws Exception {
-		final String EXCHANGE_NAME = "exchange";
-		final String QUEUE_NAME = "queue";
-		final String ROUTING_KEY = "jms/queue";
-		final String MESSAGE_BODY = "Hello all folks!";
-		final String BROKER_URL = "amqp://guest:guest@/default?brokerlist='tcp://localhost:5672'";
+    /**
+     * - QPID embedded Broker
+     * - RabbitMQ client
+     * */
+    @Test
+    public void test() throws Exception {
+        final String EXCHANGE_NAME = "exchange";
+        final String QUEUE_NAME = "queue";
+        final String ROUTING_KEY = "jms/queue";
+        final String MESSAGE_BODY = "Hello all folks!";
+        final String BROKER_URL = "amqp://guest:guest@/default?brokerlist='tcp://localhost:5672'";
 
-		Connection connection = null;
-		Channel channel = null;
+        Connection connection = null;
+        Channel channel = null;
 
-		try {
-			ConnectionFactory factory = new ConnectionFactory();
-			factory.setUri(BROKER_URL);
+        try {
+            ConnectionFactory factory = new ConnectionFactory();
+            factory.setUri(BROKER_URL);
 
-			connection = factory.newConnection();
-			channel = connection.createChannel();
+            connection = factory.newConnection();
+            channel = connection.createChannel();
 
-			channel.exchangeDeclare(EXCHANGE_NAME, "direct", false);
-			channel.queueDeclare(QUEUE_NAME, false, false, false, null);
-			channel.queueBind(QUEUE_NAME, EXCHANGE_NAME, ROUTING_KEY);
-			
-			// Post message
-			channel.basicPublish(EXCHANGE_NAME, ROUTING_KEY,  null, MESSAGE_BODY.getBytes());
+            channel.exchangeDeclare(EXCHANGE_NAME, "direct", false);
+            channel.queueDeclare(QUEUE_NAME, false, false, false, null);
+            channel.queueBind(QUEUE_NAME, EXCHANGE_NAME, ROUTING_KEY);
 
-			// Get message
-			GetResponse response = channel.basicGet(QUEUE_NAME, false);
-			if (null != response) {
-				byte[] body = response.getBody();
-				Assert.assertEquals(MESSAGE_BODY, new String(body));
+            // Post message
+            channel.basicPublish(EXCHANGE_NAME, ROUTING_KEY, null, MESSAGE_BODY.getBytes());
 
-				// explicit acknowledge receipt of the message
-				long deliveryTag = response.getEnvelope().getDeliveryTag();
-				channel.basicAck(deliveryTag, false);				
-			}
-			
-			response = channel.basicGet(QUEUE_NAME, false);
-			if (null != response) {
-				byte[] body = response.getBody();
-				Assert.assertEquals(MESSAGE_BODY, new String(body));
+            // Get message
+            GetResponse response = channel.basicGet(QUEUE_NAME, false);
+            if (null != response) {
+                byte[] body = response.getBody();
+                Assert.assertEquals(MESSAGE_BODY, new String(body));
 
-				// explicit acknowledge receipt of the message
-				long deliveryTag = response.getEnvelope().getDeliveryTag();
-				channel.basicAck(deliveryTag, false);				
-			}
-			
-		} catch (Exception e) {
-			Assert.fail(e.getMessage());
-		} finally {
-			if (null != channel) {
-				channel.close();
-			}
-		}
-	}
+                // explicit acknowledge receipt of the message
+                long deliveryTag = response.getEnvelope().getDeliveryTag();
+                channel.basicAck(deliveryTag, false);
+            }
+
+            response = channel.basicGet(QUEUE_NAME, false);
+            if (null != response) {
+                byte[] body = response.getBody();
+                Assert.assertEquals(MESSAGE_BODY, new String(body));
+
+                // explicit acknowledge receipt of the message
+                long deliveryTag = response.getEnvelope().getDeliveryTag();
+                channel.basicAck(deliveryTag, false);
+            }
+
+        } catch (Exception e) {
+            Assert.fail(e.getMessage());
+        } finally {
+            if (null != channel) {
+                channel.close();
+            }
+        }
+    }
 
 }

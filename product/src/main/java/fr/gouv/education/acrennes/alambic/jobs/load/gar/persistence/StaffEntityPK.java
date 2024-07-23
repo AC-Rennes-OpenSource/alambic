@@ -16,71 +16,70 @@
  ******************************************************************************/
 package fr.gouv.education.acrennes.alambic.jobs.load.gar.persistence;
 
-import java.io.Serializable;
 import javax.persistence.Column;
 import javax.persistence.Embeddable;
+import java.io.Serializable;
 
 @Embeddable
 public class StaffEntityPK implements Serializable {
 
-	private static final long serialVersionUID = 1L;
+    private static final long serialVersionUID = 1L;
 
-	@Column(name = "uai")
-	private String uai;
+    @Column(name = "uai")
+    private String uai;
 
-	@Column(name = "uuid")
-	private String uuid;
+    @Column(name = "uuid")
+    private String uuid;
 
-	public StaffEntityPK() {
-	}
+    public StaffEntityPK() {
+    }
 
-	public StaffEntityPK(final String uai, final String uuid) {
-		this.uai = uai;
-		this.uuid = uuid;
-	}
+    public StaffEntityPK(final String uai, final String uuid) {
+        this.uai = uai;
+        this.uuid = uuid;
+    }
 
-	public String getUai() {
-		return uai;
-	}
+    public String getUai() {
+        return uai;
+    }
 
-	public void setUai(final String uai) {
-		this.uai = uai;
-	}
+    public void setUai(final String uai) {
+        this.uai = uai;
+    }
 
-	public String getUuid() {
-		return uuid;
-	}
+    public String getUuid() {
+        return uuid;
+    }
 
-	public void setUuid(final String uuid) {
-		this.uuid = uuid;
-	}
+    public void setUuid(final String uuid) {
+        this.uuid = uuid;
+    }
 
-	@Override
-	public boolean equals(final Object obj) {
-		boolean isEqual = false;
+    @Override
+    public boolean equals(final Object obj) {
+        boolean isEqual = false;
 
-		if (obj == this) {
-			isEqual = true;
-		} else if (null != obj) {
-			if (obj instanceof StaffEntityPK) {
-				StaffEntityPK other = (StaffEntityPK) obj;
-				if (uai == other.getUai() && uuid == other.getUuid()) {
-					isEqual = true;
-				}
-			}
-		}
+        if (obj == this) {
+            isEqual = true;
+        } else if (null != obj) {
+            if (obj instanceof final StaffEntityPK other) {
+                if (uai == other.getUai() && uuid == other.getUuid()) {
+                    isEqual = true;
+                }
+            }
+        }
 
-		return isEqual;
-	}
+        return isEqual;
+    }
 
-	@Override
-	public String toString() {
-		return "{\"uuid\":\"" + uuid + "\",\"uai\":\"" + uai + "\"}";
-	}
+    @Override
+    public String toString() {
+        return "{\"uuid\":\"" + uuid + "\",\"uai\":\"" + uai + "\"}";
+    }
 
-	@Override
-	public int hashCode() {
-		return "StaffEntityPK::".concat(toString()).hashCode();
-	}
+    @Override
+    public int hashCode() {
+        return "StaffEntityPK::".concat(toString()).hashCode();
+    }
 
 }

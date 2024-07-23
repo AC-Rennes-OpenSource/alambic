@@ -26,7 +26,7 @@ import javax.xml.namespace.QName;
  * type definitions, element declarations and model 
  * groups.  Factory methods for each of these are 
  * provided in this class.
- * 
+ *
  */
 @XmlRegistry
 public class ObjectFactory {
@@ -38,15 +38,16 @@ public class ObjectFactory {
     private final static QName _GARENTRespAff_QNAME = new QName("http://data.education.fr/ns/gar/1d", "GAR-ENT-RespAff");
 
     /**
-     * Create a new ObjectFactory that can be used to create new instances of schema derived classes for package: fr.gouv.education.acrennes.alambic.jobs.load.gar.binding1d
-     * 
+     * Create a new ObjectFactory that can be used to create new instances of schema derived classes for package: fr.gouv.education.acrennes
+     * .alambic.jobs.load.gar.binding1d
+     *
      */
     public ObjectFactory() {
     }
 
     /**
      * Create an instance of {@link GARENTRespAff }
-     * 
+     *
      */
     public GARENTRespAff createGARENTRespAff() {
         return new GARENTRespAff();
@@ -54,7 +55,7 @@ public class ObjectFactory {
 
     /**
      * Create an instance of {@link GARENTEnseignant }
-     * 
+     *
      */
     public GARENTEnseignant createGARENTEnseignant() {
         return new GARENTEnseignant();
@@ -62,7 +63,7 @@ public class ObjectFactory {
 
     /**
      * Create an instance of {@link GARENTEleve }
-     * 
+     *
      */
     public GARENTEleve createGARENTEleve() {
         return new GARENTEleve();
@@ -70,7 +71,7 @@ public class ObjectFactory {
 
     /**
      * Create an instance of {@link GARENTGroupe }
-     * 
+     *
      */
     public GARENTGroupe createGARENTGroupe() {
         return new GARENTGroupe();
@@ -78,7 +79,7 @@ public class ObjectFactory {
 
     /**
      * Create an instance of {@link GARENTEtab }
-     * 
+     *
      */
     public GARENTEtab createGARENTEtab() {
         return new GARENTEtab();
@@ -86,7 +87,7 @@ public class ObjectFactory {
 
     /**
      * Create an instance of {@link GAREnsSpecialitesPostes }
-     * 
+     *
      */
     public GAREnsSpecialitesPostes createGAREnsSpecialitesPostes() {
         return new GAREnsSpecialitesPostes();
@@ -94,7 +95,7 @@ public class ObjectFactory {
 
     /**
      * Create an instance of {@link GAREtab }
-     * 
+     *
      */
     public GAREtab createGAREtab() {
         return new GAREtab();
@@ -102,7 +103,7 @@ public class ObjectFactory {
 
     /**
      * Create an instance of {@link GARIdentite }
-     * 
+     *
      */
     public GARIdentite createGARIdentite() {
         return new GARIdentite();
@@ -110,7 +111,7 @@ public class ObjectFactory {
 
     /**
      * Create an instance of {@link GAREnseignant }
-     * 
+     *
      */
     public GAREnseignant createGAREnseignant() {
         return new GAREnseignant();
@@ -118,7 +119,7 @@ public class ObjectFactory {
 
     /**
      * Create an instance of {@link GARPersonProfils }
-     * 
+     *
      */
     public GARPersonProfils createGARPersonProfils() {
         return new GARPersonProfils();
@@ -126,7 +127,7 @@ public class ObjectFactory {
 
     /**
      * Create an instance of {@link GARGroupe }
-     * 
+     *
      */
     public GARGroupe createGARGroupe() {
         return new GARGroupe();
@@ -134,7 +135,7 @@ public class ObjectFactory {
 
     /**
      * Create an instance of {@link GARPersonGroupe }
-     * 
+     *
      */
     public GARPersonGroupe createGARPersonGroupe() {
         return new GARPersonGroupe();
@@ -142,7 +143,7 @@ public class ObjectFactory {
 
     /**
      * Create an instance of {@link GAREleve }
-     * 
+     *
      */
     public GAREleve createGAREleve() {
         return new GAREleve();
@@ -150,7 +151,7 @@ public class ObjectFactory {
 
     /**
      * Create an instance of {@link GARPersonMEFSTAT4 }
-     * 
+     *
      */
     public GARPersonMEFSTAT4 createGARPersonMEFSTAT4() {
         return new GARPersonMEFSTAT4();
@@ -158,7 +159,7 @@ public class ObjectFactory {
 
     /**
      * Create an instance of {@link GARRespAff }
-     * 
+     *
      */
     public GARRespAff createGARRespAff() {
         return new GARRespAff();
@@ -166,7 +167,7 @@ public class ObjectFactory {
 
     /**
      * Create an instance of {@link JAXBElement }{@code <}{@link GARENTEtab }{@code >}}
-     * 
+     *
      */
     @XmlElementDecl(namespace = "http://data.education.fr/ns/gar/1d", name = "GAR-ENT-Etab")
     public JAXBElement<GARENTEtab> createGARENTEtab(GARENTEtab value) {
@@ -175,7 +176,7 @@ public class ObjectFactory {
 
     /**
      * Create an instance of {@link JAXBElement }{@code <}{@link GARENTEleve }{@code >}}
-     * 
+     *
      */
     @XmlElementDecl(namespace = "http://data.education.fr/ns/gar/1d", name = "GAR-ENT-Eleve")
     public JAXBElement<GARENTEleve> createGARENTEleve(GARENTEleve value) {
@@ -184,7 +185,7 @@ public class ObjectFactory {
 
     /**
      * Create an instance of {@link JAXBElement }{@code <}{@link GARENTGroupe }{@code >}}
-     * 
+     *
      */
     @XmlElementDecl(namespace = "http://data.education.fr/ns/gar/1d", name = "GAR-ENT-Groupe")
     public JAXBElement<GARENTGroupe> createGARENTGroupe(GARENTGroupe value) {
@@ -193,7 +194,7 @@ public class ObjectFactory {
 
     /**
      * Create an instance of {@link JAXBElement }{@code <}{@link GARENTEnseignant }{@code >}}
-     * 
+     *
      */
     @XmlElementDecl(namespace = "http://data.education.fr/ns/gar/1d", name = "GAR-ENT-Enseignant")
     public JAXBElement<GARENTEnseignant> createGARENTEnseignant(GARENTEnseignant value) {
@@ -202,7 +203,7 @@ public class ObjectFactory {
 
     /**
      * Create an instance of {@link JAXBElement }{@code <}{@link GARENTRespAff }{@code >}}
-     * 
+     *
      */
     @XmlElementDecl(namespace = "http://data.education.fr/ns/gar/1d", name = "GAR-ENT-RespAff")
     public JAXBElement<GARENTRespAff> createGARENTRespAff(GARENTRespAff value) {

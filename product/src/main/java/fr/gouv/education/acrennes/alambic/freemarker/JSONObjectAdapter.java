@@ -16,66 +16,59 @@
  ******************************************************************************/
 package fr.gouv.education.acrennes.alambic.freemarker;
 
+import freemarker.ext.beans.BeansWrapper;
+import freemarker.ext.beans.CollectionModel;
+import freemarker.template.*;
+import org.json.JSONObject;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
-import org.json.JSONObject;
+public class JSONObjectAdapter extends WrappingTemplateModel implements TemplateHashModelEx, AdapterTemplateModel {
 
-import freemarker.ext.beans.BeansWrapper;
-import freemarker.ext.beans.CollectionModel;
-import freemarker.template.AdapterTemplateModel;
-import freemarker.template.ObjectWrapper;
-import freemarker.template.TemplateCollectionModel;
-import freemarker.template.TemplateHashModelEx;
-import freemarker.template.TemplateModel;
-import freemarker.template.TemplateModelException;
-import freemarker.template.WrappingTemplateModel;
+    private final JSONObject jsonObj;
 
-public class JSONObjectAdapter extends WrappingTemplateModel implements	TemplateHashModelEx, AdapterTemplateModel {
+    public JSONObjectAdapter(JSONObject jsonObj, ObjectWrapper ow) {
+        super(ow);
+        this.jsonObj = jsonObj;
+    }
 
-	private final JSONObject jsonObj;
-	
-	public JSONObjectAdapter(JSONObject jsonObj, ObjectWrapper ow) {
-		super(ow);
-		this.jsonObj = jsonObj;
-	}
-	
-	@SuppressWarnings("rawtypes")
-	@Override
-	public Object getAdaptedObject(Class hint) {
-		return this.jsonObj;
-	}
+    @SuppressWarnings("rawtypes")
+    @Override
+    public Object getAdaptedObject(Class hint) {
+        return this.jsonObj;
+    }
 
-	@Override
-	public TemplateModel get(String key) throws TemplateModelException {
-		return (this.jsonObj.has(key)) ? wrap(this.jsonObj.get(key)) : null;
-	}
+    @Override
+    public TemplateModel get(String key) throws TemplateModelException {
+        return (this.jsonObj.has(key)) ? wrap(this.jsonObj.get(key)) : null;
+    }
 
-	@Override
-	public boolean isEmpty() throws TemplateModelException {
-		return this.jsonObj.isEmpty();
-	}
+    @Override
+    public boolean isEmpty() throws TemplateModelException {
+        return this.jsonObj.isEmpty();
+    }
 
-	@Override
-	public int size() throws TemplateModelException {
-		return this.jsonObj.length();
-	}
-	
-	@Override
-	public TemplateCollectionModel keys() throws TemplateModelException {
-		Set<String> keys = this.jsonObj.keySet();
-		return new CollectionModel(keys, (BeansWrapper) getObjectWrapper());
-	}
+    @Override
+    public int size() throws TemplateModelException {
+        return this.jsonObj.length();
+    }
 
-	@Override
-	public TemplateCollectionModel values() throws TemplateModelException {
-		List<String> values = new ArrayList<>();
-		Set<String> keys = this.jsonObj.keySet();
-		for (String key : keys) {
-			values.add(this.jsonObj.get(key).toString());
-		}
-		return new CollectionModel(values, (BeansWrapper) getObjectWrapper());
-	}
+    @Override
+    public TemplateCollectionModel keys() throws TemplateModelException {
+        Set<String> keys = this.jsonObj.keySet();
+        return new CollectionModel(keys, (BeansWrapper) getObjectWrapper());
+    }
+
+    @Override
+    public TemplateCollectionModel values() throws TemplateModelException {
+        List<String> values = new ArrayList<>();
+        Set<String> keys = this.jsonObj.keySet();
+        for (String key : keys) {
+            values.add(this.jsonObj.get(key).toString());
+        }
+        return new CollectionModel(values, (BeansWrapper) getObjectWrapper());
+    }
 
 }

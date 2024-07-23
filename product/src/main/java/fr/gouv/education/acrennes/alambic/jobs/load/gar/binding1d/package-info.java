@@ -5,5 +5,6 @@
 // Généré le : 2021.02.23 à 04:46:47 PM CET 
 //
 
-@javax.xml.bind.annotation.XmlSchema(namespace = "http://data.education.fr/ns/gar/1d", elementFormDefault = javax.xml.bind.annotation.XmlNsForm.QUALIFIED)
+@javax.xml.bind.annotation.XmlSchema(namespace = "http://data.education.fr/ns/gar/1d", elementFormDefault =
+        javax.xml.bind.annotation.XmlNsForm.QUALIFIED)
 package fr.gouv.education.acrennes.alambic.jobs.load.gar.binding1d;

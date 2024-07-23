@@ -19,25 +19,28 @@ package fr.gouv.education.acrennes.alambic.jobs;
 import org.jdom2.Element;
 
 public class JobDefinition {
-	private CallableContext context;
-	private Element definition;
-	
-	public JobDefinition(CallableContext context, Element definition) {
-		setContext(context);
-		setDefinition(definition);
-	}
-	
-	public CallableContext getContext() {
-		return context;
-	}
-	public void setContext(CallableContext context) {
-		this.context = context;
-	}
-	public Element getDefinition() {
-		return definition;
-	}
-	public void setDefinition(Element definition) {
-		this.definition = definition;
-	}
-	
+    private CallableContext context;
+    private Element definition;
+
+    public JobDefinition(CallableContext context, Element definition) {
+        setContext(context);
+        setDefinition(definition);
+    }
+
+    public CallableContext getContext() {
+        return context;
+    }
+
+    public void setContext(CallableContext context) {
+        this.context = context;
+    }
+
+    public Element getDefinition() {
+        return definition;
+    }
+
+    public void setDefinition(Element definition) {
+        this.definition = definition;
+    }
+
 }
