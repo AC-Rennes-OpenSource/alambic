@@ -46,7 +46,7 @@ import static org.mockito.Mockito.verify;
 @RunWith(PowerMockRunner.class)
 @PrepareForTest({ Entry.class })
 @PowerMockIgnore("javax.management.*")
-public class EntryTest2 {
+public class TestEntryTest2 {
 
     private InitialDirContext mockedDirContext;
 
@@ -99,12 +99,12 @@ public class EntryTest2 {
 
     private Entry buildFromPivot(final String nameInNamespace, final String filePath) throws Exception {
         final Element mockedPivotEntry;
-        try (final InputStream is = EntryTest2.class.getClassLoader().getResourceAsStream(filePath)) {
+        try (final InputStream is = TestEntryTest2.class.getClassLoader().getResourceAsStream(filePath)) {
             mockedPivotEntry = (new SAXBuilder()).build(is).getRootElement();
         }
 
         Variables variables = new Variables();
-        try (final InputStream is = EntryTest2.class.getClassLoader().getResourceAsStream("conf/variables.xml")) {
+        try (final InputStream is = TestEntryTest2.class.getClassLoader().getResourceAsStream("conf/variables.xml")) {
             Element variablesElt = (new SAXBuilder()).build(is).getRootElement();
             variables.loadFromXmlNode(variablesElt.getChild("variables").getChildren("variable"));
             variables.put("ALAMBIC_TARGET_ENVIRONMENT", "DEVELOPMENT");

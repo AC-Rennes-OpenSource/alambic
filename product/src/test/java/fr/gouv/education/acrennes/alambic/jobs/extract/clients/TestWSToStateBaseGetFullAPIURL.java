@@ -25,7 +25,7 @@ import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 
 @RunWith(Parameterized.class)
-public class WSToStateBaseGetFullAPIURL {
+public class TestWSToStateBaseGetFullAPIURL {
 
     @Parameterized.Parameters
     public static Collection<Object[]> data() {
@@ -66,7 +66,7 @@ public class WSToStateBaseGetFullAPIURL {
     private final String queryParams;
     private final String exp;
 
-    public WSToStateBaseGetFullAPIURL(
+    public TestWSToStateBaseGetFullAPIURL(
             final String baseUrl, final String path, final String queryParams, final String exp
     ) {
         this.baseUrl = baseUrl;
