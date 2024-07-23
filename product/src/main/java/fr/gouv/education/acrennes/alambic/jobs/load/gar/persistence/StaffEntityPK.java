@@ -19,6 +19,7 @@ package fr.gouv.education.acrennes.alambic.jobs.load.gar.persistence;
 import javax.persistence.Column;
 import javax.persistence.Embeddable;
 import java.io.Serializable;
+import java.util.Objects;
 
 @Embeddable
 public class StaffEntityPK implements Serializable {
@@ -63,7 +64,7 @@ public class StaffEntityPK implements Serializable {
             isEqual = true;
         } else if (null != obj) {
             if (obj instanceof final StaffEntityPK other) {
-                if (uai == other.getUai() && uuid == other.getUuid()) {
+                if (Objects.equals(uai, other.getUai()) && Objects.equals(uuid, other.getUuid())) {
                     isEqual = true;
                 }
             }

@@ -18,7 +18,6 @@ package fr.gouv.education.acrennes.alambic.jobs.load.gar.persistence;
 
 import org.eclipse.persistence.annotations.CascadeOnDelete;
 import org.eclipse.persistence.annotations.Index;
-import org.eclipse.persistence.annotations.Indexes;
 
 import javax.persistence.*;
 import java.io.Serializable;
@@ -27,12 +26,10 @@ import java.util.Collections;
 import java.util.List;
 
 @Entity
-@Indexes({
-        @Index(name = "staffentity_pk_idx", unique = true, columnNames = { "uuid", "uai" }),
-        @Index(name = "staffentity_uuid_idx", columnNames = { "uuid" }),
-        @Index(name = "staffentity_uai_idx", columnNames = { "uai" }),
-        @Index(name = "staffentity_type_idx", columnNames = { "type" })
-})
+@Index(name = "staffentity_pk_idx", unique = true, columnNames = { "uuid", "uai" })
+@Index(name = "staffentity_uuid_idx", columnNames = { "uuid" })
+@Index(name = "staffentity_uai_idx", columnNames = { "uai" })
+@Index(name = "staffentity_type_idx", columnNames = { "type" })
 public class StaffEntity implements Serializable {
 
     private static final long serialVersionUID = 1L;
@@ -97,13 +94,12 @@ public class StaffEntity implements Serializable {
 
         if (obj == this) {
             isEqual = true;
-        } else if (null != obj) {
-            if (obj instanceof final StaffEntity other) {
-                if (other.getPrimaryKey().equals(getPrimaryKey()) && type == other.getType()) {
-                    isEqual = true;
-                }
-            }
+        } else if (obj instanceof final StaffEntity other &&
+                   other.getPrimaryKey().equals(getPrimaryKey()) &&
+                   type == other.getType()) {
+            isEqual = true;
         }
+
 
         return isEqual;
     }
