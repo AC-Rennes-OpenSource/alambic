@@ -29,12 +29,6 @@ import java.util.Map;
 
 public class RandomUidGenerator extends AbstractRandomGenerator {
 
-    //	private static final Log log = LogFactory.getLog(RandomUidGenerator.class);
-    private enum RANDOM_UID_FORMAT {
-        SHORT,
-        LONG
-    }
-
     private final FMFunctions fcts;
 
     public RandomUidGenerator(final EntityManager em) throws AlambicException {
@@ -109,6 +103,12 @@ public class RandomUidGenerator extends AbstractRandomGenerator {
         }
 
         return String.format("[%s-%s-%s]", format, firstName, lastName);
+    }
+
+    //	private static final Log log = LogFactory.getLog(RandomUidGenerator.class);
+    private enum RANDOM_UID_FORMAT {
+        SHORT,
+        LONG
     }
 
 }

@@ -44,19 +44,13 @@ public class BaseXToStateBase implements IToStateBase {
     private static final String BASEX_SEARCH_API = "%s:%d/rest/%s";
     private static final String BASEX_SEARCH_API_WITH_QUERY_PARAMS = "%s:%d/rest/%s?query=%s";
     private static final int DEFAULT_TIME_OUT = 5_000; // 5 seconds
-
-    public enum AUTH_SCHEMES {
-        BASIC_AUTH
-    }
-
-    private List<Map<String, List<String>>> statebase = new ArrayList<>();
-    private CloseableHttpClient httpClient;
-    private String authHeader;
     private final String host;
     private final int port;
     private final String database;
+    private List<Map<String, List<String>>> statebase = new ArrayList<>();
+    private CloseableHttpClient httpClient;
+    private String authHeader;
     private BaseXResultsPageIterator pageIterator;
-
     public BaseXToStateBase(final String host, final int port, final String database, final String proxy_host, final String proxy_port,
                             final String connection_timeout, final String auth_login, final String auth_password) {
         this.database = (StringUtils.isNotBlank(database)) ? database : "";
@@ -172,15 +166,18 @@ public class BaseXToStateBase implements IToStateBase {
         return this.pageIterator;
     }
 
+    public enum AUTH_SCHEMES {
+        BASIC_AUTH
+    }
+
     public class BaseXResultsPageIterator implements Iterator<List<Map<String, List<String>>>> {
 
         private final Log log = LogFactory.getLog(BaseXResultsPageIterator.class);
-
-        private List<Map<String, List<String>>> entries;
         private final String query;
         private final int pageSize;
-        private int offset;
         private final int total;
+        private List<Map<String, List<String>>> entries;
+        private int offset;
 
         public BaseXResultsPageIterator(final String query, final int pageSize) throws AlambicException {
             this.query = query;

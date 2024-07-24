@@ -38,11 +38,10 @@ import java.util.*;
 public class LdapToStateBase implements IToStateBase {
 
     private static final Log log = LogFactory.getLog(LdapToStateBase.class);
-
-    private List<Map<String, List<String>>> results = new ArrayList<>();
-    private NamingEnumeration<SearchResult> searchResultSet;
     private final Hashtable<String, String> confLdap = new Hashtable<>();
     private final SearchControls contraintes = new SearchControls();
+    private List<Map<String, List<String>>> results = new ArrayList<>();
+    private NamingEnumeration<SearchResult> searchResultSet;
     private DirContext ctx = null;
     private LDAPResultsPageIterator pageIterator;
 
@@ -182,16 +181,15 @@ public class LdapToStateBase implements IToStateBase {
     public class LDAPResultsPageIterator implements Iterator<List<Map<String, List<String>>>> {
 
         private final Log log = LogFactory.getLog(LDAPResultsPageIterator.class);
-
-        private List<Map<String, List<String>>> entries;
-        private int offset;
-        private int total;
         private final int pageSize;
         private final String query;
         private final SearchControls controls;
+        private final String sortBy;
+        private List<Map<String, List<String>>> entries;
+        private int offset;
+        private int total;
         private LdapContext itrCtx;
         private boolean isInitialization;
-        private final String sortBy;
 
         public LDAPResultsPageIterator(final Hashtable<String, String> environment, final SearchControls controls, final String query,
                                        final String scope, final int pageSize,

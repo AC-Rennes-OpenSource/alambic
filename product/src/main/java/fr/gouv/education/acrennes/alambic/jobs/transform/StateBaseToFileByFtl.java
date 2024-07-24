@@ -48,12 +48,12 @@ public class StateBaseToFileByFtl extends AbstractDestination {
     private static final Log log = LogFactory.getLog(StateBaseToFileByFtl.class);
 
     private static final String DEFAULT_OUTPUT_CHARSET = Charsets.UTF_8.toString();
+    final Map<String, Object> root = new HashMap<>();
     private final Configuration cfg;
     private final String tplDir;
     private final String tplFile;
-    private String outputFile;
     private final boolean classicMode;
-    final Map<String, Object> root = new HashMap<>();
+    private String outputFile;
 
     public StateBaseToFileByFtl(final CallableContext context, final Element job, final ActivityMBean jobActivity) throws AlambicException {
         super(context, job, jobActivity);

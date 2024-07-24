@@ -99,18 +99,13 @@ public class JobContext implements CallableContext {
     }
 
     @Override
-    public void setExecutionPath(String path) {
-        this.executionPath = path;
-    }
-
-    @Override
     public String getExecutionPath() {
         return executionPath;
     }
 
     @Override
-    public void setVariables(Variables variables) {
-        this.variables = variables;
+    public void setExecutionPath(String path) {
+        this.executionPath = path;
     }
 
     @Override
@@ -119,13 +114,18 @@ public class JobContext implements CallableContext {
     }
 
     @Override
-    public void setJobDocument(Document document) {
-        this.jobsDocument = document;
+    public void setVariables(Variables variables) {
+        this.variables = variables;
     }
 
     @Override
     public Document getJobDocument() {
         return this.jobsDocument;
+    }
+
+    @Override
+    public void setJobDocument(Document document) {
+        this.jobsDocument = document;
     }
 
     @Override

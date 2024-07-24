@@ -25,11 +25,6 @@ public class Report {
     private List<String> reasons;
     private ActivityStack activity;
 
-    public enum STATUS {
-        error,
-        success
-    }
-
     public Report() {
     }
 
@@ -61,6 +56,11 @@ public class Report {
 
     public void setReasons(List<String> reasons) {
         this.reasons = reasons;
+    }
+
+    public enum STATUS {
+        error,
+        success
     }
 
 }

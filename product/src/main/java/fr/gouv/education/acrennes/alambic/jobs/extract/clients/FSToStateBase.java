@@ -104,6 +104,14 @@ public class FSToStateBase implements IToStateBase {
         stateBase.clear();
     }
 
+    @Override
+    public Iterator<List<Map<String, List<String>>>> getPageIterator(final String query, final String scope, final int pageSize,
+                                                                     final String sortBy, final String orderBy)
+            throws AlambicException {
+        pageIterator = new FSResultsPageIterator(query, pageSize);
+        return pageIterator;
+    }
+
     public static final class FilenameRegExFilter implements FilenameFilter {
         private final String regex;
 
@@ -122,22 +130,13 @@ public class FSToStateBase implements IToStateBase {
         }
     }
 
-    @Override
-    public Iterator<List<Map<String, List<String>>>> getPageIterator(final String query, final String scope, final int pageSize,
-                                                                     final String sortBy, final String orderBy)
-            throws AlambicException {
-        pageIterator = new FSResultsPageIterator(query, pageSize);
-        return pageIterator;
-    }
-
     public class FSResultsPageIterator implements Iterator<List<Map<String, List<String>>>> {
 
         private final Log log = LogFactory.getLog(FSResultsPageIterator.class);
-
+        private final int pageSize;
         private List<Map<String, List<String>>> entries;
         private int offset;
         private int total;
-        private final int pageSize;
 
         public FSResultsPageIterator(final String query, final int pageSize) {
             this.offset = 0;

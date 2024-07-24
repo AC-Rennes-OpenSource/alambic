@@ -38,17 +38,17 @@ public interface CallableContext {
 
     Float getVersion();
 
-    void setExecutionPath(String path);
-
     String getExecutionPath();
 
-    void setVariables(Variables variables);
+    void setExecutionPath(String path);
 
     Variables getVariables();
 
-    void setJobDocument(Document document);
+    void setVariables(Variables variables);
 
     Document getJobDocument();
+
+    void setJobDocument(Document document);
 
     String resolvePath(final String path) throws AlambicException;
 

@@ -284,13 +284,13 @@ public class GAREtablissementBuilder implements GARTypeBuilder {
 
     private class GAREtablissementWriter {
 
-        private int nodeCount;
         private final ObjectFactory factory;
-        private GARENTEtab container;
         private final Marshaller marshaller;
         private final int maxNodesCount;
         private final String version;
         private final int page;
+        private int nodeCount;
+        private GARENTEtab container;
 
         protected GAREtablissementWriter(final ObjectFactory factory, final String version, final int page, final int maxNodesCount)
                 throws JAXBException, SAXException {

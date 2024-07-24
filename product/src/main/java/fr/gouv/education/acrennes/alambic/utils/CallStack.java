@@ -23,11 +23,11 @@ import java.util.Map;
 
 public class CallStack {
 
+    private final List<CallStack> stack;
+    private final Map<String, String> ctx;
     private String id;
     private String param;
     private String fulltext;
-    private final List<CallStack> stack;
-    private final Map<String, String> ctx;
 
     public CallStack(final String id) {
         setId(id);

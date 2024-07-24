@@ -35,10 +35,10 @@ import java.util.Map;
 
 public class RandomImageGenerator extends AbstractRandomGenerator {
 
-    private static final Log log = LogFactory.getLog(RandomImageGenerator.class);
     public static final String LOREM_IPSUM_IMAGE_URL_PATTERN = "https://picsum.photos/%s/%s";
     public static final int CONNECTION_TIMEOUT = 5000; // ms
     public static final int READ_TIMEOUT = 60000; // ms
+    private static final Log log = LogFactory.getLog(RandomImageGenerator.class);
 
     public RandomImageGenerator(final EntityManager em) throws AlambicException {
         super(em);

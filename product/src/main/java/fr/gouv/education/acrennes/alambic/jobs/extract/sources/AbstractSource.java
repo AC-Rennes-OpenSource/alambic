@@ -179,6 +179,16 @@ public abstract class AbstractSource implements Source, Iterable<Map<String, Lis
 
     abstract public void initialize(Element sourceNode) throws AlambicException;
 
+    @Override
+    public int getPage() {
+        return page;
+    }
+
+    @Override
+    public void setPage(final int page) {
+        this.page = page;
+    }
+
     private static class EntrySorter implements Comparator<Map<String, List<String>>> {
         final String orderby;
 
@@ -233,16 +243,6 @@ public abstract class AbstractSource implements Source, Iterable<Map<String, Lis
             return status;
         }
 
-    }
-
-    @Override
-    public void setPage(final int page) {
-        this.page = page;
-    }
-
-    @Override
-    public int getPage() {
-        return page;
     }
 
 }

@@ -55,18 +55,13 @@ public class ElasticToStateBase implements IToStateBase {
         headers.put("Content-Type", "application/json");
     }
 
-    public enum AUTH_SCHEMES {
-        BASIC_AUTH
-    }
-
-    private List<Map<String, List<String>>> statebase = new ArrayList<>();
-    private CloseableHttpClient httpClient;
-    private String authHeader;
     private final String uri;
     private final String scroll;
     private final String index_alias;
+    private List<Map<String, List<String>>> statebase = new ArrayList<>();
+    private CloseableHttpClient httpClient;
+    private String authHeader;
     private ElsaticResultsPageIterator pageIterator;
-
     public ElasticToStateBase(final String uri, final String proxy_host, final String proxy_port, final String index_alias, final String scroll,
                               final String connection_timeout, final String auth_login, final String auth_password) {
         this.uri = uri;
@@ -189,14 +184,17 @@ public class ElasticToStateBase implements IToStateBase {
         return this.pageIterator;
     }
 
+    public enum AUTH_SCHEMES {
+        BASIC_AUTH
+    }
+
     public class ElsaticResultsPageIterator implements Iterator<List<Map<String, List<String>>>> {
 
         private final Log log = LogFactory.getLog(ElsaticResultsPageIterator.class);
-
-        private List<Map<String, List<String>>> entries;
         private final String query;
-        private String scroll_id;
         private final int pageSize;
+        private List<Map<String, List<String>>> entries;
+        private String scroll_id;
         private int total;
         private int count;
 

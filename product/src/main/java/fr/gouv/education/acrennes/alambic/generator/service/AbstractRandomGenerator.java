@@ -42,7 +42,7 @@ public abstract class AbstractRandomGenerator implements RandomGenerator {
     private static final Log log = LogFactory.getLog(AbstractRandomGenerator.class);
 
     private static final long DEFAULT_RANDOM_GENERATOR_CAPACITY = 1000;
-
+    protected final EntityManager em;
     /**
      * A cache is implemented to prevent observed 'LightWeightLocks' (LWLock of type 'buffer_mapping') on SELECT commands
      * when getting the actual generator capacity (method call 'getActualCapacity()'). The SELECT commands were blocking
@@ -50,7 +50,6 @@ public abstract class AbstractRandomGenerator implements RandomGenerator {
      * The cache aims to limit the database accesses to minimum required.
      */
     private final ObjectMapper mapper;
-    protected final EntityManager em;
 
     public AbstractRandomGenerator(final EntityManager em) throws AlambicException {
         this.mapper = new ObjectMapper();

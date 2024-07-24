@@ -37,28 +37,6 @@ public class GeoConvert {
     final CoordinateOperation mayotteToWgs84;
     final CoordinateOperation stPierreEtMiquelonToWgs84;
 
-    /**
-     * Récupère le système qui permet de convertir des coordonnées géographiques en fonction du référentiel propre à chaque département. Tous les
-     * département de Métropole ont le
-     * même référentiel {@link #getLambert93ToWgs84()}
-     *
-     * @param codeDepartement
-     *            code du département sur 3 chiffres
-     * @return par défaut {@link #getLambert93ToWgs84()}
-     */
-    public CoordinateOperation getOperationFromCodeDepartement(String codeDepartement) {
-        return switch (codeDepartement) {
-            case "971", "972" ->
-                // Martinique et Guadeloupe :
-                    guadeloupeToWgs84;
-            case "973" -> guyaneToWgs84;
-            case "974" -> rgr92ToWgs84;
-            case "975" -> stPierreEtMiquelonToWgs84;
-            case "976" -> mayotteToWgs84;
-            default -> lambert93ToWgs84;
-        };
-    }
-
     public GeoConvert() {
         log.info("Initialisation du convertisseur de coordonnées géographiques...");
         try {
@@ -95,6 +73,28 @@ public class GeoConvert {
             throw new GeoConvertInitException(ex);
         }
         log.info("Initialisation du convertisseur de coordonnées géographiques terminé.");
+    }
+
+    /**
+     * Récupère le système qui permet de convertir des coordonnées géographiques en fonction du référentiel propre à chaque département. Tous les
+     * département de Métropole ont le
+     * même référentiel {@link #getLambert93ToWgs84()}
+     *
+     * @param codeDepartement
+     *            code du département sur 3 chiffres
+     * @return par défaut {@link #getLambert93ToWgs84()}
+     */
+    public CoordinateOperation getOperationFromCodeDepartement(String codeDepartement) {
+        return switch (codeDepartement) {
+            case "971", "972" ->
+                // Martinique et Guadeloupe :
+                    guadeloupeToWgs84;
+            case "973" -> guyaneToWgs84;
+            case "974" -> rgr92ToWgs84;
+            case "975" -> stPierreEtMiquelonToWgs84;
+            case "976" -> mayotteToWgs84;
+            default -> lambert93ToWgs84;
+        };
     }
 
     public CoordinateOperation getLambert93ToWgs84() {

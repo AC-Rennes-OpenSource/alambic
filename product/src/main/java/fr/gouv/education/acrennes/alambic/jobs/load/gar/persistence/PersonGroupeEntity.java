@@ -25,33 +25,24 @@ import java.io.Serializable;
 @Index(name = "persongroupeentity_uai_idx", columnNames = { "uai" })
 public class PersonGroupeEntity implements Serializable {
 
-    public enum PERSON_TYPE {
-        STUDENT,
-        TEACHER
-    }
-
     @Id
     @GeneratedValue(strategy = GenerationType.SEQUENCE)
     @Column(name = "id")
     private Long id;
-
     @Enumerated(EnumType.STRING)
     @Column(name = "type")
     private PERSON_TYPE type;
-
     @Column(name = "uai")
     private String uai;
-
     @Column(name = "personIdentifiant")
     private String personIdentifiant;
-
     @Column(name = "groupeCode")
     private String groupeCode;
-
 
     public PersonGroupeEntity() {
 
     }
+
 
     public PersonGroupeEntity(final PERSON_TYPE type, final String uai, final String personIdentifiant, final String groupeCode) {
         setType(type);
@@ -59,7 +50,6 @@ public class PersonGroupeEntity implements Serializable {
         setPersonIdentifiant(personIdentifiant);
         setGroupeCode(groupeCode);
     }
-
 
     public Long getId() {
         return id;
@@ -99,5 +89,10 @@ public class PersonGroupeEntity implements Serializable {
 
     public void setGroupeCode(String groupeCode) {
         this.groupeCode = groupeCode;
+    }
+
+    public enum PERSON_TYPE {
+        STUDENT,
+        TEACHER
     }
 }

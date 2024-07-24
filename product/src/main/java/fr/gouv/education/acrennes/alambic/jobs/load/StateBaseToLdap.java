@@ -48,15 +48,13 @@ import java.util.Map;
 public class StateBaseToLdap extends AbstractDestination {
 
     private static final Log log = LogFactory.getLog(StateBaseToLdap.class);
-
+    public final Variables variables = new Variables();
     private List<Map<String, List<String>>> extraction = null;
     private Datasources datasources;
     private Element pivot;
     private SearchControls contraintes = new SearchControls();
     private DirContext ctx;
     private String fichierPivot;
-
-    public final Variables variables = new Variables();
 
     public StateBaseToLdap(final CallableContext context, final Element destinationNode, final ActivityMBean jobActivity) throws AlambicException {
         super(context, destinationNode, jobActivity);

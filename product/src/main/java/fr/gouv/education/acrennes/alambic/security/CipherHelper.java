@@ -42,37 +42,6 @@ public class CipherHelper extends AbstractDestination {
     private CIPHER_MODE mode;
     private String algorithm;
 
-    public enum CIPHER_MODE {
-        ENCRYPT_MODE("ENCRYPT_MODE"),
-        DECRYPT_MODE("DECRYPT_MODE");
-
-        private final String value;
-
-        CIPHER_MODE(final String value) {
-            this.value = value;
-        }
-
-        @Override
-        public String toString() {
-            return value;
-        }
-
-        public int getInt() throws AlambicException {
-            int cipherMode;
-
-            if (CIPHER_MODE.ENCRYPT_MODE.toString().equals(value)) {
-                cipherMode = Cipher.ENCRYPT_MODE;
-            } else if (CIPHER_MODE.DECRYPT_MODE.toString().equals(value)) {
-                cipherMode = Cipher.DECRYPT_MODE;
-            } else {
-                throw new AlambicException("Unknown mode '" + value + "', should be either 'ENCRYPT_MODE' or 'DECRYPT_MODE'");
-            }
-
-            return cipherMode;
-        }
-
-    }
-
     public CipherHelper(final CallableContext context, final Element job, final ActivityMBean jobActivity) throws AlambicException {
         super(context, job, jobActivity);
 
@@ -275,6 +244,37 @@ public class CipherHelper extends AbstractDestination {
     @Override
     public void execute() throws AlambicException {
         execute(mode, inputFile, outputFile);
+    }
+
+    public enum CIPHER_MODE {
+        ENCRYPT_MODE("ENCRYPT_MODE"),
+        DECRYPT_MODE("DECRYPT_MODE");
+
+        private final String value;
+
+        CIPHER_MODE(final String value) {
+            this.value = value;
+        }
+
+        @Override
+        public String toString() {
+            return value;
+        }
+
+        public int getInt() throws AlambicException {
+            int cipherMode;
+
+            if (CIPHER_MODE.ENCRYPT_MODE.toString().equals(value)) {
+                cipherMode = Cipher.ENCRYPT_MODE;
+            } else if (CIPHER_MODE.DECRYPT_MODE.toString().equals(value)) {
+                cipherMode = Cipher.DECRYPT_MODE;
+            } else {
+                throw new AlambicException("Unknown mode '" + value + "', should be either 'ENCRYPT_MODE' or 'DECRYPT_MODE'");
+            }
+
+            return cipherMode;
+        }
+
     }
 
 }

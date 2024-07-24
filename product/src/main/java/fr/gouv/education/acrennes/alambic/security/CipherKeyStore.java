@@ -30,28 +30,9 @@ import java.security.cert.Certificate;
 public class CipherKeyStore {
 
     protected static final Log log = LogFactory.getLog(CipherKeyStore.class);
-
-    public enum KEYSTORE_TYPE {
-        DEFAULT("DEFAULT"),
-        JCEKS("JCEKS");
-
-        private final String value;
-
-        KEYSTORE_TYPE(final String value) {
-            this.value = value;
-        }
-
-        @Override
-        public String toString() {
-            return value;
-        }
-
-    }
-
     private FileInputStream is;
     private String ksPwd;
     private KeyStore keystore;
-
     public CipherKeyStore(final String path, final KEYSTORE_TYPE type, final String ksPwd) throws AlambicException {
         try {
             is = new FileInputStream(path);
@@ -99,6 +80,23 @@ public class CipherKeyStore {
             log.error("Failed to get the key (alias='" + alias + "') from the keystore, error: " + e.getMessage());
         }
         return key;
+    }
+
+    public enum KEYSTORE_TYPE {
+        DEFAULT("DEFAULT"),
+        JCEKS("JCEKS");
+
+        private final String value;
+
+        KEYSTORE_TYPE(final String value) {
+            this.value = value;
+        }
+
+        @Override
+        public String toString() {
+            return value;
+        }
+
     }
 
 }

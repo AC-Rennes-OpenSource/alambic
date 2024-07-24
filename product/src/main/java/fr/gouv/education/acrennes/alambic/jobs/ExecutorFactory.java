@@ -28,9 +28,8 @@ import java.util.concurrent.Future;
 
 public class ExecutorFactory {
 
-    private static final Log log = LogFactory.getLog(ExecutorFactory.class);
-
     public static final String THREAD_POOL_SIZE = "multithreading.pool.size";
+    private static final Log log = LogFactory.getLog(ExecutorFactory.class);
     private static final String DEFAULT_THREAD_POOL_SIZE = "20";
     private static ExecutorFactory instance = null;
     private final ExecutorService executor;
@@ -45,14 +44,6 @@ public class ExecutorFactory {
         }
 
         return instance;
-    }
-
-    private Future<ActivityMBean> submit(final CallableJob job) {
-        return executor.submit(job);
-    }
-
-    private void shutdown() {
-        executor.shutdown();
     }
 
     public static void initialize(Properties properties) throws AlambicException {
@@ -80,6 +71,14 @@ public class ExecutorFactory {
 
     public static void close() throws AlambicException {
         getInstance().shutdown();
+    }
+
+    private Future<ActivityMBean> submit(final CallableJob job) {
+        return executor.submit(job);
+    }
+
+    private void shutdown() {
+        executor.shutdown();
     }
 
 }

@@ -29,10 +29,8 @@ import java.util.*;
 
 public class CsvToStateBase implements IToStateBase {
 
-    private static final Log log = LogFactory.getLog(CsvToStateBase.class);
-
     public final static char DEFAULT_SEPARATOR = ';';
-
+    private static final Log log = LogFactory.getLog(CsvToStateBase.class);
     private List<Map<String, List<String>>> stateBase = new ArrayList<>();
     private CsvToStateBaseIterator pageIterator;
     private CSVReader reader;
@@ -132,11 +130,10 @@ public class CsvToStateBase implements IToStateBase {
     public class CsvToStateBaseIterator implements Iterator<List<Map<String, List<String>>>> {
 
         private final Log log = LogFactory.getLog(CsvToStateBaseIterator.class);
-
+        private final int pageSize;
         private List<Map<String, List<String>>> entries;
         private int offset;
         private int total;
-        private final int pageSize;
 
         public CsvToStateBaseIterator(final int pageSize) {
             this.offset = 0;

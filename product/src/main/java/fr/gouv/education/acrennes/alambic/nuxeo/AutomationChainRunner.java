@@ -46,8 +46,8 @@ public class AutomationChainRunner extends AbstractDestination {
 
     private final HttpAutomationClient client;
     private final Session session;
-    private int count;
     private final Element pivot;
+    private int count;
     private OperationRegistry registry = null;
 
     public AutomationChainRunner(final CallableContext context, final Element destinationNode, final ActivityMBean jobActivity)

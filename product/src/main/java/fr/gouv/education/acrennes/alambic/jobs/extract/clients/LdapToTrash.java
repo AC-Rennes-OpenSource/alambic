@@ -37,13 +37,11 @@ import java.util.Hashtable;
 @Deprecated
 public class LdapToTrash {
     private static final Log log = LogFactory.getLog(LdapToTrash.class);
-
-    private int countEntriesDeleted = 0;
-
     private final Hashtable<String, String> confLdap = new Hashtable<>(5);
     private final SearchControls contraintes = new SearchControls();
     protected DirContext ctx = null;
     protected NamingEnumeration<SearchResult> searchRes;
+    private int countEntriesDeleted = 0;
 
     public LdapToTrash(final String driver, final String url, final String login, final String pwd, final String query) {
         confLdap.put(Context.INITIAL_CONTEXT_FACTORY, driver);

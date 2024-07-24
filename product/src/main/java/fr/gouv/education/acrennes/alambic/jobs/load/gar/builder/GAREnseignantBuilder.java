@@ -606,13 +606,13 @@ public class GAREnseignantBuilder implements GARTypeBuilder {
 
     private class GAREnseignantWriter {
 
-        private int nodeCount;
         private final ObjectFactory factory;
-        private GARENTEnseignant container;
         private final Marshaller marshaller;
         private final int maxNodesCount;
         private final String version;
         private final int page;
+        private int nodeCount;
+        private GARENTEnseignant container;
 
         protected GAREnseignantWriter(final ObjectFactory factory, final String version, final int page, final int maxNodesCount)
                 throws JAXBException, SAXException {

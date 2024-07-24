@@ -44,19 +44,13 @@ public class WSToStateBase implements IToStateBase {
 
     private static final Log LOG = LogFactory.getLog(WSToStateBase.class);
     private static final int DEFAULT_TIME_OUT = 5_000; // 5 seconds
-
-    public enum AUTH_SCHEMES {
-        BASIC_AUTH
-    }
-
-    private List<Map<String, List<String>>> stateBase = new ArrayList<>();
     private final List<Integer> successResponseCodes;
-    private CloseableHttpClient httpClient;
-    private String authHeader;
     private final String url;
     private final String method;
     private final Map<String, String> headers;
-
+    private List<Map<String, List<String>>> stateBase = new ArrayList<>();
+    private CloseableHttpClient httpClient;
+    private String authHeader;
     public WSToStateBase(final String url, final String method, final Map<String, String> headers, final String proxy_host, final String proxy_port
             , final String connection_timeout, final String auth_scheme, final String auth_login, final String auth_password,
                          List<Integer> successResponseCodes) {
@@ -90,6 +84,63 @@ public class WSToStateBase implements IToStateBase {
                 .useSystemProperties()
                 .setDefaultRequestConfig(requestConfig.build())
                 .build();
+    }
+
+    static String getFullAPIURL(final String url, final String api, final String queryParams)
+            throws UnsupportedEncodingException {
+        final StringBuilder builder = new StringBuilder(url);
+        boolean hasQuestionMark = url.endsWith("?");
+        if (StringUtils.isNotBlank(api)) {
+            builder.append(api);
+            hasQuestionMark = api.endsWith("?");
+        }
+        if (StringUtils.isNotBlank(queryParams)) {
+            if (!hasQuestionMark) {
+                builder.append("?");
+            }
+            builder.append(encodeQueryParams(queryParams));
+        }
+        final String fullURL = builder.toString();
+        LOG.debug("URL complète à requêter : " + fullURL);
+        return fullURL;
+    }
+
+    /**
+     * Échappe les arguments de requête pour qu'ils puissent être utilisés dans l'URL. Par exemple, pour la valeur
+     * fournie {@code test=val&autre&ex1=Alè-=R} est retournée {@code test=val&autre&ex1=Al%C3%A8-%3DR}.
+     * <p>
+     * À noter que du fait de l'usage d'une chaîne de caractère comme paramètre en entrée au lieu d'un type structuré,
+     * il n'est pas possible de détecter et encoder les caractères {@literal &} qui feraient partie d'une valeur à
+     * transmettre.
+     * <p>
+     * De même, nous avons choisi que la séparation clef-valeur se ferait au premier caractère {@literal =} rencontré,
+     * alors qu'il pourrait en fait faire partie de la clef.
+     * <p>
+     * Cela ne devrait heureusement pas poser de souci dans la grande majorité des cas.
+     *
+     * @param queryParams les query params à échapper
+     *
+     * @return la chaîne échappée
+     *
+     * @see <a href="https://tools.ietf.org/html/rfc3986#page-23">RFC 3986, section 3.4. Query</a>
+     */
+    private static String encodeQueryParams(final String queryParams) throws UnsupportedEncodingException {
+        final String utf8Charset = Charsets.UTF_8.toString();
+        final StringJoiner joiner = new StringJoiner("&");
+
+        for (final String queryParam : queryParams.split("&")) {
+            final int firstEqualIndex = queryParam.indexOf("=");
+            if (firstEqualIndex == -1) {
+                joiner.add(URLEncoder.encode(queryParam, utf8Charset));
+            } else {
+                joiner.add(String.format("%s=%s",
+                        URLEncoder.encode(queryParam.substring(0, firstEqualIndex), utf8Charset),
+                        URLEncoder.encode(queryParam.substring(firstEqualIndex + 1), utf8Charset)
+                ));
+            }
+        }
+
+        return joiner.toString();
     }
 
     @Override
@@ -171,67 +222,14 @@ public class WSToStateBase implements IToStateBase {
         executeQuery(query);
     }
 
-    static String getFullAPIURL(final String url, final String api, final String queryParams)
-            throws UnsupportedEncodingException {
-        final StringBuilder builder = new StringBuilder(url);
-        boolean hasQuestionMark = url.endsWith("?");
-        if (StringUtils.isNotBlank(api)) {
-            builder.append(api);
-            hasQuestionMark = api.endsWith("?");
-        }
-        if (StringUtils.isNotBlank(queryParams)) {
-            if (!hasQuestionMark) {
-                builder.append("?");
-            }
-            builder.append(encodeQueryParams(queryParams));
-        }
-        final String fullURL = builder.toString();
-        LOG.debug("URL complète à requêter : " + fullURL);
-        return fullURL;
-    }
-
-    /**
-     * Échappe les arguments de requête pour qu'ils puissent être utilisés dans l'URL. Par exemple, pour la valeur
-     * fournie {@code test=val&autre&ex1=Alè-=R} est retournée {@code test=val&autre&ex1=Al%C3%A8-%3DR}.
-     * <p>
-     * À noter que du fait de l'usage d'une chaîne de caractère comme paramètre en entrée au lieu d'un type structuré,
-     * il n'est pas possible de détecter et encoder les caractères {@literal &} qui feraient partie d'une valeur à
-     * transmettre.
-     * <p>
-     * De même, nous avons choisi que la séparation clef-valeur se ferait au premier caractère {@literal =} rencontré,
-     * alors qu'il pourrait en fait faire partie de la clef.
-     * <p>
-     * Cela ne devrait heureusement pas poser de souci dans la grande majorité des cas.
-     *
-     * @param queryParams les query params à échapper
-     *
-     * @return la chaîne échappée
-     *
-     * @see <a href="https://tools.ietf.org/html/rfc3986#page-23">RFC 3986, section 3.4. Query</a>
-     */
-    private static String encodeQueryParams(final String queryParams) throws UnsupportedEncodingException {
-        final String utf8Charset = Charsets.UTF_8.toString();
-        final StringJoiner joiner = new StringJoiner("&");
-
-        for (final String queryParam : queryParams.split("&")) {
-            final int firstEqualIndex = queryParam.indexOf("=");
-            if (firstEqualIndex == -1) {
-                joiner.add(URLEncoder.encode(queryParam, utf8Charset));
-            } else {
-                joiner.add(String.format("%s=%s",
-                        URLEncoder.encode(queryParam.substring(0, firstEqualIndex), utf8Charset),
-                        URLEncoder.encode(queryParam.substring(firstEqualIndex + 1), utf8Charset)
-                ));
-            }
-        }
-
-        return joiner.toString();
-    }
-
     @Override
     public Iterator<List<Map<String, List<String>>>> getPageIterator(String query, String scope, int pageSize,
                                                                      String sortBy, String orderBy) throws AlambicException {
         throw new AlambicException("Not implemented operation");
+    }
+
+    public enum AUTH_SCHEMES {
+        BASIC_AUTH
     }
 
 }

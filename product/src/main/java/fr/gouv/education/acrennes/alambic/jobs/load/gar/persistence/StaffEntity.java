@@ -33,19 +33,11 @@ import java.util.List;
 public class StaffEntity implements Serializable {
 
     private static final long serialVersionUID = 1L;
-
-    public enum STAFF_TYPE {
-        TEACHER,
-        STUDENT
-    }
-
     @EmbeddedId
     private StaffEntityPK primaryKey;
-
     @OneToMany(targetEntity = EnseignementEntity.class, orphanRemoval = true, cascade = CascadeType.ALL /*, fetch = FetchType.LAZY */)
     @CascadeOnDelete
     private List<EnseignementEntity> enseignements;
-
     @Enumerated(EnumType.STRING)
     @Column(name = "type")
     private STAFF_TYPE type;
@@ -112,6 +104,11 @@ public class StaffEntity implements Serializable {
     @Override
     public int hashCode() {
         return "StaffEntity::".concat(toString()).hashCode();
+    }
+
+    public enum STAFF_TYPE {
+        TEACHER,
+        STUDENT
     }
 
 }

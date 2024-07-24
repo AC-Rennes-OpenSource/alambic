@@ -25,12 +25,6 @@ import java.util.Map;
 
 public interface RandomGenerator {
 
-    enum UNICITY_SCOPE {
-        NONE,
-        PROCESS,
-        PROCESS_ALL
-    }
-
     List<RandomEntity> getEntities(final String query, final String processId, final UNICITY_SCOPE scope) throws AlambicException;
 
     RandomEntity getEntity(final Map<String, Object> query, String processId, final UNICITY_SCOPE scope) throws AlambicException;
@@ -51,5 +45,11 @@ public interface RandomGenerator {
     void auditEntity(final Map<String, Object> query, final RandomEntity entity, final String processId) throws AlambicException;
 
     void close();
+
+    enum UNICITY_SCOPE {
+        NONE,
+        PROCESS,
+        PROCESS_ALL
+    }
 
 }

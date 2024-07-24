@@ -23,17 +23,6 @@ import java.util.List;
 
 public interface ActivityMBean {
 
-    enum ACTIVITY_STATUS {
-        WAITING,
-        RUNNING,
-        COMPLETED
-    }
-
-    enum ACTIVITY_TYPE {
-        META,
-        INNER
-    }
-
     String getJobName();
 
     int getProgress();
@@ -68,9 +57,9 @@ public interface ActivityMBean {
 
     void registerInnerActivity(final ActivityMBean innerActivity);
 
-    void setInnerJobsCount(int count);
-
     int getInnerJobsCount();
+
+    void setInnerJobsCount(int count);
 
     Object getResult();
 
@@ -87,4 +76,15 @@ public interface ActivityMBean {
     String toString();
 
     Report getReport();
+
+    enum ACTIVITY_STATUS {
+        WAITING,
+        RUNNING,
+        COMPLETED
+    }
+
+    enum ACTIVITY_TYPE {
+        META,
+        INNER
+    }
 }

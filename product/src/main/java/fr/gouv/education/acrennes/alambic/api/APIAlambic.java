@@ -53,31 +53,19 @@ import static org.eclipse.persistence.config.PersistenceUnitProperties.*;
 
 public class APIAlambic implements IAPIAlambic {
 
-    private static final class AlambicVariables {
-        static final String ALAMBIC_ADDONPATH = "ALAMBIC_ADDONPATH";
-        static final String ALAMBIC_ADDON_OUTPUTPATH = "ALAMBIC_ADDON_OUTPUTPATH";
-
-        private AlambicVariables() {
-            throw new AssertionError("Classe utilitaire, ne pas instancier");
-        }
-    }
-
     private static final String DEFAULT_CONF_FOLDER = "conf";
     private static final String CONFIG_FILE = DEFAULT_CONF_FOLDER + "/config.properties";
     private static final String REPOSITORY_VARIABLES = "repository.variables";
     private static final String REPOSITORY_PATH = "repository.path";
     private static final String PERSISTENCE_UNIT = "PRODUCTION_PERSISTENCE_UNIT";
     private static final String DEFAULT_RUN_ID = "DEFAULT_CONTEXT";
-
     private static final Log log = LogFactory.getLog(APIAlambic.class);
     private static final Variables fileStaticVariables = new Variables();
     private static String repositoryPath = "";
     private static String executionPath = "./";
     private static Properties properties;
-
     private final RunIdGenerator runIdGenerator;
     private File tempProcessFile;
-
     /**
      * Constructeur par défaut.
      */
@@ -275,6 +263,15 @@ public class APIAlambic implements IAPIAlambic {
         }
 
         return runId;
+    }
+
+    private static final class AlambicVariables {
+        static final String ALAMBIC_ADDONPATH = "ALAMBIC_ADDONPATH";
+        static final String ALAMBIC_ADDON_OUTPUTPATH = "ALAMBIC_ADDON_OUTPUTPATH";
+
+        private AlambicVariables() {
+            throw new AssertionError("Classe utilitaire, ne pas instancier");
+        }
     }
 
 }

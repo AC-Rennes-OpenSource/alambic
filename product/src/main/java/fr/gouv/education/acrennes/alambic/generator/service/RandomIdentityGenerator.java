@@ -31,36 +31,10 @@ import java.util.Random;
 public class RandomIdentityGenerator extends AbstractRandomGenerator {
     private static final String QUERY_TOTAL_COUNT_OF_ITEMS = "SELECT count(rie.primaryKey.id) FROM RandomDictionaryEntity rie WHERE rie.primaryKey" +
                                                              ".elementname = :elementname";
-
-    public enum IDENTITY_GENDER {
-        FEMALE("FEMALE"),
-        MALE("MALE"),
-        RANDOM("");
-
-        private final String capacityFilter;
-
-        IDENTITY_GENDER(String capacityFilter) {
-            this.capacityFilter = capacityFilter;
-        }
-
-        public static IDENTITY_GENDER getRandomGender() {
-            if (rand.nextInt(2) == 0) {
-                return MALE;
-            } else {
-                return FEMALE;
-            }
-        }
-
-        public String getCapacityFilter() {
-            return capacityFilter;
-        }
-    }
-
+    private static final Random rand = new Random();
     private long maleFirstNameCount;
     private long femaleFirstNameCount;
     private long lastNameCount;
-    private static final Random rand = new Random();
-
     public RandomIdentityGenerator(final EntityManager em) throws AlambicException {
         super(em);
         initialize();
@@ -142,6 +116,30 @@ public class RandomIdentityGenerator extends AbstractRandomGenerator {
     protected IDENTITY_GENDER getQueriedGender(final Map<String, Object> query) {
         String gender = (String) query.get("gender");
         return IDENTITY_GENDER.valueOf(gender.toUpperCase());
+    }
+
+    public enum IDENTITY_GENDER {
+        FEMALE("FEMALE"),
+        MALE("MALE"),
+        RANDOM("");
+
+        private final String capacityFilter;
+
+        IDENTITY_GENDER(String capacityFilter) {
+            this.capacityFilter = capacityFilter;
+        }
+
+        public static IDENTITY_GENDER getRandomGender() {
+            if (rand.nextInt(2) == 0) {
+                return MALE;
+            } else {
+                return FEMALE;
+            }
+        }
+
+        public String getCapacityFilter() {
+            return capacityFilter;
+        }
     }
 
 }

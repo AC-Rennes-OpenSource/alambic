@@ -67,11 +67,16 @@ public class FMFunctions {
     private static final String DICTIONARY_SEPARATOR = ",";
     private static final String VOCABULARY_KEY_ID = "id";
     private static final String[] XML_SPECIAL_CHARACTERS = new String[] { "&", "'", "<", ">", "\"" };
+    /* Select the accented characters only to be encoded by the method escapeHTMLAccentedCharacters()
+    (XML special characters are excluded)
+     */
+    public static final CharacterReferenceEncodingBehaviour CUSTOM_CHARACTER_REFERENCE_ENCODING_BEHAVIOUR =
+            (ch, insideAttributeValue) -> ch > 127 && CharacterEntityReference.getName(ch) != null && !Arrays.stream(XML_SPECIAL_CHARACTERS).anyMatch(x -> x.equals(ch));
     private final Random randomGenerator;
     private final Map<String, List<Map<String, List<String>>>> cachedResources;
     private final Map<String, List<Object>> cache;
-    private CallableContext context = null;
     private final JSONParser parser;
+    private CallableContext context = null;
 
     public FMFunctions() {
         parser = new JSONParser();
@@ -86,12 +91,6 @@ public class FMFunctions {
         this();
         this.context = context;
     }
-
-    /* Select the accented characters only to be encoded by the method escapeHTMLAccentedCharacters()
-    (XML special characters are excluded)
-     */
-    public static final CharacterReferenceEncodingBehaviour CUSTOM_CHARACTER_REFERENCE_ENCODING_BEHAVIOUR =
-            (ch, insideAttributeValue) -> ch > 127 && CharacterEntityReference.getName(ch) != null && !Arrays.stream(XML_SPECIAL_CHARACTERS).anyMatch(x -> x.equals(ch));
 
     public int getRandomNumber(final int min, final int max) {
         int randomNum = randomGenerator.nextInt((max - min) + 1) + min;

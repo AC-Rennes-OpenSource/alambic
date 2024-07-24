@@ -44,13 +44,13 @@ public class JobRunner implements CallableJob {
     private static final Log log = LogFactory.getLog(JobRunner.class);
 
     private final Element job;
-    private Source source;
-    private Source pagedSource;
-    private Map<String, Source> resources;
     private final boolean isAsynchronous;
     private final CallableContext context;
     private final ActivityMBean parentActivityBean;
     private final String runId;
+    private Source source;
+    private Source pagedSource;
+    private Map<String, Source> resources;
 
     public JobRunner(final CallableContext context, final Element job, final String runId) {
         this(context, job, null, null, runId);
@@ -64,6 +64,30 @@ public class JobRunner implements CallableJob {
         this.isAsynchronous = Boolean.parseBoolean(job.getAttributeValue(Constants.JOB_ASYNCH_ATTRIBUTE_NAME));
         this.parentActivityBean = parentActivityBean;
         this.runId = runId;
+    }
+
+    public static int fromBase26(final String number) {
+        int s = 0;
+        if ((number != null) && (!number.isEmpty())) {
+            s = (number.charAt(0) - 'a');
+            for (int i = 1; i < number.length(); i++) {
+                s *= 26;
+                s += (number.charAt(i) - 'a');
+            }
+        }
+        return s;
+    }
+
+    public static String toBase26(int number) {
+        number = Math.abs(number);
+        StringBuilder converted = new StringBuilder();
+        do {
+            final int remainder = number % 26;
+            converted.insert(0, (char) (remainder + 'a'));
+            number = (number - remainder) / 26;
+        } while (number > 0);
+
+        return converted.toString();
     }
 
     @Override
@@ -378,30 +402,6 @@ public class JobRunner implements CallableJob {
                 execute(job, null, runId);
             }
         }
-    }
-
-    public static int fromBase26(final String number) {
-        int s = 0;
-        if ((number != null) && (!number.isEmpty())) {
-            s = (number.charAt(0) - 'a');
-            for (int i = 1; i < number.length(); i++) {
-                s *= 26;
-                s += (number.charAt(i) - 'a');
-            }
-        }
-        return s;
-    }
-
-    public static String toBase26(int number) {
-        number = Math.abs(number);
-        StringBuilder converted = new StringBuilder();
-        do {
-            final int remainder = number % 26;
-            converted.insert(0, (char) (remainder + 'a'));
-            number = (number - remainder) / 26;
-        } while (number > 0);
-
-        return converted.toString();
     }
 
 }

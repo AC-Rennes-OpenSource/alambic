@@ -34,10 +34,9 @@ import java.util.Map;
 public class RandomClientToStateBase implements IToStateBase {
 
     private static final Log log = LogFactory.getLog(RandomClientToStateBase.class);
-
+    private final String processId;
     private List<Map<String, List<String>>> stateBase = new ArrayList<>();
     private RandomGenerator randomGenerator;
-    private final String processId;
 
     public RandomClientToStateBase(final String defaultProcessId, final GENERATOR_TYPE type) throws AlambicException {
         this.randomGenerator = RandomGeneratorService.getRandomGenerator(type);

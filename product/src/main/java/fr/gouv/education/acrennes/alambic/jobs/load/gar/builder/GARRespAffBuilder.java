@@ -242,13 +242,13 @@ public class GARRespAffBuilder implements GARTypeBuilder {
 
     private class GARRespAffWriter {
 
-        private int nodeCount;
         private final ObjectFactory factory;
-        private GARENTRespAff container;
         private final Marshaller marshaller;
         private final int maxNodesCount;
         private final String version;
         private final int page;
+        private int nodeCount;
+        private GARENTRespAff container;
 
         protected GARRespAffWriter(final ObjectFactory factory, final String version, final int page, final int maxNodesCount)
                 throws JAXBException, SAXException {

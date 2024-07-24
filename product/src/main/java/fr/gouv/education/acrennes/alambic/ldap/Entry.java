@@ -39,45 +39,26 @@ import java.util.Map;
 
 public class Entry {
 
-    private static final class ModifyMode {
-        /**
-         * Ignore les valeurs existantes et les remplace par les valeurs fournies.
-         */
-        private static final String REPLACE = "replace";
-        /**
-         * Crée l'attribut s'il n'est pas initialisé, mais ne remplace pas l'existant dans le cas contraire.
-         */
-        private static final String IGNORE = "ignore";
-        /**
-         * Supprime l'attribut et les valeurs associées.
-         */
-        private static final String DELETE = "delete";
-        /**
-         * Ajoute des valeurs à un attribut, en conservant sans les modifier les valeurs existantes.
-         */
-        private static final String APPEND = "append";
-        /**
-         * Supprime des valeurs d'un attribut, en conservant sans les modifier les valeurs non listées.
-         */
-        private static final String REMOVE = "remove";
-    }
-
     private static final Log LOG = LogFactory.getLog(Entry.class);
     private static final String RELATION = "relation";
     private static final String ATTRIBUTES = "attributes";
     private static final String MODIFY_MODE = "modifyMode";
     private static final String CASE_SENSITIVE = "caseSensitive";
     private static final String EXPLICIT_MEMBER = "ExplicitMember";
-    private Variables variables = new Variables();
+    private final static int UPDATE = 0;
+    private final static int IGNORE = 3;
+    private final static String EXPLICIT = "explicit";
+    private static final String DN = "dn";
+    private static final String MEMBER = "member";
     private final Variables parentVariables;
     private final Map<String, List<Map<String, List<String>>>> stateBaseList = new HashMap<>();
-
+    private final SearchControls contraintes;
+    private final Element entry;
+    private final Datasources datasources;
+    private final Map<String, List<String>> cr;
+    private Variables variables = new Variables();
     private DirContext rootCtx;
     private DirContext workCtx;
-
-    private final SearchControls contraintes;
-
-    private final Element entry;
     private String dn;
     private String rdn;
     private String context;
@@ -86,16 +67,6 @@ public class Entry {
     private boolean updateOnly = false;
     private boolean deleteOnly = false;
     private boolean caseSensitiveEntry = false;
-
-    private final Datasources datasources;
-    private final Map<String, List<String>> cr;
-
-    private final static int UPDATE = 0;
-    private final static int IGNORE = 3;
-    private final static String EXPLICIT = "explicit";
-    private static final String DN = "dn";
-    private static final String MEMBER = "member";
-
     public Entry(final Element entry, final DirContext ctx, final SearchControls contraintes,
                  final Variables variables, final Map<String, List<String>> cr,
                  final Datasources datasources) throws NamingException, AlambicException {
@@ -700,5 +671,28 @@ public class Entry {
 
     public void setCtx(final DirContext ctx) {
         rootCtx = ctx;
+    }
+
+    private static final class ModifyMode {
+        /**
+         * Ignore les valeurs existantes et les remplace par les valeurs fournies.
+         */
+        private static final String REPLACE = "replace";
+        /**
+         * Crée l'attribut s'il n'est pas initialisé, mais ne remplace pas l'existant dans le cas contraire.
+         */
+        private static final String IGNORE = "ignore";
+        /**
+         * Supprime l'attribut et les valeurs associées.
+         */
+        private static final String DELETE = "delete";
+        /**
+         * Ajoute des valeurs à un attribut, en conservant sans les modifier les valeurs existantes.
+         */
+        private static final String APPEND = "append";
+        /**
+         * Supprime des valeurs d'un attribut, en conservant sans les modifier les valeurs non listées.
+         */
+        private static final String REMOVE = "remove";
     }
 }

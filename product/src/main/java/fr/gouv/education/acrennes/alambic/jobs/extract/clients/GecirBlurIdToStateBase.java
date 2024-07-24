@@ -45,25 +45,12 @@ public class GecirBlurIdToStateBase implements IToStateBase {
     private static final Log log = LogFactory.getLog(GecirBlurIdToStateBase.class);
     private static final String HASH_ALGORITHM = "SHA-512";
     private static final String BLUR_ID = "blurId";
-
-    private enum BLUR_MODE {
-        HASHED_ID,
-        SIGNATURE,
-        NONE
-    }
-
-    private enum SIGNATURE_MODE {
-        PEOPLE,
-        COMPANY
-    }
-
-    private List<Map<String, List<String>>> stateBase = new ArrayList<>();
     private final EntityManager em;
     private final FMFunctions fmfct;
     private final MessageDigest md;
     private final String defaultSaltStr;
+    private List<Map<String, List<String>>> stateBase = new ArrayList<>();
     private byte[] salt;
-
     public GecirBlurIdToStateBase(final String defaultSalt) throws AlambicException {
         this.defaultSaltStr = defaultSalt;
         this.fmfct = new FMFunctions();
@@ -318,6 +305,17 @@ public class GecirBlurIdToStateBase implements IToStateBase {
             this.em.persist(rbie);
         }
         tx.commit();
+    }
+
+    private enum BLUR_MODE {
+        HASHED_ID,
+        SIGNATURE,
+        NONE
+    }
+
+    private enum SIGNATURE_MODE {
+        PEOPLE,
+        COMPANY
     }
 
     private static class Signatures {

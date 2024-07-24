@@ -69,7 +69,7 @@ public class WebServiceApi {
                 success_rsp_codes.add(Integer.parseInt(code.getText()));
             }
         } else {
-            success_rsp_codes.add(Integer.valueOf(HttpStatus.SC_OK));
+            success_rsp_codes.add(HttpStatus.SC_OK);
         }
 
         // Set the request headers
@@ -94,6 +94,12 @@ public class WebServiceApi {
         this.request = buildRequest(uri, method, headers_map, pay_load, success_rsp_codes);
     }
 
+    public WebServiceApi(final String uri, final String method, final Map<String, String> headers, final String payload,
+                         final List<Integer> successResponseCodes)
+            throws AlambicException {
+        this.request = buildRequest(uri, method, headers, payload, successResponseCodes);
+    }
+
     private String getPayLoad(final Map<String, String> headers_map, final Element payLoadElt) {
         String payLoad = StringEscapeUtils.unescapeXml(payLoadElt.getText());
         if (StringUtils.isNotBlank(headers_map.get(HttpHeaders.CONTENT_TYPE)) && headers_map.get(HttpHeaders.CONTENT_TYPE).matches(".*\\W?[xX][mM" +
@@ -105,16 +111,10 @@ public class WebServiceApi {
         return payLoad;
     }
 
-    public WebServiceApi(final String uri, final String method, final Map<String, String> headers, final String payload,
-                         final List<Integer> successResponseCodes)
-            throws AlambicException {
-        this.request = buildRequest(uri, method, headers, payload, successResponseCodes);
-    }
-
     public HttpUriRequest buildRequest(final String uri, final String method, final Map<String, String> headers, final String payload,
                                        final List<Integer> successResponseCodes)
             throws AlambicException {
-        HttpUriRequest request = null;
+        HttpUriRequest request;
 
         this.successResponseCodes = successResponseCodes;
 

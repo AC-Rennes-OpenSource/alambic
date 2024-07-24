@@ -31,12 +31,10 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class LdapRelation {
-    private static final Log log = LogFactory.getLog(LdapRelation.class);
-
     public final static int DELETE = 2;
     public final static int ADD = 1;
     public final static int IGNORE = 0;
-
+    private static final Log log = LogFactory.getLog(LdapRelation.class);
     private DirContext ctx = null;
     private List<String> listDn = new ArrayList<>();
     private int updateMode = 0;

@@ -43,6 +43,14 @@ public class ActivityHelper {
         return instance;
     }
 
+    public static ActivityMBean getMBean(final String jobName, final ACTIVITY_TYPE type, final String runId) {
+        return getInstance().registerJob(jobName, type, runId);
+    }
+
+    public static void releaseMBean(ActivityMBean amb) {
+        getInstance().unregisterJob(amb);
+    }
+
     private ActivityMBean registerJob(final String jobName, final ACTIVITY_TYPE type, final String runId) {
         ActivityMBean amb = null;
 
@@ -77,14 +85,6 @@ public class ActivityHelper {
 
     private String normalizeJobName(final String jobName) {
         return jobName.replaceAll("\\W", "-").toLowerCase();
-    }
-
-    public static ActivityMBean getMBean(final String jobName, final ACTIVITY_TYPE type, final String runId) {
-        return getInstance().registerJob(jobName, type, runId);
-    }
-
-    public static void releaseMBean(ActivityMBean amb) {
-        getInstance().unregisterJob(amb);
     }
 
 }

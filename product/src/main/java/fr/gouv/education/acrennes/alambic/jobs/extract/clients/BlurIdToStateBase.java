@@ -45,20 +45,12 @@ public class BlurIdToStateBase implements IToStateBase {
     private static final Log log = LogFactory.getLog(BlurIdToStateBase.class);
     private static final String HASH_ALGORITHM = "SHA-512";
     private static final int RELEVANT_NAME_STRING_LENGTH = 4;
-
-    private enum BLUR_MODE {
-        HASHED_ID,
-        SIGNATURE,
-        NONE
-    }
-
-    private List<Map<String, List<String>>> stateBase = new ArrayList<>();
     private final EntityManager em;
     private final FMFunctions fmfct;
     private final MessageDigest md;
     private final String defaultSaltStr;
+    private List<Map<String, List<String>>> stateBase = new ArrayList<>();
     private byte[] salt;
-
     public BlurIdToStateBase(final String defaultSalt) throws AlambicException {
         this.defaultSaltStr = defaultSalt;
         this.fmfct = new FMFunctions();
@@ -282,6 +274,35 @@ public class BlurIdToStateBase implements IToStateBase {
         return this.salt;
     }
 
+    /**
+     * Get the salt seed from the query object.
+     * The seed deals with the "key" JSON key from the query object.
+     * /!\ For backward compatibility reason, the "processId" key is used instead when the "key" JSON key is missing.
+     */
+    private String getSeed(final JSONObject query) {
+        String seed = null;
+        String key = query.has("key") ? query.getString("key").trim() : null;
+        String processId = query.has("processId") ? query.getString("processId").trim() : null;
+        seed = StringUtils.isNotBlank(key) ? key : processId;
+        return seed;
+    }
+
+    private void persist(List<String> signatures, String newBlurId) {
+        EntityTransaction tx = this.em.getTransaction();
+        tx.begin();
+        for (String signature : signatures) {
+            RandomBlurIDEntity rbie = new RandomBlurIDEntity(signature, newBlurId);
+            this.em.persist(rbie);
+        }
+        tx.commit();
+    }
+
+    private enum BLUR_MODE {
+        HASHED_ID,
+        SIGNATURE,
+        NONE
+    }
+
     private static class Signatures {
         private final String root;
         private final List<String> signatures;
@@ -313,29 +334,6 @@ public class BlurIdToStateBase implements IToStateBase {
             return String.format("{\"root\":\"%s\",\"signatures\":['%s']}", this.root, String.join("','", this.signatures));
         }
 
-    }
-
-    /**
-     * Get the salt seed from the query object.
-     * The seed deals with the "key" JSON key from the query object.
-     * /!\ For backward compatibility reason, the "processId" key is used instead when the "key" JSON key is missing.
-     */
-    private String getSeed(final JSONObject query) {
-        String seed = null;
-        String key = query.has("key") ? query.getString("key").trim() : null;
-        String processId = query.has("processId") ? query.getString("processId").trim() : null;
-        seed = StringUtils.isNotBlank(key) ? key : processId;
-        return seed;
-    }
-
-    private void persist(List<String> signatures, String newBlurId) {
-        EntityTransaction tx = this.em.getTransaction();
-        tx.begin();
-        for (String signature : signatures) {
-            RandomBlurIDEntity rbie = new RandomBlurIDEntity(signature, newBlurId);
-            this.em.persist(rbie);
-        }
-        tx.commit();
     }
 
 }

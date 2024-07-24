@@ -28,9 +28,8 @@ import java.util.Map;
 public class EntityManagerHelper {
 
     private static final Log log = LogFactory.getLog(EntityManagerHelper.class);
-
-    private final EntityManagerFactory emFactory;
     private static EntityManagerHelper instance;
+    private final EntityManagerFactory emFactory;
 
     private EntityManagerHelper(final String persistenceUnit, final Map<String, String> properties) {
         emFactory = Persistence.createEntityManagerFactory(persistenceUnit, properties);
@@ -49,17 +48,6 @@ public class EntityManagerHelper {
         return instance;
     }
 
-    private EntityManager createEntityManager() {
-        return emFactory.createEntityManager();
-    }
-
-    private void closeFactory() {
-        if (null != emFactory && emFactory.isOpen()) {
-            emFactory.close();
-            instance = null;
-        }
-    }
-
     public static EntityManager getEntityManager() throws AlambicException {
         return getInstance().createEntityManager();
     }
@@ -69,6 +57,17 @@ public class EntityManagerHelper {
             getInstance().closeFactory();
         } catch (AlambicException e) {
             log.error("Failed to close the persistence unit, error : " + e.getMessage());
+        }
+    }
+
+    private EntityManager createEntityManager() {
+        return emFactory.createEntityManager();
+    }
+
+    private void closeFactory() {
+        if (null != emFactory && emFactory.isOpen()) {
+            emFactory.close();
+            instance = null;
         }
     }
 

@@ -26,9 +26,9 @@ public interface Source {
 
     String getName();
 
-    void setPage(final int page);
-
     int getPage();
+
+    void setPage(final int page);
 
     List<Map<String, List<String>>> query() throws AlambicException;
 

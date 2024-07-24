@@ -38,11 +38,11 @@ import java.util.Map;
 public class StateBaseToFile extends AbstractDestination {
 
     private final FileWriter fw;
+    private final Variables variables = new Variables();
     private int count = 0;
     private List<Map<String, List<String>>> extGeneric = null;
     private String version;
     private String format;
-    private final Variables variables = new Variables();
 
     public StateBaseToFile(final CallableContext context, final Element job, final ActivityMBean jobActivity) throws AlambicException {
         super(context, job, jobActivity);

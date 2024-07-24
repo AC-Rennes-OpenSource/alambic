@@ -73,33 +73,6 @@ public class Functions {
     private static Functions instance = null;
 
     private static GeoConvert geoConvertInstance;
-
-    public static synchronized GeoConvert getGeoConvert() {
-        /** Est définit une seule fois, car est long à instancier */
-        if (geoConvertInstance == null) {
-            geoConvertInstance = new GeoConvert();
-        }
-        return geoConvertInstance;
-    }
-
-    private enum COMPUTE_DATE_OPERAND_FIELD {
-
-        DAY(Calendar.DATE),
-        MONTH(Calendar.MONTH),
-        YEAR(Calendar.YEAR);
-
-        private final int field;
-
-        COMPUTE_DATE_OPERAND_FIELD(final int fieldCode) {
-            field = fieldCode;
-        }
-
-        private int getValue() {
-            return field;
-        }
-
-    }
-
     private final Pattern functionPattern;
 
     private Functions() {
@@ -109,6 +82,14 @@ public class Functions {
         functionPattern = Pattern.compile("\\(([a-zA-Z\\.0-9 ]+)([ ]*mem='([^\\ ']*)?'[ ]*)?\\)(.+?)\\(/\\1\\)");
     }
 
+    public static synchronized GeoConvert getGeoConvert() {
+        /** Est définit une seule fois, car est long à instancier */
+        if (geoConvertInstance == null) {
+            geoConvertInstance = new GeoConvert();
+        }
+        return geoConvertInstance;
+    }
+
     public static Functions getInstance() {
         if (null == instance) {
             instance = new Functions();
@@ -116,7 +97,6 @@ public class Functions {
 
         return instance;
     }
-
 
     private String executeFuntion(final String fonction, final String param, final CallStack callStack) throws AlambicException {
         if ("PRENOM".equals(fonction)) {
@@ -1029,6 +1009,24 @@ public class Functions {
 
     public DirContext getDirContext(final Hashtable<?, ?> environment) throws NamingException {
         return new InitialDirContext(environment);
+    }
+
+    private enum COMPUTE_DATE_OPERAND_FIELD {
+
+        DAY(Calendar.DATE),
+        MONTH(Calendar.MONTH),
+        YEAR(Calendar.YEAR);
+
+        private final int field;
+
+        COMPUTE_DATE_OPERAND_FIELD(final int fieldCode) {
+            field = fieldCode;
+        }
+
+        private int getValue() {
+            return field;
+        }
+
     }
 
 }

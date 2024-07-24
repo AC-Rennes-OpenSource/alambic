@@ -32,9 +32,9 @@ import java.util.List;
 
 public class ACL {
 
-    private final Element aclElement;
     private static final String LOCAL = "local";
     private static final String NAME = "name";
+    private final Element aclElement;
 
     public ACL(final Element aclElement) {
         this.aclElement = aclElement;

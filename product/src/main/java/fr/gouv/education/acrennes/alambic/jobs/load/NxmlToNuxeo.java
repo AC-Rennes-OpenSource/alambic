@@ -49,16 +49,14 @@ import java.util.List;
 public class NxmlToNuxeo extends AbstractDestination {
 
     private static final Log log = LogFactory.getLog(NxmlToNuxeo.class);
-
+    private static final String ACE_DELIMITER = ",";
+    private static final String ACE_FORMAT = "%s:%s:%s";
     private HttpAutomationClient client;
     private Session session;
     private Element pivot;
     private DocumentService dc;
     private String inputFile;
     private String nuxeoPath;
-
-    private static final String ACE_DELIMITER = ",";
-    private static final String ACE_FORMAT = "%s:%s:%s";
 
     public NxmlToNuxeo(final CallableContext context, final Element job, final ActivityMBean jobActivity) throws AlambicException {
         super(context, job, jobActivity);

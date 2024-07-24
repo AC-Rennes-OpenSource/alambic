@@ -28,14 +28,6 @@ public class SourceFilter {
 
     private Map<String, String> filters;
 
-    public Map<String, String> getFilters() {
-        return filters;
-    }
-
-    public void setFilters(Map<String, String> filters) {
-        this.filters = filters;
-    }
-
     public SourceFilter(String... patterns) {
         setFilters(new HashMap<>());
         for (String pattern : patterns) {
@@ -46,6 +38,14 @@ public class SourceFilter {
                 getFilters().put(key, value);
             }
         }
+    }
+
+    public Map<String, String> getFilters() {
+        return filters;
+    }
+
+    public void setFilters(Map<String, String> filters) {
+        this.filters = filters;
     }
 
     public boolean accept(Map<String, List<String>> entry) {

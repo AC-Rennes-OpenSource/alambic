@@ -39,7 +39,7 @@ import java.util.concurrent.CompletableFuture;
 public class NxqlToStateBase implements IToStateBase {
 
     private static final Log log = LogFactory.getLog(NxqlToStateBase.class);
-
+    private final float version;
     private List<Map<String, List<String>>> results = new ArrayList<>();
     private Documents searchResultSet;
     private HttpAutomationClient client;
@@ -47,7 +47,6 @@ public class NxqlToStateBase implements IToStateBase {
     private boolean useElasticSearch = false;
     private String schemas = "dublincore";
     private NuxeoResultsPageIterator pageIterator;
-    private final float version;
 
     public NxqlToStateBase(final String uri, final String login, final String password, final float version) {
         this(uri, login, password, false, null, version);
@@ -185,14 +184,13 @@ public class NxqlToStateBase implements IToStateBase {
     public class NuxeoResultsPageIterator implements Iterator<List<Map<String, List<String>>>> {
 
         private final Log log = LogFactory.getLog(NuxeoResultsPageIterator.class);
-
-        private List<Map<String, List<String>>> entries;
-        private int offset;
         private final int pageSize;
         private final String query;
         private final String sortBy;
         private final String orderBy;
         private final Session session;
+        private List<Map<String, List<String>>> entries;
+        private int offset;
 
         public NuxeoResultsPageIterator(final Session session, final String query, final String scope, final int pageSize, final String sortBy,
                                         final String orderBy) {

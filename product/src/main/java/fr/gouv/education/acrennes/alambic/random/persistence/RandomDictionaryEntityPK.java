@@ -26,19 +26,8 @@ import java.io.Serializable;
 public class RandomDictionaryEntityPK implements Serializable {
 
     private static final long serialVersionUID = 1L;
-
-    public enum IDENTITY_ELEMENT {
-        FIRSTNAME_FEMALE,
-        FIRSTNAME_MALE,
-        LASTNAME,
-        ADDRESS_TYPE,
-        ADDRESS_LABEL,
-        ADDRESS_CITY
-    }
-
     @Column(name = "id")
     private long id;
-
     @Enumerated(EnumType.STRING)
     @Column(name = "elementname")
     private IDENTITY_ELEMENT elementname;
@@ -92,6 +81,15 @@ public class RandomDictionaryEntityPK implements Serializable {
     @Override
     public String toString() {
         return "{\"element\":\"" + this.elementname + "\", \"id\":" + id + "}";
+    }
+
+    public enum IDENTITY_ELEMENT {
+        FIRSTNAME_FEMALE,
+        FIRSTNAME_MALE,
+        LASTNAME,
+        ADDRESS_TYPE,
+        ADDRESS_LABEL,
+        ADDRESS_CITY
     }
 
 }

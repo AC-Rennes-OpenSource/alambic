@@ -412,13 +412,13 @@ public class GARGroupeBuilder implements GARTypeBuilder {
 
     private class GARGroupWriter {
 
-        private int nodeCount;
         private final ObjectFactory factory;
-        private GARENTGroupe container;
         private final Marshaller marshaller;
         private final int maxNodesCount;
         private final String version;
         private final int page;
+        private int nodeCount;
+        private GARENTGroupe container;
 
         protected GARGroupWriter(final ObjectFactory factory, final String version, final int page, final int maxNodesCount)
                 throws JAXBException, SAXException {

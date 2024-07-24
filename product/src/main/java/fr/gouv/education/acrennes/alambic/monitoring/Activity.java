@@ -36,6 +36,7 @@ public class Activity implements ActivityMBean {
     private static final Log log = LogFactory.getLog(Activity.class);
 
     private final String jobName;
+    private final ObjectName objectName;
     private String threadName;
     private int progress;
     private int innerJobsCount;
@@ -46,7 +47,6 @@ public class Activity implements ActivityMBean {
     private long startTime;
     private long endTime;
     private Object result;
-    private final ObjectName objectName;
     private List<Exception> errors;
 
     public Activity(final String name, final ObjectName objectName, final String threadName) {
@@ -180,18 +180,13 @@ public class Activity implements ActivityMBean {
     }
 
     @Override
-    public void setInnerJobsCount(int count) {
-        this.innerJobsCount = count;
-    }
-
-    @Override
     public int getInnerJobsCount() {
         return this.innerJobsCount;
     }
 
     @Override
-    public void setResult(Object val) {
-        this.result = val;
+    public void setInnerJobsCount(int count) {
+        this.innerJobsCount = count;
     }
 
     @Override
@@ -210,6 +205,11 @@ public class Activity implements ActivityMBean {
             }
         }
         return (null == ambr) ? this.result : ambr.getResult();
+    }
+
+    @Override
+    public void setResult(Object val) {
+        this.result = val;
     }
 
     @Override

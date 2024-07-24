@@ -24,11 +24,11 @@ import java.util.Map;
 
 public interface Destination {
 
-    void setPage(final int page);
-
     String getType();
 
     int getPage();
+
+    void setPage(final int page);
 
     boolean isDryMode();
 

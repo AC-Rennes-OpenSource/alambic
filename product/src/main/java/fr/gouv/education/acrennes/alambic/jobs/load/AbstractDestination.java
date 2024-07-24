@@ -28,15 +28,8 @@ import java.util.Map;
 
 public abstract class AbstractDestination implements Destination {
 
-    private static final Log log = LogFactory.getLog(AbstractDestination.class);
     public static final int NOT_PAGED = -1;
-
-    public enum IsAnythingToDoStatus {
-        UNDEFINED,
-        YES,
-        NO
-    }
-
+    private static final Log log = LogFactory.getLog(AbstractDestination.class);
     protected Element job;
     protected ActivityMBean jobActivity;
     protected Source source;
@@ -46,7 +39,6 @@ public abstract class AbstractDestination implements Destination {
     protected IsAnythingToDoStatus isAnythingToDo = IsAnythingToDoStatus.UNDEFINED;
     protected String type;
     protected CallableContext context;
-
     public AbstractDestination(final CallableContext context, final Element job, final ActivityMBean jobActivity) throws AlambicException {
         this.jobActivity = jobActivity;
         this.job = job;
@@ -115,5 +107,11 @@ public abstract class AbstractDestination implements Destination {
 
     @Override
     abstract public void execute() throws AlambicException;
+
+    public enum IsAnythingToDoStatus {
+        UNDEFINED,
+        YES,
+        NO
+    }
 
 }

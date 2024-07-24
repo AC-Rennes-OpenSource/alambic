@@ -29,29 +29,17 @@ import java.io.Serializable;
 public class EnseignementEntity implements Serializable {
 
     private static final long serialVersionUID = 1L;
-
-    public enum ENSEIGNEMENT_TYPE {
-        DISCIPLINE,
-        GROUPE_MATIERE,
-        CLASSE_MATIERE,
-        MEF
-    }
-
     @Id
     @GeneratedValue(strategy = GenerationType.SEQUENCE)
     @Column(name = "id")
     private Long id;
-
     @Column(name = "sourceSI")
     private String sourceSI;
-
     @Enumerated(EnumType.STRING)
     @Column(name = "type")
     private ENSEIGNEMENT_TYPE type;
-
     @Column(name = "code")
     private String code;
-
     @Column(name = "divOrGrpCode")
     private String divOrGrpCode;
 
@@ -130,6 +118,13 @@ public class EnseignementEntity implements Serializable {
     @Override
     public int hashCode() {
         return "EnseignementEntity::".concat(toString()).hashCode();
+    }
+
+    public enum ENSEIGNEMENT_TYPE {
+        DISCIPLINE,
+        GROUPE_MATIERE,
+        CLASSE_MATIERE,
+        MEF
     }
 
 }

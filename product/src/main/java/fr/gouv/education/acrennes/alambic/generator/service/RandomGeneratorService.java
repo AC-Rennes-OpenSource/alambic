@@ -39,35 +39,68 @@ public class RandomGeneratorService {
 
     private static final Log log = LogFactory.getLog(RandomGeneratorService.class);
 
-    public enum GENERATOR_TYPE {
-        USER,
-        IDENTITY,
-        PASSWORD,
-        ADDRESS,
-        DATE,
-        UID,
-        UUID,
-        INTEGER,
-        UNIK,
-        MAIL,
-        UAI,
-        IMAGE
-    }
-
     // Singleton pattern
     private RandomGeneratorService() {
     }
 
-    // This singleton will be lazy instantiated via the "Holder" pattern (that requires not code synchronisation)
-    private static class RGSSingletonHolder {
-        // unique instance not pre-initialized
-        private final static RandomGeneratorService instance = new RandomGeneratorService();
-        private final static ConcurrentMap<String, LockRegister> persistence_locks = new ConcurrentHashMap<>();
-        private static final ConcurrentHashMap<String, Long> capacity_cache = new ConcurrentHashMap<>(20);
-    }
-
     private static RandomGeneratorService getInstance() {
         return RGSSingletonHolder.instance;
+    }
+
+    private static void addKeyValuePair(final String key, final Object value, final Map<String, List<String>> map) {
+        if (value instanceof String) {
+            map.put(key, List.of((String) value));
+        } else if (value instanceof Integer) {
+            map.put(key, List.of(Integer.toString((Integer) value)));
+        } else if (value instanceof Long) {
+            map.put(key, List.of(Long.toString((Long) value)));
+        } else if (value instanceof Map) {
+            @SuppressWarnings("unchecked")
+            Map<String, Object> mapValue = (Map<String, Object>) value;
+            for (String innerKey : mapValue.keySet()) {
+                addKeyValuePair(key.concat("_" + innerKey), mapValue.get(innerKey), map);
+            }
+        } else {
+            log.error("Malformed entry structure!");
+            // ignored
+        }
+    }
+
+    public static RandomGenerator getRandomGenerator(final GENERATOR_TYPE type) throws AlambicException {
+        return getInstance().getRandomGeneratorSingleInstance(type);
+    }
+
+    public static ReentrantReadWriteLock getLock(final String token) {
+        return getInstance().getRandomGeneratorLock(token);
+    }
+
+    public static void releaseLock(final String token) {
+        getInstance().releaseRandomGeneratorLock(token);
+    }
+
+    public static Map<String, Long> getCapacityCache() {
+        return getInstance().getCapacityCacheSingleInstance();
+    }
+
+    public static Map<String, List<String>> toStateBaseEntry(final RandomEntity entry) {
+        Map<String, List<String>> sbeMap = new HashMap<>();
+
+        Map<String, Object> entityMap;
+        try {
+            entityMap = new ObjectMapper().readValue(entry.getJson(), new TypeReference<>() {
+            });
+            for (String key : entityMap.keySet()) {
+                addKeyValuePair(key, entityMap.get(key), sbeMap);
+            }
+        } catch (IOException e) {
+            log.error("Failed to convert the random entity object (" + entry + ") into state base entity, error: " + e.getMessage());
+        }
+
+        return sbeMap;
+    }
+
+    public static void close() {
+        getInstance().closeInstance();
     }
 
     private RandomGenerator getRandomGeneratorSingleInstance(final GENERATOR_TYPE type) throws AlambicException {
@@ -117,25 +150,6 @@ public class RandomGeneratorService {
         return RGSSingletonHolder.capacity_cache;
     }
 
-    private static void addKeyValuePair(final String key, final Object value, final Map<String, List<String>> map) {
-        if (value instanceof String) {
-            map.put(key, List.of((String) value));
-        } else if (value instanceof Integer) {
-            map.put(key, List.of(Integer.toString((Integer) value)));
-        } else if (value instanceof Long) {
-            map.put(key, List.of(Long.toString((Long) value)));
-        } else if (value instanceof Map) {
-            @SuppressWarnings("unchecked")
-            Map<String, Object> mapValue = (Map<String, Object>) value;
-            for (String innerKey : mapValue.keySet()) {
-                addKeyValuePair(key.concat("_" + innerKey), mapValue.get(innerKey), map);
-            }
-        } else {
-            log.error("Malformed entry structure!");
-            // ignored
-        }
-    }
-
     private EntityManager getEntityManager() throws AlambicException {
         EntityManager em = EntityManagerHelper.getEntityManager();
         em.setFlushMode(FlushModeType.AUTO);
@@ -147,41 +161,27 @@ public class RandomGeneratorService {
         RGSSingletonHolder.persistence_locks.clear();
     }
 
-    public static RandomGenerator getRandomGenerator(final GENERATOR_TYPE type) throws AlambicException {
-        return getInstance().getRandomGeneratorSingleInstance(type);
+    public enum GENERATOR_TYPE {
+        USER,
+        IDENTITY,
+        PASSWORD,
+        ADDRESS,
+        DATE,
+        UID,
+        UUID,
+        INTEGER,
+        UNIK,
+        MAIL,
+        UAI,
+        IMAGE
     }
 
-    public static ReentrantReadWriteLock getLock(final String token) {
-        return getInstance().getRandomGeneratorLock(token);
-    }
-
-    public static void releaseLock(final String token) {
-        getInstance().releaseRandomGeneratorLock(token);
-    }
-
-    public static Map<String, Long> getCapacityCache() {
-        return getInstance().getCapacityCacheSingleInstance();
-    }
-
-    public static Map<String, List<String>> toStateBaseEntry(final RandomEntity entry) {
-        Map<String, List<String>> sbeMap = new HashMap<>();
-
-        Map<String, Object> entityMap;
-        try {
-            entityMap = new ObjectMapper().readValue(entry.getJson(), new TypeReference<>() {
-            });
-            for (String key : entityMap.keySet()) {
-                addKeyValuePair(key, entityMap.get(key), sbeMap);
-            }
-        } catch (IOException e) {
-            log.error("Failed to convert the random entity object (" + entry + ") into state base entity, error: " + e.getMessage());
-        }
-
-        return sbeMap;
-    }
-
-    public static void close() {
-        getInstance().closeInstance();
+    // This singleton will be lazy instantiated via the "Holder" pattern (that requires not code synchronisation)
+    private static class RGSSingletonHolder {
+        // unique instance not pre-initialized
+        private final static RandomGeneratorService instance = new RandomGeneratorService();
+        private final static ConcurrentMap<String, LockRegister> persistence_locks = new ConcurrentHashMap<>();
+        private static final ConcurrentHashMap<String, Long> capacity_cache = new ConcurrentHashMap<>(20);
     }
 
     private static class LockRegister {

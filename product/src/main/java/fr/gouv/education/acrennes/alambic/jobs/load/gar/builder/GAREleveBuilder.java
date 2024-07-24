@@ -580,13 +580,13 @@ public class GAREleveBuilder implements GARTypeBuilder {
 
     private class GAREleveWriter {
 
-        private int nodeCount;
         private final ObjectFactory factory;
-        private GARENTEleve container;
         private final Marshaller marshaller;
         private final int maxNodesCount;
         private final String version;
         private final int page;
+        private int nodeCount;
+        private GARENTEleve container;
 
         protected GAREleveWriter(final ObjectFactory factory, final String version, final int page, final int maxNodesCount)
                 throws JAXBException, SAXException {

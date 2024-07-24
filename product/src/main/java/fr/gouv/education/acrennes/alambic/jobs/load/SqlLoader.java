@@ -36,11 +36,10 @@ import java.sql.SQLException;
 public class SqlLoader extends AbstractDestination {
 
     private static final Log log = LogFactory.getLog(SqlLoader.class);
-
-    private Connection conn = null;
     private final int requestCount;
-    private int processedCount;
     private final FileReader pivot;
+    private Connection conn = null;
+    private int processedCount;
     private PreparedStatement pstmt;
 
     public SqlLoader(final CallableContext context, final Element job, final ActivityMBean jobActivity) throws AlambicException {

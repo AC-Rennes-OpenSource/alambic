@@ -27,40 +27,11 @@ import java.util.*;
 public class SqlToStateBase implements IToStateBase {
 
     private static final Log log = LogFactory.getLog(SqlToStateBase.class);
-
-    private enum PaginationMethod {
-        ORACLE11G {
-            @Override
-            public String paginationQuery(String query, int offSet, int pageSize, int total) {
-                return String.format(
-                        "SELECT * FROM (SELECT t.*, rownum AS num__ FROM (%s) t) WHERE num__ BETWEEN %d AND %d",
-                        query,
-                        offSet + 1,
-                        Math.min(offSet + pageSize, total));
-            }
-        },
-        OFFSET {
-            @Override
-            public String paginationQuery(String query, int offSet, int pageSize, int total) throws AlambicException {
-                return String.format("SELECT * FROM (%s) LIMIT %d OFFSET %d", query, pageSize, offSet);
-            }
-        },
-        NONE {
-            @Override
-            public String paginationQuery(String query, int offSet, int pageSize, int total) throws AlambicException {
-                throw new AlambicException("Not implemented operation");
-            }
-        };
-
-        public abstract String paginationQuery(String query, int offSet, int pageSize, int total) throws AlambicException;
-    }
-
+    private final PaginationMethod paginationMethod;
     private List<Map<String, List<String>>> stateBase = new ArrayList<>();
     private PreparedStatement pstmt;
     private Connection conn;
     private ResultSet rs;
-    private final PaginationMethod paginationMethod;
-
     public SqlToStateBase(final String driver, final String uri, final String paginationMethod) throws SQLException, ClassNotFoundException {
         Class.forName(driver);
         conn = DriverManager.getConnection(uri);
@@ -148,15 +119,41 @@ public class SqlToStateBase implements IToStateBase {
         return new SQLResultsPageIterator(query, pageSize, paginationMethod);
     }
 
+    private enum PaginationMethod {
+        ORACLE11G {
+            @Override
+            public String paginationQuery(String query, int offSet, int pageSize, int total) {
+                return String.format(
+                        "SELECT * FROM (SELECT t.*, rownum AS num__ FROM (%s) t) WHERE num__ BETWEEN %d AND %d",
+                        query,
+                        offSet + 1,
+                        Math.min(offSet + pageSize, total));
+            }
+        },
+        OFFSET {
+            @Override
+            public String paginationQuery(String query, int offSet, int pageSize, int total) throws AlambicException {
+                return String.format("SELECT * FROM (%s) LIMIT %d OFFSET %d", query, pageSize, offSet);
+            }
+        },
+        NONE {
+            @Override
+            public String paginationQuery(String query, int offSet, int pageSize, int total) throws AlambicException {
+                throw new AlambicException("Not implemented operation");
+            }
+        };
+
+        public abstract String paginationQuery(String query, int offSet, int pageSize, int total) throws AlambicException;
+    }
+
     public class SQLResultsPageIterator implements Iterator<List<Map<String, List<String>>>> {
         private final Log log = LogFactory.getLog(SQLResultsPageIterator.class);
-
-        private List<Map<String, List<String>>> entries;
         private final int pageSize;
-        private int offset;
         private final int total;
         private final PaginationMethod paginationMethod;
         private final String query;
+        private List<Map<String, List<String>>> entries;
+        private int offset;
 
         public SQLResultsPageIterator(final String query, final int pageSize, final PaginationMethod paginationMethod) throws AlambicException {
             this.pageSize = pageSize;
