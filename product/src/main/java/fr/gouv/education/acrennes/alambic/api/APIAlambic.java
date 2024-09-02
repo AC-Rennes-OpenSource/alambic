@@ -81,7 +81,7 @@ public class APIAlambic implements IAPIAlambic {
     private static final String DEFAULT_RUN_ID = "DEFAULT_CONTEXT";
 
     private static final Log log = LogFactory.getLog(APIAlambic.class);
-    private static final Variables fileStaticVariables = new Variables();;
+    private static final Variables fileStaticVariables = new Variables();
     private static String repositoryPath = "";
     private static String executionPath = "./";
     private static Properties properties;
@@ -224,6 +224,10 @@ public class APIAlambic implements IAPIAlambic {
             Map<String, String> parameters
     ) {
         List<Future<ActivityMBean>> jobsFuturelist = new ArrayList<>();
+        
+        // Instanciate a Runtime Variables Structure (rvs) from the static ones
+        Variables rvs = new Variables();
+        rvs.loadFromMap(APIAlambic.fileStaticVariables.getHashMap());
 
         if (StringUtils.isNotBlank(jobFileName)) {
             if (!jobFileName.matches(".+\\.xml$")) {
@@ -235,15 +239,15 @@ public class APIAlambic implements IAPIAlambic {
             // Exécuter le job s'il est défini en mode "read only" ou si aucun autre processus ETL correspondant est en cours
             if (isReadOnlyJob || isRunnableJob(addonJobFilePath)) {
                 try {
-                    final String runId = initAddonContext(APIAlambic.fileStaticVariables, addonName);
+                    final String runId = initAddonContext(rvs, addonName);
 
                     // Chargement des paramètres d'exécution
                     if (null != parameters) {
-                    	APIAlambic.fileStaticVariables.loadFromMap(parameters);
+                    	rvs.loadFromMap(parameters);
                     }
 
                     // Instantiation et exécution
-                    Jobs jobs = new Jobs(executionPath, addonJobFilePath, APIAlambic.fileStaticVariables, properties);
+                    Jobs jobs = new Jobs(executionPath, addonJobFilePath, rvs, properties);
                     if (tasksList != null && !tasksList.isEmpty()) {
                         jobsFuturelist = jobs.executeJobList(tasksList, runId);
                     } else {
