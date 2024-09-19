@@ -189,7 +189,7 @@ public class JobRunner implements CallableJob {
 			}
 		} catch (final Exception e) {
 			log.error("Failed to run the job '" + getName() + "', error : " + e.getMessage());
-			if (null == e.getMessage()) {
+			if (null == e.getMessage() || "null".equalsIgnoreCase(e.getMessage())) {
 				e.printStackTrace();
 			}
 			
