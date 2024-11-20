@@ -25,6 +25,9 @@ import java.io.UnsupportedEncodingException;
 import java.io.Writer;
 import java.net.URLDecoder;
 import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 import java.text.Normalizer;
 import java.text.Normalizer.Form;
 import java.util.ArrayList;
@@ -49,6 +52,7 @@ import javax.xml.transform.TransformerFactoryConfigurationError;
 import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
 
+import fr.gouv.education.acrennes.alambic.jobs.JobHelper;
 import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.commons.lang.SerializationUtils;
@@ -90,6 +94,7 @@ public class FMFunctions {
 	private final Map<String, List<Object>> cache;
 	private CallableContext context = null;
 	private JSONParser parser;
+	private MessageDigest md;
 	
 	public FMFunctions() {
 		parser = new JSONParser();
@@ -100,9 +105,22 @@ public class FMFunctions {
 		Config.IsApostropheEncoded = false;
 	}
 
-	public FMFunctions(final CallableContext context) {
+	public FMFunctions(final CallableContext context) throws AlambicException {
 		this();
 		this.context = context;
+		/*Récupération des params du job de hash*/
+		String algorithm = JobHelper.evaluateExpressionForElements(this.context.getJobDocument(), "//algorithm").get(0).getValue();
+		String salt_seed = JobHelper.evaluateExpressionForElements(this.context.getJobDocument(), "//salt_seed").get(0).getValue();
+		if (!algorithm.isEmpty()) {
+			try {
+				this.md = MessageDigest.getInstance(algorithm);
+				if (!salt_seed.isEmpty()) md.update(salt_seed.getBytes());
+				log.info("Récupération du hash: '" + algorithm + "'");
+			} catch (NoSuchAlgorithmException e) {
+				log.error("La définition du job ne prévoit pas d'algorithme de hachage.");
+				throw new AlambicException(e);
+			}
+		}
 	}
 
 	/* Select the accented characters only to be encoded by the method escapeHTMLAccentedCharacters()
@@ -596,6 +614,18 @@ public class FMFunctions {
 	public void clearCacheList(final String key) {
 		if (this.cache.containsKey(key)) {
 			this.cache.get(key).clear();
+		}
+	}
+
+	public String getHash(final String toHash) {
+		if (!toHash.isEmpty()) {
+			String hashedXml = Base64.encodeBase64String(md.digest(toHash.getBytes(StandardCharsets.UTF_8)));
+			this.md.reset();
+			return hashedXml;
+		}
+		else {
+			log.error("Failed to hash. The given string to hash is empty or mismatch.");
+			return null;
 		}
 	}
 
