@@ -382,8 +382,8 @@ public class Functions {
                     final String attributeName = tokensMatcher.group(2);
                     final String currentValuePattern = tokensMatcher.group(3);
                     reqAttributes.add(attributeName);
-                    if (StringUtils.isNotBlank(shortestCommonValuePattern) && !shortestCommonValuePattern.contains(currentValuePattern) && !currentValuePattern.contains(shortestCommonValuePattern)) {
-                        LOG.error("All unicity patterns must share a common part within the request. " +
+                    if (StringUtils.isNotBlank(shortestCommonValuePattern) && !shortestCommonValuePattern.startsWith(currentValuePattern) && !currentValuePattern.startsWith(shortestCommonValuePattern)) {
+                        LOG.error("All unicity patterns must share a common root (prefix) within the request. This root usually ends with a star (*)." +
                                 "But found two unrelated patterns: '" + shortestCommonValuePattern + "' and '" + attributeName + "=" + currentValuePattern + "' in the request '" + searchString + "'. " +
                                 "Pattern '" + currentValuePattern + "' defined for attribute '" + attributeName + "', will be used for LDAP request, but ignored for unique value generation.");
                         continue; // Read the next pattern
@@ -450,8 +450,8 @@ public class Functions {
                             for (int i = 1; i <= existingValuesInLowerCase.size(); i++) {
                                 // finalUniqueValue is a local constant copy of uniqueValue to allow its use in the following lambda expression
                                 final String finalUniqueValue = uniqueValue;
-                                // If there is not a value in "existingValuesInLowerCase" that contains candidate "uniqueValue", so we can use the latter as result
-                                if (existingValuesInLowerCase.stream().noneMatch(existingValue -> existingValue.contains(finalUniqueValue.toLowerCase()))) {
+                                // If there is not a value in "existingValuesInLowerCase" that starts with candidate "uniqueValue", so we can use the latter as result
+                                if (existingValuesInLowerCase.stream().noneMatch(existingValue -> existingValue.startsWith(finalUniqueValue.toLowerCase()))) {
                                     // Found the unique value
                                     LOG.debug("Found the unique value '" + uniqueValue + "'");
                                     break;

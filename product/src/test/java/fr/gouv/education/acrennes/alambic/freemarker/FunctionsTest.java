@@ -828,4 +828,128 @@ public class FunctionsTest {
 			Assert.fail();
 		}
 	}
+
+	// Following tests use * at the beginning of each pattern
+
+	/* test use case: check unicity function, multi-criteria, multi-pattern request, happy path with evenly distributed sequential values, use next value */
+	@Test
+	public void test37() {
+		try {
+			PowerMockito.when(mockedDirContext.search(Matchers.anyString(), Matchers.anyString(), Matchers.any(SearchControls.class))).
+					thenReturn(getResultSet(new String[] {
+							"uid=marge.simpson;uidinit=marge.simpson;ENTPersonLogin=marge.simpson@014",
+							"uid=jacqueline.simpson;uidinit=jacqueline.simpson;ENTPersonLogin=jacqueline.simpson@014",
+							"uid=marge.jacqueline.simpson;uidinit=marge.jacqueline.simpson;ENTPersonLogin=marge.jacqueline.simpson@014",
+					}));
+			final String value = Functions.getInstance().executeAllFunctions(
+					"(UNICITY)" +
+							"ldap://ldap-pp.in.ac-rennes.fr:389/ou=personnes,dc=ent-bretagne,dc=fr??sub?" +
+							"(&(|(uid=*marge.simpson)(uidinit=*marge.simpson)(ENTPersonLogin=*marge.simpson@014))(|territorycode=014)" +
+							"(/UNICITY)"
+			);
+			Assert.assertEquals("1marge.simpson", value);
+		} catch (final Exception e) {
+			System.out.println(e.getMessage());
+			Assert.fail();
+		}
+	}
+
+	/* test use case: check unicity function, multi-criteria, multi-pattern request, happy path with evenly distributed sequential values, use next value */
+	@Test
+	public void test38() {
+		try {
+			PowerMockito.when(mockedDirContext.search(Matchers.anyString(), Matchers.anyString(), Matchers.any(SearchControls.class))).
+					thenReturn(getResultSet(new String[] {
+							"uid=jacqueline.simpson;uidinit=jacqueline.simpson;ENTPersonLogin=jacqueline.simpson@014",
+							"uid=marge.jacqueline.simpson;uidinit=marge.jacqueline.simpson;ENTPersonLogin=marge.jacqueline.simpson@014",
+					}));
+
+			final String value = Functions.getInstance().executeAllFunctions(
+					"(UNICITY)" +
+							"ldap://ldap-pp.in.ac-rennes.fr:389/ou=personnes,dc=ent-bretagne,dc=fr??sub?" +
+							"(&(|(uid=*jacqueline.simpson)(uidinit=*jacqueline.simpson)(ENTPersonLogin=*jacqueline.simpson@014))(|territorycode=014)" +
+							"(/UNICITY)"
+			);
+			Assert.assertEquals("1jacqueline.simpson", value);
+		} catch (final Exception e) {
+			System.out.println(e.getMessage());
+			Assert.fail();
+		}
+	}
+
+	/* test use case: check unicity function, multi-criteria, multi-pattern request, happy path with evenly distributed sequential values, use next value */
+	@Test
+	public void test40() {
+		try {
+			PowerMockito.when(mockedDirContext.search(Matchers.anyString(), Matchers.anyString(), Matchers.any(SearchControls.class))).
+					thenReturn(getResultSet(new String[] {
+							"uid=marge.jacqueline.simpson;uidinit=marge.jacqueline.simpson;ENTPersonLogin=marge.jacqueline.simpson@014",
+							"uid=1marge.jacqueline.simpson;uidinit=1marge.jacqueline.simpson;ENTPersonLogin=1marge.jacqueline.simpson@014",
+					}));
+			final String value = Functions.getInstance().executeAllFunctions(
+					"(UNICITY)" +
+							"ldap://ldap-pp.in.ac-rennes.fr:389/ou=personnes,dc=ent-bretagne,dc=fr??sub?" +
+							"(&(|(uid=*marge.jacqueline.simpson)(uidinit=*marge.jacqueline.simpson)(ENTPersonLogin=*marge.jacqueline.simpson@014))(|territorycode=014)" +
+							"(/UNICITY)"
+			);
+			Assert.assertEquals("2marge.jacqueline.simpson", value);
+		} catch (final Exception e) {
+			System.out.println(e.getMessage());
+			Assert.fail();
+		}
+	}
+
+	/* test use case: check unicity function, multi-criteria, multi-pattern request, happy path with evenly distributed sequential values, fill the gap */
+	@Test
+	public void test41() {
+		try {
+			// missing :
+			// uid=[jacqueline.simpson]
+			// uidinit=[jacqueline.simpson]
+			// ENTPersonLogin=[jacqueline.simpson@014]
+			PowerMockito.when(mockedDirContext.search(Matchers.anyString(), Matchers.anyString(), Matchers.any(SearchControls.class))).
+					thenReturn(getResultSet(new String[] {
+							"uid=1jacqueline.simpson;uidinit=1jacqueline.simpson;ENTPersonLogin=1jacqueline.simpson@014",
+							"uid=2jacqueline.simpson;uidinit=2jacqueline.simpson;ENTPersonLogin=2jacqueline.simpson@014",
+					}));
+			final String value = Functions.getInstance().executeAllFunctions(
+					"(UNICITY)" +
+							"ldap://ldap-pp.in.ac-rennes.fr:389/ou=personnes,dc=ent-bretagne,dc=fr??sub?" +
+							"(&(|(uid=*jacqueline.simpson)(uidinit=*jacqueline.simpson)(ENTPersonLogin=*jacqueline.simpson@014))(|territorycode=014)" +
+							"(/UNICITY)"
+			);
+			// we reuse missing value
+			Assert.assertEquals("jacqueline.simpson", value);
+		} catch (final Exception e) {
+			System.out.println(e.getMessage());
+			Assert.fail();
+		}
+	}
+
+	/* test use case: check unicity function, multi-criteria, multi-pattern request, not evenly distributed sequential values, fill the gap */
+	@Test
+	public void test42() {
+		try {
+			// missing :
+			// uid=[1jacqueline.simpson]
+			// uidinit=[jacqueline.simpson, 1jacqueline.simpson, 3jacqueline.simpson]
+			// ENTPersonLogin=[jacqueline.simpson@014, 1jacqueline.simpson@014, 2jacqueline.simpson@014]
+			PowerMockito.when(mockedDirContext.search(Matchers.anyString(), Matchers.anyString(), Matchers.any(SearchControls.class))).
+					thenReturn(getResultSet(new String[] {
+							"uid=2jacqueline.simpson;uidinit=2jacqueline.simpson;ENTPersonLogin=3jacqueline.simpson@014",
+							"uid=jacqueline.simpson;uidinit=4jacqueline.simpson;ENTPersonLogin=jacqueline.simpson@014",
+					}));
+			final String value = Functions.getInstance().executeAllFunctions(
+					"(UNICITY)" +
+							"ldap://ldap-pp.in.ac-rennes.fr:389/ou=personnes,dc=ent-bretagne,dc=fr??sub?" +
+							"(&(|(uid=*jacqueline.simpson)(uidinit=*jacqueline.simpson)(ENTPersonLogin=*jacqueline.simpson@014))(|territorycode=014)" +
+							"(/UNICITY)"
+			);
+			// we reuse missing value
+			Assert.assertEquals("1jacqueline.simpson", value);
+		} catch (final Exception e) {
+			System.out.println(e.getMessage());
+			Assert.fail();
+		}
+	}
 }
