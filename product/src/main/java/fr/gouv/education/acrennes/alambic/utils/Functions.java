@@ -37,9 +37,12 @@ import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Hashtable;
+import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
+import java.util.Set;
 import java.util.UUID;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -361,10 +364,9 @@ public class Functions {
         return rdn;
     }
 
-    @SuppressWarnings("unchecked")
     private String unicity(final String searchString, final CallStack callStack) throws AlambicException {
         String uniqueValue = "";
-        String valuePattern = "";
+        String shortestCommonValuePattern = "";
         NamingEnumeration<SearchResult> resultSet = null;
 
         try {
@@ -374,37 +376,45 @@ public class Functions {
             if (unicityMatcher.find()) {
                 final Pattern tokensPattern = Pattern.compile(UNICITY_PATTERN_TOKEN);
                 final Matcher tokensMatcher = tokensPattern.matcher(unicityMatcher.group(7));
-                final List<String> reqAttributes = new ArrayList<>();
+                final Set<String> reqAttributes = new LinkedHashSet<>(); // use a Set to avoid duplicated values
+                // validate all patterns in "searchString" and keep the shortest common one, also keep an ordered set of all attribute names in "reqAttributes"
                 while (tokensMatcher.find()) {
-                    reqAttributes.add(tokensMatcher.group(2));
-                    if (StringUtils.isNotBlank(valuePattern) && !valuePattern.equals(tokensMatcher.group(3))) {
-                        LOG.error("All unicity patterns must be the same within the request. But found two different ones '" + valuePattern + "' && '" + tokensMatcher.group(3) + "' in the request '" + searchString + "'");
-                        break;
+                    final String attributeName = tokensMatcher.group(2);
+                    final String currentValuePattern = tokensMatcher.group(3);
+                    reqAttributes.add(attributeName);
+                    if (StringUtils.isNotBlank(shortestCommonValuePattern) && !shortestCommonValuePattern.startsWith(currentValuePattern) && !currentValuePattern.startsWith(shortestCommonValuePattern)) {
+                        LOG.error("All unicity patterns must share a common root (prefix) within the request. This root usually ends with a star (*)." +
+                                "But found two unrelated patterns: '" + shortestCommonValuePattern + "' and '" + attributeName + "=" + currentValuePattern + "' in the request '" + searchString + "'. " +
+                                "Pattern '" + currentValuePattern + "' defined for attribute '" + attributeName + "', will be used for LDAP request, but ignored for unique value generation.");
+                        continue; // Read the next pattern
                     }
-                    valuePattern = tokensMatcher.group(3);
+                    // If pattern is not yet defined or a shorter pattern is found, define current pattern as shortestCommonValuePattern
+                    if (StringUtils.isBlank(shortestCommonValuePattern) || currentValuePattern.length() < shortestCommonValuePattern.length()) {
+                        shortestCommonValuePattern = currentValuePattern;
+                    }
                 }
 
                 final String generatorValue = unicityMatcher.group(2);
-                uniqueValue = valuePattern.replaceAll("\\*", ((StringUtils.isNotBlank(generatorValue) ? generatorValue : "")));
+                uniqueValue = shortestCommonValuePattern.replace("*", (StringUtils.isNotBlank(generatorValue) ? generatorValue : ""));
                 if (LOG.isDebugEnabled()) {
-                    LOG.debug("Check unicity criteria on the attribut(s) '" + reqAttributes + "' (candidate value is '" + uniqueValue + "'");
+                    LOG.debug("Check unicity criteria on the attribut(s) '" + reqAttributes + "' (candidate value for pattern '" + shortestCommonValuePattern + "' is '" + uniqueValue + "'");
                 }
 
                 if (StringUtils.isNotBlank(uniqueValue)) {
                     // Search occurrences within LDAP (sub tree scope is used)
                     final SearchControls searchControls = new SearchControls();
                     searchControls.setSearchScope(SearchControls.SUBTREE_SCOPE);
-                    final Hashtable<String, String> environment = new Hashtable<>();
+                    final Properties environment = new Properties(); // using Properties allows to ensure the configuration values are typed as String & removes warning java:S1149
                     if (StringUtils.isNotBlank(unicityMatcher.group(5)) && StringUtils.isNotBlank(unicityMatcher.group(6))) {
                         LOG.debug("Using principal " + unicityMatcher.group(4));
-                        environment.put(Context.INITIAL_CONTEXT_FACTORY, "com.sun.jndi.ldap.LdapCtxFactory");
-                        environment.put(Context.PROVIDER_URL, unicityMatcher.group(8));
-                        environment.put(Context.SECURITY_PRINCIPAL, unicityMatcher.group(4));
-                        environment.put(Context.SECURITY_CREDENTIALS, unicityMatcher.group(6));
+                        environment.setProperty(Context.INITIAL_CONTEXT_FACTORY, "com.sun.jndi.ldap.LdapCtxFactory");
+                        environment.setProperty(Context.PROVIDER_URL, unicityMatcher.group(8));
+                        environment.setProperty(Context.SECURITY_PRINCIPAL, unicityMatcher.group(4));
+                        environment.setProperty(Context.SECURITY_CREDENTIALS, unicityMatcher.group(6));
                     } else {
                         LOG.debug("No credential or password provided");
                     }
-                    LOG.debug("Recherche : " + unicityMatcher.group(7));
+                    LOG.debug("LDAP search query: " + unicityMatcher.group(7));
                     resultSet = getDirContext(environment).search(unicityMatcher.group(7), "", searchControls);
 
                     if ((null != resultSet) && resultSet.hasMore()) {
@@ -412,29 +422,36 @@ public class Functions {
                         final CallStack ifc = (!callStack.getStack().isEmpty()) ? callStack.getStack().get(0) : null;
                         if ((null != ifc) && StringUtils.isBlank(unicityMatcher.group(1))) {
                             // Ask the inner function to give a new candidate value
-                            final String newCandidate = searchFunctions(ifc.getFulltext(), new HashMap<String, String>(), callStack);
+                            final String newCandidate = searchFunctions(ifc.getFulltext(), new HashMap<>(), callStack);
                             uniqueValue = unicity(searchString.replace(uniqueValue, newCandidate), callStack);
                         } else {
                             // No inner function was used to build the candidate value: compute the new unique value via an
                             // incremental suffix and based on the previous search result
-                            final ArrayList<String> list = new ArrayList<>();
+                            // First retrieve all the already existing values in "reqAttributes" fields of the LDAP resultSet, including the multi-values ones
+                            final Set<String> existingValuesInLowerCase = new HashSet<>(); // use a Set to avoid duplicated values
                             while (resultSet.hasMore()) {
                                 final SearchResult result = resultSet.next();
                                 LOG.debug("The following LDAP entity matches the search string '" + searchString + "', entity: " + result.getName());
                                 final Attributes attributes = result.getAttributes();
                                 for (final String attribute : reqAttributes) {
                                     if (null != attributes.get(attribute)) {
-                                        final NamingEnumeration<String> values = (NamingEnumeration<String>) attributes.get(attribute).getAll();
+                                        final NamingEnumeration<?> values = attributes.get(attribute).getAll();
                                         while (values.hasMore()) {
-                                            list.add(values.next().toLowerCase());
+                                            final Object value = values.next();
+                                            if (value instanceof String) {
+                                                existingValuesInLowerCase.add(((String) value).toLowerCase());
+                                            }
                                         }
                                     }
                                 }
                             }
 
-                            // Compute the unique value
-                            for (int i = 1; i <= list.size(); i++) {
-                                if (!list.contains(uniqueValue.toLowerCase())) {
+                            // Compute the unique value, loop at most "existingValuesInLowerCase.size()" times, as the worst case occurs when all candidate values already exist
+                            for (int i = 1; i <= existingValuesInLowerCase.size(); i++) {
+                                // finalUniqueValue is a local constant copy of uniqueValue to allow its use in the following lambda expression
+                                final String finalUniqueValue = uniqueValue;
+                                // If there is not a value in "existingValuesInLowerCase" that starts with candidate "uniqueValue", so we can use the latter as result
+                                if (existingValuesInLowerCase.stream().noneMatch(existingValue -> existingValue.startsWith(finalUniqueValue.toLowerCase()))) {
                                     // Found the unique value
                                     LOG.debug("Found the unique value '" + uniqueValue + "'");
                                     break;
@@ -443,10 +460,10 @@ public class Functions {
                                     String newCandidate = String.valueOf(i);
                                     if (null != ifc) {
                                         // Ask the inner function to give a new candidate value
-                                        newCandidate = searchFunctions(ifc.getFulltext(), new HashMap<String, String>(), callStack);
+                                        newCandidate = searchFunctions(ifc.getFulltext(), new HashMap<>(), callStack);
                                     }
                                     // Compute new candidate value
-                                    uniqueValue = valuePattern.replace("*", newCandidate);
+                                    uniqueValue = shortestCommonValuePattern.replace("*", newCandidate);
                                 }
                             }
                         }
