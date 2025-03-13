@@ -114,7 +114,7 @@ public class WebServiceSource extends AbstractSource{
 		Element headersElts = sourceNode.getChild("headers");
 		if (null != headersElts && 0 < headersElts.getChildren().size()) {
 			for (Element headerElt : headersElts.getChildren()) {
-				headers_map.put(headerElt.getAttributeValue("name"), headerElt.getText());
+				headers_map.put(headerElt.getAttributeValue("name"), context.resolveString(headerElt.getText()));
 			}
 		}
 
