@@ -112,7 +112,7 @@ To request a remote web service API.
 	...
   </response_codes>
   <headers>
-    <header name="{the header name (e.g. to specify the payload 'Content-Type')}">{the header value (e.g. 'application/json')}<header>
+    <header name="{the header name (e.g. to specify the payload 'Content-Type')}">{the header value (e.g. 'application/json', since version 2.0.9 you can include an expression with a variable like 'Bearer %MY_VARIABLE%')}<header>
     ...
   </headers>
   <query>{the API query with respect of a specific format and grammar (see the subsequent 'TO NOTICE')}</query>
