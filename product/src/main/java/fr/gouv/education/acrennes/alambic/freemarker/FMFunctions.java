@@ -634,7 +634,7 @@ public class FMFunctions {
 		}
 	}
 
-	public String convertXmlToString(NodeModel node) {
+	public String getStringFromNodeModel(NodeModel node) {
 		try {
 			Transformer transformer = TransformerFactory.newInstance().newTransformer();
 			transformer.setOutputProperty(OutputKeys.ENCODING, "UTF-8");
