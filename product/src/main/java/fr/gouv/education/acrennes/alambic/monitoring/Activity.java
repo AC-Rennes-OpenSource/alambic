@@ -45,6 +45,7 @@ public class Activity implements ActivityMBean {
 	private String processing;
 	private ACTIVITY_STATUS status;
 	private ActivityTrafficLight trafficLight;
+	private ActivityMBean parentActivity;
 	private List<ActivityMBean> innerActivitiesList;
 	private long startTime;
 	private long endTime;
@@ -64,6 +65,7 @@ public class Activity implements ActivityMBean {
 		this.trafficLight = ActivityTrafficLight.GREEN;
 		this.objectName = objectName;
 		this.result = null;
+		this.parentActivity = null;
 		this.innerActivitiesList = Collections.emptyList();
 		this.errors = Collections.emptyList();
 	}
@@ -145,11 +147,31 @@ public class Activity implements ActivityMBean {
 	}
 
 	@Override
+	public void setParentActivity(final ActivityMBean parentActivity) {
+		this.parentActivity = parentActivity;
+	}
+
+	@Override
+	public ActivityMBean getParentActivity() {
+		return this.parentActivity;
+	}
+
+	@Override
 	public void registerInnerActivity(final ActivityMBean innerActivity) {
+		innerActivity.setParentActivity(this);
 		if (Collections.EMPTY_LIST == this.innerActivitiesList) {
 			this.innerActivitiesList = new ArrayList<ActivityMBean>();
 		}		
 		innerActivitiesList.add(innerActivity);
+	}
+
+	@Override
+	public ActivityMBean getRootActivity() {
+		ActivityMBean rootActivity = this;
+		while (null != rootActivity.getParentActivity()) {
+			rootActivity = rootActivity.getParentActivity();
+		}
+		return rootActivity;
 	}
 
 	@Override

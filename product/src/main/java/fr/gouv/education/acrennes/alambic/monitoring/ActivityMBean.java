@@ -69,6 +69,12 @@ public interface ActivityMBean {
 
 	public void registerInnerActivity(final ActivityMBean innerActivity);
 	
+	public ActivityMBean getParentActivity();
+
+	public void setParentActivity(final ActivityMBean parentActivity);
+	
+	public ActivityMBean getRootActivity();
+	
 	public void setInnerJobsCount(int count);
 
 	public int getInnerJobsCount();

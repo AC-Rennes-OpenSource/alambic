@@ -82,6 +82,12 @@ public class ActivityTest {
 		Assert.assertEquals(ActivityTrafficLight.GREEN, amb_inner1.getTrafficLight());
 		Assert.assertEquals(ActivityTrafficLight.RED, amb_inner2.getTrafficLight());
 		Assert.assertEquals(ActivityTrafficLight.RED, amb_root.getTrafficLight());
+		
+		// Control the method to get the root activity bean
+		Assert.assertEquals(amb_root.getJobName(), amb_inner2_inner1.getRootActivity().getJobName());
+		Assert.assertEquals(amb_root.getJobName(), amb_inner1.getRootActivity().getJobName());
+		Assert.assertEquals(amb_root.getJobName(), amb_root.getRootActivity().getJobName());
+		Assert.assertEquals(ActivityTrafficLight.RED, amb_inner2_inner1.getRootActivity().getTrafficLight());
 	}
 
 }
