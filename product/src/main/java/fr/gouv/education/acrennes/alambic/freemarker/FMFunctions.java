@@ -44,10 +44,15 @@ import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 import javax.xml.parsers.ParserConfigurationException;
-import javax.xml.transform.*;
+import javax.xml.transform.OutputKeys;
+import javax.xml.transform.Transformer;
+import javax.xml.transform.TransformerException;
+import javax.xml.transform.TransformerFactory;
+import javax.xml.transform.TransformerFactoryConfigurationError;
 import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import fr.gouv.education.acrennes.alambic.jobs.JobHelper;
 import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.codec.digest.DigestUtils;
@@ -91,6 +96,7 @@ public class FMFunctions {
 	private CallableContext context = null;
 	private JSONParser parser;
 	private MessageDigest md;
+	private static final ObjectMapper objectMapper = new ObjectMapper();
 	
 	public FMFunctions() {
 		parser = new JSONParser();
@@ -104,22 +110,23 @@ public class FMFunctions {
 	public FMFunctions(final CallableContext context) throws AlambicException {
 		this();
 		this.context = context;
+		String algorithm = "SHA-256";
+		String salt_seed = "";
+
 		/*Récupération des params du job de hash s'il y en a*/
 		if ( ! JobHelper.evaluateExpressionForElements(this.context.getJobDocument(),"//algorithm").isEmpty()) {
-			String algorithm = JobHelper.evaluateExpressionForElements(this.context.getJobDocument(), "//algorithm").get(0).getValue();
-			String salt_seed = JobHelper.evaluateExpressionForElements(this.context.getJobDocument(), "//salt_seed").get(0).getValue();
-			if (!algorithm.isEmpty()) {
-				try {
-					this.md = MessageDigest.getInstance(algorithm);
-					if (!salt_seed.isEmpty()) md.update(salt_seed.getBytes());
-					log.info("Récupération du hash: '" + algorithm + "'");
-				} catch (NoSuchAlgorithmException e) {
-					log.error("La définition du job ne prévoit pas d'algorithme de hachage.");
-					throw new AlambicException(e);
-				}
-			}
+			algorithm = JobHelper.evaluateExpressionForElements(this.context.getJobDocument(), "//algorithm").get(0).getValue();
+			salt_seed = JobHelper.evaluateExpressionForElements(this.context.getJobDocument(), "//salt_seed").get(0).getValue();
 		} else {
-			log.warn("La définition du job ne prévoit pas d'algorithme de hachage."); // ne bloque pas l'exec du job ?
+			log.warn("La définition du job ne prévoit pas d'algorithme de hachage. Valeur par défaut utilisée 'SHA-256'");
+		}
+		try {
+			this.md = MessageDigest.getInstance(algorithm);
+			if (!salt_seed.isEmpty()) md.update(salt_seed.getBytes());
+			log.info("Récupération du hash: '" + algorithm + "'");
+		} catch (NoSuchAlgorithmException e) {
+			log.error("L'algorithme '" + algorithm + "' n'est pas supporté");
+			throw new AlambicException(e);
 		}
 	}
 
@@ -467,7 +474,7 @@ public class FMFunctions {
 		NodeModel node = null;
 		
 		try {
-			node = freemarker.ext.dom.NodeModel.parse(new File(filepath));
+			node = NodeModel.parse(new File(filepath));
 		} catch (SAXException | IOException | ParserConfigurationException e) {
 			log.error(e.getMessage());
 		}
@@ -479,7 +486,7 @@ public class FMFunctions {
 		NodeModel node = null;
 
 		try {
-			node = freemarker.ext.dom.NodeModel.parse(new InputSource(new ByteArrayInputStream(body.getBytes())));
+			node = NodeModel.parse(new InputSource(new ByteArrayInputStream(body.getBytes())));
 		} catch (SAXException | IOException | ParserConfigurationException e) {
 			log.error(e.getMessage());
 		}
@@ -617,35 +624,22 @@ public class FMFunctions {
 		}
 	}
 
-	public String getHash(final String toHash) {
-		if (!toHash.isEmpty()) {
-            try {
-                this.md = MessageDigest.getInstance("SHA-256"); // TODO Non présent durant la phase de testing - analyser plus tard si c'est le cas lors de l'exécution du job complet
-				String hashedXml = Base64.encodeBase64String(md.digest(toHash.getBytes(StandardCharsets.UTF_8)));
+	public String getHashOf(final String dataToHash) {
+		String dataHashed = null;
+		if (!dataToHash.isEmpty()) {
+			if (this.md != null) {
+				dataHashed = Base64.encodeBase64String(md.digest(dataToHash.getBytes(StandardCharsets.UTF_8)));
 				this.md.reset();
-				return hashedXml;
-            } catch (NoSuchAlgorithmException e) {
-                throw new RuntimeException(e);
+				return dataHashed;
+			}
+			else {
+				log.error("No algorithm defined.");
             }
 		}
 		else {
 			log.error("Failed to hash. The given string to hash is empty or mismatch.");
-			return null;
 		}
+		return dataHashed;
 	}
-
-	public String getStringFromNodeModel(NodeModel node) {
-		try {
-			Transformer transformer = TransformerFactory.newInstance().newTransformer();
-			transformer.setOutputProperty(OutputKeys.ENCODING, "UTF-8");
-			transformer.setOutputProperty(OutputKeys.INDENT, "yes");
-			StringWriter writer = new StringWriter();
-			transformer.transform(new DOMSource(node.getNode()), new StreamResult(writer));
-			return writer.toString();
-		} catch (TransformerFactoryConfigurationError | TransformerException e) {
-			log.error("Error converting XML to string, error : " + e.getMessage());
-			return null;
-		}
-    }
 
 }
