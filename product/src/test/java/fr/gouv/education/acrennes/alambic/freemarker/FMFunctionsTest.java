@@ -267,7 +267,7 @@ public class FMFunctionsTest {
 		final CallableContext context = new JobContext(".", sourceDescriptor, new Variables(), new Properties());
 		this.Fn = new FMFunctions(context);
 		String strToHash = "signature";
-		String strHashed = this.Fn.getHash(strToHash);
+		String strHashed = this.Fn.getHashOf(strToHash);
 		Assert.assertEquals("rvwAX3TG/fD8dsdkJXgWz5u1CedlXG2vvOIb1erTqTU=", strHashed);
 	}
 
@@ -278,7 +278,7 @@ public class FMFunctionsTest {
 		final CallableContext context = new JobContext(".", sourceDescriptor, new Variables(), new Properties());
 		this.Fn = new FMFunctions(context);
 		String strToHash = "signature";
-		String strHashed = this.Fn.getHash(strToHash);
+		String strHashed = this.Fn.getHashOf(strToHash);
 		Assert.assertNotEquals("rvwAX3TG/fD8dsdkJXgWz5u1CedlXG2vvOIb1erTqTU=", strHashed);
 		Assert.assertEquals("Gi/CbcfqWipHSLfLKx7xk9lqssmfkwkvaeYwdbKNEng=", strHashed);
 	}
@@ -291,7 +291,7 @@ public class FMFunctionsTest {
 		this.Fn = new FMFunctions(context);
 		String strToHash = "signature";
 		Assert.assertThrows(NullPointerException.class, () -> {
-			this.Fn.getHash(strToHash);
+			this.Fn.getHashOf(strToHash);
 		});
 	}
 
