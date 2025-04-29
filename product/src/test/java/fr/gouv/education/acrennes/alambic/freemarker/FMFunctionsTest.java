@@ -290,9 +290,8 @@ public class FMFunctionsTest {
 		final CallableContext context = new JobContext(".", sourceDescriptor, new Variables(), new Properties());
 		this.Fn = new FMFunctions(context);
 		String strToHash = "signature";
-		Assert.assertThrows(NullPointerException.class, () -> {
-			this.Fn.getHashOf(strToHash);
-		});
+		String strHashed = this.Fn.getHashOf(strToHash);
+		Assert.assertEquals("Gi/CbcfqWipHSLfLKx7xk9lqssmfkwkvaeYwdbKNEng=", strHashed);
 	}
 
 	@Test
