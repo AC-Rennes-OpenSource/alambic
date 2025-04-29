@@ -31,7 +31,7 @@
 				</resource>
 			</resources>
 			<destination type="file" name="file">
-				<template>%FILES_PATH%/template1.ftl</template>
+				<template>%FILES_PATH%/template2.ftl</template>
 				<output>%OUTPUT_PATH%/result-external2.xml</output>
 			</destination>
 		</job>
