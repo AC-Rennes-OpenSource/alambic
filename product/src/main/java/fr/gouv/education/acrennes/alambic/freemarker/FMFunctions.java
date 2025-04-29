@@ -90,6 +90,7 @@ public class FMFunctions {
 	private static final String DICTIONARY_SEPARATOR = ",";
 	private static final String VOCABULARY_KEY_ID = "id";
 	private static final String[] XML_SPECIAL_CHARACTERS = new String[] {"&", "'", "<", ">", "\""};
+	private static final String DEFAULT_HASH_ALGORITHM = "SHA-256";
 	private final Random randomGenerator;
 	private final Map<String, List<Map<String, List<String>>>> cachedResources;
 	private final Map<String, List<Object>> cache;
@@ -110,20 +111,24 @@ public class FMFunctions {
 	public FMFunctions(final CallableContext context) throws AlambicException {
 		this();
 		this.context = context;
-		String algorithm = "SHA-256";
 		String salt_seed = "";
+		String algorithm = DEFAULT_HASH_ALGORITHM;
 
-		/*Récupération des params du job de hash s'il y en a*/
-		if ( ! JobHelper.evaluateExpressionForElements(this.context.getJobDocument(),"//algorithm").isEmpty()) {
-			algorithm = JobHelper.evaluateExpressionForElements(this.context.getJobDocument(), "//algorithm").get(0).getValue();
-			salt_seed = JobHelper.evaluateExpressionForElements(this.context.getJobDocument(), "//salt_seed").get(0).getValue();
+		// Récupération des params du job de hash s'il y en a
+		if ( !JobHelper.evaluateExpressionForElements(this.context.getJobDocument(),"//algorithm").isEmpty()) {
+			String xml_algorithm = JobHelper.evaluateExpressionForElements(this.context.getJobDocument(), "//algorithm").get(0).getValue();
+			String xml_salt_seed = JobHelper.evaluateExpressionForElements(this.context.getJobDocument(), "//salt_seed").get(0).getValue();
+			
+			if (StringUtils.isNotBlank(xml_algorithm)) algorithm = xml_algorithm;
+			if (StringUtils.isNotBlank(xml_salt_seed)) salt_seed = xml_salt_seed;
 		} else {
-			log.warn("La définition du job ne prévoit pas d'algorithme de hachage. Valeur par défaut utilisée 'SHA-256'");
+			log.warn("La définition du job ne prévoit pas d'algorithme de hachage. Valeur par défaut utilisée '" + DEFAULT_HASH_ALGORITHM + "'");
 		}
+		
 		try {
 			this.md = MessageDigest.getInstance(algorithm);
-			if (!salt_seed.isEmpty()) md.update(salt_seed.getBytes());
-			log.info("Récupération du hash: '" + algorithm + "'");
+			if (StringUtils.isNotBlank(salt_seed)) md.update(salt_seed.getBytes());
+			log.info("Instantiation du processus de hashage (algorithme:" + algorithm + ")");
 		} catch (NoSuchAlgorithmException e) {
 			log.error("L'algorithme '" + algorithm + "' n'est pas supporté");
 			throw new AlambicException(e);
