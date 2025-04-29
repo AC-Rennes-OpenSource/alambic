@@ -3,4 +3,6 @@
 	<item name="green">5</item>
 	<item name="blue">4</item>
 	<item name="yellow">7</item>
+	<item name="red" parentCacheValues="2, 9" rootCacheValues="2, 9">3</item>
+	<item name="Jane" parentCacheValues="3" rootCacheValues="3">8</item>
 </root>
