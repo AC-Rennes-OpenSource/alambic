@@ -630,7 +630,6 @@ public class FMFunctions {
 			if (this.md != null) {
 				dataHashed = Base64.encodeBase64String(md.digest(dataToHash.getBytes(StandardCharsets.UTF_8)));
 				this.md.reset();
-				return dataHashed;
 			}
 			else {
 				log.error("No algorithm defined.");
