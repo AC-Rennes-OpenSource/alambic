@@ -25,6 +25,9 @@ import java.io.UnsupportedEncodingException;
 import java.io.Writer;
 import java.net.URLDecoder;
 import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 import java.text.Normalizer;
 import java.text.Normalizer.Form;
 import java.util.ArrayList;
@@ -49,6 +52,8 @@ import javax.xml.transform.TransformerFactoryConfigurationError;
 import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import fr.gouv.education.acrennes.alambic.jobs.JobHelper;
 import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.commons.lang.SerializationUtils;
@@ -90,6 +95,8 @@ public class FMFunctions {
 	private final Map<String, List<Object>> cache;
 	private CallableContext context = null;
 	private JSONParser parser;
+	private MessageDigest md;
+	private static final ObjectMapper objectMapper = new ObjectMapper();
 	
 	public FMFunctions() {
 		parser = new JSONParser();
@@ -100,9 +107,27 @@ public class FMFunctions {
 		Config.IsApostropheEncoded = false;
 	}
 
-	public FMFunctions(final CallableContext context) {
+	public FMFunctions(final CallableContext context) throws AlambicException {
 		this();
 		this.context = context;
+		String algorithm = "SHA-256";
+		String salt_seed = "";
+
+		/*Récupération des params du job de hash s'il y en a*/
+		if ( ! JobHelper.evaluateExpressionForElements(this.context.getJobDocument(),"//algorithm").isEmpty()) {
+			algorithm = JobHelper.evaluateExpressionForElements(this.context.getJobDocument(), "//algorithm").get(0).getValue();
+			salt_seed = JobHelper.evaluateExpressionForElements(this.context.getJobDocument(), "//salt_seed").get(0).getValue();
+		} else {
+			log.warn("La définition du job ne prévoit pas d'algorithme de hachage. Valeur par défaut utilisée 'SHA-256'");
+		}
+		try {
+			this.md = MessageDigest.getInstance(algorithm);
+			if (!salt_seed.isEmpty()) md.update(salt_seed.getBytes());
+			log.info("Récupération du hash: '" + algorithm + "'");
+		} catch (NoSuchAlgorithmException e) {
+			log.error("L'algorithme '" + algorithm + "' n'est pas supporté");
+			throw new AlambicException(e);
+		}
 	}
 
 	/* Select the accented characters only to be encoded by the method escapeHTMLAccentedCharacters()
@@ -449,7 +474,7 @@ public class FMFunctions {
 		NodeModel node = null;
 		
 		try {
-			node = freemarker.ext.dom.NodeModel.parse(new File(filepath));
+			node = NodeModel.parse(new File(filepath));
 		} catch (SAXException | IOException | ParserConfigurationException e) {
 			log.error(e.getMessage());
 		}
@@ -461,7 +486,7 @@ public class FMFunctions {
 		NodeModel node = null;
 
 		try {
-			node = freemarker.ext.dom.NodeModel.parse(new InputSource(new ByteArrayInputStream(body.getBytes())));
+			node = NodeModel.parse(new InputSource(new ByteArrayInputStream(body.getBytes())));
 		} catch (SAXException | IOException | ParserConfigurationException e) {
 			log.error(e.getMessage());
 		}
@@ -597,6 +622,24 @@ public class FMFunctions {
 		if (this.cache.containsKey(key)) {
 			this.cache.get(key).clear();
 		}
+	}
+
+	public String getHashOf(final String dataToHash) {
+		String dataHashed = null;
+		if (!dataToHash.isEmpty()) {
+			if (this.md != null) {
+				dataHashed = Base64.encodeBase64String(md.digest(dataToHash.getBytes(StandardCharsets.UTF_8)));
+				this.md.reset();
+				return dataHashed;
+			}
+			else {
+				log.error("No algorithm defined.");
+            }
+		}
+		else {
+			log.error("Failed to hash. The given string to hash is empty or mismatch.");
+		}
+		return dataHashed;
 	}
 
 }

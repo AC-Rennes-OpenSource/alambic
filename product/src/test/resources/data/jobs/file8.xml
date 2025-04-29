@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ldapomatic version="2.0">
+	<variables>
+		<!-- ~~~~~~~~~~~~~~~~~~~~~~~ -->
+		<!-- VARIABLES DEFINITIONS	 -->
+		<!-- ~~~~~~~~~~~~~~~~~~~~~~~ -->
+ 		<variable name="FILES_PATH">src/test/resources/data/jobs</variable>
+ 		<variable name="OUTPUT_PATH">src/test/resources/data/output</variable>
+	</variables>
+	
+	<jobs>
+		<!-- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->
+		<!-- JOBS DEFINITIONS																		 -->
+		<!-- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->
+
+		<job name="all">
+			<execute-job name="local-job1"/>
+			<execute-job name="external-job" file="%FILES_PATH%/not-existing-file.xml"/>
+			<execute-job name="local-job2"/>
+		</job>
+
+		<job name="local-job1">
+			<resources>
+				<resource type="csv" name="entries">
+					<input>%FILES_PATH%/file1.csv</input>
+				</resource>
+			</resources>
+			<destination type="file" name="file">
+			    <hash>
+                    <algorithm>Unavailable</algorithm>
+                    <salt_seed/>
+                </hash>
+				<template>%FILES_PATH%/template1.ftl</template>
+				<output>%OUTPUT_PATH%/result-local1.xml</output>
+			</destination>
+		</job>
+
+		<job name="local-job2">
+			<resources>
+				<resource type="csv" name="entries">
+					<input>%FILES_PATH%/file2.csv</input>
+				</resource>
+			</resources>
+			<destination type="file" name="file">
+				<template>%FILES_PATH%/template1.ftl</template>
+				<output>%OUTPUT_PATH%/result-local2.xml</output>
+			</destination>
+		</job>
+		
+	</jobs>
+</ldapomatic>

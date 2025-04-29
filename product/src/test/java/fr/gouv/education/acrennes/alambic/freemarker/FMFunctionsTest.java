@@ -21,14 +21,13 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.StringReader;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.security.NoSuchAlgorithmException;
+import java.util.*;
 
 import fr.gouv.education.acrennes.alambic.exception.AlambicException;
 import fr.gouv.education.acrennes.alambic.jobs.CallableContext;
 import fr.gouv.education.acrennes.alambic.jobs.JobContext;
+import fr.gouv.education.acrennes.alambic.jobs.JobHelper;
 import org.jdom2.Document;
 import org.jdom2.JDOMException;
 import org.jdom2.input.SAXBuilder;
@@ -259,6 +258,51 @@ public class FMFunctionsTest {
 		Assert.assertEquals("H&#233;lo&#239;se", Fn.escapeHTMLAccentedCharacters("Héloïse", HtmlEncodingFormat.DECIMAL));
 		Assert.assertEquals("&#201;tienne", Fn.escapeHTMLAccentedCharacters("Étienne", HtmlEncodingFormat.DECIMAL));
 		Assert.assertEquals("l'&#226;ge d'&#201;tienne", Fn.escapeHTMLAccentedCharacters("l'âge d'Étienne", HtmlEncodingFormat.DECIMAL));
+	}
+
+	@Test
+	public void test11() throws AlambicException {
+		/*Hash with seed*/
+		final Document sourceDescriptor = JobHelper.parse("src/test/resources/data/jobs/file5.xml");
+		final CallableContext context = new JobContext(".", sourceDescriptor, new Variables(), new Properties());
+		this.Fn = new FMFunctions(context);
+		String strToHash = "signature";
+		String strHashed = this.Fn.getHashOf(strToHash);
+		Assert.assertEquals("rvwAX3TG/fD8dsdkJXgWz5u1CedlXG2vvOIb1erTqTU=", strHashed);
+	}
+
+	@Test
+	public void test12() throws AlambicException {
+		/*Hash with no seed */
+		final Document sourceDescriptor = JobHelper.parse("src/test/resources/data/jobs/file6.xml");
+		final CallableContext context = new JobContext(".", sourceDescriptor, new Variables(), new Properties());
+		this.Fn = new FMFunctions(context);
+		String strToHash = "signature";
+		String strHashed = this.Fn.getHashOf(strToHash);
+		Assert.assertNotEquals("rvwAX3TG/fD8dsdkJXgWz5u1CedlXG2vvOIb1erTqTU=", strHashed);
+		Assert.assertEquals("Gi/CbcfqWipHSLfLKx7xk9lqssmfkwkvaeYwdbKNEng=", strHashed);
+	}
+
+	@Test
+	public void test13() throws AlambicException {
+		/*The hash job has not been defined, so there is no hash */
+		final Document sourceDescriptor = JobHelper.parse("src/test/resources/data/jobs/file7.xml");
+		final CallableContext context = new JobContext(".", sourceDescriptor, new Variables(), new Properties());
+		this.Fn = new FMFunctions(context);
+		String strToHash = "signature";
+		Assert.assertThrows(NullPointerException.class, () -> {
+			this.Fn.getHashOf(strToHash);
+		});
+	}
+
+	@Test
+	public void test14() throws AlambicException {
+		/*The hash job has not been defined, so there is no hash */
+		final Document sourceDescriptor = JobHelper.parse("src/test/resources/data/jobs/file8.xml");
+		final CallableContext context = new JobContext(".", sourceDescriptor, new Variables(), new Properties());
+		Assert.assertThrows(AlambicException.class, () -> {
+			this.Fn = new FMFunctions(context);
+		});
 	}
 
 }
