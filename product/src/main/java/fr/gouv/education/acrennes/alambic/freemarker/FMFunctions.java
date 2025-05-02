@@ -473,7 +473,7 @@ public class FMFunctions {
 	}
 
 	public String getJSONStringFrom(Object object) {
-		return JSONValue.toJSONString(object).replace("\\/", "/");
+		return JSONValue.toJSONString(object).replace("\\/", "/"); // remove optional JSON escape of the slash character
 	}
 	
 	public NodeModel getNodeModel(final String filepath) {
