@@ -41,9 +41,9 @@ public class JobsTest extends XMLTestCase {
 	public void test1() throws IOException, AlambicException, JDOMException, SAXException, InterruptedException, ExecutionException {
 		Jobs jobs = new Jobs("./", "src/test/resources/data/jobs/file1.xml", new Variables(), new Properties());
 		List<Future<ActivityMBean>> futures = jobs.executeJobList(Arrays.asList("all"), "1");
-		
-		Assert.assertTrue(futures.size() == 1);
-		Assert.assertTrue(futures.get(0).get().getTrafficLight().equals(ActivityTrafficLight.GREEN));
+
+        Assert.assertEquals(1, futures.size());
+        Assert.assertEquals(ActivityTrafficLight.GREEN, futures.get(0).get().getTrafficLight());
 
 		assertXMLEqual(new FileReader("src/test/resources/data/jobs/expected-result-local1.xml"), 
 				new FileReader("src/test/resources/data/output/result-local1.xml"));
