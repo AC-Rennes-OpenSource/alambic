@@ -3,13 +3,14 @@
 <#-- ****************************************************************************** -->
 <#-- ********************************** MACROS ************************************ -->
 <#-- ****************************************************************************** -->
-<#macro WRITE_ENTRY_STORE_TO_CACHE entry>
+<#macro WRITE_ENTRY_USING_CACHE entry>
 	<#assign name = entry['name'][0]/>
 	<#assign value = entry['value'][0]/>
-	<#-- Saving value into root activity's cache using name as key -->
-	<#assign void = activity.getRootActivity().getCache().add(name, value)/>
+	<#-- Restoring values from parent and root activities' caches using name as key -->
+	<#assign parentCacheValues = activity.getParentActivity().getCache().get(name)/>
+	<#assign rootCacheValues = activity.getRootActivity().getCache().get(name)/>
 	<@LOG.log level="INFO" message="Add the entry ${name}"/>
-	<item name="${name}">${value}</item>
+	<item name="${name}"<#if parentCacheValues?has_content> parentCacheValues="${parentCacheValues?join(", ")}"</#if><#if rootCacheValues?has_content> rootCacheValues="${rootCacheValues?join(", ")}"</#if>>${value}</item>
 </#macro>
 <#-- ****************************************************************************** -->
 <#-- ***************************** DEBUT DU SCRIPT ******************************** -->
@@ -19,7 +20,7 @@
 <#assign entries=Fn.getEntries(resources, 'entries', '') />
 <#if entries?has_content>
 	<#list entries as entry>
-		<@WRITE_ENTRY_STORE_TO_CACHE entry=entry/>
+		<@WRITE_ENTRY_USING_CACHE entry=entry/>
 	</#list>
 <#else>
 	<@LOG.log level="ERROR" message="Failed to read CSV entries"/>

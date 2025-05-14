@@ -212,3 +212,5 @@ product/target
 # End of https://www.gitignore.io/api/java,linux,eclipse,intellij
 release.properties
 *.releaseBackup
+
+product/src/test/resources/data/output
