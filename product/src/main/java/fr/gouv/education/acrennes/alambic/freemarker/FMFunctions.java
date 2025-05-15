@@ -52,8 +52,6 @@ import javax.xml.transform.TransformerFactoryConfigurationError;
 import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-import fr.gouv.education.acrennes.alambic.jobs.JobHelper;
 import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.commons.lang.SerializationUtils;
@@ -61,8 +59,8 @@ import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.json.simple.JSONObject;
 import org.json.simple.JSONArray;
+import org.json.simple.JSONObject;
 import org.json.simple.JSONValue;
 import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
@@ -70,8 +68,11 @@ import org.nuxeo.ecm.automation.client.model.PropertyMap;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+
 import fr.gouv.education.acrennes.alambic.exception.AlambicException;
 import fr.gouv.education.acrennes.alambic.jobs.CallableContext;
+import fr.gouv.education.acrennes.alambic.jobs.JobHelper;
 import fr.gouv.education.acrennes.alambic.jobs.extract.sources.Source;
 import fr.gouv.education.acrennes.alambic.jobs.extract.sources.SourceFilter;
 import fr.gouv.education.acrennes.alambic.security.CipherHelper;
@@ -80,8 +81,8 @@ import fr.gouv.education.acrennes.alambic.utils.Functions;
 import freemarker.ext.dom.NodeModel;
 import net.htmlparser.jericho.CharacterEntityReference;
 import net.htmlparser.jericho.Config;
-import net.htmlparser.jericho.NumericCharacterReference;
 import net.htmlparser.jericho.Config.CharacterReferenceEncodingBehaviour;
+import net.htmlparser.jericho.NumericCharacterReference;
 
 public class FMFunctions {
 
@@ -122,13 +123,13 @@ public class FMFunctions {
 			if (StringUtils.isNotBlank(xml_algorithm)) algorithm = xml_algorithm;
 			if (StringUtils.isNotBlank(xml_salt_seed)) salt_seed = xml_salt_seed;
 		} else {
-			log.warn("La définition du job ne prévoit pas d'algorithme de hachage. Valeur par défaut utilisée '" + DEFAULT_HASH_ALGORITHM + "'");
+			log.debug("La définition du job ne prévoit pas d'algorithme de hachage. Valeur par défaut utilisée '" + DEFAULT_HASH_ALGORITHM + "'");
 		}
 		
 		try {
 			this.md = MessageDigest.getInstance(algorithm);
 			if (StringUtils.isNotBlank(salt_seed)) md.update(salt_seed.getBytes());
-			log.info("Instantiation du processus de hashage (algorithme:" + algorithm + ")");
+			log.debug("Instantiation du processus de hashage (algorithme:" + algorithm + ")");
 		} catch (NoSuchAlgorithmException e) {
 			log.error("L'algorithme '" + algorithm + "' n'est pas supporté");
 			throw new AlambicException(e);
@@ -472,7 +473,7 @@ public class FMFunctions {
 	}
 
 	public String getJSONStringFrom(Object object) {
-		return JSONValue.toJSONString(object);
+		return JSONValue.toJSONString(object).replace("\\/", "/"); // remove optional JSON escape of the slash character
 	}
 	
 	public NodeModel getNodeModel(final String filepath) {

@@ -93,5 +93,7 @@ public interface ActivityMBean {
 	
 	public String toString();
 	
-	public Report getReport();	
+	public Report getReport();
+
+	ActivityCache getCache();
 }

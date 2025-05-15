@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<alambic>
+    <variables>
+        <variable name="LDAP_ENT_URI_DEVELOPMENT">ldap://***:389</variable>
+    </variables>
+</alambic>

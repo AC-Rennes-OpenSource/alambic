@@ -52,6 +52,7 @@ public class Activity implements ActivityMBean {
 	private Object result;
 	private ObjectName objectName;
 	private List<Exception> errors;
+	private ActivityCache cache;
 	
 	public Activity(final String name, final ObjectName objectName, final String threadName) {
 		this.jobName = name;
@@ -301,5 +302,12 @@ public class Activity implements ActivityMBean {
 		
 		return report;
 	}
-	
+
+	@Override
+	public ActivityCache getCache() {
+		if (cache == null) {
+			cache = new ActivityCacheImpl();
+		}
+		return this.cache;
+	}
 }
