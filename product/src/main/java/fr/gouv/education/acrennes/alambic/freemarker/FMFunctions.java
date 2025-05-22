@@ -650,8 +650,7 @@ public class FMFunctions {
 		return dataHashed;
 	}
 
-	public String getImageHexFromPath(String imagePath) throws IOException {
-		/*Maximum size of a BLOB field from a base DB2 is 2Go (2,147,483,647 bytes)*/
+	public String getBinaryHexBytesFromFilePath(String imagePath) throws IOException {
 		/*For reasons of readability, compatibility and SQL standardization we use the uppercase method */
 		byte[] imageBytes = Files.readAllBytes(Paths.get(imagePath));
 		return Hex.encodeHexString(imageBytes).toUpperCase();
