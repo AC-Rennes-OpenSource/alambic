@@ -23,8 +23,8 @@ import static org.eclipse.persistence.config.PersistenceUnitProperties.JDBC_USER
 import static org.eclipse.persistence.config.PersistenceUnitProperties.TARGET_SERVER;
 
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -44,6 +44,7 @@ import javax.persistence.EntityManager;
 
 import fr.gouv.education.acrennes.alambic.exception.AlambicException;
 import fr.gouv.education.acrennes.alambic.utils.Config;
+import fr.gouv.education.acrennes.alambic.utils.PlaceholderResolver;
 import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
@@ -65,8 +66,8 @@ import fr.gouv.education.acrennes.alambic.utils.Variables;
 public class APIAlambic implements IAPIAlambic {
 
     private static final class AlambicVariables {
-        static String ALAMBIC_ADDONPATH = "ALAMBIC_ADDONPATH";
-        static String ALAMBIC_ADDON_OUTPUTPATH = "ALAMBIC_ADDON_OUTPUTPATH";
+        static final String ALAMBIC_ADDONPATH = "ALAMBIC_ADDONPATH";
+        static final String ALAMBIC_ADDON_OUTPUTPATH = "ALAMBIC_ADDON_OUTPUTPATH";
 
         private AlambicVariables() {
             throw new AssertionError("Classe utilitaire, ne pas instancier");
@@ -121,7 +122,13 @@ public class APIAlambic implements IAPIAlambic {
 
         // General configuration
         properties = new Properties();
-        properties.load(new FileInputStream(executionPath.concat(CONFIG_FILE)));
+        // Ensure the proper close of InputStream after the CONFIG_FILE file is read
+        try (InputStream inputStream = Files.newInputStream(Paths.get(executionPath + CONFIG_FILE))) {
+            properties.load(inputStream);
+        }
+
+        // Resolve placeholder so values like ${MY_VAR} in CONFIG_FILE get replaced by the current value of the environment variable MY_VAR
+        properties = PlaceholderResolver.resolvePlaceholders(properties);
 
         // Override the thread count configuration according to the count passed-in parameter (if not 0)
         if (StringUtils.isNotBlank(threadCount) && Integer.valueOf(threadCount) > 0) {
