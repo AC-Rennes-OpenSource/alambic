@@ -73,6 +73,8 @@ public class SourceFactory {
 				source = new UnikGeneratorSource(context, sourceNode);
 			} else if ("randomImageGenerator".equals(sourceType)) {
 				source = new RandomImageSource(context, sourceNode);
+			} else if ("randomPasswordGenerator".equals(sourceType)) {
+				source = new RandomPasswordSource(context, sourceNode);
 			} else if ("fileExplorer".equals(sourceType)) {
 				source = new FileExplorerSource(context, sourceNode);
 			} else if ("webService".equals(sourceType)) {
