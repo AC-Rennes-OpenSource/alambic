@@ -89,7 +89,7 @@ import freemarker.template.TemplateException;
 public class Functions {
 
     private static final Log LOG = LogFactory.getLog(Functions.class);
-    private static final String UNICITY_PATTERN_COMPLIANCY = "(candidate=\"([^\"\\|]+)\"(,login=\"([^\"\\|]+)\")?(,password=\"([^\"\\|]+)\")?\\|search=)?((ldap:\\/\\/.+)\\?\\?sub\\?.*\\([^=\\(\\)]+=[^=\\(\\)]*\\*[^=\\(\\)]*\\).*)";
+    private static final String UNICITY_PATTERN_COMPLIANCY = "(candidate=\"([^\"\\|]+)\"(,login=\"([^\"\\|]+)\")?(,password=\"([^\"\\|]+)\")?\\|search=)?((ldaps?:\\/\\/.+)\\?\\?sub\\?.*\\([^=\\(\\)]+=[^=\\(\\)]*\\*[^=\\(\\)]*\\).*)";
     private static final String UNICITY_PATTERN_TOKEN = "(\\(([^=\\(\\)]+)=([^=\\(\\)]*\\*[^=\\(\\)]*)\\))";
     private static final String CIPHER_PATTERN = "([^,=]+)=([^,]+)";
     private static final String STRING_FORMAT_PATTERN = "([^;=]+)=([^;]+)";
@@ -472,7 +472,7 @@ public class Functions {
                     LOG.error("Empty unicity pattern ('*') might be present in the request '" + searchString + "'");
                 }
             } else {
-                LOG.error("The LDAP search URL ('" + searchString + "') doesn't match URL format RFC 2255 (ex: 'ldap://<host>:<port>/ou=People,o=JNDITutorial??sub?(<attribut name>=<value must contain asterisk * character to specify the possible increment position>)')");
+                LOG.error("The LDAP search URL ('" + searchString + "') doesn't match URL format RFC 2255 (ex: 'ldap(s)://<host>:<port>/ou=People,o=JNDITutorial??sub?(<attribut name>=<value must contain asterisk * character to specify the possible increment position>)')");
             }
         } catch (final NamingException e) {
             LOG.error("Failed to execute the LDAP search, error: " + e.getMessage(), e);
