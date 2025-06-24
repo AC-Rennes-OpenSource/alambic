@@ -180,4 +180,57 @@ public class EntryTest2 {
     			buildAttributes("{\"member\": [\"uid=cs-saens,ou=personnes,dc=ent-bretagne,dc=fr\"]}"));
     }
 
+    /* test use case :
+     * Copie du test25
+     * - Vérification du fonctionnement de la consolidation fiche 'ENTProfil' Vs fiche 'member' (via requête LDAPS).
+     **/
+    @Test
+    public void test26() throws Exception {
+        final Entry mockedPivotEntry = buildFromPivot("dc=ent-bretagne,dc=fr", "data/entry/pivot26.xml");
+
+        String existingEntryInLDAP = "{" +
+                "\"dn\": \"cn=profil-lambda,ou=profils,ou=groupes,dc=ent-bretagne,dc=fr\"," +
+                "\"objectClass\": [\"top\", \"groupOfNames\", \"ENTProfil\"]," +
+                "\"cn\": \"profil-lambda\"," +
+                "\"description\": \"Un profil quelconque\"," +
+                "\"ENTDisplayName\": \"Un profil quelconque\"," +
+                "\"ENTProfilPeuplement:\": \"implicite\"," +
+                "\"member\": [\"uid=gbizet,ou=personnes,dc=ent-bretagne,dc=fr\", \"uid=cs-saens,ou=personnes,dc=ent-bretagne,dc=fr\", \"uid=cdebussy,ou=personnes,dc=ent-bretagne,dc=fr\"]" +
+                "}";
+
+        String searchMembersResults = "{" +
+                "\"dn\": \"uid=cs-saens,ou=personnes,dc=ent-bretagne,dc=fr\"," +
+                "\"objectClass\": [\"top\", \"person\", \"organizationalPerson\", \"inetOrgPerson\", \"ENTPerson\", \"ENTAuxEnseignant\"]," +
+                "\"cn\": \"Camille Saint-Saëns\"," +
+                "\"sn\": \"Saint-Saëns\"," +
+                "\"givenName\": \"Camille\"," +
+                "\"ENTPersonDateNaissance\": \"09/10/1835\"," +
+                "\"ENTPersonProfils\": [\"cn=alpha,ou=profils,ou=groupes,dc=ent-bretagne,dc=fr\", \"cn=beta,ou=profils,ou=groupes,dc=ent-bretagne,dc=fr\"]," +
+                "\"ENTPersonFonctions:\": [\"0350063D$ADF\"]" +
+                "}";
+
+        PowerMockito.when(mockedDirContext.search(
+                        Matchers.anyString(),
+                        Matchers.anyString(),
+                        Matchers.any(SearchControls.class)
+                ))
+                .thenReturn(buildResultSet("dn=cn=profil-lambda,ou=profils,ou=groupes,dc=ent-bretagne,dc=fr", new String[]{existingEntryInLDAP}))
+                .thenReturn(buildResultSet("uid=cs-saens,ou=personnes,dc=ent-bretagne,dc=fr", new String[]{searchMembersResults}));
+
+        PowerMockito.when(mockedDirContext.getAttributes(Matchers.matches("")))
+                .thenReturn(buildAttributes(existingEntryInLDAP))
+                .thenReturn(buildAttributes(existingEntryInLDAP))
+                .thenReturn(buildAttributes(searchMembersResults));
+
+        mockedPivotEntry.update();
+
+        verify(mockedDirContext, VerificationModeFactory.times(2)).modifyAttributes("",
+                DirContext.REPLACE_ATTRIBUTE,
+                buildAttributes("{\"ENTPersonProfils\": [\"cn=alpha,ou=profils,ou=groupes,dc=ent-bretagne,dc=fr\", \"cn=beta,ou=profils,ou=groupes,dc=ent-bretagne,dc=fr\"]}"));
+
+        verify(mockedDirContext, VerificationModeFactory.times(1)).modifyAttributes("",
+                DirContext.REPLACE_ATTRIBUTE,
+                buildAttributes("{\"member\": [\"uid=cs-saens,ou=personnes,dc=ent-bretagne,dc=fr\"]}"));
+    }
+
 }
