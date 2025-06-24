@@ -952,4 +952,27 @@ public class FunctionsTest {
 			Assert.fail();
 		}
 	}
+
+	/*  test use case: check unicity function ldaps support */
+	@Test
+	public void test43() {
+		try {
+			PowerMockito.when(mockedDirContext.search(Matchers.anyString(), Matchers.anyString(), Matchers.any(SearchControls.class))).
+					thenReturn(getResultSet(new String[] {
+							"uid=marge.simpson;uidinit=marge.simpson",
+							"uid=marge.simpson1;uidinit=marge.simpson1",
+					}));
+
+			final String value = Functions.getInstance().executeAllFunctions(
+					"(UNICITY)" +
+							"ldaps://ldap-pp.in.ac-rennes.fr:636/ou=personnes,dc=ent-bretagne,dc=fr??sub?" +
+							"(&(|(uid=marge.simpson*)(uidinit=marge.simpson*))(territorycode=014))" +
+							"(/UNICITY)"
+			);
+			Assert.assertEquals("marge.simpson2", value);
+		} catch (final Exception e) {
+			System.out.println(e.getMessage());
+			Assert.fail();
+		}
+	}
 }
