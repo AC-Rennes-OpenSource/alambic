@@ -19,7 +19,14 @@ package fr.gouv.education.acrennes.alambic.jobs.extract.clients;
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.UUID;
 import java.util.concurrent.locks.ReentrantReadWriteLock.WriteLock;
 import java.util.stream.Collectors;
 
@@ -28,7 +35,6 @@ import javax.persistence.EntityTransaction;
 import javax.persistence.FlushModeType;
 import javax.persistence.Query;
 
-import fr.gouv.education.acrennes.alambic.exception.AlambicException;
 import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
@@ -36,6 +42,7 @@ import org.apache.commons.logging.LogFactory;
 import org.json.JSONObject;
 
 import fr.gouv.education.acrennes.alambic.Constants;
+import fr.gouv.education.acrennes.alambic.exception.AlambicException;
 import fr.gouv.education.acrennes.alambic.freemarker.FMFunctions;
 import fr.gouv.education.acrennes.alambic.freemarker.NormalizationPolicy;
 import fr.gouv.education.acrennes.alambic.generator.service.RandomGeneratorService;
@@ -51,6 +58,9 @@ public class BlurIdToStateBase implements IToStateBase {
 		HASHED_ID,
 		SIGNATURE,
 		NONE
+	}
+	private static enum SIGNATURE_STRATEGIES {
+		CIVILITY_FIRSTNAME_LASTNAME
 	}
 
 	private List<Map<String, List<String>>> stateBase = new ArrayList<>();
@@ -192,6 +202,9 @@ public class BlurIdToStateBase implements IToStateBase {
 	 * 
 	 * Since only the first four character of the first and last name are taken into account, no signature is built if no phone number and no email is known.
 	 * This rule avoids to gather identities that are different indeed (two different physical persons).
+	 * 
+	 * Nevertheless, it is possible to force generating a signature based only on civility, first and last name by setting the query key "strategy": "CIVILITY_FIRSTNAME_LASTNAME"
+	 * 
 	 * @param query contains the meaningful attributes of the person's identity entity
 	 * @return the list of signatures (hashed) associated to this entity
 	 */
@@ -206,18 +219,22 @@ public class BlurIdToStateBase implements IToStateBase {
 		List<Object> phones = (query.has("phones")) ? query.getJSONArray("phones").toList() : Collections.emptyList();
 		List<Object> emails = (query.has("emails")) ? query.getJSONArray("emails").toList() : Collections.emptyList();
 		List<Object> relationships = (query.has("relationships")) ? query.getJSONArray("relationships").toList() : Collections.emptyList();
+		List<Object> strategies = (query.has("strategies")) ? query.getJSONArray("strategies").toList() : Collections.emptyList();
 
-		// normalisation to enhance the correlation rate
-		String nFirstName = getRelevantSubString(fmfct.normalize(firstName, NormalizationPolicy.WORD_ONLY, true).toLowerCase());
-		String nLastName = getRelevantSubString(fmfct.normalize(lastName, NormalizationPolicy.WORD_ONLY, true).toLowerCase());
+		// normalization to enhance the correlation rate
+		String nFirstName = fmfct.normalize(firstName, NormalizationPolicy.WORD_ONLY, true).toLowerCase();
+		String nLastName = fmfct.normalize(lastName, NormalizationPolicy.WORD_ONLY, true).toLowerCase();
 		String nCivility = fmfct.normalize(civility, NormalizationPolicy.CIVILITE, true).toLowerCase();
 
+		// apply "EduConnect like" truncate upon first name and last name attributes
+		String nRootFirstName = getRelevantSubString(nFirstName);
+		String nRootLastName = getRelevantSubString(nLastName);
+		
 		// build plain text signatures based on the known phones
 		if (null != phones && !phones.isEmpty()) {
 			for (Object phone: phones) {
 				String nPhone = fmfct.normalize(((String) phone).toLowerCase(), NormalizationPolicy.WORD_ONLY);
-				String plainSignature = String.format("%s%s%s%s", nCivility, nFirstName, nLastName, nPhone);
-				plainSignatures.add(plainSignature);
+				plainSignatures.add(String.format("%s%s%s%s", nCivility, nRootFirstName, nRootLastName, nPhone));
 			}
 		}
 
@@ -225,8 +242,7 @@ public class BlurIdToStateBase implements IToStateBase {
 		if (null != emails && !emails.isEmpty()) {
 			for (Object email: emails) {
 				String nEmail = ((String) email).toLowerCase().trim();
-				String plainSignature = String.format("%s%s%s%s", nCivility, nFirstName, nLastName, nEmail);
-				plainSignatures.add(plainSignature);
+				plainSignatures.add(String.format("%s%s%s%s", nCivility, nRootFirstName, nRootLastName, nEmail));
 			}
 		}
 
@@ -234,18 +250,20 @@ public class BlurIdToStateBase implements IToStateBase {
 		if (null != relationships && !relationships.isEmpty()) {
 			for (Object relationship: relationships) {
 				String nRelationship = ((String) relationship).toLowerCase().trim();
-				String plainSignature = String.format("%s%s%s%s", nCivility, nFirstName, nLastName, nRelationship);
-				plainSignatures.add(plainSignature);
+				plainSignatures.add(String.format("%s%s%s%s", nCivility, nRootFirstName, nRootLastName, nRelationship));
 			}
 		}
 		
-		/* catch the case where no reconciliation is possible since no secondary identification attribute (phone number, email, relationship) is available
-		 * => use the AAF identifier as default.
-		 */
+		// catch the case where no "EduConnect like" reconciliation is possible since no secondary identification attribute (phone number, email, relationship) is available
+		// => use the AAF identifier as default.
 		if (plainSignatures.isEmpty()) {
 			plainSignatures.add(identifier);
 		}
-
+		
+		if ( !strategies.isEmpty() && strategies.stream().anyMatch(item -> ((String)item).equalsIgnoreCase(SIGNATURE_STRATEGIES.CIVILITY_FIRSTNAME_LASTNAME.toString())) ) {
+			plainSignatures.add(String.format("%s%s%s", nCivility, nFirstName, nLastName));
+		}
+	
 		// build hashed signatures
 		for (String plainSignature: plainSignatures) {
 			this.md.update(getSalt(getSeed(query)));
