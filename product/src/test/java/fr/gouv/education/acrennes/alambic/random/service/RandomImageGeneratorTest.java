@@ -79,7 +79,8 @@ public class RandomImageGeneratorTest {
 		try {
 			List<RandomEntity> entities = rg.getEntities("{\"blurid\":\"1\",\"count\":1,\"width\":\"600\",\"height\":\"400\",\"path\":\".\"}", "PROCESS_TESTU", UNICITY_SCOPE.PROCESS);
 			Assert.assertTrue(1 == entities.size());
-			Assert.assertEquals("{\"file\":\"./4568290141604.jpg\"}", entities.get(0).getJson());
+			String expected = String.format("{\"file\":\".%s4568290141604.jpg\"}", File.separator);
+			Assert.assertEquals(expected, entities.get(0).getJson());
 		} catch (AlambicException e) {
 			Assert.fail(e.getMessage());
 		}
@@ -100,8 +101,9 @@ public class RandomImageGeneratorTest {
 		try {
 			List<RandomEntity> entities = rg.getEntities("{\"blurid\":\"1\",\"count\":2,\"width\":\"600\",\"height\":\"400\"}", "PROCESS_TESTU", UNICITY_SCOPE.NONE);
 			Assert.assertTrue(2 == entities.size());
-			Assert.assertEquals("{\"file\":\"./87659083456.jpg\"}", entities.get(0).getJson());
-			Assert.assertEquals("{\"file\":\"./87659083456.jpg\"}", entities.get(1).getJson());
+			String expected = String.format("{\"file\":\".%s87659083456.jpg\"}", File.separator);
+			Assert.assertEquals(expected, entities.get(0).getJson());
+			Assert.assertEquals(expected, entities.get(1).getJson());
 		} catch (AlambicException e) {
 			Assert.fail(e.getMessage());
 		}
