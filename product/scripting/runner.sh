@@ -99,6 +99,7 @@ report() {
 	# Compute the report/log files unique process identifier
 	NORMALIZED_JOBS_LIST=$(echo ${JOBS_LIST} | sed -r 's#\W+#-#g')
 	NORMALIZED_INPUT_FILE=$(echo ${INPUT_FILE} | sed -r 's#(.*/)?([^/\.]+)(\..+)?#\2#')
+	PROCESS_IDENTIFIER="${ADDON_NAME}-$(date +'%Y%m%dT%H%M%S-%N')"
 	FILE_PROCESS_IDENTIFIER=$(echo "${PROCESS_IDENTIFIER}-${NORMALIZED_INPUT_FILE}-${NORMALIZED_JOBS_LIST}")
 
 	# BACKUP RUNNER LOG FILE
@@ -309,9 +310,6 @@ then
 					usage
 					finally 1
 				fi
-
-				# PROCESS IDENTIFIER
-				PROCESS_IDENTIFIER="${ADDON_NAME}-$(date +'%Y%m%dT%H%M%S-%N')"
 				;;
 			\?)
 				logger "ERROR" "Invalid argument: -$OPTARG is not supported" >&2

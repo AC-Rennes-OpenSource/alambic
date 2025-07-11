@@ -510,6 +510,33 @@ public class BlurIdToStateBaseTest extends TestCase {
 		Assert.assertFalse(blurId2.equalsIgnoreCase(blurId1));
 	}
 
+	/**
+	 * Use case :
+	 * - one blur identifier is requested
+	 * - The strategy CIVILITY_FIRSTNAME_LASTNAME_PHONES is requested ONLY
+	 * - A single signature is produced
+	 */
+	@Test
+	public void test13() throws AlambicException {
+		// First query to get a blur identifier
+		String jsonQuery = "{"
+				+ "\"blur_mode\":\"SIGNATURE\","
+				+ "\"processId\":\"one-process-id\","
+				+ "\"key\":\"TESTU\","
+				+ "\"id\":\"12345\","
+				+ "\"firstName\":\"Guy\","
+				+ "\"lastName\":\"Tariste\","
+				+ "\"civility\":\"M.\","
+				+ "\"phones\":[\"06.01.02.03.04\"],"
+				+ "\"strategies\":[\"CIVILITY_FIRSTNAME_LASTNAME_PHONES\"]"
+				+ "}";
+		bitsb.executeQuery(jsonQuery);
+		List<Map<String, List<String>>> sb = bitsb.getStateBase();
+		Assert.assertEquals(1, sb.size());
+		final String blurId1 = sb.get(0).get("blurId").get(0);
+		Assert.assertTrue(blurId1.matches(".{8}-.{4}-.{4}-.{4}-.{12}"));
+	}
+	
 	@Override
 	@After
 	public void tearDown() {
@@ -518,7 +545,7 @@ public class BlurIdToStateBaseTest extends TestCase {
 		 * This is not visible when running the tests within Eclipse environment (launcher) but it is when packaging
 		 * the project with maven.
 		 */
-		EntityManagerHelper.close();
+		//EntityManagerHelper.close(); already done !
 	}
 
 }
