@@ -202,10 +202,10 @@ public class BlurIdToStateBase implements IToStateBase {
 
 	/**
 	 * Build the signatures of one person's identity entity.
-	 * The implemented algorithm is compliant with the one used by the project EduConnect in order to gather 
+	 * As default, the implemented algorithm is compliant with the one used by the project EduConnect in order to gather 
 	 * together AAF identities dealing with the same physical person.
 	 * 
-	 * Algorithm description :
+	 * EduConnect's algorithm description :
 	 * A signature is the concatenation of the following items :
 	 * - the civility
 	 * - the first four characters of the first name
@@ -215,7 +215,12 @@ public class BlurIdToStateBase implements IToStateBase {
 	 * Since only the first four character of the first and last name are taken into account, no signature is built if no phone number and no email is known.
 	 * This rule avoids to gather identities that are different indeed (two different physical persons).
 	 * 
-	 * Nevertheless, it is possible to force generating a signature based only on civility, first and last name by setting the query key "strategy": "CIVILITY_FIRSTNAME_LASTNAME"
+	 * Nevertheless, it is possible to produce a signature based on other strategies (it is possible to sum all of them)
+	 * - on civility, first and last name by setting the query key "strategy": "CIVILITY_FIRSTNAME_LASTNAME"
+	 * - on civility, first and last name plus phones by setting the query key "strategy": "CIVILITY_FIRSTNAME_LASTNAME_PHONES"
+	 * - on civility, first and last name plus emails by setting the query key "strategy": "CIVILITY_FIRSTNAME_LASTNAME_EMAILS"
+	 * - on civility, first and last name plus relation ships (pupil - responsible) by setting the query key "strategy": "CIVILITY_FIRSTNAME_LASTNAME_RELATIONSHIPS"
+	 * - on identifier only by setting the query key "strategy": "IDENTITY"
 	 * 
 	 * @param query contains the meaningful attributes of the person's identity entity
 	 * @return the list of signatures (hashed) associated to this entity
