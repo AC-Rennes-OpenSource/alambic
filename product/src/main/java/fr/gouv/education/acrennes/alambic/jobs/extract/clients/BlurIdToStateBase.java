@@ -219,7 +219,7 @@ public class BlurIdToStateBase implements IToStateBase {
 	 * - on civility, first and last name by setting the query key "strategy": "CIVILITY_FIRSTNAME_LASTNAME"
 	 * - on civility, first and last name plus phones by setting the query key "strategy": "CIVILITY_FIRSTNAME_LASTNAME_PHONES"
 	 * - on civility, first and last name plus emails by setting the query key "strategy": "CIVILITY_FIRSTNAME_LASTNAME_EMAILS"
-	 * - on civility, first and last name plus relation ships (pupil - responsible) by setting the query key "strategy": "CIVILITY_FIRSTNAME_LASTNAME_RELATIONSHIPS"
+	 * - on civility, first and last name plus relationships (pupil - responsible) by setting the query key "strategy": "CIVILITY_FIRSTNAME_LASTNAME_RELATIONSHIPS"
 	 * - on identifier only by setting the query key "strategy": "IDENTITY"
 	 * 
 	 * @param query contains the meaningful attributes of the person's identity entity
