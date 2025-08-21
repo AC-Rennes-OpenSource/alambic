@@ -5,7 +5,7 @@
 
 	<groupId>alambic</groupId>
 	<artifactId>alambic-parent</artifactId>
-	<version>2.0.12-RCO1</version>
+	<version>2.0.12.1-blurid-strategy</version>
 	<packaging>pom</packaging>
 	<name>Alambic</name>
 
