@@ -23,12 +23,15 @@ import javax.naming.NamingException;
 import javax.naming.directory.Attribute;
 import javax.naming.directory.SearchResult;
 
+import fr.gouv.education.acrennes.alambic.exception.AlambicException;
+import fr.gouv.education.acrennes.alambic.jobs.CallableContext;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 import fr.gouv.education.acrennes.alambic.ldap.LdapExtraction;
 import fr.gouv.education.acrennes.alambic.utils.EncodeUtils;
 import fr.gouv.education.acrennes.alambic.utils.Functions;
+import org.jdom2.Element;
 
 public class LdapStatsMdp extends LdapExtraction {
 
@@ -38,8 +41,8 @@ public class LdapStatsMdp extends LdapExtraction {
 	private int countMdpChanged = 0;
 	private int countMdpUnChanged = 0;
 
-	public LdapStatsMdp(final String driver, final String url, final String login, final String pwd, final String query) {
-		super(driver, url, login, pwd, query, new String[] { "uid", "ENTPersonDateNaissance", "userPassword" });
+	public LdapStatsMdp(final CallableContext context, final Element sourceNode, final String query) throws AlambicException {
+		super(context, sourceNode, query, new String[] { "uid", "ENTPersonDateNaissance", "userPassword" });
 	}
 
 	public void executeCountAction() {

@@ -16,11 +16,17 @@
  ******************************************************************************/
 package fr.gouv.education.acrennes.alambic.utils;
 
+import fr.gouv.education.acrennes.alambic.exception.AlambicException;
+import fr.gouv.education.acrennes.alambic.jobs.CallableContext;
+import org.jdom2.Element;
+
 import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Properties;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import javax.naming.Context;
 import javax.naming.NamingEnumeration;
 import javax.naming.NamingException;
 import javax.naming.directory.Attribute;
@@ -40,7 +46,11 @@ public class LdapUtils {
 
 	private static final Pattern REGEXP_PATTERN = Pattern.compile("\\(REGEXP\\)(.+)\\(/REGEXP\\)");
 
-	public static int compareAttributes(final Attribute attrA, final Attribute attrB, final boolean caseSensitive) throws NamingException, UnsupportedEncodingException {
+    private LdapUtils() {
+        // pas besoin d'instancier cette classe qui ne contient que des méthodes statiques
+    }
+
+    public static int compareAttributes(final Attribute attrA, final Attribute attrB, final boolean caseSensitive) throws NamingException, UnsupportedEncodingException {
 		int res = 0;
 		if (attributeContainsValues(attrA, attrB.getAll(), caseSensitive)) {
 			res = 1;
@@ -174,4 +184,50 @@ public class LdapUtils {
 		return entry;
 	}
 
+    /**
+     * Retourne un tableau de propriétés de configuration nécessaire pour établir une connexion LDAP en utilisant le constructeur de la classe InitialDirContext
+     * @param context contexte applicatif avec variables
+     * @param jobDescriptionNode nœud "source" ou "destination" de description du job
+     * @param enableConnectionPooling si oui, active le pooling de connexions LDAP
+     * @throws AlambicException si l'une des valeurs de configuration est incorrecte.
+     */
+    public static Properties getLdapConfiguration(final CallableContext context, final Element jobDescriptionNode, boolean enableConnectionPooling) throws AlambicException {
+        // Lecture des valeurs de configuration pour la connexion LDAP depuis les enfants du nœud "source" ou "destination"
+        final String driver = Config.getPropertyValue(context, jobDescriptionNode, "driver", "com.sun.jndi.ldap.LdapCtxFactory", null);
+        final String uri = Config.getPropertyValue(context, jobDescriptionNode, "uri", null, "l'uri de l'annuaire n'est pas précisée");
+        final String login = Config.getPropertyValue(context, jobDescriptionNode, "login", null, "le login de l'annuaire n'est pas précisé");
+        final String pwd = Config.getPropertyValue(context, jobDescriptionNode, "passwd", null, "le mot de passe de l'annuaire n'est pas précisé");
+        // Lecture des timeouts d'abord depuis les variables (chargés à partir du fichier config.properties)
+        // ou surchargés par les attributs connectTimeout et readTimeout du nœud "source" ou "destination"
+        final Integer connectTimeout = Config.getNumericPropertyValue(context, jobDescriptionNode, CallableContext.ETL_LDAP_CONNECT_TIMEOUT, "connectTimeout");
+        final Integer readTimeout = Config.getNumericPropertyValue(context, jobDescriptionNode, CallableContext.ETL_LDAP_READ_TIMEOUT, "readTimeout");
+
+        // Initialisation hashtable avec valeurs lues
+        final Properties confLdap = new Properties();
+        confLdap.put(Context.INITIAL_CONTEXT_FACTORY, driver);
+        confLdap.put(Context.PROVIDER_URL, uri);
+        confLdap.put(Context.SECURITY_PRINCIPAL, login);
+        confLdap.put(Context.SECURITY_CREDENTIALS, pwd);
+        if (enableConnectionPooling) {
+            confLdap.put("com.sun.jndi.ldap.connect.pool", "true");
+        }
+        setEnvironmentConfigTimeouts(confLdap, connectTimeout, readTimeout);
+        return confLdap;
+    }
+
+    /**
+     * Modifie le tableau de propriétés de configuration existant passé en paramètre pour inclure les paramètres de timeout
+     *
+     * @param confLdap tableau de propriétés de configuration existant
+     * @param connectTimeout valeur pour timeout de connexion
+     * @param readTimeout valeur pour timeout de lecture
+     */
+    private static void setEnvironmentConfigTimeouts(final Properties confLdap, final Integer connectTimeout, final Integer readTimeout) {
+        if (connectTimeout != null) {
+            confLdap.put("com.sun.jndi.ldap.connect.timeout", String.valueOf(connectTimeout));
+        }
+        if (readTimeout != null) {
+            confLdap.put("com.sun.jndi.ldap.read.timeout", String.valueOf(readTimeout));
+        }
+    }
 }
