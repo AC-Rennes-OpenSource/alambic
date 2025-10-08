@@ -218,6 +218,19 @@ public class LdapUtils {
     /**
      * Modifie le tableau de propriétés de configuration existant passé en paramètre pour inclure les paramètres de timeout
      *
+     * @param context contexte applicatif avec variables
+     * @param confLdap tableau de propriétés de configuration existant
+     * @throws AlambicException si l'une des valeurs de configuration est incorrecte.
+     */
+    public static void setEnvironmentConfigTimeouts(final CallableContext context, final Properties confLdap) throws AlambicException {
+        final Integer connectTimeout = Config.getNumericPropertyValue(context, CallableContext.ETL_LDAP_CONNECT_TIMEOUT);
+        final Integer readTimeout = Config.getNumericPropertyValue(context, CallableContext.ETL_LDAP_READ_TIMEOUT);
+        setEnvironmentConfigTimeouts(confLdap, connectTimeout, readTimeout);
+    }
+
+    /**
+     * Modifie le tableau de propriétés de configuration existant passé en paramètre pour inclure les paramètres de timeout
+     *
      * @param confLdap tableau de propriétés de configuration existant
      * @param connectTimeout valeur pour timeout de connexion
      * @param readTimeout valeur pour timeout de lecture

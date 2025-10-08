@@ -15,6 +15,10 @@ public class Config {
 
     private static Properties props = new Properties();
 
+    public static Properties getProperties() {
+        return props;
+    }
+
     public static void setProperties(Properties properties) {
         props = properties;
     }
