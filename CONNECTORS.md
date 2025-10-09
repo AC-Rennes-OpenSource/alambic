@@ -50,7 +50,9 @@ This resource is useful when no source is required but the target connector defi
 To search entries into a LDAP server instance. 
 
 ```xml
-<resource type="ldap" name="{any string}">
+<resource type="ldap" name="{any string}" 
+          connectTimeout="{max expected time to establish a connection in millis (a non-negative integer value)}"
+          readTimeout="{max expected time to read data in millis (a non-negative integer value)}">
   <driver>{a LDAP driver class (e.g. 'com.sun.jndi.ldap.LdapCtxFactory')}</driver>
   <uri>{a LDAP server access URL (e.g. 'ldap://***:389')}</uri>
   <login>{the user dn to bind with}</login>
@@ -62,7 +64,7 @@ To search entries into a LDAP server instance.
 
 **Example :** query a LDAP server
 ```xml
-<resource type="ldap" name="My LDAP server">
+<resource type="ldap" name="My LDAP server" connectTimeout="5000" readTimeout="60000">
   <driver>com.sun.jndi.ldap.LdapCtxFactory</driver>
   <uri>ldap//localhost:389/ou=books</uri>
   <login>John</login>
@@ -488,7 +490,9 @@ To build an unique user identifier based-on its first and last names.
 To update the entries (CUD operations) from a LDAP server.
 
 ```xml
-<destination type="ldap" name="{any string}">
+<destination type="ldap" name="{any string}"
+             connectTimeout="{max expected time to establish a connection in millis (a non-negative integer value)}"
+             readTimeout="{max expected time to read data in millis (a non-negative integer value)}">
   <driver>{a LDAP driver class (e.g. 'com.sun.jndi.ldap.LdapCtxFactory')}</driver>
   <uri>{a LDAP server access URL (e.g. 'ldap://***:389')}</uri>
   <login>{the user dn to bind with}</login>
@@ -499,7 +503,7 @@ To update the entries (CUD operations) from a LDAP server.
 
 **Example :** load entries from an intermediate file into a LDAP server
 ```xml
-<destination type="ldap" name="My LDAP server">
+<destination type="ldap" name="My LDAP server" connectTimeout="5000" readTimeout="60000">
   <driver>com.sun.jndi.ldap.LdapCtxFactory</driver>
   <uri>ldap//localhost:389/ou=books</uri>
   <login>John</login>
