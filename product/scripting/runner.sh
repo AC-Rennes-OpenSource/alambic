@@ -42,6 +42,7 @@ START_TIME=$(date +'%s')
 # SCRIPT OVERALL STATUS
 SCRIPT_STATUS="avec succès"
 SCRIPT_STATUS_CLASS="success"
+TMP_RUNNER_FILE=$(mktemp -p . --suffix "-RUNNERLOG-$(date +'%Y%m%dT%H%M%S-%N')")
 
 #----------------------------------------------
 # functions
@@ -105,7 +106,7 @@ report() {
 	BACKUP_RUNNER_LOG_FILE="${ALAMBIC_LOG_DIR}${ADDON_NAME}/alambic-${FILE_PROCESS_IDENTIFIER}.log"
 
 	# Keep backup of the addon's runner logs
-	cp runner.log ${BACKUP_RUNNER_LOG_FILE}
+	cp ${TMP_RUNNER_FILE} ${BACKUP_RUNNER_LOG_FILE}
 	
 	# Build output report (HTML format)
 	REPORT_FILE="${ALAMBIC_LOG_DIR}${ADDON_NAME}/alambic-${FILE_PROCESS_IDENTIFIER}-report.html"
@@ -228,6 +229,10 @@ flush() {
 
 finally() {
 	logger "INFO" "Fin de traitement du script"
+	if [ -s "${TMP_RUNNER_FILE}" ]
+	then
+		rm ${TMP_RUNNER_FILE}
+	fi
 	exit $1
 }
 
@@ -369,5 +374,5 @@ else
 	usage
 	finally 1
 fi
-} > runner.log
+} 2>&1 | tee -a runner.log ${TMP_RUNNER_FILE}
 finally 0

@@ -110,6 +110,10 @@ public class APIAlambic implements IAPIAlambic {
         this.tempProcessFile = null;
     }
 
+    public static Variables getFileStaticVariables() {
+        return fileStaticVariables;
+    }
+
     public static void init(final String ep) throws IOException, AlambicException {
     	init(ep, null);
     }

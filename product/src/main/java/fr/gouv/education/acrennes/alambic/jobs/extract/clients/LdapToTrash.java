@@ -16,9 +16,8 @@
  ******************************************************************************/
 package fr.gouv.education.acrennes.alambic.jobs.extract.clients;
 
-import java.util.Hashtable;
+import java.util.Properties;
 
-import javax.naming.Context;
 import javax.naming.NamingEnumeration;
 import javax.naming.NamingException;
 import javax.naming.directory.DirContext;
@@ -26,10 +25,14 @@ import javax.naming.directory.InitialDirContext;
 import javax.naming.directory.SearchControls;
 import javax.naming.directory.SearchResult;
 
+import fr.gouv.education.acrennes.alambic.exception.AlambicException;
+import fr.gouv.education.acrennes.alambic.jobs.CallableContext;
+import fr.gouv.education.acrennes.alambic.utils.LdapUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 import fr.gouv.education.acrennes.alambic.jobs.load.StateBaseToLdapDelete;
+import org.jdom2.Element;
 
 /**
  * @deprecated
@@ -42,16 +45,13 @@ public class LdapToTrash {
 
 	private int countEntriesDeleted = 0;
 
-	private final Hashtable<String, String> confLdap = new Hashtable<>(5);
+	private final Properties confLdap;
 	private final SearchControls contraintes = new SearchControls();
 	protected DirContext ctx = null;
 	protected NamingEnumeration<SearchResult> searchRes;
 
-	public LdapToTrash(final String driver, final String url, final String login, final String pwd, final String query) {
-		confLdap.put(Context.INITIAL_CONTEXT_FACTORY, driver);
-		confLdap.put(Context.PROVIDER_URL, url);
-		confLdap.put(Context.SECURITY_PRINCIPAL, login);
-		confLdap.put(Context.SECURITY_CREDENTIALS, pwd);
+	public LdapToTrash(final CallableContext context, final Element sourceNode, final String query) throws AlambicException {
+        confLdap = LdapUtils.getLdapConfiguration(context, sourceNode, false);
 		contraintes.setSearchScope(SearchControls.ONELEVEL_SCOPE);
 		contraintes.setReturningAttributes(new String[] { "uid" });
 		

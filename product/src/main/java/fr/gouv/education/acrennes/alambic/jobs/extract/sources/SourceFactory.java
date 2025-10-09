@@ -96,12 +96,8 @@ public class SourceFactory {
 	private static void funcLdapStatMdp(final CallableContext context, final Element sourceNode) throws AlambicException {
 		log.info("  -> Statistique des MdP changes [" + sourceNode.getAttributeValue("name") + "]");
 		// Instantiation de l'objet ExtractionSql
-		String query = Functions.getInstance().executeAllFunctions(context.resolveString(sourceNode.getChildText("query")));
-		LdapStatsMdp etl = new LdapStatsMdp(context.resolveString(sourceNode.getChildText("driver")),
-				context.resolveString(sourceNode.getChildText("uri")),
-				context.resolveString(sourceNode.getChildText("login")),
-				context.resolveString(sourceNode.getChildText("passwd")),
-				query);
+        final String query = Functions.getInstance().executeAllFunctions(context.resolveString(sourceNode.getChildText("query")));
+		final LdapStatsMdp etl = new LdapStatsMdp(context, sourceNode, query);
 		try {
 			etl.executeCountAction();
 			log.info("     --- Nombre de comptes       : " + etl.getCountEntries());
@@ -116,12 +112,8 @@ public class SourceFactory {
 		log.info("  -> Nettoyage LDAP de l'annuaire [" + sourceNode.getAttributeValue("name") + "]");
 
 		// Instantiation de l'objet ExtractionSql
-		String query = Functions.getInstance().executeAllFunctions(context.resolveString(sourceNode.getChildText("query")));
-		LdapToTrash etl = new LdapToTrash(context.resolveString(sourceNode.getChildText("driver")),
-				context.resolveString(sourceNode.getChildText("uri")),
-				context.resolveString(sourceNode.getChildText("login")),
-				context.resolveString(sourceNode.getChildText("passwd")),
-				query);
+        final String query = Functions.getInstance().executeAllFunctions(context.resolveString(sourceNode.getChildText("query")));
+        final LdapToTrash etl = new LdapToTrash(context, sourceNode, query);
 		try {
 			etl.executeDeleteAction();
 
