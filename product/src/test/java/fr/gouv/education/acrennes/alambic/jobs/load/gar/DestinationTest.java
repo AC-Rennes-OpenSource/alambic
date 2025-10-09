@@ -205,7 +205,9 @@ public class DestinationTest {
 			
 			PowerMockito.when(mockedDestinationXMLElement.getAttributeValue(Matchers.anyString()))
 				.thenReturn("LDAPTarget")
-				.thenReturn("ldap");
+				.thenReturn("ldap")
+                .thenReturn("1000") // connect timeout
+                .thenReturn("5000"); // read timeout
 			
 			PowerMockito.when(mockedDestinationXMLElement.getChildText(Matchers.anyString()))			
 				.thenReturn("com.sun.jndi.ldap.LdapCtxFactory")
