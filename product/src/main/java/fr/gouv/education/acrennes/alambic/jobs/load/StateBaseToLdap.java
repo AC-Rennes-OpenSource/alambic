@@ -141,8 +141,7 @@ public class StateBaseToLdap extends AbstractDestination {
 					}
 				} catch (final Exception e) {
 					jobActivity.setTrafficLight(ActivityTrafficLight.RED);
-					log.error("MAJ de l'entrée [" + currentResult.toString() + "] ERREUR LDAP");
-					log.error("Erreur ldap sur l'élément " + xmlNode.getText(), e);
+					log.error("MAJ de l'entrée [" + currentResult.toString() + "] ERREUR LDAP sur l'élément " + xmlNode.getText() + " : " + e.getMessage(), e);
 				}
 				currentPivotEntriesIndex++;
 			}
