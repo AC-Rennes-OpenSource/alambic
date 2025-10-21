@@ -17,6 +17,7 @@
 package fr.gouv.education.acrennes.alambic.jobs.extract.clients;
 
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
@@ -149,8 +150,9 @@ public class WSToStateBase implements IToStateBase {
             
             try (CloseableHttpResponse response = this.httpClient.execute(request)) {
             	if (wsapi.isSuccessful(response)) {
-                    if (response.getEntity() != null && response.getEntity().getContent() != null) {
-                        String body = IOUtils.toString(response.getEntity().getContent(), Charsets.UTF_8);
+                    InputStream responseContent = response.getEntity().getContent();
+                    if (response.getEntity() != null && responseContent != null) {
+                        String body = IOUtils.toString(responseContent, Charsets.UTF_8);
                         if (StringUtils.isNotBlank(body)) {
                             Map<String, List<String>> item = new HashMap<>();
                             item.put("item", Collections.singletonList(body));
