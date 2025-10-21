@@ -25,6 +25,7 @@ import static org.eclipse.persistence.config.PersistenceUnitProperties.TARGET_SE
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import java.nio.file.FileSystems;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -293,8 +294,13 @@ public class APIAlambic implements IAPIAlambic {
         	
         	if (!Files.exists(outputPath)) {
         		// TODO les permissions ne semblent pas appliquées sur le dossier créé ?
-        		final Set<PosixFilePermission> permissions = PosixFilePermissions.fromString("rwxr-xr-x");
-        		Files.createDirectory(outputPath, PosixFilePermissions.asFileAttribute(permissions));
+                if (FileSystems.getDefault().supportedFileAttributeViews().contains("posix")) {
+                    final Set<PosixFilePermission> permissions = PosixFilePermissions.fromString("rwxr-xr-x");
+                    Files.createDirectory(outputPath, PosixFilePermissions.asFileAttribute(permissions));
+                } else {
+                    // Windows fallback without directory permissions definition
+                    Files.createDirectory(outputPath);
+                }
         	}
         }
 
