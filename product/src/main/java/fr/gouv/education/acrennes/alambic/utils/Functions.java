@@ -57,10 +57,13 @@ import javax.naming.directory.SearchControls;
 import javax.naming.directory.SearchResult;
 
 import fr.gouv.education.acrennes.alambic.Constants;
+import fr.gouv.education.acrennes.alambic.api.APIAlambic;
 import fr.gouv.education.acrennes.alambic.exception.AlambicException;
 import fr.gouv.education.acrennes.alambic.freemarker.AlambicObjectWrapper;
 import fr.gouv.education.acrennes.alambic.generator.service.RandomGenerator;
 import fr.gouv.education.acrennes.alambic.generator.service.RandomGeneratorService;
+import fr.gouv.education.acrennes.alambic.jobs.CallableContext;
+import fr.gouv.education.acrennes.alambic.jobs.JobContext;
 import fr.gouv.education.acrennes.alambic.jobs.extract.clients.SqlToStateBase;
 import fr.gouv.education.acrennes.alambic.random.persistence.RandomEntity;
 import fr.gouv.education.acrennes.alambic.security.CipherHelper;
@@ -125,12 +128,16 @@ public class Functions {
     }
 
     private final Pattern functionPattern;
+    private final CallableContext context;
 
     private Functions() {
         cfg = new Configuration(Constants.FREEMARKER_VERSION);
         cfg.setURLEscapingCharset(Charsets.UTF_8.toString()); // to allow URL escaping
         cfg.setObjectWrapper(new AlambicObjectWrapper());
         functionPattern = Pattern.compile("\\(([a-zA-Z\\.0-9 ]+)([ ]*mem='([^\\ ']*)?'[ ]*)?\\)(.+?)\\(/\\1\\)");
+
+        // Init a context without document to read config.properties values and use them in this Functions singleton
+        context = new JobContext("./", null, APIAlambic.getFileStaticVariables(), Config.getProperties());
     }
 
     public static Functions getInstance() {
@@ -411,6 +418,7 @@ public class Functions {
                         environment.setProperty(Context.PROVIDER_URL, unicityMatcher.group(8));
                         environment.setProperty(Context.SECURITY_PRINCIPAL, unicityMatcher.group(4));
                         environment.setProperty(Context.SECURITY_CREDENTIALS, unicityMatcher.group(6));
+                        LdapUtils.setEnvironmentConfigTimeouts(context, environment);
                     } else {
                         LOG.debug("No credential or password provided");
                     }
@@ -767,9 +775,10 @@ public class Functions {
         final String attr = v[1];
         String res = "-1";
         try {
-            final Hashtable<String, Object> env = new Hashtable<>(11);
+            final Properties env = new Properties();
             env.put(Context.INITIAL_CONTEXT_FACTORY, "com.sun.jndi.ldap.LdapCtxFactory");
             env.put(Context.PROVIDER_URL, dn);
+            LdapUtils.setEnvironmentConfigTimeouts(context, env);
             final DirContext ctx = getDirContext(env);
             try {
                 if (ctx != null) {
