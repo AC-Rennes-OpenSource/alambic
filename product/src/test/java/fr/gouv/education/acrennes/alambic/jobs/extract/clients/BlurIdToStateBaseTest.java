@@ -418,6 +418,125 @@ public class BlurIdToStateBaseTest extends TestCase {
 		Assert.assertTrue(blurId1.equalsIgnoreCase(blurId2));
 	}
 
+	/**
+	 * Use case :
+	 * - Two blur identifiers are requested
+	 * - The strategy CIVILITY_FIRSTNAME_LASTNAME is requested
+	 * - The two entities deals with the same person but not the same phone number
+	 * - Hence, only the strategy CIVILITY_FIRSTNAME_LASTNAME permit to recover the previously built blur identifier
+	 */
+	@Test
+	public void test11() throws AlambicException {
+		// First query to get a blur identifier
+		String jsonQuery = "{"
+				+ "\"blur_mode\":\"SIGNATURE\","
+				+ "\"processId\":\"one-process-id\","
+				+ "\"key\":\"TESTU\","
+				+ "\"id\":\"12345\","
+				+ "\"firstName\":\"Guy\","
+				+ "\"lastName\":\"Tariste\","
+				+ "\"civility\":\"M.\","
+				+ "\"phones\":[\"06.01.02.03.04\"],"
+				+ "\"strategies\":[\"CIVILITY_FIRSTNAME_LASTNAME\"]"
+				+ "}";
+		bitsb.executeQuery(jsonQuery);
+		List<Map<String, List<String>>> sb = bitsb.getStateBase();
+		Assert.assertEquals(1, sb.size());
+		final String blurId1 = sb.get(0).get("blurId").get(0);
+		Assert.assertTrue(blurId1.matches(".{8}-.{4}-.{4}-.{4}-.{12}"));
+
+		// Second query to get a blur identifier
+		jsonQuery = "{"
+				+ "\"blur_mode\":\"SIGNATURE\","
+				+ "\"processId\":\"one-process-id\","
+				+ "\"key\":\"TESTU\","
+				+ "\"id\":\"12345\","
+				+ "\"firstName\":\"Guy\","
+				+ "\"lastName\":\"Tariste\","
+				+ "\"civility\":\"M.\","
+				+ "\"phones\":[\"07.02.03.04.05\"],"
+				+ "\"strategies\":[\"CIVILITY_FIRSTNAME_LASTNAME\"]"
+				+ "}";
+		bitsb.executeQuery(jsonQuery);
+		sb = bitsb.getStateBase();
+		Assert.assertEquals(1, sb.size());
+		final String blurId2 = sb.get(0).get("blurId").get(0);
+		Assert.assertTrue(blurId2.matches(".{8}-.{4}-.{4}-.{4}-.{12}"));
+		Assert.assertTrue(blurId2.equalsIgnoreCase(blurId1));
+	}
+
+	/**
+	 * Use case :
+	 * - Two blur identifiers are requested
+	 * - The strategy CIVILITY_FIRSTNAME_LASTNAME is NOT requested
+	 * - The two entities deals with the same person but not the same phone number
+	 * - Hence, the previously built blur identifier won't be recovered
+	 */
+	@Test
+	public void test12() throws AlambicException {
+		// First query to get a blur identifier
+		String jsonQuery = "{"
+				+ "\"blur_mode\":\"SIGNATURE\","
+				+ "\"processId\":\"one-process-id\","
+				+ "\"key\":\"TESTU\","
+				+ "\"id\":\"12345\","
+				+ "\"firstName\":\"Guy\","
+				+ "\"lastName\":\"Tariste\","
+				+ "\"civility\":\"M.\","
+				+ "\"phones\":[\"06.01.02.03.04\"]"
+				+ "}";
+		bitsb.executeQuery(jsonQuery);
+		List<Map<String, List<String>>> sb = bitsb.getStateBase();
+		Assert.assertEquals(1, sb.size());
+		final String blurId1 = sb.get(0).get("blurId").get(0);
+		Assert.assertTrue(blurId1.matches(".{8}-.{4}-.{4}-.{4}-.{12}"));
+
+		// Second query to get a blur identifier
+		jsonQuery = "{"
+				+ "\"blur_mode\":\"SIGNATURE\","
+				+ "\"processId\":\"one-process-id\","
+				+ "\"key\":\"TESTU\","
+				+ "\"id\":\"12345\","
+				+ "\"firstName\":\"Guy\","
+				+ "\"lastName\":\"Tariste\","
+				+ "\"civility\":\"M.\","
+				+ "\"phones\":[\"07.02.03.04.05\"]"
+				+ "}";
+		bitsb.executeQuery(jsonQuery);
+		sb = bitsb.getStateBase();
+		Assert.assertEquals(1, sb.size());
+		final String blurId2 = sb.get(0).get("blurId").get(0);
+		Assert.assertTrue(blurId2.matches(".{8}-.{4}-.{4}-.{4}-.{12}"));
+		Assert.assertFalse(blurId2.equalsIgnoreCase(blurId1));
+	}
+
+	/**
+	 * Use case :
+	 * - one blur identifier is requested
+	 * - The strategy CIVILITY_FIRSTNAME_LASTNAME_PHONES is requested ONLY
+	 * - A single signature is produced
+	 */
+	@Test
+	public void test13() throws AlambicException {
+		// First query to get a blur identifier
+		String jsonQuery = "{"
+				+ "\"blur_mode\":\"SIGNATURE\","
+				+ "\"processId\":\"one-process-id\","
+				+ "\"key\":\"TESTU\","
+				+ "\"id\":\"12345\","
+				+ "\"firstName\":\"Guy\","
+				+ "\"lastName\":\"Tariste\","
+				+ "\"civility\":\"M.\","
+				+ "\"phones\":[\"06.01.02.03.04\"],"
+				+ "\"strategies\":[\"CIVILITY_FIRSTNAME_LASTNAME_PHONES\"]"
+				+ "}";
+		bitsb.executeQuery(jsonQuery);
+		List<Map<String, List<String>>> sb = bitsb.getStateBase();
+		Assert.assertEquals(1, sb.size());
+		final String blurId1 = sb.get(0).get("blurId").get(0);
+		Assert.assertTrue(blurId1.matches(".{8}-.{4}-.{4}-.{4}-.{12}"));
+	}
+	
 	@Override
 	@After
 	public void tearDown() {
@@ -426,7 +545,7 @@ public class BlurIdToStateBaseTest extends TestCase {
 		 * This is not visible when running the tests within Eclipse environment (launcher) but it is when packaging
 		 * the project with maven.
 		 */
-		EntityManagerHelper.close();
+		//EntityManagerHelper.close(); already done !
 	}
 
 }
