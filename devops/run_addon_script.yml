@@ -6,11 +6,10 @@
 
   vars:
     env_name: "{{ inventory_dir | regex_replace('.+/([^/]+)+$', '\\1') }}"
-    addon_dir: "{{ playbook_dir }}/{{ addon_name }}"
+    addon_dir: "{{ ansible_env.HOME }}/opt/etl/addons/{{ addon_name }}"
 
   roles:
     - ask_confirmation
-    - load_env_vars
     - run_addon_script
 
   environment:
@@ -24,3 +23,4 @@
     BASEX_API_BASIC_AUTH_TOKEN: "{{ BASEX_API_BASIC_AUTH_TOKEN }}"
     ELASTIC_API_URL: "{{ ELASTIC_API_URL | default('') }}"
     ELASTIC_API_BASIC_AUTH_TOKEN: "{{ ELASTIC_API_BASIC_AUTH_TOKEN | default('') }}"
+    CLES_ANO_GIT: "{{ CLES_ANO_GIT }}"
