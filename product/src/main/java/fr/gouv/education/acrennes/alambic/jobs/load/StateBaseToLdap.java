@@ -16,17 +16,17 @@
  ******************************************************************************/
 package fr.gouv.education.acrennes.alambic.jobs.load;
 
-import java.util.Hashtable;
 import java.util.List;
 import java.util.Map;
+import java.util.Properties;
 
-import javax.naming.Context;
 import javax.naming.NamingException;
 import javax.naming.directory.DirContext;
 import javax.naming.directory.InitialDirContext;
 import javax.naming.directory.SearchControls;
 
 import fr.gouv.education.acrennes.alambic.exception.AlambicException;
+import fr.gouv.education.acrennes.alambic.utils.LdapUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -63,34 +63,7 @@ public class StateBaseToLdap extends AbstractDestination {
 	public StateBaseToLdap(final CallableContext context, final Element destinationNode, final ActivityMBean jobActivity) throws AlambicException {
 		super(context, destinationNode, jobActivity);
 
-		String driver = destinationNode.getChildText("driver");
-		if (StringUtils.isNotBlank(driver)) {
-			driver = context.resolveString(driver);
-		} else {
-			driver = "com.sun.jndi.ldap.LdapCtxFactory";
-		}
-
-		String uri = destinationNode.getChildText("uri");
-		if (StringUtils.isNotBlank(uri)) {
-			uri = context.resolveString(uri);
-		} else {
-			throw new AlambicException("l'uri de l'annuaire n'est pas precisée");
-		}
-
-		String login = destinationNode.getChildText("login");
-		if (StringUtils.isNotBlank(login)) {
-			login = context.resolveString(login);
-		} else {
-			throw new AlambicException("le login de l'annuaire n'est pas precisé");
-		}
-
-		String pwd = destinationNode.getChildText("passwd");
-		if (StringUtils.isNotBlank(pwd)) {
-			pwd = context.resolveString(pwd);
-		} else {
-			throw new AlambicException("le mot de passe de l'annuaire n'est pas precisé");
-		}
-
+        final Properties confLdap = LdapUtils.getLdapConfiguration(context, destinationNode, true);
 		this.fichierPivot = destinationNode.getChildText("pivot");
 		if (StringUtils.isNotBlank(this.fichierPivot)) {
 			this.fichierPivot = context.resolvePath(this.fichierPivot);
@@ -101,12 +74,6 @@ public class StateBaseToLdap extends AbstractDestination {
 		// LDAP configuration & context initialization (uniquement si nécessaire)
 		try {
 			if (isAnythingToDo().equals(IsAnythingToDoStatus.YES)) {
-				final Hashtable<String, String> confLdap = new Hashtable<>(5);
-				confLdap.put(Context.INITIAL_CONTEXT_FACTORY, driver);
-				confLdap.put(Context.PROVIDER_URL, uri);
-				confLdap.put(Context.SECURITY_PRINCIPAL, login);
-				confLdap.put(Context.SECURITY_CREDENTIALS, pwd);
-				confLdap.put("com.sun.jndi.ldap.connect.pool", "true");
 				ctx = new InitialDirContext(confLdap);
 				contraintes.setSearchScope(SearchControls.ONELEVEL_SCOPE);
 				// Configuration du pivot
@@ -174,8 +141,7 @@ public class StateBaseToLdap extends AbstractDestination {
 					}
 				} catch (final Exception e) {
 					jobActivity.setTrafficLight(ActivityTrafficLight.RED);
-					log.error("MAJ de l'entrée [" + currentResult.toString() + "] ERREUR LDAP");
-					log.error("Erreur ldap sur l'élément " + xmlNode.getText(), e);
+					log.error("MAJ de l'entrée [" + currentResult.toString() + "] ERREUR LDAP sur l'élément " + xmlNode.getText() + " : " + e.getMessage(), e);
 				}
 				currentPivotEntriesIndex++;
 			}

@@ -603,6 +603,7 @@ public class Entry {
 	 * Méthode évaluant le contenu de l'attribut value et traitant les cas
 	 * -- foreachStateBase
 	 * -- ldap://
+	 * -- ldaps://
 	 * --
 	 */
 	private Attribute processListValues(final Attribute attrLdap, final List<Element> values) throws AlambicException {
@@ -639,13 +640,13 @@ public class Entry {
 				final ForeachElement foreachElement = new ForeachElement(foreachStateBaseElement, stateBaseList);
 				for (String s : foreachElement.getValues()) {
 					s = variables.resolvString(s);
-					if (s.startsWith("ldap://")) {
+					if (s.startsWith("ldap://") || s.startsWith("ldaps://")) {
 						executeLdapQuery(attrLdap, s, DN);
 					} else {
 						attrLdap.add(variables.resolvString(s));
 					}
 				}
-			} else if (valueString.startsWith("ldap://")) {
+			} else if (valueString.startsWith("ldap://") || valueString.startsWith("ldaps://")) {
 				/*
 				 * Itération sur l'execusion d'une requète LDAP
 				 */

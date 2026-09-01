@@ -37,6 +37,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Matchers;
 import org.powermock.api.mockito.PowerMockito;
+import org.powermock.core.classloader.annotations.PowerMockIgnore;
 import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.modules.junit4.PowerMockRunner;
 
@@ -45,6 +46,7 @@ import fr.gouv.education.acrennes.alambic.utils.Functions;
 
 @RunWith(PowerMockRunner.class)
 @PrepareForTest({ Functions.class, UUID.class })
+@PowerMockIgnore({ "javax.management.*" })
 public class FunctionsTest {
 
 	private InitialDirContext mockedDirContext;
@@ -947,6 +949,29 @@ public class FunctionsTest {
 			);
 			// we reuse missing value
 			Assert.assertEquals("1jacqueline.simpson", value);
+		} catch (final Exception e) {
+			System.out.println(e.getMessage());
+			Assert.fail();
+		}
+	}
+
+	/*  test use case: check unicity function ldaps support */
+	@Test
+	public void test43() {
+		try {
+			PowerMockito.when(mockedDirContext.search(Matchers.anyString(), Matchers.anyString(), Matchers.any(SearchControls.class))).
+					thenReturn(getResultSet(new String[] {
+							"uid=marge.simpson;uidinit=marge.simpson",
+							"uid=marge.simpson1;uidinit=marge.simpson1",
+					}));
+
+			final String value = Functions.getInstance().executeAllFunctions(
+					"(UNICITY)" +
+							"ldaps://ldap-pp.in.ac-rennes.fr:636/ou=personnes,dc=ent-bretagne,dc=fr??sub?" +
+							"(&(|(uid=marge.simpson*)(uidinit=marge.simpson*))(territorycode=014))" +
+							"(/UNICITY)"
+			);
+			Assert.assertEquals("marge.simpson2", value);
 		} catch (final Exception e) {
 			System.out.println(e.getMessage());
 			Assert.fail();

@@ -26,6 +26,8 @@ import java.io.Writer;
 import java.net.URLDecoder;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.text.Normalizer;
@@ -53,6 +55,7 @@ import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
 
 import org.apache.commons.codec.binary.Base64;
+import org.apache.commons.codec.binary.Hex;
 import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.commons.lang.SerializationUtils;
 import org.apache.commons.lang.StringEscapeUtils;
@@ -647,4 +650,9 @@ public class FMFunctions {
 		return dataHashed;
 	}
 
+	public String getBinaryHexBytesFromFilePath(String imagePath) throws IOException {
+		/*For reasons of readability, compatibility and SQL standardization we use the uppercase method */
+		byte[] imageBytes = Files.readAllBytes(Paths.get(imagePath));
+		return Hex.encodeHexString(imageBytes).toUpperCase();
+	}
 }

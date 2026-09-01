@@ -57,7 +57,6 @@
     async: "{{ job_timeout | default(3600) }}"
     poll: "{{ job_poll_period | default(0) }}"
     when: "'False' == (debug_mode | default('False'))"
-    environment: "{{ addon_env }}"
 
   - name: Run the script {{ script_file_name | default('script.sh') }} in debug mode (wait for up {{ job_timeout | default(3600) }} sec, poll every {{ job_poll_period | default(0) }} sec)
     shell: "./{{ script_file_name | default('script.sh') }} -d {{ script_parameters | default('') }} > {{ script_file_name | default('script.sh') }}.log 2>&1"
@@ -66,4 +65,3 @@
     async: "{{ job_timeout | default(3600) }}"
     poll: "{{ job_poll_period | default(0) }}"
     when: "'True' == (debug_mode | default('False'))"
-    environment: "{{ addon_env }}"

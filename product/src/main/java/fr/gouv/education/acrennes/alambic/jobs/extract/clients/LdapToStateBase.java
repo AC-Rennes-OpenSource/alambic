@@ -21,12 +21,11 @@ import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
-import java.util.Hashtable;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Properties;
 
-import javax.naming.Context;
 import javax.naming.NamingEnumeration;
 import javax.naming.NamingException;
 import javax.naming.directory.Attribute;
@@ -55,17 +54,16 @@ public class LdapToStateBase implements IToStateBase {
 
 	private List<Map<String, List<String>>> results = new ArrayList<>();
 	private NamingEnumeration<SearchResult> searchResultSet;
-	private final Hashtable<String, String> confLdap = new Hashtable<>();
+	private final Properties confLdap;
 	private final SearchControls contraintes = new SearchControls();
 	private DirContext ctx = null;
 	private LDAPResultsPageIterator pageIterator;
 
-	public LdapToStateBase(final String driver, final String url, final String login, final String pwd, final String attributeList[]) {
-		confLdap.put(Context.INITIAL_CONTEXT_FACTORY, driver);
-		confLdap.put(Context.PROVIDER_URL, url);
-		confLdap.put(Context.SECURITY_PRINCIPAL, login);
-		confLdap.put(Context.SECURITY_CREDENTIALS, pwd);
-
+	public LdapToStateBase(
+            final Properties confLdap,
+            final String[] attributeList
+    ) {
+        this.confLdap = confLdap;
 		try {
 			ctx = new InitialDirContext(confLdap);
 		} catch (NamingException e) {
@@ -206,7 +204,7 @@ public class LdapToStateBase implements IToStateBase {
 		private boolean isInitialization;
 		private final String sortBy;
 
-		public LDAPResultsPageIterator(final Hashtable<String, String> environment, final SearchControls controls, final String query, final String scope, final int pageSize,
+		public LDAPResultsPageIterator(final Properties environment, final SearchControls controls, final String query, final String scope, final int pageSize,
 				final String sortBy) {
 			offset = 1;
 			total = 0;

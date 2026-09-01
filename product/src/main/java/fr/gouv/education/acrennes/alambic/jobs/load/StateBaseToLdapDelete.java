@@ -16,15 +16,15 @@
  ******************************************************************************/
 package fr.gouv.education.acrennes.alambic.jobs.load;
 
-import java.util.Hashtable;
 import java.util.List;
 import java.util.Map;
-import javax.naming.Context;
+import java.util.Properties;
 import javax.naming.NamingException;
 import javax.naming.directory.DirContext;
 import javax.naming.directory.InitialDirContext;
 
 import fr.gouv.education.acrennes.alambic.exception.AlambicException;
+import fr.gouv.education.acrennes.alambic.utils.LdapUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -51,34 +51,8 @@ public class StateBaseToLdapDelete extends AbstractDestination {
 	public StateBaseToLdapDelete(final CallableContext context, final Element destinationNode, final ActivityMBean jobActivity) throws AlambicException {
 		super(context, destinationNode, jobActivity);
 		count = 0;
-
-		String driver = destinationNode.getChildText("driver");
-		if (StringUtils.isNotBlank(driver)) {
-			driver = context.resolveString(driver);
-		} else {
-			driver = "com.sun.jndi.ldap.LdapCtxFactory";
-		}
-
-		String uri = destinationNode.getChildText("uri");
-		if (StringUtils.isNotBlank(uri)) {
-			uri = context.resolveString(uri);
-		} else {
-			throw new AlambicException("l'uri de l'annuaire n'est pas precisée");
-		}
-
-		String login = destinationNode.getChildText("login");
-		if (StringUtils.isNotBlank(login)) {
-			login = context.resolveString(login);
-		} else {
-			throw new AlambicException("le login de l'annuaire n'est pas precisé");
-		}
-
-		String pwd = destinationNode.getChildText("passwd");
-		if (StringUtils.isNotBlank(pwd)) {
-			pwd = context.resolveString(pwd);
-		} else {
-			throw new AlambicException("le mot de passe de l'annuaire n'est pas precisé");
-		}
+        // LDAP configuration
+        final Properties confLdap = LdapUtils.getLdapConfiguration(context, destinationNode, true);
 
 		rdnAttributeName = destinationNode.getChildText("rdnAttrName");
 		if (StringUtils.isNotBlank(rdnAttributeName)) {
@@ -88,13 +62,7 @@ public class StateBaseToLdapDelete extends AbstractDestination {
 		}
 
 		try {
-			// LDAP configuration & context initialization
-			final Hashtable<String, String> confLdap = new Hashtable<>(5);
-			confLdap.put(Context.INITIAL_CONTEXT_FACTORY, driver);
-			confLdap.put(Context.PROVIDER_URL, uri);
-			confLdap.put(Context.SECURITY_PRINCIPAL, login);
-			confLdap.put(Context.SECURITY_CREDENTIALS, pwd);
-			confLdap.put("com.sun.jndi.ldap.connect.pool", "true");
+			// LDAP context initialization
 			ctx = new InitialDirContext(confLdap);
 		} catch (final Exception e) {
 			throw new AlambicException(e.getMessage());

@@ -38,7 +38,7 @@ public class JobContext implements CallableContext {
 
 	public JobContext() {}
 
-	public JobContext(final String executionPath, final Document document, final Variables variables, final Properties configuration) throws AlambicException {
+	public JobContext(final String executionPath, final Document document, final Variables variables, final Properties configuration) {
 		this.jobsDocument = document;
 		
 		// Initialize the execution path
@@ -79,7 +79,11 @@ public class JobContext implements CallableContext {
 			this.variables.put(ETL_JDBC_LOGIN, (String) configuration.get(ETL_CFG_JDBC_LOGIN));
 			this.variables.put(ETL_JDBC_PASSWORD, (String) configuration.get(ETL_CFG_JDBC_PASSWORD));
 			log.debug(String.format("Loaded database configuration - driver:%s, url:%s, login:%s", this.variables.getHashMap().get(ETL_JDBC_DRIVER), this.variables.getHashMap().get(ETL_JDBC_URL), this.variables.getHashMap().get(ETL_JDBC_LOGIN)));
-		}
+
+            // Set the LDAP timeouts in variables to render them accessible for all jobs
+            this.variables.put(ETL_LDAP_CONNECT_TIMEOUT, (String) configuration.get(ETL_CFG_LDAP_CONNECT_TIMEOUT));
+            this.variables.put(ETL_LDAP_READ_TIMEOUT, (String) configuration.get(ETL_CFG_LDAP_READ_TIMEOUT));
+        }
 	}
 
 	@Override

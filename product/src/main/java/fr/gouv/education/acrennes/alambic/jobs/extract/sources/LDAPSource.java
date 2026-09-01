@@ -19,11 +19,13 @@ package fr.gouv.education.acrennes.alambic.jobs.extract.sources;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Properties;
 
 import fr.gouv.education.acrennes.alambic.exception.AlambicException;
 import fr.gouv.education.acrennes.alambic.jobs.CallableContext;
 import fr.gouv.education.acrennes.alambic.jobs.extract.clients.LdapToStateBase;
 import fr.gouv.education.acrennes.alambic.utils.Functions;
+import fr.gouv.education.acrennes.alambic.utils.LdapUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -58,28 +60,7 @@ public class LDAPSource extends AbstractSource {
 			listeAttributs = attributesString.split(",");
 		}
 
-		String driver = sourceNode.getChildText("driver") == null ? "com.sun.jndi.ldap.LdapCtxFactory" : context.resolveString(sourceNode.getChildText("driver"));
-
-		String uri = sourceNode.getChildText("uri");
-		if (uri == null) {
-			log.error("l'uri de l'annuaire n'est pas precisee");
-		} else {
-			uri = context.resolveString(uri);
-		}
-
-		String login = sourceNode.getChildText("login");
-		if (login == null) {
-			log.error("le login de l'annuaire n'est pas precise");
-		} else {
-			login = context.resolveString(login);
-		}
-
-		String pwd = sourceNode.getChildText("passwd");
-		if (pwd == null) {
-			log.error("le mot de passe de l'annuaire n'est pas precise");
-		} else {
-			pwd = context.resolveString(pwd);
-		}
+        final Properties confLdap = LdapUtils.getLdapConfiguration(context, sourceNode, false);
 
 		scope = sourceNode.getChildText("scope");
 		if (StringUtils.isNotBlank(scope)) {
@@ -97,7 +78,7 @@ public class LDAPSource extends AbstractSource {
 			}
 		}
 
-		setClient(new LdapToStateBase(driver, uri, login, pwd, listeAttributs));
+		setClient(new LdapToStateBase(confLdap, listeAttributs));
 	}
 
 	@Override
